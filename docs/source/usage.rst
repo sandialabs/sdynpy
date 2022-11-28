@@ -6,44 +6,8 @@ Usage
 Installation
 ------------
 
-To use SDynPy, first download it from the 
-`CEE-GitLab page <https://cee-gitlab.sandia.gov/dprohe/structural-dynamics-python-libraries>`_.
-Once downloaded, you can install it by using :code:`pip`.
+Forthcoming...
 
-.. code-block:: console
-    
-   $ cd <download_directory_containing_setup.py>
-   $ pip install .
-   
-
-To install the package and the testing dependencies all at once via `pip` one can run
-
-::
-
-    python3 -m pip install .[testing] -i https://nexus.web.sandia.gov/repository/pypi-group/simple
-
-This will install the package as well as the dependencies required for testing.  The test-suite can then be run via
-
-::
-
-    pytest -m "not unwritten" tests/ --cov=src/sdynpy
-    
-Conda Install
-~~~~~~~~~~~~~
-
-After cloning the repo, you can setup a computational environment on your Linux blade with all the required dependencies for SDynPy by running the setup shell script::
-
-    source setup_SDynPy.sh
-
-This will load the latest Anaconda3 module, and install the various dependencies from the conda/pip sources on the Nexus Sandia server.
-
-.. note::
-    If not on your blade, you can still use the shell script (on Linux), but you will want to comment out the line `module load apps/anaconda3-2022.05`.  If you are working on a Windows OS, then you will want to open up a Conda terminal and simply run the conda commands referenced in the shell script.
-
-.. note::
-
-    If you utilized the `setup_SDynPy.sh` script, then the testing dependencies should also have been installed, so you can just execute the test commands as described above.
-   
 SDynPy Overview
 ---------------
 
