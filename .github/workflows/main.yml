@@ -18,11 +18,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install sdynpy
+      - name: install
         run: pip install .[testing]
-      - name: pycodestyle
-        run: pycodestyle src/sdynpy
       - name: pylint
-        run: python -m pylint --disable=C0103 --output-format=text src/sdynpy | tee lint.log || pylint-exit $?
+        run: python -m pylint --output-format=text src/sdynpy | tee lint.log || pylint-exit $?
       - name: pytest
         run: python -m pytest --verbose --cov=src/sdynpy --cov-report xml
