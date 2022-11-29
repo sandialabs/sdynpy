@@ -62,10 +62,10 @@ setup(
                  'jinja2>=3.0', 'nbsphinx',
                  'sphinx', 'sphinx-rtd-theme', 'sphinxcontrib-bibtex',
                  'sphinx-copybutton'],
-        'testing': ['pycodestyle', 'pytest', 'pytest-cov'],
+        'testing': ['pycodestyle', 'pylint', 'pytest', 'pytest-cov'],
         'all': ['docutils<0.18,>=0.14', 'ipykernel', 'ipython',
                 'jinja2>=3.0', 'nbsphinx',
-                'pycodestyle', 'pytest', 'pytest-cov',
+                'pycodestyle', 'pylint', 'pytest', 'pytest-cov',
                 'sphinx', 'sphinx-rtd-theme', 'sphinxcontrib-bibtex']},
     classifiers=['Natural Language :: English',
                  'Operating System :: Microsoft :: Windows :: Windows 10'
