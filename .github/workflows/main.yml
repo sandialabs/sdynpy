@@ -1,0 +1,26 @@
+name: main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+    steps:
+      - uses: actions/checkout@v2
+      - name: python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: install
+        run: pip install .[testing]
+      - name: pylint
+        run: python -m pylint --output-format=text src/sdynpy | tee lint.log || pylint-exit $?
+      - name: pytest
+        run: python -m pytest --verbose --cov=src/sdynpy --cov-report xml
