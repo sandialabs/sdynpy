@@ -1,8 +1,9 @@
 name: pages
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -26,11 +27,11 @@ jobs:
           curl "https://img.shields.io/badge/Pylint-${PYLINT_SCORE}-${COLOR}?logo=python&logoColor=FBE072" -o pylint.svg
       - name: build docs
         run: |
-          sphinx-build -b html source/ build/html/
-          sed -i -e "s/ module</</g" build/html/*.html
-          sed -i '/Built with/,/Docs<\/a>./d' build/html/*.html
-          mv build/html/ ../public/
-          mv ../pylint.svg ../public/
+          sphinx-build -b html docs/source/ docs/build/html/
+          sed -i -e "s/ module</</g" docs/build/html/*.html
+          sed -i '/Built with/,/Docs<\/a>./d' docs/build/html/*.html
+          mv docs/build/html/ public/
+          mv pylint.svg public/
   deploy:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-22.04
