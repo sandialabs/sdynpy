@@ -27,6 +27,7 @@ jobs:
           curl "https://img.shields.io/badge/Pylint-${PYLINT_SCORE}-${COLOR}?logo=python&logoColor=FBE072" -o pylint.svg
       - name: build docs
         run: |
+          sudo apt-get install pandoc
           sphinx-build -b html docs/source/ docs/build/html/
           sed -i -e "s/ module</</g" docs/build/html/*.html
           sed -i '/Built with/,/Docs<\/a>./d' docs/build/html/*.html
