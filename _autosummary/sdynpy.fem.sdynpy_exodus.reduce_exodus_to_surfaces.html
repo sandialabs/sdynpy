@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.fem.sdynpy_exodus.Exodus" href="sdynpy.fem.sdynpy_exodus.Exodus.html" />
+    <link rel="prev" title="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array" href="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_beam.html">sdynpy.fem.sdynpy_beam</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_dof.html">sdynpy.fem.sdynpy_dof</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.html">sdynpy.fem.sdynpy_exodus</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.extract_sharp_edges.html">sdynpy.fem.sdynpy_exodus.extract_sharp_edges</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.face_connectivity.html">sdynpy.fem.sdynpy_exodus.face_connectivity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array.html">sdynpy.fem.sdynpy_exodus.mesh_triangulation_array</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces"><code class="docutils literal notranslate"><span class="pre">reduce_exodus_to_surfaces()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.Exodus.html">sdynpy.fem.sdynpy_exodus.Exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html">sdynpy.fem.sdynpy_exodus.ExodusInMemory</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.subfield.html">sdynpy.fem.sdynpy_exodus.subfield</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusError.html">sdynpy.fem.sdynpy_exodus.ExodusError</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_shaker.html">sdynpy.fem.sdynpy_shaker</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.fem.html">sdynpy.fem</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.fem.sdynpy_exodus.html">sdynpy.fem.sdynpy_exodus</a></li>
+      <li class="breadcrumb-item active">sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-fem-sdynpy-exodus-reduce-exodus-to-surfaces">
+<h1>sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces<a class="headerlink" href="#sdynpy-fem-sdynpy-exodus-reduce-exodus-to-surfaces" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces">
+<span class="sig-name descname"><span class="pre">reduce_exodus_to_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fexo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_to_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables_to_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_midside_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#reduce_exodus_to_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces" title="Permalink to this definition"></a></dt>
+<dd><p>Convert exodus finite element models to surface elements</p>
+<p>This function converts specified volume meshes in an exodus file to surface
+meshes to ease computational complexity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fexo</strong> (<em>ExodusInMemory object</em><em> or </em><em>Exodus object</em>) – fexo should be an in-memory representation of the finite element mesh</p></li>
+<li><p><strong>blocks_to_transform</strong> (<em>iterable</em>) – blocks_to_transform includes all of the blocks that will be included
+in the output model</p></li>
+<li><p><strong>variables_to_transform</strong> (<em>iterable</em>) – variables_to_transform is a case-insensitive list of all variable names
+that will be kept in the final model</p></li>
+<li><p><strong>keep_midside_nodes</strong> (<em>bool</em>) – keep_midside_nodes specifies whether or not to transform quadratic
+elements into linear elements, discarding any non-corner nodes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fexo_out</strong> – An equivalent fexo reduced to the surface geometry.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ExodusInMemory object</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>TO ADD MORE ELEMENT TYPES, we need to define a volume element name that
+we will find in the exodus file, for example ‘tetra4’ or ‘hex20’, the
+number of nodes per face on the element, and a connectivity matrix that
+specifies how the faces are made from the nodes of the element.  For
+example a hex8 element has the following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="mi">8</span><span class="o">--------------</span><span class="mi">7</span>
+   <span class="o">/|</span>             <span class="o">/|</span>
+  <span class="o">/</span> <span class="o">|</span>            <span class="o">/</span> <span class="o">|</span>
+ <span class="o">/</span>  <span class="o">|</span>           <span class="o">/</span>  <span class="o">|</span>
+<span class="mi">5</span><span class="o">--------------</span><span class="mi">6</span>   <span class="o">|</span>
+<span class="o">|</span>   <span class="mi">4</span><span class="o">----------|---</span><span class="mi">3</span>
+<span class="o">|</span>  <span class="o">/</span>           <span class="o">|</span>  <span class="o">/</span>
+<span class="o">|</span> <span class="o">/</span>            <span class="o">|</span> <span class="o">/</span>
+<span class="o">|/</span>             <span class="o">|/</span>
+<span class="mi">1</span><span class="o">--------------</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>So the 6 faces are as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span>
+<span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">6</span>
+<span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span>
+<span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span>
+<span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span>
+<span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span>
+</pre></div>
+</div>
+<p>We create the element face connectivity by simply mashing these together
+one after another like so: 1,2,6,5,2,3,7,6,3,4,8,7,4,1,5,8,4,3,2,1,5,6,7,8
+We lastly need to specify what we are turning the element into, in this
+case, quad4.
+So we add an entry to the reduce_element_types,
+reduce_element_nodes_per_face, reduce_element_face, and
+reduce_element_substitute_type variables containing this information
+hex8:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">reduce_element_types</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span> <span class="o">=</span> <span class="s1">&#39;hex8&#39;</span>
+<span class="n">reduce_element_nodes_per_face</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">reduce_element_face</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">reduce_element_substitute_type</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span> <span class="o">=</span> <span class="s1">&#39;quad4&#39;</span>
+</pre></div>
+</div>
+<p>To see what other elements look like, see page 18 of the exodusII manual:
+<a class="reference external" href="http://prod.sandia.gov/techlib/access-control.cgi/1992/922137.pdf">http://prod.sandia.gov/techlib/access-control.cgi/1992/922137.pdf</a></p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array.html" class="btn btn-neutral float-left" title="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.fem.sdynpy_exodus.Exodus.html" class="btn btn-neutral float-right" title="sdynpy.fem.sdynpy_exodus.Exodus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

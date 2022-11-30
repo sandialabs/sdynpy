@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Tutorial 01: What is modal analysis? &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Modal Tutorial 02: Basics of Vibrations" href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html" />
+    <link rel="prev" title="Modal Tutorials" href="../../modal_tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modal Tutorial 01: What is modal analysis?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#So-what-is-Modal-Analysis?">So what is Modal Analysis?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#How-do-we-find-the-modes-of-the-system?">How do we find the modes of the system?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html">Modal Tutorial 02: Basics of Vibrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.html">Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html">Modal Tutorial 04: Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_05_Experimental_Modal_Analysis/Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
+      <li class="breadcrumb-item active">Modal Tutorial 01: What is modal analysis?</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modal_tutorials/Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Modal-Tutorial-01:-What-is-modal-analysis?">
+<h1>Modal Tutorial 01: What is modal analysis?<a class="headerlink" href="#Modal-Tutorial-01:-What-is-modal-analysis?" title="Permalink to this heading"></a></h1>
+<p>Structural dynamics is the study of how structures respond to dynamic loading. By dynamic loading, we mean that the forces applied to the structure change over time, as opposed to a static load which remains constant over time. Examples of dynamic loading might be waves on a boat, wind loading on a turbine or an airplane, or a bumpy road on a car’s tires. Dynamic loading may also originate from inside the structure itself, for example from the engine of a car. The response to these loads is of
+utmost importance when designing a structure, as we will need to know if the structure can survive the loads. Failure can occur due to too much stress, strain, or deflection in a structure. Therefore, in order to design a structure, we typically need to know what loads will go into the structure, how the structure will respond to those loads, and what the physical limitations or failure methods of the structure are in order to ensure it will work in its service environment.</p>
+<section id="So-what-is-Modal-Analysis?">
+<h2>So what is Modal Analysis?<a class="headerlink" href="#So-what-is-Modal-Analysis?" title="Permalink to this heading"></a></h2>
+<p>Modal analysis is the study of the dynamic characteristics of a system independent from the loads applied to that system. Each “mode” of the structure has a specific frequency, damping, and deflection shape associated with it. The frequency of a mode is often called a “modal frequency”, “resonant frequency”, or “natural frequency”. The damping of each mode is often called “modal damping” and expressed as a fraction of critical damping. Finally, the shape associated with a mode is called the
+“mode shape” to differentiate it from more general deflection shapes, which could be associated with any kind of deflection of the system.</p>
+<p>Modal analysis will not tell you if your part will break or not. For that, like stated previously, you will need the loads of the system, the response of the system to those loads, and the failure methods of the structure. As an analogy: knowing the thickness of a beam does not tell you if that beam is going to break when you use it to hold up your roof, for that you would need to know the loads applied to the beam and the ultimate strength of the beam. The thickness of the beam is just a
+characteristic of the beam. This is similar to modal analysis. The natural frequency, modal damping, and mode shape of a structure is just a characteristic of the structure. So what use is modal analysis then? Well, in a similar way to the beam, where we can use the thickness of the beam to help compute the stress, strain, and deflection of the beam, we can use the modal properties to help us predict the dynamic response of a system, because all dynamic response is formed from a combination of
+the modes of the structure.</p>
+<p>This is a lot of words at this point, so let’s examine this more in depth with an example. At this point, don’t worry too much about the code in the next section, just focus on the results and the explanation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import matplotlib.pyplot as plt
+
+import sdynpy as sdpy
+import sdynpy.demo as demo
+
+plot_kwargs={&#39;node_size&#39;:1,&#39;view_from&#39;:[-1,1,1]}
+
+# Get the airplane system and geometry from the demo subpackage
+system = demo.beam_airplane.system
+geometry = demo.beam_airplane.geometry
+
+# Create a modal model to make integration faster
+shapes = system.eigensolution(maximum_frequency = 300)
+shapes.damping = 0.02
+modal_system = shapes[6:].system()
+
+# Create some loads that we will apply to the airplane
+sample_rate = 50
+num_samples = 500
+# We will assume load is coming in through the propeller and the wings
+load_locations = sdpy.coordinate_array(string_array=[&#39;101Y+&#39;,  # Propeller horizontal
+                                                     &#39;101Z+&#39;,  # Propeller vertical
+                                                     &#39;275Z+&#39;,  # Right Wing vertical
+                                                     &#39;249Z+&#39;]) # Left Wing Vertical
+load_signals = sdpy.generator.random(load_locations.shape,num_samples,dt=1/sample_rate)
+responses,loads = modal_system.time_integrate(load_signals,1/sample_rate,references=load_locations,
+                                             displacement_derivative=0,integration_oversample=10)
+
+# Draw the forces that we are putting into the structure
+geometry.plot_coordinate(load_locations,label_dofs=True,plot_kwargs=plot_kwargs)
+# Draw the response to the excitation on the structure
+geometry.plot_transient(responses,displacement_scale=200,plot_kwargs=plot_kwargs)
+# Plot the Responses
+ax = responses.plot()
+ax.set_ylabel(&#39;Displacement (m)&#39;)
+ax.set_xlabel(&#39;Time (s)&#39;)
+ax.set_title(&#39;Airplane Response to Loading&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+\\cee\dprohe\python_utilities\sdynpy\src\sdynpy\core\sdynpy_system.py:453: RuntimeWarning: invalid value encountered in true_divide
+  damping = np.diag(phi.T@self.C@phi)/(2*(2*np.pi*freq))
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1401: PyvistaDeprecationWarning: Use of `point_arrays` is deprecated. Use `point_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_1_1.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_1_1.png" />
+</div>
+</div>
+<p>Running the above code will pull an airplane model from the SDynPy demonstrations, apply several excitations to it, and get the responses. The responses are plotted in the figure above, with each colored line corresponding to a different location on the airplane. Two windows showing the geometry should also appear when the code is run, the first showing the excitation locations at the nose of the plane (due to the propeller) and on the wings (due to wind and turbulence).</p>
+<p><img alt="Beam Airplane Excitation Locations" src="../../_images/beam_airplane_excitation_locations.png" /></p>
+<p><strong>Excitation locations on the plane</strong></p>
+<p><img alt="Beam Airplane Deflection Shape" src="../../_images/beam_airplane_deflection_shape.png" /></p>
+<p><strong>A deflection shape of the plane at a single instance in time</strong></p>
+<p>Note the response is quite complex. There are a number of different signals all on top of one another. Some move quickly up and down, some move more slowly. It can be a real nightmare decoding this type of signal into meaningful results for your airplane! One way to get a better view of what is going on is to look in the frequency response of the signals. This allows us to look at which frequencies have the most response.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,2,figsize=(8,6))
+responses_fft = responses.fft()
+loads_fft = loads.fft()
+responses.plot(ax[0,1])
+loads.plot(ax[0,0])
+ax[1,1].plot(responses_fft.abscissa.T,np.abs(responses_fft.ordinate).T)
+ax[1,0].plot(loads_fft.abscissa.T,np.abs(loads_fft.ordinate).T)
+ax[0,0].set_title(&#39;Loads&#39;)
+ax[0,1].set_title(&#39;Responses&#39;)
+ax[0,0].set_ylabel(&#39;Time Response&#39;)
+ax[1,0].set_ylabel(&#39;Frequency Response&#39;)
+for a in ax[0]:
+    a.set_xlabel(&#39;Time (s)&#39;)
+for a in ax[1]:
+    a.set_xlabel(&#39;Frequency (Hz)&#39;)
+    #a.set_yscale(&#39;log&#39;)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_3_0.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_3_0.png" />
+</div>
+</div>
+<p>Transforming to the frequency domain reveals more information about our structure and its excitation. In particular, it shows us how the loads and responses to those loads are distributed in frequency. For the given example, we have applied reasonably “flat” excitation. The term flat refers to the fact that there are not very large “peaks” in the frequency domain. While there are some peaks in the data, they are not much larger than surrounding peaks, and the peaks are pretty uniformly
+distributed across the frequency domain. The frequency domain of the response on the other hand is very “peaky”. We see below 20 Hz there are big, distinct peaks at around 1, 4, 6, and 19 Hz. Clearly, the system is preferentially responding at specific frequencies; our force is not biased towards any specific frequency, but still we see the responses are biased towards specific frequencies. If this were a modal test, these peaks would likely be associated with modes of the system; but one must
+be careful! If the excitation is biased towards a given frequency (for example an imbalanced wind turbine spinning at a specific frequency or an engine running at a specific RPM), we may also see this excitation frequency as a peak in the response! Therefore, in order to characterize the modes of the system, we generally want to know both the excitation and the response to that excitation. <strong>Modal Analysis is the process by which modes of the system are identified and used to describe a dynamic
+system.</strong></p>
+</section>
+<section id="How-do-we-find-the-modes-of-the-system?">
+<h2>How do we find the modes of the system?<a class="headerlink" href="#How-do-we-find-the-modes-of-the-system?" title="Permalink to this heading"></a></h2>
+<p>Let’s consider again the airplane structure. Let’s apply a force to the tip of the left wing (<code class="docutils literal notranslate"><span class="pre">201Z+</span></code>), and measure the response at the tip of the right wing (<code class="docutils literal notranslate"><span class="pre">241Z+</span></code>). We can imagine the force is applied with a shaker and measured by a force sensor, and the response is measured using an accelerometer. We can apply force of a given frequency, and look at the response to that frequency.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Define the force locations
+force_location = sdpy.coordinate_array(string_array=[&#39;201Z+&#39;])
+response_location = sdpy.coordinate_array(string_array=[&#39;241Z+&#39;])
+geometry.plot_coordinate(np.concatenate((force_location,response_location)),
+                         label_dofs=True,plot_kwargs=plot_kwargs);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1401: PyvistaDeprecationWarning: Use of `point_arrays` is deprecated. Use `point_data` instead.
+  warnings.warn(
+</pre></div></div>
+</div>
+<p><img alt="Force and Response Locations" src="../../_images/wingtip_frequency_demonstration.png" /></p>
+<p>For this case, we will look at frequencies around that first peak in the frequency domain of the responses. We will excite the structure at 0.8 Hz, 1.2 Hz, and 1.6 Hz and see what the responses look like for each.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = [0.8,1.2,1.6]
+num_samples = sample_rate*50 # Make sure signal is long enough for the transient to die out
+fig,ax = plt.subplots(2,len(frequencies),figsize=(10,6),sharex=True,sharey=&#39;row&#39;)
+for frequency,a in zip(frequencies,ax.T):
+    load_signal = sdpy.generator.sine(frequency,1/sample_rate,num_samples)
+    responses,loads = modal_system.time_integrate(load_signal,1/sample_rate,
+                                                  responses=response_location,references=force_location,
+                                                  displacement_derivative=2,integration_oversample=10)
+    # Only plot the last second
+    loads.extract_elements(slice(-3*sample_rate,None)).plot(a[0])
+    responses.extract_elements(slice(-3*sample_rate,None)).plot(a[1])
+    a[0].set_title(&#39;Frequency: {:0.1f} Hz&#39;.format(frequency))
+    a[1].set_xlabel(&#39;Time (s)&#39;)
+ax[0,0].set_ylabel(&#39;Force (N)&#39;)
+ax[1,0].set_ylabel(&#39;Response (m/s$^2$)&#39;)
+
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_8_0.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_8_0.png" />
+</div>
+</div>
+<p>In the above plots, it is obvious that if we put in a constant amplitude sine wave of 1 N at different frequencies, the response amplitude does not stay fixed, which suggests that the system is amplifying or attenuating the force based on its frequency. One could imagine tracing out a frequency vs. amplitude curve by exciting the structure at a large number of frequencies; however, this would take a long time in practice. Instead, we can develop a single signal that sweeps through a frequency
+range of interest.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>chirp_signal = sdpy.generator.chirp(frequency_min = 0.125,
+                                    frequency_max = 20,
+                                    signal_length = 50,
+                                    dt = 1/sample_rate/10)
+chirp_responses,chirp_loads = modal_system.time_integrate(chirp_signal,1/sample_rate/10,
+                                                          responses=response_location,references=force_location,
+                                                          displacement_derivative=2)
+fig,ax = plt.subplots(2,1,figsize=(10,6),sharex=True)
+chirp_loads.plot(ax[0],plot_kwargs={&#39;linewidth&#39;:0.5})
+chirp_responses.plot(ax[1],plot_kwargs={&#39;linewidth&#39;:0.5})
+ax[0].set_ylabel(&#39;Force (N)&#39;)
+ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
+ax[1].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_title(&#39;Response to Increasing Excitation Frequency&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;Response to Increasing Excitation Frequency&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_10_1.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_10_1.png" />
+</div>
+</div>
+<p>The amplitude of response to this swept excitation demonstrates how the system amplifies or attenuates responses. We can see this better if we convert to the frequency domain and compute what is called the <strong>“Frequency Response Function”</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.arange(8*20)/8
+frequency_response_function = shapes[6:].compute_frf(frequencies,response_location,force_location)
+
+frequency_response_function.plot()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([&lt;AxesSubplot:ylabel=&#39;Phase&#39;&gt;, &lt;AxesSubplot:ylabel=&#39;Amplitude&#39;&gt;],
+      dtype=object)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_12_1.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_12_1.png" />
+</div>
+</div>
+<p>The Frequency Response Function or FRF can be thought of as the ratio of the response to the excitation, and therefore shows how much the excitation is amplified or attenuated by the structure. Peaks in the FRF generally correlate to modes of the structure, as it has already been normalized with respect to the force. If we overlay the time history from the sweep with the FRF, we will see that the peaks in the FRF correspond to frequencies in the sweep where the time histories are amplified.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig=plt.figure()
+ax=fig.add_subplot(111, label=&quot;1&quot;)
+ax2=fig.add_subplot(111, label=&quot;2&quot;, frame_on=False)
+
+ax.plot(
+    chirp_responses.abscissa.squeeze(),
+    chirp_responses.ordinate.squeeze(),
+    color=&quot;C0&quot;)
+ax.set_xlabel(&quot;Time (s)&quot;, color=&quot;C0&quot;)
+ax.set_ylabel(&quot;Response (m/s$^2$)&quot;, color=&quot;C0&quot;)
+ax.tick_params(axis=&#39;x&#39;, colors=&quot;C0&quot;)
+ax.tick_params(axis=&#39;y&#39;, colors=&quot;C0&quot;)
+
+ax2.plot(
+    frequency_response_function.abscissa.squeeze(),
+    np.abs(frequency_response_function.ordinate.squeeze()),
+    color=&quot;C1&quot;)
+ax2.xaxis.tick_top()
+ax2.yaxis.tick_right()
+ax2.set_xlabel(&#39;Frequency (Hz)&#39;, color=&quot;C1&quot;)
+ax2.set_ylabel(&#39;FRF (m/s$^2$/N)&#39;, color=&quot;C1&quot;)
+ax2.xaxis.set_label_position(&#39;top&#39;)
+ax2.yaxis.set_label_position(&#39;right&#39;)
+ax2.tick_params(axis=&#39;x&#39;, colors=&quot;C1&quot;)
+ax2.tick_params(axis=&#39;y&#39;, colors=&quot;C1&quot;)
+ax2.set_yscale(&#39;log&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_14_0.png" src="../../_images/modal_tutorials_Modal_01_What_is_Modal_Analysis_Modal_01_What_is_Modal_Analysis_14_0.png" />
+</div>
+</div>
+<p>Note that the FRF also contains a phase quantity, which specifies how much the response is shifted in time from the excitation. A phase of zero would mean that the response peaks when the excitation peaks. A phase of 90 degrees would mean that the response peaks when the force is zero, and the response is zero when the force peaks.</p>
+<p>Obvious from the above plot is the fact that each mode is associated with a specific frequency, as amplification of the response can be seen at these specific frequencies. However, perhaps more surprising is that each mode is also associated with a specific deformation pattern or “mode shape”. If instead of placing just one accelerometer on the wing tip, we instead put instruments all over the structure, we can look at the deflection patterns around each peak. The deflection shapes can be picked
+from the chirp time data or from the FRFs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>chirp_signal = sdpy.generator.chirp(frequency_min = 0.125,
+                                    frequency_max = 20,
+                                    signal_length = 50,
+                                    dt = 1/sample_rate/10)
+chirp_responses,chirp_loads = modal_system.time_integrate(chirp_signal,1/sample_rate/10,
+                                                          references=force_location,
+                                                          displacement_derivative=2)
+chirp_responses = chirp_responses.extract_elements(slice(None,None,10))
+frequencies = np.arange(8*20)/8+1/8
+frequency_response_function = shapes[6:].compute_frf(frequencies,references = force_location)
+
+geometry.plot_transient(chirp_responses,displacement_scale=10,plot_kwargs=plot_kwargs)
+geometry.plot_deflection_shape(frequency_response_function,plot_kwargs=plot_kwargs);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista\core\dataset.py:1541: PyvistaDeprecationWarning: Use of `cell_arrays` is deprecated. Use `cell_data` instead.
+  warnings.warn(
+</pre></div></div>
+</div>
+<p><img alt="Deflection Shape 1" src="../../_images/deflection_shape_1.png" /> <img alt="Deflection Shape 2" src="../../_images/deflection_shape_2.png" /> <img alt="Deflection Shape 3" src="../../_images/deflection_shape_3.png" /> <img alt="Deflection Shape 4" src="../../_images/deflection_shape_4.png" /> <img alt="Deflection Shape 5" src="../../_images/deflection_shape_5.png" /> <img alt="Deflection Shape 6" src="../../_images/deflection_shape_6.png" /></p>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading"></a></h2>
+<p>In this tutorial we covered some of the basics of modal analysis. We introduced an example system, applied some loads to it, and determined the system’s response to that load. The time response was quite complicated due to the complicated loads and their interaction with the system. We could make things a bit clearer by transforming to the frequency domain, but the results here are still a combination of system dynamics and excitation load. Instead, we moved to a different test setup where we
+apply a known or measured load to a system, which lets us normalize the responses to the loads applied. We saw that by sweeping across frequencies, we could trace out the amplitude of the system’s response vs. frequency. We introduced the frequency response function, or FRF, and found that we could pull modal frequencies and deflection shapes from the peaks. In the next tutorial, we will take a step back to a more simple problem, and discuss some of the theory behind vibration and modal
+analysis.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../modal_tutorials.html" class="btn btn-neutral float-left" title="Modal Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html" class="btn btn-neutral float-right" title="Modal Tutorial 02: Basics of Vibrations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

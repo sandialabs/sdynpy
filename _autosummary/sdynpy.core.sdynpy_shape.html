@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_shape.concatenate_dofs" href="sdynpy.core.sdynpy_shape.concatenate_dofs.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_matrix.Matrix" href="sdynpy.core.sdynpy_matrix.Matrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_shape</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.concatenate_dofs.html">sdynpy.core.sdynpy_shape.concatenate_dofs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_exodus.html">sdynpy.core.sdynpy_shape.from_exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_imat_struct.html">sdynpy.core.sdynpy_shape.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_unv.html">sdynpy.core.sdynpy_shape.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.mac.html">sdynpy.core.sdynpy_shape.mac</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.overlay_shapes.html">sdynpy.core.sdynpy_shape.overlay_shapes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_check.html">sdynpy.core.sdynpy_shape.rigid_body_check</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_error.html">sdynpy.core.sdynpy_shape.rigid_body_error</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation.html">sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_alignment.html">sdynpy.core.sdynpy_shape.shape_alignment</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_array.html">sdynpy.core.sdynpy_shape.shape_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_comparison_table.html">sdynpy.core.sdynpy_shape.shape_comparison_table</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html">sdynpy.core.sdynpy_shape.ShapeArray</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_shape</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_shape.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-sdynpy.core.sdynpy_shape">
+<span id="sdynpy-core-sdynpy-shape"></span><h1>sdynpy.core.sdynpy_shape<a class="headerlink" href="#module-sdynpy.core.sdynpy_shape" title="Permalink to this heading"></a></h1>
+<p>Objects and procedures to handle operations on test or model shapes</p>
+<p>Shapes are generally defined as a set of coordinates or degrees of freedom and
+the respective displacements at each of those degrees of freedom.</p>
+<p>Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,
+LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
+Government retains certain rights in this software.</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.concatenate_dofs.html#sdynpy.core.sdynpy_shape.concatenate_dofs" title="sdynpy.core.sdynpy_shape.concatenate_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate_dofs</span></code></a>(shape_arrays)</p></td>
+<td><p>Combines the degrees of freedom from multiple shapes into one set of shapes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_exodus.html#sdynpy.core.sdynpy_shape.from_exodus" title="sdynpy.core.sdynpy_shape.from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus</span></code></a>(exo[, x_disp, y_disp, z_disp, ...])</p></td>
+<td><p>Reads shape data from displacements in an Exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_imat_struct.html#sdynpy.core.sdynpy_shape.from_imat_struct" title="sdynpy.core.sdynpy_shape.from_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_imat_struct</span></code></a>(imat_shp_struct)</p></td>
+<td><p>Constructs a ShapeArray from an imat_shp class saved to a Matlab structure</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.from_unv.html#sdynpy.core.sdynpy_shape.from_unv" title="sdynpy.core.sdynpy_shape.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_data_dict[, combine])</p></td>
+<td><p>Load ShapeArrays from universal file data from read_unv</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.mac.html#sdynpy.core.sdynpy_shape.mac" title="sdynpy.core.sdynpy_shape.mac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mac</span></code></a>(shape_1[, shape_2, node_id_map])</p></td>
+<td><p>Computes the modal assurance critera between two sets of shapes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.overlay_shapes.html#sdynpy.core.sdynpy_shape.overlay_shapes" title="sdynpy.core.sdynpy_shape.overlay_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_shapes</span></code></a>(geometries, shapes[, ...])</p></td>
+<td><p>Combines several shapes and geometries for comparitive visualization</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_check.html#sdynpy.core.sdynpy_shape.rigid_body_check" title="sdynpy.core.sdynpy_shape.rigid_body_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_check</span></code></a>(geometry, rigid_shapes[, ...])</p></td>
+<td><p>Performs rigid body checks, both looking at the complex plane and residuals</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_error.html#sdynpy.core.sdynpy_shape.rigid_body_error" title="sdynpy.core.sdynpy_shape.rigid_body_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_error</span></code></a>(geometry, rigid_shapes, ...)</p></td>
+<td><p>Computes rigid shape error based on geometries</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation.html#sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation" title="sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_fix_node_orientation</span></code></a>(geometry, ...)</p></td>
+<td><p>Solves for the best sensor orientation in the geometry to minimize the residual</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_alignment.html#sdynpy.core.sdynpy_shape.shape_alignment" title="sdynpy.core.sdynpy_shape.shape_alignment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape_alignment</span></code></a>(shape_1, shape_2[, node_id_map])</p></td>
+<td><p>Computes if the shapes are aligned, or if one needs to be flipped</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_array.html#sdynpy.core.sdynpy_shape.shape_array" title="sdynpy.core.sdynpy_shape.shape_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape_array</span></code></a>([coordinate, shape_matrix, ...])</p></td>
+<td><p>Creates a coordinate array that specify degrees of freedom.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.shape_comparison_table.html#sdynpy.core.sdynpy_shape.shape_comparison_table" title="sdynpy.core.sdynpy_shape.shape_comparison_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape_comparison_table</span></code></a>(shape_1, shape_2[, ...])</p></td>
+<td><p>Generates a shape comparison table between two sets of shapes</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapeArray</span></code></a>(shape, ndof[, shape_type, ...])</p></td>
+<td><p>Shape information specifying displacements at nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_matrix.Matrix.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_matrix.Matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_shape.concatenate_dofs.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_shape.concatenate_dofs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

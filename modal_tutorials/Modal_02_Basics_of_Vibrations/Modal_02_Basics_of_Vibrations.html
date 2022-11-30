@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Tutorial 02: Basics of Vibrations &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom" href="../Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.html" />
+    <link rel="prev" title="Modal Tutorial 01: What is modal analysis?" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modal Tutorial 02: Basics of Vibrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#A-Simple-Undamped-Spring-Mass-System">A Simple Undamped Spring-Mass System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Adding-Damping">Adding Damping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Response-of-Single-Degree-of-Freedom-Systems-to-Harmonic-Excitation">Response of Single Degree of Freedom Systems to Harmonic Excitation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Undamped-Response-to-Harmonic-Excitation">Undamped Response to Harmonic Excitation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Damped-Response-to-Harmonic-Excitation">Damped Response to Harmonic Excitation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Comparison-between-Displacement,-Velocity,-and-Acceleration-Frequency-Response-Functions">Comparison between Displacement, Velocity, and Acceleration Frequency Response Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Working-with-Single-Degree-of-Freedom-Systems-in-SDynPy">Working with Single Degree of Freedom Systems in SDynPy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Homework-Problems">Homework Problems</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.-Set-up-a-System">1. Set up a System</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.-Compute-the-Frequency-Response-Function">2. Compute the Frequency Response Function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.-Investigate-Design-Changes">3. Investigate Design Changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.-Investigate-Damping-Changes">4. Investigate Damping Changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.html">Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html">Modal Tutorial 04: Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_05_Experimental_Modal_Analysis/Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
+      <li class="breadcrumb-item active">Modal Tutorial 02: Basics of Vibrations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modal_tutorials/Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Modal-Tutorial-02:-Basics-of-Vibrations">
+<h1>Modal Tutorial 02: Basics of Vibrations<a class="headerlink" href="#Modal-Tutorial-02:-Basics-of-Vibrations" title="Permalink to this heading"></a></h1>
+<p>Before looking too much into modal analysis, we will take a step back and look at a more fundamental phenomenon in structural dynamics: vibrations.</p>
+<section id="A-Simple-Undamped-Spring-Mass-System">
+<h2>A Simple Undamped Spring-Mass System<a class="headerlink" href="#A-Simple-Undamped-Spring-Mass-System" title="Permalink to this heading"></a></h2>
+<p>Vibrations occur primarily due to the presence of a kind of restoring force that acts against the deflection of the part. For example, if you stretch a spring, the spring pulls back against your hand. To stretch the spring farther, we would need to apply a larger force. When we let go of the stretched spring, the spring accelerates back towards its undeformed state. This acceleration implies that a force was present, though none is being applied to the spring. This force is “internal” to the
+spring, due to the attraction of all the atoms and molecules making up the spring.</p>
+<p>When the spring arrives back at its deformed position, it does not suddenly come to rest. Indeed, as the force is pulling the spring back to its original position, it is constantly accelerating, so it arrives back at its undeformed position with a good deal of velocity, and with there now being zero internal forces at the undeformed position, there will be no forces slowing the spring down, so it will continue to travel on past its original point. At this point, the spring is now stretching
+itself in the opposite direction, so internal forces develop slowing the spring down. Eventually, the forces overcome the velocity of the spring and accelerate it back to the undeformed position, where it returns to again with velocity. This process repeats over and over, and so we say the spring “vibrates”.</p>
+<p>Let’s look at an example. Pretend we have a spring with spring constant <span class="math notranslate nohighlight">\(k\)</span> and a block on the end of the spring with mass <span class="math notranslate nohighlight">\(m\)</span>. We will assume that the mass of <span class="math notranslate nohighlight">\(m\)</span> is much larger than the mass of the spring, so we will make an approximation that there is no contribution to the mass of the system due to the spring. An external force <span class="math notranslate nohighlight">\(f\)</span> may be applied to the mass to set it in motion.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gs
+from matplotlib.animation import FuncAnimation as fa
+import numpy as np
+import sdynpy as sdpy
+
+def draw_spring_mass(deflection = 0, mass_size = 0.5,
+                     mass_to_ground_length = 0.75, num_windings = 5,
+                     spring_width = 0.1,arrow_sizes=[],arrow_labels=[],
+                     arrow_colors=[], arrow_offset = None,
+                     axis = None,fontsize=24):
+    spring_length = mass_to_ground_length - mass_size/2 + deflection
+    ground_position = -mass_to_ground_length
+    if axis is None:
+        fig,axis = plt.subplots(figsize=(6,8))
+    # Draw the ground
+    axis.plot([-mass_size/2,mass_size/2],
+              [ground_position,ground_position],&#39;k&#39;)
+    # Draw the spring
+    axis.plot([(i%2)*spring_width - spring_width/2 for i in range(num_windings*2)],
+              np.linspace(ground_position,ground_position+spring_length,num_windings*2),&#39;b&#39;)
+    # Draw the mass
+    mass_x,mass_y = np.meshgrid([-mass_size/2,mass_size/2],
+                                [-mass_size/2,mass_size/2],indexing=&#39;ij&#39;)
+    mass_x = mass_x.flatten()
+    mass_y = mass_y.flatten()
+    mass_x = mass_x[[0,1,3,2,0]]
+    mass_y = mass_y[[0,1,3,2,0]]
+    axis.plot(mass_x.flatten(),mass_y.flatten()+deflection,&#39;r&#39;)
+    axis.text(mass_size*2/3,deflection,&#39;$m$&#39;,fontsize=fontsize,
+              ha=&#39;left&#39;,va=&#39;center&#39;)
+    axis.text(spring_width*2/3,ground_position + spring_length/2,&#39;$k$&#39;,
+             fontsize=fontsize,ha=&#39;left&#39;,va=&#39;center&#39;)
+    num_arrows = min([len(arrow_sizes),len(arrow_labels),
+                     len(arrow_colors)])
+    if arrow_offset is None:
+        if num_arrows &gt; 1:
+            arrow_offset = mass_size/(num_arrows+2)
+        else:
+            arrow_offset = 0.0
+    if num_arrows &gt; 0:
+        arrow_positions = np.arange(num_arrows+2)*arrow_offset
+        mean_position = np.mean(arrow_positions)
+        arrow_positions -= mean_position
+        arrow_positions = arrow_positions[1:-1]
+    for size,label,color,position in zip(arrow_sizes,
+                                         arrow_labels,
+                                         arrow_colors,
+                                         arrow_positions):
+        axis.quiver(position,deflection,0,size,scale=1,color=color,
+                   angles=&#39;xy&#39;,scale_units=&#39;xy&#39;)
+        axis.text(position,deflection + mass_size/20*(-1 if size &gt; 0 else 1),
+                  label,ha=&#39;center&#39;,va=&#39;top&#39; if size &gt; 0 else &#39;bottom&#39;,
+                 fontsize=fontsize)
+
+fig,axis = plt.subplots(figsize=(6,8))
+axis.axis(&#39;off&#39;)
+axis.axis(&#39;equal&#39;)
+axis.set_ylim(-0.75,0.5)
+draw_spring_mass(axis=axis,arrow_sizes = [0.5],
+                 arrow_labels=[&#39;$f$&#39;],arrow_colors=[&#39;m&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_1_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_1_0.png" />
+</div>
+</div>
+<p>If we draw a free-body diagram of the mass, we will see that the that the acceleration of the mass due to external forces will be</p>
+<div class="math notranslate nohighlight">
+\[f - kx = m\ddot{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(f\)</span> is the external force, <span class="math notranslate nohighlight">\(k\)</span> is the spring stiffness, <span class="math notranslate nohighlight">\(x\)</span> is displacement of the mass, <span class="math notranslate nohighlight">\(m\)</span> is the mass of the mass, and <span class="math notranslate nohighlight">\(\ddot{x}\)</span> is the double-time-derivative or acceleration of the mass. This is the differential equation governing the motion of the mass. Written another way, we have:</p>
+<div class="math notranslate nohighlight">
+\[m\ddot{x} + kx = f\]</div>
+<p>which is the more standard way to write the equation in structural dynamics, because it collects all the <span class="math notranslate nohighlight">\(x\)</span>-terms on the left side and the external forces on the right side of the equation. Let’s assemble a SDynPy system from this equation, and see what happens when it vibrates. We will assign actual values to the mass <span class="math notranslate nohighlight">\(m\)</span> and spring stiffness <span class="math notranslate nohighlight">\(k\)</span> so we can simulate the spring’s motion.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Assign values to mass and stiffness
+m = 1
+k = 100
+dof_name = sdpy.coordinate_array(1,2)
+# Create a system object
+system = sdpy.System(dof_name,m,k)
+time_length = 2*np.pi*np.sqrt(m/k)
+
+# Let&#39;s deflect the spring by x=1 and then let it go to see what happens
+dt = time_length/1000*2
+force_signal = np.zeros((1,1000))
+initial_state = [1,0]
+responses = []
+for i in range(3):
+    response,force = system.time_integrate(force_signal,dt,
+                                           initial_state = initial_state,
+                                           displacement_derivative=i)
+    responses.append(response)
+displacement,velocity,acceleration = responses
+
+# Create a function to plot the response
+def plot_spring_mass_response(displacement,velocity,acceleration,force,
+                              displacement_index,drawing_axis = None,
+                              disp_axis = None, vel_axis = None,
+                              accel_axis = None, force_axis = None, dt = 1.0,
+                              mass_size = 0.5,mass_to_ground_length = 1.0,
+                              num_windings = 5,spring_width = 0.1,
+                              fontsize=24
+                              ):
+    if any([ax is None for ax in [disp_axis,vel_axis,accel_axis,force_axis,
+                                 drawing_axis]]):
+        fig = plt.figure(constrained_layout=True,figsize=(6,4))
+        spec = gs.GridSpec(4,4,figure=fig)
+        drawing_axis = fig.add_subplot(spec[:, 0])
+        disp_axis = fig.add_subplot(spec[0,1:])
+        disp_axis.set_ylabel(&#39;Disp (m)&#39;)
+        vel_axis = fig.add_subplot(spec[1,1:])
+        vel_axis.set_ylabel(&#39;Vel (m/s)&#39;)
+        accel_axis = fig.add_subplot(spec[2,1:])
+        accel_axis.set_ylabel(&#39;Accel (m/s$^2$)&#39;)
+        force_axis = fig.add_subplot(spec[3,1:])
+        force_axis.set_ylabel(&#39;Force (N)&#39;)
+        force_axis.set_xlabel(&#39;Time (s)&#39;)
+        drawing_axis.axis(&#39;off&#39;)
+        drawing_axis.axis(&#39;equal&#39;)
+    times = np.arange(displacement.size)*dt
+    if np.max(np.abs(displacement)) &gt; 0:
+        disp_size = displacement[displacement_index]/np.max(np.abs(displacement))*mass_size
+    else:
+        disp_size = 0
+    if np.max(np.abs(velocity)) &gt; 0:
+        vel_size = velocity[displacement_index]/np.max(np.abs(velocity))*mass_size
+    else:
+        vel_size = 0
+    if np.max(np.abs(acceleration)) &gt; 0:
+        accel_size = acceleration[displacement_index]/np.max(np.abs(acceleration))*mass_size
+    else:
+        accel_size = 0
+    if np.max(np.abs(force)) &gt; 0:
+        force_size = force[displacement_index]/np.max(np.abs(force))*mass_size
+    else:
+        force_size = 0
+    draw_spring_mass(disp_size,mass_size,mass_to_ground_length,
+                     num_windings,spring_width,
+                     arrow_sizes=[vel_size,accel_size,force_size],
+                     arrow_labels=[&#39;v&#39;,&#39;a&#39;,&#39;f&#39;],
+                     arrow_colors=[&#39;k&#39;,&#39;k&#39;,&#39;k&#39;],
+                     arrow_offset = None,
+                     axis = drawing_axis,fontsize=fontsize)
+    disp_axis.plot(times,displacement,&#39;b&#39;)
+    disp_axis.axvline(times[displacement_index],color=&#39;k&#39;)
+    vel_axis.plot(times,velocity,&#39;b&#39;)
+    vel_axis.axvline(times[displacement_index],color=&#39;k&#39;)
+    accel_axis.plot(times,acceleration,&#39;b&#39;)
+    accel_axis.axvline(times[displacement_index],color=&#39;k&#39;)
+    force_axis.plot(times,force,&#39;b&#39;)
+    force_axis.axvline(times[displacement_index],color=&#39;k&#39;)
+
+
+plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          0, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_3_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_3_0.png" />
+</div>
+</div>
+<p>We see here at the start of the response, just after the mass is released, it has zero velocity, unit displacement, and a signficant acceleration downward due to the internal stresses in the spring. There are no external forces applied to the spring, so that remains zero over the entire time series.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          75, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_5_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_5_0.png" />
+</div>
+</div>
+<p>A short time into the response, the mass has now acquired some velocity downward due to the internal force. The spring is still stretched though, so the internal forces and thus acceleration are still accelerating the mass downward, so the velocity will continue to increase.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          125, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_7_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_7_0.png" />
+</div>
+</div>
+<p>At some point, the spring will cross through its undeformed state, and will therefore have zero internal force and zero acceleration applied to the mass. However, because the mass still has a downward velocity, it will continue to travel downward due to its momentum.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          200, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_9_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_9_0.png" />
+</div>
+</div>
+<p>Once the spring has passed through the undeformed point, the internal forces in the spring will attempt to push it back up, so while there is a downward velocity, the acceleration of the mass is in the upwards direction, so this downward velocity will decrease.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          250, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_11_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_11_0.png" />
+</div>
+</div>
+<p>Finally, the velocity slows to zero, and the mass comes to rest. However, the spring is now compressed and the mass will be accelerated upwards.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          325, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_13_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_13_0.png" />
+</div>
+</div>
+<p>The velocity increases as the mass is accelerated upwards. As we pass the zero deflection point, the spring will start to pull downward on the mass and remove its upward velocity.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
+                          acceleration[0].ordinate,force[0].ordinate,
+                          500, dt=dt,
+                          fontsize=12)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_15_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_15_0.png" />
+</div>
+</div>
+<p>Eventually, the mass will return to its starting point, and the cycle will begin again.</p>
+</section>
+<section id="Adding-Damping">
+<h2>Adding Damping<a class="headerlink" href="#Adding-Damping" title="Permalink to this heading"></a></h2>
+<p>The above example showed that for the undamped system, the mass returned to its original conditions (displacement and velocity), and would therefore continue vibrating indefinitely. Fortunately for structural dynamics engineers, no vibration is truly indefinite, as all motion will have some kind of losses or damping associated with it. When a ball is bounced, it never returns to its original height. When a guitar string is plucked, the sound eventually dies away.</p>
+<p>To model the damping in the system, we apply an additional term to the differential equation of motion. This term will be proportional to the velocity of the system.</p>
+<div class="math notranslate nohighlight">
+\[m\ddot{x} + c\dot{x} + kx = f\]</div>
+<p>Here <span class="math notranslate nohighlight">\(c\)</span> is the damping of the system. We can investigate our previous system to determine the effect of damping. We will apply three different levels of damping to see what happens.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>damping_values = [0.1,1,5,20,50,100]
+time_length = 10*np.pi*np.sqrt(m/k)
+# Let&#39;s deflect the spring by x=1 and then let it go to see what happens
+dt = time_length/1000*2
+force_signal = np.zeros((1,1000))
+initial_state = [1,0]
+
+responses = []
+for c in damping_values:
+    # Create a system object
+    system = sdpy.System(dof_name,m,k,c)
+
+    response,force = system.time_integrate(force_signal,dt,
+                                           initial_state = initial_state,
+                                           displacement_derivative=0)
+    responses.append(response)
+responses = np.concatenate(responses)
+
+ax = responses.plot(one_axis=False,subplots_kwargs={&#39;figsize&#39;:(10,6),&#39;sharex&#39;:True,&#39;sharey&#39;:True});
+for c,a in zip(damping_values,ax.flatten()):
+    a.set_ylabel(&#39;Damping: {:}\n({:.0f}% Critical)&#39;.format(c,100*c/(2*np.sqrt(k*m))))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_17_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_17_0.png" />
+</div>
+</div>
+<p>Obvious in the above plots is the fact that the response decays rather than oscillating at a constant amplitude indefinitely. One may think that if damping is higher, the structure would more quickly return to zero motion, and that is true up to a point, which is called the critical damping. Critical damping can be computed as</p>
+<div class="math notranslate nohighlight">
+\[c_{cr}=2\sqrt{km}\]</div>
+<p>and is the damping value at which the system will most quickly return to zero, which for our system is <span class="math notranslate nohighlight">\(c=20\)</span>. If damping is higher, it actually impedes the structure returning to zero.</p>
+</section>
+<section id="Response-of-Single-Degree-of-Freedom-Systems-to-Harmonic-Excitation">
+<h2>Response of Single Degree of Freedom Systems to Harmonic Excitation<a class="headerlink" href="#Response-of-Single-Degree-of-Freedom-Systems-to-Harmonic-Excitation" title="Permalink to this heading"></a></h2>
+<p>The previous section considered free response of a single mass-spring-damping system. This section will now consider the application of harmonic (sinusoidal) forces to the system.</p>
+<section id="Undamped-Response-to-Harmonic-Excitation">
+<h3>Undamped Response to Harmonic Excitation<a class="headerlink" href="#Undamped-Response-to-Harmonic-Excitation" title="Permalink to this heading"></a></h3>
+<p>Consider first the undamped case where we apply a sinusoidal excitation with angular frequency <span class="math notranslate nohighlight">\(\omega\)</span> radians per second and amplitude <span class="math notranslate nohighlight">\(F\)</span>. The equation of motion is</p>
+<div class="math notranslate nohighlight">
+\[m\ddot{x}+kx=F \cos({\omega t})\]</div>
+<p>Given that equation of motion, the solution will be of the form</p>
+<div class="math notranslate nohighlight">
+\[x = X \cos(\omega t)\]</div>
+<p>Plugging the solution into the original equation, we can obtain the amplitude of response <span class="math notranslate nohighlight">\(X\)</span> due to the forced excitation.</p>
+<div class="math notranslate nohighlight">
+\[X = {F \over {k-m \omega^2}}\]</div>
+<p>which we can solve for at any frequency <span class="math notranslate nohighlight">\(\omega\)</span> except where <span class="math notranslate nohighlight">\(k-m\omega^2=0\)</span> or <span class="math notranslate nohighlight">\(\omega = \sqrt{k/m}\)</span>. The ratio of response amplitude <span class="math notranslate nohighlight">\(X\)</span> over force amplitude <span class="math notranslate nohighlight">\(F\)</span> is a kind of normalized factor that shows how the response is amplified at each frequency for a given force.</p>
+<div class="math notranslate nohighlight">
+\[{X\over F} = {1 \over {k-m \omega^2}}\]</div>
+<p>This is a very important result in vibrations and modal analysis known as the <strong>frequency response function</strong>. Let’s plot it to see what it looks like.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,3,5000)
+amplification_factor = 1/(k-m*(2*np.pi*frequencies)**2)
+
+fig,ax = plt.subplots()
+ax.plot(frequencies,amplification_factor)
+ax.set_ylabel(&#39;Amplfication (m/N)&#39;)
+ax.set_xlabel(&#39;Frequency (Hz)&#39;)
+ax.set_title(&#39;Amplification Factor&#39;)
+ax.set_ylim(-5,5)
+ax.grid(True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_20_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_20_0.png" />
+</div>
+</div>
+<p>There are several interesting features about frequency response function in the above plot. The most notable feature is the large spike at the frequency <span class="math notranslate nohighlight">\(\omega=\sqrt{k/m}\)</span>. This is clearly a place where the response is amplified; even a very small force will result in a large response. We call this the “natural frequency” or “resonant frequency” of the system, as it is the frequency at which the system prefers to vibrate. We also saw this same resonant frequency in the free vibration of
+the spring mass system in the previous section. Note that when the frequency is lower than this natural frequency, the response is positive, meaning the motion is in phase with the force being applied. Perhaps unintuitively, the system will respond out of phase of the force when the system is excited at a higher frequency than the resonant frequency, meaning the mass will move opposite the force’s direction.</p>
+</section>
+<section id="Damped-Response-to-Harmonic-Excitation">
+<h3>Damped Response to Harmonic Excitation<a class="headerlink" href="#Damped-Response-to-Harmonic-Excitation" title="Permalink to this heading"></a></h3>
+<p>The above is not very realistic, as all structures will have some amount of damping associated with them, so we will add the damping term back into the equation.</p>
+<div class="math notranslate nohighlight">
+\[m\ddot{x}+c\dot{x}+kx=F \cos({\omega t})\]</div>
+<p>Due to the presence of the damping term, the steady-state response of the system will not be exactly in phase or out of phase with the force. Instead, there will be some phase <em>lag</em> <span class="math notranslate nohighlight">\(\alpha\)</span>, and the solution will be of the form</p>
+<div class="math notranslate nohighlight">
+\[x = X \cos(\omega t - \alpha)\]</div>
+<p>Alternatively, this can be expressed as a combination of sines and cosines</p>
+<div class="math notranslate nohighlight">
+\[x = X_1 \cos(\omega t) + X_2 \sin(\omega t)\]</div>
+<p>Another more compact and straightforward, but perhaps more abstract representation is using Euler’s formula to represent the response as a complex exponential, of which we will take the real part.</p>
+<div class="math notranslate nohighlight">
+\[m\ddot{x}+c\dot{x}+kx={F e^{i\omega t}}\]</div>
+<div class="math notranslate nohighlight">
+\[x = {X e^{i\omega t}}\]</div>
+<p>Let’s proceed with this last definition. If we substitute the latter response into the former equation, we get the equation</p>
+<div class="math notranslate nohighlight">
+\[m X (i\omega)^2 e^{i\omega t} +c X i\omega e^{i\omega t}+k {X e^{i\omega t}}={F e^{i\omega t}}\]</div>
+<p>Using chain rule for differentiation will result in the multiplicand of <span class="math notranslate nohighlight">\(t\)</span>, <span class="math notranslate nohighlight">\(i\omega\)</span>, being pulled outside the exponential for each derivative taken.</p>
+<p>Because the complex exponential will be nonzero for all <span class="math notranslate nohighlight">\(t\)</span>, we can divide the entire equation by it to simplify. Also, noting that <span class="math notranslate nohighlight">\(i^2 = -1\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[-m X \omega^2 +c X i\omega + k {X}={F}\]</div>
+<p>Collecting terms in <span class="math notranslate nohighlight">\(X\)</span> gives</p>
+<div class="math notranslate nohighlight">
+\[(-m \omega^2 +c i\omega + k) {X}={F}\]</div>
+<p>So now we see another relationship between the force amplitude <span class="math notranslate nohighlight">\(F\)</span> and the response amplitude <span class="math notranslate nohighlight">\(X\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[{X \over F} = {1 \over -m \omega^2 +i c\omega + k}\]</div>
+<p>This time, however, the relationship is complex due to the <span class="math notranslate nohighlight">\(i\)</span> term in the denominator. This has the effect of adding in that phase change to the response, so it is no longer directly in or out of phase with the force. Note that when the damping <span class="math notranslate nohighlight">\(c\)</span> goes to zero, we recover the undamped frequency response function from the previous section.</p>
+<p>We can also plot this function, but knowing that it is complex, we need to be careful about how we present it. We will plot a number of damping values to see how the frequency response function changes with the amount of damping present in the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,3,5000)
+damping_values = [0,0.1,0.5,1]
+fig,ax = plt.subplots(2,2,sharex=True,figsize=(12,10))
+
+for c in damping_values:
+    amplification_factor = 1/(-m*(2*np.pi*frequencies)**2 + 1j*c*(2*np.pi*frequencies) + k)
+    ax[0,0].plot(frequencies,np.angle(amplification_factor)*180/np.pi)
+    ax[1,0].plot(frequencies,np.abs(amplification_factor))
+    ax[0,1].plot(frequencies,np.real(amplification_factor))
+    ax[1,1].plot(frequencies,np.imag(amplification_factor))
+
+ax[0,0].set_ylabel(&#39;Phase Angle (degrees)&#39;)
+ax[0,0].set_ylim(-180,180)
+ax[0,0].set_yticks([-180,-90,0,90,180])
+ax[1,0].set_ylabel(&#39;Magnitude (m/N)&#39;)
+ax[1,0].set_yscale(&#39;log&#39;)
+ax[0,1].set_ylabel(&#39;Real Part (m/N)&#39;)
+ax[1,1].set_ylabel(&#39;Imaginary Part (m/N)&#39;)
+ax[1,0].set_xlabel(&#39;Frequency (Hz)&#39;)
+ax[1,1].set_xlabel(&#39;Frequency (Hz)&#39;)
+for a in ax[:,1]:
+    a.set_ylim(-1,1)
+
+for a in ax.flatten():
+    a.grid(True)
+
+ax[0,0].legend([&#39;c={:}&#39;.format(c) for c in damping_values])
+
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_22_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_22_0.png" />
+</div>
+</div>
+<p>It is worth pointing out some features of the frequency response function here. First, we have plotted the complex data in two ways. The left plots show a magnitude and phase plot. The right two plots show a real and imaginary part. While these representations highlight different parts of the frequency response function, they plot the same underlying data and are nominally identical.</p>
+<p>Starting with the magnitude and phase plots: we see that there is a peak in the amplitude at the resonant frequency of the part. We also see that the phase flips from 0 to -180 as the structure goes through resonance, with a phase of -90 degrees corresponding to the resonance location. We note that while the amplitude peak goes to infinity when the damping is zero, the amplitude peak no longer goes up to infinity when damping is included. The sharpness of the amplitude peak and damping
+transition from 0 to -180 degrees depends on the amount of damping, with a larger damping providing a more blunt peak and a slower phase transition. Because the magnitude often spans multiple orders of magnitude, it is often plotted on a logrithmic scale. The magnitude and phase representation is probably the most common representation of a frequency response function.</p>
+<p>An alternative representation is to plot the real and imaginary part directly. We see that the real part goes through zero at resonance, and the imaginary part peaks at resonance. The imaginary part tends to be “sharper” than the magnitude, so it can be useful to look at the imaginary part of the frequency response function when identifying peaks that may be modes of the system.</p>
+</section>
+<section id="Comparison-between-Displacement,-Velocity,-and-Acceleration-Frequency-Response-Functions">
+<h3>Comparison between Displacement, Velocity, and Acceleration Frequency Response Functions<a class="headerlink" href="#Comparison-between-Displacement,-Velocity,-and-Acceleration-Frequency-Response-Functions" title="Permalink to this heading"></a></h3>
+<p>Note that the frequency reponse functions are plotted as the displacement response over the force. This is intuitive, as we often think about how the part moves when we think about dynamics. Particularly in experimental dynamics, the practitioner may be exposed to multiple data types. Accelerometers measure accelerations of the part. Laser vibrometers measure velocities of the part. Cameras and other displacement sensors measure displacements. Therefore, it is useful to become accustomed to
+what, say, the frequency response function between and acceleration and a force looks like. This basically requires differentiating the response.</p>
+<div class="math notranslate nohighlight">
+\[x = {X e^{i\omega t}}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{x} = {i\omega X e^{i\omega t}}\]</div>
+<div class="math notranslate nohighlight">
+\[\ddot{x} = {(i\omega)^2 X e^{i\omega t}} = {-\omega^2 X e^{i\omega t}}\]</div>
+<p>We can see that as we go to each additional differentiation from displacement to velocity to acceleration, we simply multiply by <span class="math notranslate nohighlight">\(i\omega\)</span></p>
+<div class="math notranslate nohighlight">
+\[\ddot{x} = i\omega \dot{x} = -\omega^2 x\]</div>
+<p>Therefore our frequency response functions look like</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,4,5000)
+c = 1
+fig,axes = plt.subplots(4,3,sharex=True,figsize=(12,12))
+derivatives = [0,1,2]
+derivative_labels = [&#39;Displacement/Force&#39;,&#39;Velocity/Force&#39;,&#39;Acceleration/Force&#39;]
+reductions = [np.abs,
+              lambda x: np.angle(x)*180/np.pi,
+              np.real,
+              np.imag]
+reduction_labels = [&#39;Magnitude&#39;,&#39;Phase&#39;,&#39;Real Part&#39;,&#39;Imaginary Part&#39;]
+
+for label,ax in zip(derivative_labels,axes[0,:]):
+    ax.set_title(label)
+
+for label,ax in zip(derivative_labels,axes[-1,:]):
+    ax.set_xlabel(&#39;Frequency (Hz)&#39;)
+
+for ax_row,reduction,label in zip(axes,reductions,reduction_labels):
+    ax_row[0].set_ylabel(label)
+    for ax,derivative in zip(ax_row,derivatives):
+        amplification_factor = ((1j*(2*np.pi*frequencies))**derivative/
+                                (-m*(2*np.pi*frequencies)**2 + 1j*c*(2*np.pi*frequencies) + k))
+        ax.plot(frequencies,reduction(amplification_factor))
+        ax.grid(True)
+
+for ax in axes[0,:]:
+    ax.set_yscale(&#39;log&#39;)
+
+for ax in axes[1,:]:
+    ax.set_yticks([-180,-90,0,90,180])
+
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_24_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_24_0.png" />
+</div>
+</div>
+<p>Briefly comparing these plots, we can highlight some important differences.</p>
+<p>Looking first at the magnitude plots in the first row, we see that at low frequency, the displacement will tend to approach a value. This value is the static stiffness of the spring, because as we go to zero Hz, it is the same as applying a constant force to the structure. For this same reason, the acceleration and velocity will trend towards zero as the frequency trends towards a constant force: when the system is undergoing a static deflection, it is no longer moving or accelerating, but
+maintaining a constant displacement.</p>
+<p>At the high frequency, the displacement frequency response function will trend towards zero motion as the frequency goes to infinity. This is because the amount of time the force is applied before it switches directions becomes very small, so the part has less opportunity to move before the force switches direction and starts pushing it the other way. Similarly, as the acceleration will approach the value obtained if there were no spring on the system, which can be obtained by the formula
+<span class="math notranslate nohighlight">\(F = ma\)</span>, because as the displacements go to zero, the influence of the spring also goes to zero, so the acceleration frequency response function becomes dominated by inertial effects.</p>
+<p>The phase plots all look similar for each data type, noting, however that the phase becomes undefined at zero frequency because the amplitude becomes zero. Because the velocity is 90 degrees out of phase with the displacement and the acceleration is 180 degrees out of phase with the displacement, we see the phase plots shifted appropriately.</p>
+<p>The real and imaginary parts are also similar, with the main exception being that the real and imaginary parts look “swapped” for the velocity, which is due to the fact that the velocity is 90 degrees out of phase with both acceleration and displacement. A 90 degree rotation effectively switches the real and imaginary parts (though one of the components will have its sign flipped depending on whether or not the rotation is +90 or -90 degrees).</p>
+<p>Note that the above trends are generally only valid for a part that is fixed to ground or attached by a spring. A “free” or “floating” structure, for example, would tend to have infinite displacement and flat acceleration at zero frequency, due to the fact that a constant force will cause a floating structure to move away indefinitely at a constant acceleration. We will examine floating structures when we talk about multiple degrees of freedom in subsequent tutorials.</p>
+</section>
+</section>
+<section id="Working-with-Single-Degree-of-Freedom-Systems-in-SDynPy">
+<h2>Working with Single Degree of Freedom Systems in SDynPy<a class="headerlink" href="#Working-with-Single-Degree-of-Freedom-Systems-in-SDynPy" title="Permalink to this heading"></a></h2>
+<p>The previous sections have presented some of the theory behind single degree of freedom vibration. Code has been presented to create the visualizations; however, this section will be a more rigorous demonstration of how we can use Python and SDynPy to investigate single degree of freedom systems.</p>
+<p>The key data type in SDynPy for working with mass/spring/damper systems is the <code class="docutils literal notranslate"><span class="pre">sdpy.System</span></code> object. This object accepts mass, stiffness, and damping values, and stores them along with coordinate information for each degree of freedom. Note that for single degree of freedom systems, we only have one degree of freedom, so it might sound unnecessary to give a name to the degree of freedom, but the <code class="docutils literal notranslate"><span class="pre">sdpy.System</span></code> object is designed to handle multi-degree of freedom systems, where it is hugely
+important to keep track of which degree of freedom is which. Degrees of freedom can be defined with the <code class="docutils literal notranslate"><span class="pre">sdpy.coordinate_array</span></code> function, which allows definition of degree of freedom information. Let’s create a demonstration object now, with different parameters than we used before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
+
+degree_of_freedom = sdpy.coordinate_array(1,&#39;X+&#39;)
+mass = 5
+stiffness = 1000
+damping = 2.5
+system = sdpy.System(degree_of_freedom,mass,stiffness,damping)
+</pre></div>
+</div>
+</div>
+<p>If we just type our system into the Python console, we see that it lists the number of degrees of freedom in the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+System with 1 DoFs (1 internal DoFs)
+</pre></div></div>
+</div>
+<p>We can access the mass, stiffness, or damping matrices in the system using the <code class="docutils literal notranslate"><span class="pre">M</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code>, or <code class="docutils literal notranslate"><span class="pre">C</span></code> properties, or <code class="docutils literal notranslate"><span class="pre">mass</span></code>, <code class="docutils literal notranslate"><span class="pre">stiffness</span></code> or <code class="docutils literal notranslate"><span class="pre">damping</span></code> properties, respectively. Note that even for a single degree of freedom system, these will still be 2D arrays due to the possibility of using multiple degrees of freedom in a system object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system.M
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[5]])
+</pre></div></div>
+</div>
+<p>System objects have a number of functions that are useful for analyzing dynamics problems. For example, we can easily compute the frequency response function. We will use Numpy’s array functions to construct a set of frequencies at which we will compute the frequency response function. We can also specify the response derivative (0 - displacement, 1 - velocity, 2 - acceleration). This provides a <code class="docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code> object which contains the frequency response function. We can easily plot
+it by using its <code class="docutils literal notranslate"><span class="pre">plot</span></code> method.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,10,1000)
+frf = system.frequency_response(frequencies,displacement_derivative = 2)
+frf.plot();
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_32_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_32_0.png" />
+</div>
+</div>
+<p>To access the underlying data, we can use the <code class="docutils literal notranslate"><span class="pre">abscissa</span></code> and <code class="docutils literal notranslate"><span class="pre">ordinate</span></code> fields. Note that the shape of the object might seem a bit strange, but this is primarily due to the fact that there could be multiple degrees of freedom. The shape of (1, 1, 1000) means there is 1 response location, 1 input location, and 1000 frequency lines. Note that the data is also a complex number (Python uses <code class="docutils literal notranslate"><span class="pre">j</span></code> to denote <span class="math notranslate nohighlight">\(\sqrt(-1)\)</span> rather than <code class="docutils literal notranslate"><span class="pre">i</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;FRF Data Shape: {:}&#39;.format(frf.ordinate.shape))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+FRF Data Shape: (1, 1, 1000)
+</pre></div></div>
+</div>
+<p>Another capability of the <code class="docutils literal notranslate"><span class="pre">System</span></code> object is to produce response data to an applied force. We can, for example, set up an input force that we would want to apply to the structure and integrate the equations of motion to produce a time response. This occurs in the <code class="docutils literal notranslate"><span class="pre">time_integrate</span></code> method of the <code class="docutils literal notranslate"><span class="pre">System</span></code> object. We can again specify a displacement derivative to the system to specify if we would like displacement, velocity, or acceleration data out from the system. We can also specify an
+integration oversampling to ensure that the integration is performed accurately.</p>
+<p>SDynPy offers a number of functions defining standard excitation signals in its <code class="docutils literal notranslate"><span class="pre">generator</span></code> package, so we can easily put together a sinusoidal excitation to apply to the structure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequency = 2 # Hz
+dt = 1/20 # 10 samples per cycle of the 2 Hz sine wave
+num_samples = 600 # 30 seconds of data, to let any transients die out
+force_signal = sdpy.generator.sine(frequency,dt,num_samples)
+
+responses,references = system.time_integrate(force_signal,dt,displacement_derivative=2,integration_oversample=10)
+
+fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
+responses.plot(ax[1])
+references.plot(ax[0])
+ax[0].set_ylabel(&#39;Force (N)&#39;)
+ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
+ax[1].set_xlabel(&#39;Time (s)&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 0, &#39;Time (s)&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_36_1.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_36_1.png" />
+</div>
+</div>
+<p>We can see in the above, after we let the startup transients die away, the system reaches a steady state after about 20 seconds. We can look at the frequency response function to see what the expected level and phase should be based on the frequency of excitation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequency_line = np.argmin(np.abs(frf[0,0].abscissa-frequency))
+frf_value = frf.ordinate[0,0,frequency_line]
+print(&#39;Frequency Response Function at 2 Hz: {:0.2f} Amplitude, {:0.2f} Phase&#39;.format(
+    np.abs(frf_value),np.angle(frf_value)*180/np.pi))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Frequency Response Function at 2 Hz: 0.75 Amplitude, 171.44 Phase
+</pre></div></div>
+</div>
+<p>And now if we plot the steady state time data, we can see if that matches our time response. Note that because our force amplitude was 1, the amplitude of the frequency response function will be the amplitude of the response. If, for example, the amplitude of the force was some value other than 1, we would need to scale the frequency response value by the force amplitude to predict the response amplitude.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
+responses.extract_elements_by_abscissa(25,np.inf).plot(ax[1])
+references.extract_elements_by_abscissa(25,np.inf).plot(ax[0])
+ax[0].set_ylabel(&#39;Force (N)&#39;)
+ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
+ax[1].set_xlabel(&#39;Time (s)&#39;)
+
+ax[1].axhline(np.abs(frf_value),color=&#39;k&#39;)
+ax[1].axhline(-np.abs(frf_value),color=&#39;k&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_40_0.png" src="../../_images/modal_tutorials_Modal_02_Basics_of_Vibrations_Modal_02_Basics_of_Vibrations_40_0.png" />
+</div>
+</div>
+<p>Indeed, the amplitude predicted by the frequency response function matches the amplitude of our response time history. Also, we see that the response is nearly 180 degrees out of phase with the force (force hits its maximum value when response hits its minimum), which agrees with the predicted phase difference.</p>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading"></a></h2>
+<p>In this tutorial, we investigated single degree of freedom systems. We introduced the frequency response function, which is a ratio of the response amplitude to phase amplitude at a given frequency, as well a the phasing between the two signals. We looked at both undamped and damped systems, and looked at how the response of the system changes with damping. Finally we looked at how we can investigate these objects using SDynPy.</p>
+</section>
+<section id="Homework-Problems">
+<h2>Homework Problems<a class="headerlink" href="#Homework-Problems" title="Permalink to this heading"></a></h2>
+<p>This section contains some example problems to see if you can use SDynPy on your own to set up and analyze a single degree of freedom system.</p>
+<section id="1.-Set-up-a-System">
+<h3>1. Set up a System<a class="headerlink" href="#1.-Set-up-a-System" title="Permalink to this heading"></a></h3>
+<p>Create a system object with <span class="math notranslate nohighlight">\(m=20\)</span>, <span class="math notranslate nohighlight">\(k = 15000\)</span>, and <span class="math notranslate nohighlight">\(c = 30\)</span> using SDynPy.</p>
+</section>
+<section id="2.-Compute-the-Frequency-Response-Function">
+<h3>2. Compute the Frequency Response Function<a class="headerlink" href="#2.-Compute-the-Frequency-Response-Function" title="Permalink to this heading"></a></h3>
+<p>Compute the frequency response function for the system from Problem 1 and plot the phase, amplitude, real, and imaginary parts. Plot the frequency response function from 0 to 10 Hz, with a frequency resolution fine enough to see the features of the frequency response function.</p>
+</section>
+<section id="3.-Investigate-Design-Changes">
+<h3>3. Investigate Design Changes<a class="headerlink" href="#3.-Investigate-Design-Changes" title="Permalink to this heading"></a></h3>
+<p>The system from Problem 1 is undergoing some design changes to modify the resonant frequency. Change the mass and stiffness of the system by +/-5% to identify what happens to the resonant frequency. Does the frequency increase or decrease as mass increases? Does the frequency increase or decrease as stiffness increases?</p>
+</section>
+<section id="4.-Investigate-Damping-Changes">
+<h3>4. Investigate Damping Changes<a class="headerlink" href="#4.-Investigate-Damping-Changes" title="Permalink to this heading"></a></h3>
+<p>The system from Problem 1 is still responding too high, so we would like to increase the damping. First, compute the percent of critical damping that the system currently has. Now, increase the fraction of critical damping of the system by 20% and 40%. Plot the frequency response functions for the light damping, medium damping, high damping systems. How is the peak of the frequency response function changing? Is it changing in amplitude? Is it changing in frequency?</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html" class="btn btn-neutral float-left" title="Modal Tutorial 01: What is modal analysis?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.html" class="btn btn-neutral float-right" title="Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

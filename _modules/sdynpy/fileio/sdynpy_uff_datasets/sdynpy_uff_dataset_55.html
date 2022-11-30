@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55 &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data at Nodes (Shapes)</span>
+
+<span class="sd">This dataset defines mode shapes, which are defined as data at nodes.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">..sdynpy_uff</span> <span class="kn">import</span> <span class="n">UFFReadError</span><span class="p">,</span> <span class="n">parse_uff_line</span><span class="p">,</span> <span class="n">parse_uff_lines</span><span class="p">,</span> <span class="n">write_uff_line</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_55"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55">[docs]</a><span class="k">class</span> <span class="nc">Sdynpy_UFF_Dataset_55</span><span class="p">:</span>
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_55.__init__"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span>
+                 <span class="n">analysis_type</span><span class="p">,</span> <span class="n">data_characteristic</span><span class="p">,</span> <span class="n">specific_data_type</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span>
+                 <span class="n">integer_data</span><span class="p">,</span> <span class="n">real_data</span><span class="p">,</span> <span class="n">node_data_dictionary</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline1</span> <span class="o">=</span> <span class="n">idline1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span> <span class="o">=</span> <span class="n">idline2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline3</span> <span class="o">=</span> <span class="n">idline3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline4</span> <span class="o">=</span> <span class="n">idline4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline5</span> <span class="o">=</span> <span class="n">idline5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_type</span> <span class="o">=</span> <span class="n">analysis_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_characteristic</span> <span class="o">=</span> <span class="n">data_characteristic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_data_type</span> <span class="o">=</span> <span class="n">specific_data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="n">data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">=</span> <span class="n">integer_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">=</span> <span class="n">real_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span> <span class="o">=</span> <span class="n">node_data_dictionary</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">55</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@id_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">id_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integer data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">load_case_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@load_case_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">load_case_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integer data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@mode_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mode_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integer data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time_step_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@time_step_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">time_step_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integer data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">frequency_step_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@frequency_step_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">frequency_step_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integer data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@frequency</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modal_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@modal_mass</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">modal_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modal_viscous_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@modal_viscous_damping</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">modal_viscous_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modal_hysteretic_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@modal_hysteretic_damping</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">modal_hysteretic_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@real_eigenvalue</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">real_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imaginary_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@imaginary_eigenvalue</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">imaginary_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_modal_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@real_modal_a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">real_modal_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imaginary_modal_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="nd">@imaginary_modal_a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">imaginary_modal_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">real_modal_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="nd">@real_modal_b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">real_modal_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imaginary_modal_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+    <span class="nd">@imaginary_modal_b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">imaginary_modal_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@time</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">buckling_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@buckling_eigenvalue</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">buckling_eigenvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real data currently only has </span><span class="si">{:}</span><span class="s1"> indices, tried to index </span><span class="si">{:}</span><span class="s1">, expanding to </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span> <span class="o">+=</span> <span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_55.from_uff_data_array"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.from_uff_data_array">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_uff_data_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1">#        RECORD 1:      Format (40A2)</span>
+        <span class="c1">#               FIELD 1:          ID Line 1</span>
+        <span class="n">idline1</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#          RECORD 2:      Format (40A2)</span>
+<span class="c1">#               FIELD 1:          ID Line 2</span>
+        <span class="n">idline2</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#          RECORD 3:      Format (40A2)</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 1:          ID Line 3</span>
+        <span class="n">idline3</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#          RECORD 4:      Format (40A2)</span>
+<span class="c1">#               FIELD 1:          ID Line 4</span>
+        <span class="n">idline4</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#          RECORD 5:      Format (40A2)</span>
+<span class="c1">#               FIELD 1:          ID Line 5</span>
+        <span class="n">idline5</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#          RECORD 6:      Format (6I10)</span>
+<span class="c1">#</span>
+<span class="c1">#          Data Definition Parameters</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 1: Model Type</span>
+<span class="c1">#                           0:   Unknown</span>
+<span class="c1">#                           1:   Structural</span>
+<span class="c1">#                           2:   Heat Transfer</span>
+<span class="c1">#                           3:   Fluid Flow</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 2:  Analysis Type</span>
+<span class="c1">#                           0:   Unknown</span>
+<span class="c1">#                           1:   Static</span>
+<span class="c1">#                           2:   Normal Mode</span>
+<span class="c1">#                           3:   Complex eigenvalue first order</span>
+<span class="c1">#                           4:   Transient</span>
+<span class="c1">#                           5:   Frequency Response</span>
+<span class="c1">#                           6:   Buckling</span>
+<span class="c1">#                           7:   Complex eigenvalue second order</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 3:  Data Characteristic</span>
+<span class="c1">#                           0:   Unknown</span>
+<span class="c1">#                           1:   Scalar</span>
+<span class="c1">#                           2:   3 DOF Global Translation</span>
+<span class="c1">#                                Vector</span>
+<span class="c1">#                           3:   6 DOF Global Translation</span>
+<span class="c1">#                                &amp; Rotation Vector</span>
+<span class="c1">#                           4:   Symmetric Global Tensor</span>
+<span class="c1">#                           5:   General Global Tensor</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 4: Specific Data Type</span>
+<span class="c1">#                           0:   Unknown</span>
+<span class="c1">#                           1:   General</span>
+<span class="c1">#                           2:   Stress</span>
+<span class="c1">#                           3:   Strain (Engineering)</span>
+<span class="c1">#                           4:   Element Force</span>
+<span class="c1">#                           5:   Temperature</span>
+<span class="c1">#                           6:   Heat Flux</span>
+<span class="c1">#                           7:   Strain Energy</span>
+<span class="c1">#                           8:   Displacement</span>
+<span class="c1">#                           9:   Reaction Force</span>
+<span class="c1">#                           10:   Kinetic Energy</span>
+<span class="c1">#                           11:   Velocity</span>
+<span class="c1">#                           12:   Acceleration</span>
+<span class="c1">#                           13:   Strain Energy Density</span>
+<span class="c1">#                           14:   Kinetic Energy Density</span>
+<span class="c1">#                           15:   Hydro-Static Pressure</span>
+<span class="c1">#                           16:   Heat Gradient</span>
+<span class="c1">#                           17:   Code Checking Value</span>
+<span class="c1">#                           18:   Coefficient Of Pressure</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 5:  Data Type</span>
+<span class="c1">#                           2:   Real</span>
+<span class="c1">#                           5:   Complex</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 6:  Number Of Data Values Per Node (NDV)</span>
+        <span class="n">model_type</span><span class="p">,</span> <span class="n">analysis_type</span><span class="p">,</span> <span class="n">data_characteristic</span><span class="p">,</span> <span class="n">specific_data_type</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">num_data_per_node</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]))</span>
+        <span class="n">data_is_complex</span> <span class="o">=</span> <span class="n">data_type</span> <span class="o">==</span> <span class="mi">5</span>
+<span class="c1">#          Records 7 And 8 Are Analysis Type Specific</span>
+<span class="c1">#</span>
+<span class="c1">#          General Form</span>
+<span class="c1">#</span>
+<span class="c1">#          RECORD 7:      Format (8I10)</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 1:          Number Of Integer Data Values</span>
+<span class="c1">#                           1 &lt; Or = Nint &lt; Or = 10</span>
+<span class="c1">#               FIELD 2:          Number Of Real Data Values</span>
+<span class="c1">#                           1 &lt; Or = Nrval &lt; Or = 12</span>
+<span class="c1">#               FIELDS 3-N:       Type Specific Integer Parameters</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#          RECORD 8:      Format (6E13.5)</span>
+<span class="c1">#               FIELDS 1-N:       Type Specific Real Parameters</span>
+        <span class="c1"># Initially just read the number of data that we will get</span>
+        <span class="n">nints</span><span class="p">,</span> <span class="n">nreals</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
+        <span class="c1"># Now read the whole of record 7</span>
+        <span class="n">int_data</span><span class="p">,</span> <span class="n">lines_read</span> <span class="o">=</span> <span class="n">parse_uff_lines</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">:],</span> <span class="mi">8</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">],</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">nints</span><span class="p">)</span>
+        <span class="n">next_line</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">+</span> <span class="n">lines_read</span>
+        <span class="n">integer_data</span> <span class="o">=</span> <span class="n">int_data</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">real_data</span><span class="p">,</span> <span class="n">lines_read</span> <span class="o">=</span> <span class="n">parse_uff_lines</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">next_line</span><span class="p">:],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">],</span> <span class="n">nreals</span><span class="p">)</span>
+        <span class="n">next_line</span> <span class="o">+=</span> <span class="n">lines_read</span>
+<span class="c1">#          RECORD 9:      Format (I10)</span>
+<span class="c1">#</span>
+<span class="c1">#               FIELD 1:          Node Number</span>
+<span class="c1">#</span>
+<span class="c1">#          RECORD 10:     Format (6E13.5)</span>
+<span class="c1">#               FIELDS 1-N:       Data At This Node (NDV Real Or</span>
+<span class="c1">#                         Complex Values)</span>
+<span class="c1">#</span>
+<span class="c1">#          Records 9 And 10 Are Repeated For Each Node.</span>
+        <span class="n">node_data_dictionary</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">while</span> <span class="n">next_line</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">node</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">next_line</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
+            <span class="n">next_line</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">node_data</span><span class="p">,</span> <span class="n">read_lines</span> <span class="o">=</span> <span class="n">parse_uff_lines</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">next_line</span><span class="p">:],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">],</span> <span class="n">num_data_per_node</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="n">data_is_complex</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">next_line</span> <span class="o">+=</span> <span class="n">read_lines</span>
+            <span class="k">if</span> <span class="n">data_is_complex</span><span class="p">:</span>
+                <span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">real</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span>
+                                              <span class="n">imag</span> <span class="k">for</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_data</span>
+
+        <span class="n">ds_55</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span>
+                    <span class="n">analysis_type</span><span class="p">,</span> <span class="n">data_characteristic</span><span class="p">,</span> <span class="n">specific_data_type</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span>
+                    <span class="n">integer_data</span><span class="p">,</span> <span class="n">real_data</span><span class="p">,</span> <span class="n">node_data_dictionary</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_55</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Sdynpy_UFF_Dataset_55&lt;Shape with </span><span class="si">{:}</span><span class="s1"> Nodes&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_55.write_string"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.Sdynpy_UFF_Dataset_55.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">return_string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># See how many values are in each node</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">num_data</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_data</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="s1">&#39;NONE&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline1</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
+                                         <span class="s1">&#39;NONE&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
+                                         <span class="s1">&#39;NONE&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline3</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline3</span><span class="p">,</span>
+                                         <span class="s1">&#39;NONE&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline4</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline4</span><span class="p">,</span>
+                                         <span class="s1">&#39;NONE&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline5</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">idline5</span><span class="p">,</span>
+                                         <span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">analysis_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">data_characteristic</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">specific_data_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span>
+                                         <span class="n">num_data</span><span class="p">],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
+        <span class="n">nint</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">)</span>
+        <span class="n">nfloat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">)</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="n">nint</span><span class="p">,</span> <span class="n">nfloat</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">integer_data</span><span class="p">,</span>
+                                        <span class="mi">8</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_data</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="n">node</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
+            <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">fn</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">)]</span> 
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">node</span><span class="p">],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">return_string</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_string</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Dataset 55: Shapes</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Dataset 55: Shapes</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.read.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_55.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Sdynpy_UFF_Dataset_55</span><span class="o">.</span><span class="n">from_uff_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Substructuring using Craig-Bampton Superelements from Sierra/SD &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Substructuring using the Transmission Simulator Method" href="transmission_simulator.html" />
+    <link rel="prev" title="Model Reduction" href="model_reduction/model_reduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">SDynpy Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="airplane_modal_test.html">Airplane Modal Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rattlesnake_demonstration.html">Rattlesnake Demonstration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_fem_analysis.html">Analysis of Transient Finite Element Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_reduction/model_reduction.html">Model Reduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Substructuring using Craig-Bampton Superelements from Sierra/SD</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-problem">Setting up the Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzing-superelements-in-sdynpy">Analyzing Superelements in SDynPy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combining-component-models">Combining Component Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transmission_simulator.html">Substructuring using the Transmission Simulator Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mimo_random_vibration_control.html">MIMO Random Vibration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">SDynpy Examples</a></li>
+      <li class="breadcrumb-item active">Substructuring using Craig-Bampton Superelements from Sierra/SD</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_problems/craig_bampton_substructuring.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="substructuring-using-craig-bampton-superelements-from-sierra-sd">
+<h1><a class="toc-backref" href="#id7">Substructuring using Craig-Bampton Superelements from Sierra/SD</a><a class="headerlink" href="#substructuring-using-craig-bampton-superelements-from-sierra-sd" title="Permalink to this heading"></a></h1>
+<p>This example will demonstrate the capabilities in SDynPy for working with
+superelements from Sierra/SD.  We will generate a small toy problem that we
+can use to demonstrate the functionality.  We will then run Sierra to generate
+output, load it into SDynPy, and combine the components together.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#substructuring-using-craig-bampton-superelements-from-sierra-sd" id="id7">Substructuring using Craig-Bampton Superelements from Sierra/SD</a></p>
+<ul>
+<li><p><a class="reference internal" href="#setting-up-the-problem" id="id8">Setting up the Problem</a></p></li>
+<li><p><a class="reference internal" href="#analyzing-superelements-in-sdynpy" id="id9">Analyzing Superelements in SDynPy</a></p></li>
+<li><p><a class="reference internal" href="#combining-component-models" id="id10">Combining Component Models</a></p></li>
+<li><p><a class="reference internal" href="#summary" id="id11">Summary</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="setting-up-the-problem">
+<h2><a class="toc-backref" href="#id8">Setting up the Problem</a><a class="headerlink" href="#setting-up-the-problem" title="Permalink to this heading"></a></h2>
+<p>We will first use the Cubit software to generate a mesh for the finite element
+analysis.  We will create a small spaceship-looking model consisting of 4
+rectangular sections.  The attached input file
+can be executed using Cubit’s Python interface to create the model.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/spaceship_mesh.png"><img alt="Mesh generated by Cubit" src="../_images/spaceship_mesh.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mesh generated by Cubit showing the two element block components and the
+boundary nodes between them.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p><a class="reference download internal" download="" href="../_downloads/969c5b7f19cdfcc6ec6d6f8827333c1e/cubit_input_file.py"><code class="xref download docutils literal notranslate"><span class="pre">Cubit</span> <span class="pre">Input</span> <span class="pre">File</span></code></a></p>
+<p>This model contains two element blocks, block 1 and block 2, which are the
+‘nose’ and the ‘thrusters’ of the spaceship, respectively.  The model also
+contains a single nodeset 1 which specifies the boundary nodes that will
+be retained in the Craig Bampton Substructuring.  The attached Cubit input file
+will generate three exodus files.  One containing element block 1 <code class="docutils literal notranslate"><span class="pre">block_1.exo</span></code>,
+a second containing element block 2 <code class="docutils literal notranslate"><span class="pre">block_2.exo</span></code>, and a third containing
+both element blocks 1 and 2 <code class="docutils literal notranslate"><span class="pre">block_all.exo</span></code>, which is to be used for truth data.</p>
+<p>Input files are then set up for the Sierra/SD code. In each input file, there
+will be an Eigensolution <code class="docutils literal notranslate"><span class="pre">eigen</span></code> and a Craig-Bampton Reduction <code class="docutils literal notranslate"><span class="pre">cbr</span></code>
+solution.  The <code class="docutils literal notranslate"><span class="pre">cbr</span></code> solution will produce the superelement that will later
+be used for substructuring, and the <code class="docutils literal notranslate"><span class="pre">eigen</span></code> solution will compute the modes
+of the full model, which can be compared to the reduced <code class="docutils literal notranslate"><span class="pre">cbr</span></code> model to check
+convergence.  A ‘truth’ input file will also be generated to run the full model;
+this will only contain an <code class="docutils literal notranslate"><span class="pre">eigen</span></code> solution as no substructuring will be
+performed with this model.  The input files are attached:</p>
+<p><a class="reference download internal" download="" href="../_downloads/2b92a12830ca9ea615fddb2900cfea42/block_1.inp"><code class="xref download docutils literal notranslate"><span class="pre">Sierra/SD</span> <span class="pre">Input</span> <span class="pre">for</span> <span class="pre">Block</span> <span class="pre">1</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/24f4d18112c302c9808c17cb398f9394/block_2.inp"><code class="xref download docutils literal notranslate"><span class="pre">Sierra/SD</span> <span class="pre">Input</span> <span class="pre">for</span> <span class="pre">Block</span> <span class="pre">2</span></code></a></p>
+<p><a class="reference download internal" download="" href="../_downloads/d61d37b57fdc55583bf85e80e8478983/block_all.inp"><code class="xref download docutils literal notranslate"><span class="pre">Sierra/SD</span> <span class="pre">Input</span> <span class="pre">for</span> <span class="pre">Truth</span> <span class="pre">Data</span></code></a></p>
+<p>When run, each of the two <code class="docutils literal notranslate"><span class="pre">cbr</span></code> analyses will output a superelement file
+<code class="docutils literal notranslate"><span class="pre">block_&lt;i&gt;-cbr.nc4</span></code> as well as an Exodus file <code class="docutils literal notranslate"><span class="pre">block_&lt;i&gt;-cbr.exo</span></code>.
+The superelement <code class="docutils literal notranslate"><span class="pre">.nc4</span></code> file will contain the reduced mass and stiffness
+matrices (damping also, though this is zero) as well as a map denoting which
+reduction degrees of freedom correspond to physical degres of freedom and which
+correspond to fixed base modes.  The Exodus file contains the Craig-Bampton
+transformation shapes, meaning its shapes are the fixed interface mode shapes
+and the constraint mode shapes.  The shapes in this file transform the reduced
+degrees of freedom back to the physical degrees of freedom.  Each analysis will
+also output an Exodus file called <code class="docutils literal notranslate"><span class="pre">block_&lt;i&gt;-eig.exo</span></code>.  This will contain the
+eigensolution computed from the full mass and stiffness matrices, which can be
+used to check convergence of the reduce model.</p>
+<p>The ‘truth’ analysis in <code class="docutils literal notranslate"><span class="pre">block_all.inp</span></code> will output only an Exodus file
+<code class="docutils literal notranslate"><span class="pre">block_all-eig.exo</span></code> which contains the eigensolution computed from the full
+combined system models, which will be treated as truth data for this work.</p>
+</section>
+<section id="analyzing-superelements-in-sdynpy">
+<h2><a class="toc-backref" href="#id9">Analyzing Superelements in SDynPy</a><a class="headerlink" href="#analyzing-superelements-in-sdynpy" title="Permalink to this heading"></a></h2>
+<p>With the data generated, we can now load into SDynPy to perform analysis.  We
+will basically load each superelement <code class="docutils literal notranslate"><span class="pre">.nc4</span></code> file and transformation <code class="docutils literal notranslate"><span class="pre">.exo</span></code>
+file in as a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a> object.  This
+will populate the mass, stiffness, and damping matrices with the values from the
+reduced Craig-Bampton model, and will populate the transformation with data from
+the <code class="docutils literal notranslate"><span class="pre">.exo</span></code> transformation file.  This allows the model to appear to be the full
+finite element mesh while only relying on a much smaller number of degrees of
+freedom to form that representation.</p>
+<p>As the first step in our analysis, we will import the required packages and
+define the model numbers we are loading.  We also set up lists to hold the
+different properties of each model that we will load.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Get the block numbers</span>
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># Set up arrays</span>
+<span class="n">systems</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">geometries</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">boundary_dofs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">check_shapes</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">reduced_shapes</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>We will then set up a for loop over each of our element blocks.  For each block,
+we will create a system, geometry, and set of boundary degrees of freedom using
+the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.from_exodus_superelement" title="sdynpy.core.sdynpy_system.System.from_exodus_superelement"><code class="xref py py-func docutils literal notranslate"><span class="pre">System.from_exodus_superelement</span></code></a>
+method.  This will return a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>
+object representing the reduced system, a
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> object that can be
+used to plot shapes or displacement from the reduced system, and finally a
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a>
+object that contains the boundary degrees of freedom, to which forces or
+substructuring connections could be applied.  We will overwrite the color of
+the geometry to ensure the two different portions are different colors.</p>
+<p>Once these results are loaded, we can compute the eigensolution of the reduced
+component model.  The goal here is to compare the accuracy of the reduced
+component model to the full solution, so we will load in the component
+eigensolution results and extract the modes using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.from_exodus" title="sdynpy.core.sdynpy_shape.ShapeArray.from_exodus"><code class="xref py py-func docutils literal notranslate"><span class="pre">ShapeArray.from_exodus</span></code></a>
+method.  We can assign comments to each set of shapes to ensure when they are
+plotted we can keep track of them.</p>
+<p>We wish to overlay the shapes computed from the reduced and full systems, so
+we will compute the alignment between the shapes.  This will return either a 1
+or a -1 depending on whether or not the shape needs to be flipped to be in
+phase with the other shape.  We can easily compute the alignment using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment" title="sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment"><code class="xref py py-func docutils literal notranslate"><span class="pre">ShapeArray.shape_alignment</span></code></a>
+static method.  We can then use this alignment array to flip the sign on the
+appropriate reduced shape to make them in phase with the full shape.</p>
+<p>Once the shapes are aligned, we can overlay them using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes" title="sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes"><code class="xref py py-func docutils literal notranslate"><span class="pre">ShapeArray.overlay_shapes</span></code></a>
+static method.  This will return a combined
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> object and a combined
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShapeArray</span></code></a> object consisting
+of the overlaid shapes.  We can plot them using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.plot_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_shape"><code class="xref py py-func docutils literal notranslate"><span class="pre">Geometry.plot_shape</span></code></a>
+method, specifying <code class="docutils literal notranslate"><span class="pre">undeformed_opacity</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">deformed_opacity</span> <span class="pre">=</span> <span class="pre">0.5</span></code>
+so we can see any differences between the overlapping shapes.</p>
+<p>We also compute and plot a MAC matrix between the sets of shapes to identify
+the shape similarity.  Note that due to the symmetry of the <code class="docutils literal notranslate"><span class="pre">block_1</span></code> portion
+of the model, there are repeated eigenvalues, which will result in mode shapes
+that can be linear combinations of one another.  For this reason there may not
+be perfect shape agreement per the MAC for this component even though they are
+technically correct.</p>
+<p>At the end of the <code class="docutils literal notranslate"><span class="pre">for</span></code> loop we store all the pertinent data to the arrays
+we have set up.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loop through each model</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+    <span class="c1"># Load in the super element</span>
+    <span class="n">system</span><span class="p">,</span><span class="n">geometry</span><span class="p">,</span><span class="n">dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="o">.</span><span class="n">from_exodus_superelement</span><span class="p">(</span><span class="s1">&#39;block_</span><span class="si">{:}</span><span class="s1">-cbr.nc4&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+                                                                <span class="s1">&#39;block_</span><span class="si">{:}</span><span class="s1">-cbr.exo&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="c1"># Set the color of the model so they aren&#39;t all blue</span>
+    <span class="n">geometry</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">6</span>
+
+    <span class="c1"># Compute modes of the reduced system</span>
+    <span class="n">cb_shapes</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">()</span>
+
+    <span class="c1"># Load in the eigensolution to compare against</span>
+    <span class="n">full_shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">from_exodus</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">Exodus</span><span class="p">(</span><span class="s1">&#39;block_</span><span class="si">{:}</span><span class="s1">-eig.exo&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+
+    <span class="c1"># Assign comments so we know which is which</span>
+    <span class="n">cb_shapes</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Reduced Block </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">full_shapes</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Full Block </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="c1"># Compute shape alignment and flip shapes if necessary</span>
+    <span class="n">alignment</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_alignment</span><span class="p">(</span><span class="n">cb_shapes</span><span class="p">[:</span><span class="n">full_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">],</span><span class="n">full_shapes</span><span class="p">[:</span><span class="n">full_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
+    <span class="n">cb_shapes</span><span class="p">[:</span><span class="n">full_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">cb_shapes</span><span class="p">[:</span><span class="n">full_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">]</span><span class="o">*</span><span class="n">alignment</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="c1"># Overlay shapes</span>
+    <span class="n">compare_geo</span><span class="p">,</span> <span class="n">compare_shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">overlay_shapes</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">geometry</span><span class="p">,</span><span class="n">geometry</span><span class="p">],[</span><span class="n">cb_shapes</span><span class="p">[:</span><span class="n">full_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">],</span><span class="n">full_shapes</span><span class="p">],</span><span class="n">color_override</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+    <span class="n">compare_shapes</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Blue: CBR, Green: Full&#39;</span>
+    <span class="n">compare_geo</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">compare_shapes</span><span class="p">,</span><span class="n">undeformed_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># Compute a MAC</span>
+    <span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">cb_shapes</span><span class="p">,</span><span class="n">full_shapes</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Reduced Shapes&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Full Shapes&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Block </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+    <span class="c1"># Append to arrays</span>
+    <span class="n">systems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+    <span class="n">geometries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+    <span class="n">boundary_dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+    <span class="n">check_shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">)</span>
+    <span class="n">reduced_shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cb_shapes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We see that the modes show almost perfect agreement at low frequency, and it
+is only at the very high frequencies that the agreement tends to break down.
+Note that the rigid body modes and other repeated roots may show poor shape
+correlation due to the fact that any linear combination of the repeated modes’
+shapes are also valid mode shapes.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 45%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Error</p></th>
+<th class="head"><p>Block 1 Component</p></th>
+<th class="head"><p>Block 2 Component</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Nearly Zero</p></td>
+<td><img alt="Block 1 component with nearly zero error" src="../_images/spaceship_block_1_modeshape_comparison_perfect.gif" />
+</td>
+<td><img alt="Block 2 component with nearly zero error" src="../_images/spaceship_block_2_modeshape_comparison_perfect.gif" />
+</td>
+</tr>
+<tr class="row-odd"><td><p>Small</p></td>
+<td><img alt="Block 1 component with small error" src="../_images/spaceship_block_1_modeshape_comparison_small_errors.gif" />
+</td>
+<td><img alt="Block 2 component with small error" src="../_images/spaceship_block_2_modeshape_comparison_small_errors.gif" />
+</td>
+</tr>
+<tr class="row-even"><td><p>Large</p></td>
+<td><img alt="Block 1 component with large error" src="../_images/spaceship_block_1_modeshape_comparison_large_errors.gif" />
+</td>
+<td><img alt="Block 2 component with large error" src="../_images/spaceship_block_2_modeshape_comparison_large_errors.gif" />
+</td>
+</tr>
+</tbody>
+</table>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/spaceship_block_1_mac.png"><img alt="MAC matrix for block 1" src="../_images/spaceship_block_1_mac.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAC matrix between shapes computed from the reduced model and shapes computed
+from the full model for block 1</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/spaceship_block_2_mac.png"><img alt="MAC matrix for block 2" src="../_images/spaceship_block_2_mac.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAC matrix between shapes computed from the reduced model and shapes computed
+from the full model for block 2</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="combining-component-models">
+<h2><a class="toc-backref" href="#id10">Combining Component Models</a><a class="headerlink" href="#combining-component-models" title="Permalink to this heading"></a></h2>
+<p>With the systems loaded, we can now combine the models into a single assembly.
+The model was created such that the boundary nodes are collocated, so we can
+use the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.substructure_by_position.html#sdynpy.core.sdynpy_system.substructure_by_position" title="sdynpy.core.sdynpy_system.substructure_by_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdpy.system.substructure_by_position</span></code></a>
+function to combine the nodes.  The function takes a list of systems to combine
+and a list of geometries to use to identify collocated nodes.  After we perform
+the substructuring, we can compute the eigensolution and plot the assembled shapes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now let&#39;s do some substructuring</span>
+<span class="n">combined_system</span><span class="p">,</span> <span class="n">combined_geometry</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">(</span><span class="n">systems</span><span class="p">,</span> <span class="n">geometries</span><span class="p">)</span>
+<span class="n">combined_shapes</span> <span class="o">=</span> <span class="n">combined_system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">()</span>
+<span class="n">combined_geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">combined_shapes</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/spaceship_assembled_mode_shape.gif"><img alt="Assembled mode shape" src="../_images/spaceship_assembled_mode_shape.gif" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">First elastic modes of the assembled system.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can see by the mode shape that the system was assembled successfully as all
+the nodes at the boundary surface stay together.</p>
+<p>We will now compare the substructured modes to the truth modes from the
+full system eigensolution.  We can load in the Exodus file and extract the
+geometry and shapes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load in the data to compare to</span>
+<span class="n">exo</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">Exodus</span><span class="p">(</span><span class="s1">&#39;block_all-eig.exo&#39;</span><span class="p">)</span>
+<span class="n">full_geometry</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">from_exodus</span><span class="p">(</span><span class="n">exo</span><span class="p">)</span>
+<span class="n">full_shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">from_exodus</span><span class="p">(</span><span class="n">exo</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note however that we cannot directly compare the shapes.  In the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.substructure_by_position.html#sdynpy.core.sdynpy_system.substructure_by_position" title="sdynpy.core.sdynpy_system.substructure_by_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdpy.system.substructure_by_position</span></code></a>
+function, the node IDs are offset so there are no conflicts between substructures
+that may have the same node numbers.  We therefore need to figure out the mapping
+between the substructured node IDs and the truth node IDs.</p>
+<p>Since the nodes coordinates are identical between the substructured and truth
+models, we can use the node positions to determine the mapping.  We will let the
+original nodes be the nodes from the truth model, and we will select the
+substructured nodes that correspond to the original nodes using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.by_position" title="sdynpy.core.sdynpy_geometry.NodeArray.by_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">by_position</span></code></a>
+method of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeArray</span></code></a>
+object.  We can then construct an <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map" title="sdynpy.core.sdynpy_geometry.id_map"><code class="xref py py-class docutils literal notranslate"><span class="pre">id_map</span></code></a>
+object using these nodes, which many correlation functions in SDynPy accept
+to map nodes that have differing IDs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Map the shapes back to the original nodes because the substructuring has</span>
+<span class="c1"># automatically renamed them to avoid conflicts</span>
+<span class="n">original_nodes</span> <span class="o">=</span> <span class="n">full_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span>
+<span class="c1"># Get the closest node to the original node</span>
+<span class="n">substructured_nodes</span> <span class="o">=</span> <span class="n">combined_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">by_position</span><span class="p">(</span><span class="n">full_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
+<span class="c1"># Create an ID map</span>
+<span class="n">id_map</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">id_map</span><span class="p">(</span><span class="n">original_nodes</span><span class="p">,</span><span class="n">substructured_nodes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that the node map between the substructured model and truth model has been
+defined, we can use it to perform correlations.  We will compute the MAC matrix
+between the substructured shapes and the truth shapes to identify shape
+correlations, and then we will compute the frequency differences and print it
+to a table.  Note that the node map is passed as an argument to the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.mac.html#sdynpy.core.sdynpy_shape.mac" title="sdynpy.core.sdynpy_shape.mac"><code class="xref py py-func docutils literal notranslate"><span class="pre">mac</span></code></a> function, which informs the
+functions which nodes to compare between the two sets of shapes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute MAC matrix</span>
+<span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">combined_shapes</span><span class="p">,</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">id_map</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Substructured Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Truth Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Full Model MAC&#39;</span><span class="p">)</span>
+
+<span class="c1"># Print mode table</span>
+<span class="n">substructure_indices</span><span class="p">,</span><span class="n">truth_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mac</span><span class="p">[</span><span class="mi">6</span><span class="p">:,</span><span class="mi">6</span><span class="p">:]</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span><span class="n">combined_shapes</span><span class="p">[</span><span class="n">substructure_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span>
+                                        <span class="n">full_shapes</span><span class="p">[</span><span class="n">truth_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span>
+                                        <span class="n">damping_format</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">node_id_map</span><span class="o">=</span><span class="n">id_map</span><span class="p">,</span>
+                                        <span class="n">table_format</span><span class="o">=</span><span class="s1">&#39;markdown&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/spaceship_substructuring_mac.png"><img alt="MAC matrix between the truth shapes and substructured shapes" src="../_images/spaceship_substructuring_mac.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">MAC matrix between the truth shapes and the substructured shapes.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span>  <span class="n">Mode</span><span class="o">|</span>  <span class="n">Freq</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Hz</span><span class="p">)</span><span class="o">|</span>  <span class="n">Freq</span> <span class="mi">2</span> <span class="p">(</span><span class="n">Hz</span><span class="p">)</span><span class="o">|</span>  <span class="n">Freq</span> <span class="n">Error</span><span class="o">|</span>  <span class="n">MAC</span><span class="o">|</span>
+<span class="o">|------|-------------|-------------|------------|-----|</span>
+<span class="o">|</span>     <span class="mi">1</span><span class="o">|</span>       <span class="mf">463.46</span><span class="o">|</span>       <span class="mf">463.46</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">2</span><span class="o">|</span>       <span class="mf">585.96</span><span class="o">|</span>       <span class="mf">585.95</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">3</span><span class="o">|</span>       <span class="mf">750.96</span><span class="o">|</span>       <span class="mf">750.96</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">4</span><span class="o">|</span>       <span class="mf">834.17</span><span class="o">|</span>       <span class="mf">834.17</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">5</span><span class="o">|</span>      <span class="mf">1368.52</span><span class="o">|</span>      <span class="mf">1368.49</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">6</span><span class="o">|</span>      <span class="mf">1434.50</span><span class="o">|</span>      <span class="mf">1434.50</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">7</span><span class="o">|</span>      <span class="mf">1458.51</span><span class="o">|</span>      <span class="mf">1458.50</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">8</span><span class="o">|</span>      <span class="mf">1665.30</span><span class="o">|</span>      <span class="mf">1665.14</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>     <span class="mi">9</span><span class="o">|</span>      <span class="mf">1727.18</span><span class="o">|</span>      <span class="mf">1727.17</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">10</span><span class="o">|</span>      <span class="mf">2021.07</span><span class="o">|</span>      <span class="mf">2021.03</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">11</span><span class="o">|</span>      <span class="mf">2767.00</span><span class="o">|</span>      <span class="mf">2766.90</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">12</span><span class="o">|</span>      <span class="mf">3140.80</span><span class="o">|</span>      <span class="mf">3138.37</span><span class="o">|</span>        <span class="mf">0.1</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">13</span><span class="o">|</span>      <span class="mf">3432.48</span><span class="o">|</span>      <span class="mf">3432.29</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">14</span><span class="o">|</span>      <span class="mf">3767.55</span><span class="o">|</span>      <span class="mf">3765.91</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">15</span><span class="o">|</span>      <span class="mf">3871.50</span><span class="o">|</span>      <span class="mf">3870.86</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">16</span><span class="o">|</span>      <span class="mf">4063.53</span><span class="o">|</span>      <span class="mf">4062.56</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">17</span><span class="o">|</span>      <span class="mf">4251.80</span><span class="o">|</span>      <span class="mf">4250.85</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">18</span><span class="o">|</span>      <span class="mf">4312.29</span><span class="o">|</span>      <span class="mf">4312.22</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">19</span><span class="o">|</span>      <span class="mf">4319.99</span><span class="o">|</span>      <span class="mf">4319.28</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">20</span><span class="o">|</span>      <span class="mf">4948.01</span><span class="o">|</span>      <span class="mf">4947.56</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">21</span><span class="o">|</span>      <span class="mf">5195.45</span><span class="o">|</span>      <span class="mf">5193.05</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">22</span><span class="o">|</span>      <span class="mf">5713.47</span><span class="o">|</span>      <span class="mf">5687.49</span><span class="o">|</span>        <span class="mf">0.5</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">23</span><span class="o">|</span>      <span class="mf">6213.86</span><span class="o">|</span>      <span class="mf">6198.35</span><span class="o">|</span>        <span class="mf">0.3</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">24</span><span class="o">|</span>      <span class="mf">6215.22</span><span class="o">|</span>      <span class="mf">6210.73</span><span class="o">|</span>        <span class="mf">0.1</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">25</span><span class="o">|</span>      <span class="mf">6945.63</span><span class="o">|</span>      <span class="mf">6945.25</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">26</span><span class="o">|</span>      <span class="mf">7110.41</span><span class="o">|</span>      <span class="mf">7102.79</span><span class="o">|</span>        <span class="mf">0.1</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">27</span><span class="o">|</span>      <span class="mf">7247.83</span><span class="o">|</span>      <span class="mf">7246.99</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">28</span><span class="o">|</span>      <span class="mf">7398.35</span><span class="o">|</span>      <span class="mf">7397.53</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">29</span><span class="o">|</span>      <span class="mf">7732.32</span><span class="o">|</span>      <span class="mf">7729.57</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">30</span><span class="o">|</span>      <span class="mf">8052.87</span><span class="o">|</span>      <span class="mf">8049.50</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">31</span><span class="o">|</span>      <span class="mf">8101.66</span><span class="o">|</span>      <span class="mf">7992.09</span><span class="o">|</span>        <span class="mf">1.4</span><span class="o">%|</span>   <span class="mi">97</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">32</span><span class="o">|</span>      <span class="mf">8336.22</span><span class="o">|</span>      <span class="mf">8310.52</span><span class="o">|</span>        <span class="mf">0.3</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">33</span><span class="o">|</span>      <span class="mf">8877.21</span><span class="o">|</span>      <span class="mf">8860.38</span><span class="o">|</span>        <span class="mf">0.2</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">34</span><span class="o">|</span>      <span class="mf">9108.49</span><span class="o">|</span>      <span class="mf">9069.66</span><span class="o">|</span>        <span class="mf">0.4</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">35</span><span class="o">|</span>      <span class="mf">9323.28</span><span class="o">|</span>      <span class="mf">9263.32</span><span class="o">|</span>        <span class="mf">0.6</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">36</span><span class="o">|</span>      <span class="mf">9627.15</span><span class="o">|</span>      <span class="mf">9591.93</span><span class="o">|</span>        <span class="mf">0.4</span><span class="o">%|</span>   <span class="mi">98</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">37</span><span class="o">|</span>      <span class="mf">9914.18</span><span class="o">|</span>      <span class="mf">9875.70</span><span class="o">|</span>        <span class="mf">0.4</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">38</span><span class="o">|</span>     <span class="mf">10095.29</span><span class="o">|</span>     <span class="mf">10060.16</span><span class="o">|</span>        <span class="mf">0.3</span><span class="o">%|</span>   <span class="mi">98</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">39</span><span class="o">|</span>     <span class="mf">10308.96</span><span class="o">|</span>     <span class="mf">10307.29</span><span class="o">|</span>        <span class="mf">0.0</span><span class="o">%|</span>  <span class="mi">100</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">40</span><span class="o">|</span>     <span class="mf">10391.74</span><span class="o">|</span>     <span class="mf">10369.17</span><span class="o">|</span>        <span class="mf">0.2</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+<span class="o">|</span>    <span class="mi">41</span><span class="o">|</span>     <span class="mf">12108.51</span><span class="o">|</span>     <span class="mf">12079.93</span><span class="o">|</span>        <span class="mf">0.2</span><span class="o">%|</span>   <span class="mi">99</span><span class="o">|</span>
+</pre></div>
+</div>
+<p>The results are very good.  MAC values between the truth and substructure shapes
+are generally above 95, and only one mode has a frequency error of more than 1%,
+with several having a frequency error of less than 0.1%.</p>
+<p>Finally, we can overlay the substructure shapes.  We again compute alignments
+to ensure the shapes are not overlaid out of phase with one another.  We can
+pass the node map to the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment" title="sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment"><code class="xref py py-func docutils literal notranslate"><span class="pre">shape_alignment</span></code></a>
+static method to inform which nodes should be compared between the two sets of
+shapes.  The shapes are then multiplied by the alignment vector to flip their
+signs if necessary, and finally the shapes can be overlaid and plotted,
+again using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes" title="sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes"><code class="xref py py-func docutils literal notranslate"><span class="pre">ShapeArray.overlay_shapes</span></code></a>
+static method.  It isn’t until the 31st mode shape that there is a visible
+difference in the mode shape, so the substructuring can be considered very
+accurate.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Align shapes</span>
+<span class="n">alignment</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_alignment</span><span class="p">(</span><span class="n">combined_shapes</span><span class="p">[</span><span class="n">substructure_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span><span class="n">full_shapes</span><span class="p">[</span><span class="n">truth_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span><span class="n">id_map</span><span class="p">)</span>
+<span class="n">combined_shapes</span><span class="p">[</span><span class="n">substructure_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">combined_shapes</span><span class="p">[</span><span class="n">substructure_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="n">alignment</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+<span class="c1"># Overlay shapes</span>
+<span class="n">compare_geo</span><span class="p">,</span> <span class="n">compare_shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">overlay_shapes</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">combined_geometry</span><span class="p">,</span><span class="n">full_geometry</span><span class="p">],[</span><span class="n">combined_shapes</span><span class="p">[</span><span class="n">substructure_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span><span class="n">full_shapes</span><span class="p">[</span><span class="n">truth_indices</span><span class="o">+</span><span class="mi">6</span><span class="p">]],</span><span class="n">color_override</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+<span class="n">compare_shapes</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Blue: CB Substructured, Green: Truth&#39;</span>
+<span class="n">compare_geo</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">compare_shapes</span><span class="p">,</span><span class="n">undeformed_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/spaceship_substructuring_truth_comparison.gif"><img alt="Mode comparison between the truth and substructured models" src="../_images/spaceship_substructuring_truth_comparison.gif" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mode shape comparison for the first shape where differences between the truth
+and substructured shapes are readily visible.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="summary">
+<h2><a class="toc-backref" href="#id11">Summary</a><a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<p>This example has demonstrated how Craig-Bampton superelement and transformation
+files from Sierra/SD can be loaded into SDynPy as a system object and then used
+for substructuring.  The results were compared against truth data from an
+eigensolution of the full system matrices, and very good agreement was obtained.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model_reduction/model_reduction.html" class="btn btn-neutral float-left" title="Model Reduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transmission_simulator.html" class="btn btn-neutral float-right" title="Substructuring using the Transmission Simulator Method" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

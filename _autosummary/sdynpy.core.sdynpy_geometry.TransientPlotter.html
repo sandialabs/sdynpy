@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_geometry.TransientPlotter &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_geometry.id_map" href="sdynpy.core.sdynpy_geometry.id_map.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_geometry.TracelineArray" href="sdynpy.core.sdynpy_geometry.TracelineArray.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html">sdynpy.core.sdynpy_geometry.coordinate_system_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.element_array.html">sdynpy.core.sdynpy_geometry.element_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_exodus.html">sdynpy.core.sdynpy_geometry.from_exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_imat_struct.html">sdynpy.core.sdynpy_geometry.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_uff.html">sdynpy.core.sdynpy_geometry.from_uff</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_unv.html">sdynpy.core.sdynpy_geometry.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_coord.html">sdynpy.core.sdynpy_geometry.global_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_deflection.html">sdynpy.core.sdynpy_geometry.global_deflection</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.load.html">sdynpy.core.sdynpy_geometry.load</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.local_coord.html">sdynpy.core.sdynpy_geometry.local_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.node_array.html">sdynpy.core.sdynpy_geometry.node_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.split_list.html">sdynpy.core.sdynpy_geometry.split_list</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.traceline_array.html">sdynpy.core.sdynpy_geometry.traceline_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html">sdynpy.core.sdynpy_geometry.DeflectionShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html">sdynpy.core.sdynpy_geometry.ElementArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html">sdynpy.core.sdynpy_geometry.Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html">sdynpy.core.sdynpy_geometry.GeometryPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.NodeArray.html">sdynpy.core.sdynpy_geometry.NodeArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ShapePlotter.html">sdynpy.core.sdynpy_geometry.ShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TracelineArray.html">sdynpy.core.sdynpy_geometry.TracelineArray</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_geometry.TransientPlotter</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter"><code class="docutils literal notranslate"><span class="pre">TransientPlotter</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.__init__"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.add_menu_bar()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.add_toolbars()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_first_step"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.go_to_first_step()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_last_step"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.go_to_last_step()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_next_step"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.go_to_next_step()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_previous_step"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.go_to_previous_step()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.modify_abscissa"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.modify_abscissa()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.play_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation_reverse"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.play_animation_reverse()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.save_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_0p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_0p5()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_0p8()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_1()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_1p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_2p0()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_scaling_4p0()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_speed_0p8()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_speed_1()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.select_speed_1p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.stop_animation"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.stop_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.update_abscissa()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa_reverse"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.update_abscissa_reverse()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_displacement"><code class="docutils literal notranslate"><span class="pre">TransientPlotter.update_displacement()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.id_map.html">sdynpy.core.sdynpy_geometry.id_map</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_geometry.TransientPlotter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-geometry-transientplotter">
+<h1>sdynpy.core.sdynpy_geometry.TransientPlotter<a class="headerlink" href="#sdynpy-core-sdynpy-geometry-transientplotter" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TransientPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames_per_second</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undeformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_curves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_screen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_quit_keypress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">menu_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_app_icon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html#sdynpy.core.sdynpy_geometry.GeometryPlotter" title="sdynpy.core.sdynpy_geometry.GeometryPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryPlotter</span></code></a></p>
+<p>Class used to plot transient deformations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames_per_second</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undeformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_curves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_screen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_quit_keypress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">menu_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_app_icon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a TransientPlotter object to plot displacements over time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><em>Geometry</em></a>) – Geometry on which the displacements will be plotted</p></li>
+<li><p><strong>displacement_data</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><em>TimeHistoryArray</em></a>) – Transient displacement data that will be applied</p></li>
+<li><p><strong>displacement_scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale factor applied to displacements. The default is 1.0.</p></li>
+<li><p><strong>frames_per_second</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of time steps to plot per second while the displacement is
+animating.  Default is 20.</p></li>
+<li><p><strong>undeformed_opacity</strong> (<em>float</em><em>, </em><em>optional</em>) – Opacity of the undeformed geometry. The default is 0.0, or
+completely transparent.</p></li>
+<li><p><strong>deformed_opacity</strong> (<em>float</em><em>, </em><em>optional</em>) – Opacity of the deformed geometry. The default is 1.0, or completely
+opaque.</p></li>
+<li><p><strong>plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keyword arguments passed to the Geometry.plot function</p></li>
+<li><p><strong>transformation_shapes</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><em>ShapeArray</em></a>) – Shape matrix that will be used to expand the data.  Must be the
+same size as the <cite>displacement_data</cite></p></li>
+<li><p><strong>num_curves</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of curves to plot on the time selector.  Default is
+50</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – Show the plotting window.  If <code class="docutils literal notranslate"><span class="pre">False</span></code>, show this window by
+running <code class="docutils literal notranslate"><span class="pre">show()</span></code>. The default is True.</p></li>
+<li><p><strong>app</strong> (<em>QApplication</em><em>, </em><em>optional</em>) – Creates a <cite>QApplication</cite> if left as <cite>None</cite>.  The default is None.</p></li>
+<li><p><strong>window_size</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Window size in pixels.  Defaults to <code class="docutils literal notranslate"><span class="pre">[1024,</span> <span class="pre">768]</span></code></p></li>
+<li><p><strong>off_screen</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Renders off screen when True.  Useful for automated
+screenshots or debug testing. The default is None.</p></li>
+<li><p><strong>allow_quit_keypress</strong> (<em>bool</em><em>, </em><em>optional</em>) – Allow user to exit by pressing <code class="docutils literal notranslate"><span class="pre">&quot;q&quot;</span></code>. The default is True.</p></li>
+<li><p><strong>toolbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, display the default camera toolbar. Defaults to True.</p></li>
+<li><p><strong>menu_bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, display the default main menu. Defaults to True.</p></li>
+<li><p><strong>editor</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – If True, display the VTK object editor. Defaults to False.</p></li>
+<li><p><strong>update_app_icon</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, update_app_icon will be called automatically to update the
+Qt app icon based on the current rendering output. If None, the
+logo of PyVista will be used. If False, no icon will be set.
+Defaults to None. The default is None.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of plotting window.</p></li>
+<li><p><strong>multi_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of multi-samples used to mitigate aliasing. 4 is a
+good default but 8 will have better results with a potential
+impact on performance.</p></li>
+<li><p><strong>line_smoothing</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, enable line smothing</p></li>
+<li><p><strong>point_smoothing</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, enable point smothing</p></li>
+<li><p><strong>polygon_smoothing</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, enable polygon smothing</p></li>
+<li><p><strong>auto_update</strong> (<em>float</em><em>, </em><em>bool</em><em>, </em><em>optional</em>) – Automatic update rate in seconds.  Useful for automatically
+updating the render window when actors are change without
+being automatically <code class="docutils literal notranslate"><span class="pre">Modified</span></code>.  If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, update
+rate will be 1 second.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.__init__" title="sdynpy.core.sdynpy_geometry.TransientPlotter.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(geometry, displacement_data[, ...])</p></td>
+<td><p>Create a TransientPlotter object to plot displacements over time</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar" title="sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_menu_bar</span></code></a>()</p></td>
+<td><p>Adds the menu bar to the BackgroundPlotter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars" title="sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_toolbars</span></code></a>()</p></td>
+<td><p>Adds toolbars to the BackgroundPlotter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_first_step" title="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_first_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_to_first_step</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_last_step" title="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_last_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_to_last_step</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_next_step" title="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_next_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_to_next_step</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_previous_step" title="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_previous_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_to_previous_step</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.modify_abscissa" title="sdynpy.core.sdynpy_geometry.TransientPlotter.modify_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modify_abscissa</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation" title="sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play_animation</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation_reverse" title="sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation_reverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play_animation_reverse</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation" title="sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation</span></code></a>([filename, frame_rate, ...])</p></td>
+<td><p>Saves the current shape animation to a file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p25</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.25x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p5</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.5x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p8</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.8x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1</span></code></a>()</p></td>
+<td><p>Resets shape scaling to 1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1p25</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 1.25x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_2p0</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 2x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_4p0</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 4x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_0p8</span></code></a>()</p></td>
+<td><p>Adjusts the current animation speed by 0.8</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1</span></code></a>()</p></td>
+<td><p>Resets animation speed to default quantities</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25" title="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1p25</span></code></a>()</p></td>
+<td><p>Adjusts the current animation speed by 1.25</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.stop_animation" title="sdynpy.core.sdynpy_geometry.TransientPlotter.stop_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_animation</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa" title="sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_abscissa</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa_reverse" title="sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa_reverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_abscissa_reverse</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_displacement" title="sdynpy.core.sdynpy_geometry.TransientPlotter.update_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_displacement</span></code></a>([update_selector])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar">
+<span class="sig-name descname"><span class="pre">add_menu_bar</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.add_menu_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the menu bar to the BackgroundPlotter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars">
+<span class="sig-name descname"><span class="pre">add_toolbars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.add_toolbars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars" title="Permalink to this definition"></a></dt>
+<dd><p>Adds toolbars to the BackgroundPlotter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_first_step">
+<span class="sig-name descname"><span class="pre">go_to_first_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.go_to_first_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_first_step" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_last_step">
+<span class="sig-name descname"><span class="pre">go_to_last_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.go_to_last_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_last_step" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_next_step">
+<span class="sig-name descname"><span class="pre">go_to_next_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.go_to_next_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_next_step" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_previous_step">
+<span class="sig-name descname"><span class="pre">go_to_previous_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.go_to_previous_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.go_to_previous_step" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.modify_abscissa">
+<span class="sig-name descname"><span class="pre">modify_abscissa</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.modify_abscissa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.modify_abscissa" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation">
+<span class="sig-name descname"><span class="pre">play_animation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.play_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation_reverse">
+<span class="sig-name descname"><span class="pre">play_animation_reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.play_animation_reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.play_animation_reverse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation">
+<span class="sig-name descname"><span class="pre">save_animation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.save_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the current shape animation to a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the file being saved. The default is None, which returns
+the images as an array rather than saves them to a file</p></li>
+<li><p><strong>frame_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of frames per second if the animation is saved to a GIF.
+The default is 20.</p></li>
+<li><p><strong>individual_images</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean to specify whether the images are saved as individual PNG
+files or a single GIF. The default is False.</p></li>
+<li><p><strong>start_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Time value at which the animation will start.  Default is first
+time step</p></li>
+<li><p><strong>stop_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Time value at which the animation will end.  Default is last time
+step</p></li>
+<li><p><strong>step</strong> (<em>int</em><em>, </em><em>optional</em>) – Only render every <code class="docutils literal notranslate"><span class="pre">step</span></code> time steps.  Default is to render all
+timesteps</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>imgs</strong> – Returns array of images if filename is None, otherwise returns None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25">
+<span class="sig-name descname"><span class="pre">select_scaling_0p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_0p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.25x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5">
+<span class="sig-name descname"><span class="pre">select_scaling_0p5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_0p5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.5x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8">
+<span class="sig-name descname"><span class="pre">select_scaling_0p8</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_0p8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.8x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1">
+<span class="sig-name descname"><span class="pre">select_scaling_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1" title="Permalink to this definition"></a></dt>
+<dd><p>Resets shape scaling to 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25">
+<span class="sig-name descname"><span class="pre">select_scaling_1p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_1p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 1.25x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0">
+<span class="sig-name descname"><span class="pre">select_scaling_2p0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_2p0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 2x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0">
+<span class="sig-name descname"><span class="pre">select_scaling_4p0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_scaling_4p0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 4x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8">
+<span class="sig-name descname"><span class="pre">select_speed_0p8</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_speed_0p8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current animation speed by 0.8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1">
+<span class="sig-name descname"><span class="pre">select_speed_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_speed_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1" title="Permalink to this definition"></a></dt>
+<dd><p>Resets animation speed to default quantities</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25">
+<span class="sig-name descname"><span class="pre">select_speed_1p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.select_speed_1p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current animation speed by 1.25</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.stop_animation">
+<span class="sig-name descname"><span class="pre">stop_animation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.stop_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.stop_animation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa">
+<span class="sig-name descname"><span class="pre">update_abscissa</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.update_abscissa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa_reverse">
+<span class="sig-name descname"><span class="pre">update_abscissa_reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.update_abscissa_reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_abscissa_reverse" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.TransientPlotter.update_displacement">
+<span class="sig-name descname"><span class="pre">update_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_selector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#TransientPlotter.update_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.TransientPlotter.update_displacement" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_geometry.TracelineArray.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_geometry.TracelineArray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_geometry.id_map.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_geometry.id_map" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

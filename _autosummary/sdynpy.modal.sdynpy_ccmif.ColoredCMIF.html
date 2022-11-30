@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_ccmif.ColoredCMIF &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.modal.sdynpy_ccmif.PropertiesDialog" href="sdynpy.modal.sdynpy_ccmif.PropertiesDialog.html" />
+    <link rel="prev" title="sdynpy.modal.sdynpy_ccmif" href="sdynpy.modal.sdynpy_ccmif.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.modal.sdynpy_ccmif.html">sdynpy.modal.sdynpy_ccmif</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.modal.sdynpy_ccmif.ColoredCMIF</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clear_plot"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.clear_plot()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clicked_point"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.clicked_point()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.cluster_modes"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.cluster_modes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.collect_shapes"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.collect_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_and_plot_ccmif"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.compute_and_plot_ccmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_ccmif"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.compute_ccmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.connect_callbacks"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.connect_callbacks()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.disable_file"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.disable_file()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enable_file"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.enable_file()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_selected_modes"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.enabled_selected_modes</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_shape_array"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.enabled_shape_array</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_figure"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.export_figure()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_mode_table"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.export_mode_table()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_file"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.load_file()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_geometry"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.load_geometry()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_progress"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.load_progress()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_ccmif"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.plot_ccmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_cmifs"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.plot_cmifs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_frfs"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.plot_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_shapes"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.plot_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.remove_file"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.remove_file()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.replace_file"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.replace_file()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.resynthesize"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.resynthesize()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_progress"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.save_progress()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_shapes"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.save_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_mode_properties"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.set_mode_properties()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_properties"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.set_properties()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.toggle_auto_resynth"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.toggle_auto_resynth()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_line_width"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.update_line_width()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_selection"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.update_selection()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_shape_list"><code class="docutils literal notranslate"><span class="pre">ColoredCMIF.update_shape_list()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_ccmif.PropertiesDialog.html">sdynpy.modal.sdynpy_ccmif.PropertiesDialog</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.html">sdynpy.modal.sdynpy_modeshape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.html">sdynpy.modal.sdynpy_polypy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_signal_processing_gui.html">sdynpy.modal.sdynpy_signal_processing_gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_smac.html">sdynpy.modal.sdynpy_smac</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.html">sdynpy.modal</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.sdynpy_ccmif.html">sdynpy.modal.sdynpy_ccmif</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_ccmif.ColoredCMIF</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.modal.sdynpy_ccmif.ColoredCMIF.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-modal-sdynpy-ccmif-coloredcmif">
+<h1>sdynpy.modal.sdynpy_ccmif.ColoredCMIF<a class="headerlink" href="#sdynpy-modal-sdynpy-ccmif-coloredcmif" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ColoredCMIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><span class="pre">TransferFunctionArray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><span class="pre">ShapeArray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QMainWindow</span></code></p>
+<p>An Interactive Window for Selecting Shapes from Single Reference Data</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><span class="pre">TransferFunctionArray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><span class="pre">ShapeArray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([frfs, shapes])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clear_plot" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clear_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_plot</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clicked_point" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clicked_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clicked_point</span></code></a>(mouse_event)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.cluster_modes" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.cluster_modes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_modes</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.collect_shapes" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.collect_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_shapes</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_and_plot_ccmif" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_and_plot_ccmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_and_plot_ccmif</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_ccmif" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_ccmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_ccmif</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.connect_callbacks" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.connect_callbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connect_callbacks</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.disable_file" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.disable_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disable_file</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enable_file" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enable_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_file</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_figure" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_figure</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_mode_table" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_mode_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_mode_table</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_file" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_file</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_geometry" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_geometry</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_progress" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_progress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_progress</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_ccmif" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_ccmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_ccmif</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_cmifs" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_cmifs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cmifs</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_frfs" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_frfs</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_shapes" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_shapes</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.remove_file" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.remove_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_file</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.replace_file" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.replace_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_file</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.resynthesize" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.resynthesize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resynthesize</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_progress" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_progress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_progress</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_shapes" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_shapes</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_mode_properties" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_mode_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_mode_properties</span></code></a>(item)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_properties" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_properties</span></code></a>(file_index, shape_index)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.toggle_auto_resynth" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.toggle_auto_resynth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toggle_auto_resynth</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_line_width" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_line_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_line_width</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_selection" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_selection</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_shape_list" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_shape_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape_list</span></code></a>([event, no_load])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_selected_modes" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_selected_modes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enabled_selected_modes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_shape_array" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_shape_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enabled_shape_array</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clear_plot">
+<span class="sig-name descname"><span class="pre">clear_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.clear_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clear_plot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clicked_point">
+<span class="sig-name descname"><span class="pre">clicked_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mouse_event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.clicked_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.clicked_point" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.cluster_modes">
+<span class="sig-name descname"><span class="pre">cluster_modes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.cluster_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.cluster_modes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.collect_shapes">
+<span class="sig-name descname"><span class="pre">collect_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.collect_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.collect_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_and_plot_ccmif">
+<span class="sig-name descname"><span class="pre">compute_and_plot_ccmif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.compute_and_plot_ccmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_and_plot_ccmif" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_ccmif">
+<span class="sig-name descname"><span class="pre">compute_ccmif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.compute_ccmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.compute_ccmif" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.connect_callbacks">
+<span class="sig-name descname"><span class="pre">connect_callbacks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.connect_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.connect_callbacks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.disable_file">
+<span class="sig-name descname"><span class="pre">disable_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.disable_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.disable_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enable_file">
+<span class="sig-name descname"><span class="pre">enable_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.enable_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enable_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_selected_modes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_selected_modes</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_selected_modes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_shape_array">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_shape_array</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.enabled_shape_array" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_figure">
+<span class="sig-name descname"><span class="pre">export_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.export_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_figure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_mode_table">
+<span class="sig-name descname"><span class="pre">export_mode_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.export_mode_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.export_mode_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_file">
+<span class="sig-name descname"><span class="pre">load_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.load_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_geometry">
+<span class="sig-name descname"><span class="pre">load_geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.load_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_geometry" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_progress">
+<span class="sig-name descname"><span class="pre">load_progress</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.load_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.load_progress" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_ccmif">
+<span class="sig-name descname"><span class="pre">plot_ccmif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.plot_ccmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_ccmif" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_cmifs">
+<span class="sig-name descname"><span class="pre">plot_cmifs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.plot_cmifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_cmifs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_frfs">
+<span class="sig-name descname"><span class="pre">plot_frfs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.plot_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_shapes">
+<span class="sig-name descname"><span class="pre">plot_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.plot_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.plot_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.remove_file">
+<span class="sig-name descname"><span class="pre">remove_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.remove_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.remove_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.replace_file">
+<span class="sig-name descname"><span class="pre">replace_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.replace_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.replace_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.resynthesize">
+<span class="sig-name descname"><span class="pre">resynthesize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.resynthesize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.resynthesize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_progress">
+<span class="sig-name descname"><span class="pre">save_progress</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.save_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_progress" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_shapes">
+<span class="sig-name descname"><span class="pre">save_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.save_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.save_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_mode_properties">
+<span class="sig-name descname"><span class="pre">set_mode_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.set_mode_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_mode_properties" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_properties">
+<span class="sig-name descname"><span class="pre">set_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.set_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.set_properties" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.toggle_auto_resynth">
+<span class="sig-name descname"><span class="pre">toggle_auto_resynth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.toggle_auto_resynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.toggle_auto_resynth" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_line_width">
+<span class="sig-name descname"><span class="pre">update_line_width</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.update_line_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_line_width" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_selection">
+<span class="sig-name descname"><span class="pre">update_selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.update_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_selection" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_shape_list">
+<span class="sig-name descname"><span class="pre">update_shape_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_ccmif.html#ColoredCMIF.update_shape_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.update_shape_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.modal.sdynpy_ccmif.html" class="btn btn-neutral float-left" title="sdynpy.modal.sdynpy_ccmif" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.modal.sdynpy_ccmif.PropertiesDialog.html" class="btn btn-neutral float-right" title="sdynpy.modal.sdynpy_ccmif.PropertiesDialog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

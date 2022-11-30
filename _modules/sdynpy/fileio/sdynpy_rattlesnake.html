@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_rattlesnake &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_rattlesnake</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_rattlesnake</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Load in time data from Rattlesnake runs</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc4</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">coordinate_array</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="read_rattlesnake_output"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output.html#sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output">[docs]</a><span class="k">def</span> <span class="nf">read_rattlesnake_output</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">coordinate_override_column</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads in a Rattlesnake data file and returns the time history array as well</span>
+<span class="sd">    as the channel table</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str or nc4.Dataset</span>
+<span class="sd">        Path to the file to read in or an already open </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    data_array : TimeHistoryArray</span>
+<span class="sd">        Time history data in the Rattlesnake output file</span>
+<span class="sd">    channel_table : DataFrame</span>
+<span class="sd">        Pandas Dataframe containing the channel table information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">nc4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">nc4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">file</span>
+    <span class="n">output_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;time_data&#39;</span><span class="p">][:])</span>
+    <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">output_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">sample_rate</span>
+    <span class="k">if</span> <span class="n">coordinate_override_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">node</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span><span class="p">))</span>
+                 <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;node_number&#39;</span><span class="p">][:]]</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;node_direction&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U3&#39;</span><span class="p">)</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">directions</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="n">coordinate_override_column</span><span class="p">][:])[</span>
+            <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variable</span><span class="p">[:])</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">channel_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="n">comment1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;channel_type&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">)</span>
+    <span class="n">comment2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;physical_device&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">),</span>
+                                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39; :: &#39;</span><span class="p">)),</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;physical_channel&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">))</span>
+    <span class="n">comment3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;feedback_device&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">),</span>
+                                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39; :: &#39;</span><span class="p">)),</span>
+                           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;feedback_channel&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">))</span>
+    <span class="n">comment4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;comment&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">)</span>
+    <span class="n">comment5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="s1">&#39;make&#39;</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;serial_number&#39;</span><span class="p">,</span> <span class="s1">&#39;triax_dof&#39;</span><span class="p">):</span>
+        <span class="n">comment5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">comment5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+        <span class="n">comment5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">comment5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U80&#39;</span><span class="p">))</span>
+    <span class="n">time_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
+                           <span class="n">abscissa</span><span class="p">,</span>
+                           <span class="n">output_data</span><span class="p">,</span>
+                           <span class="n">coordinates</span><span class="p">,</span>
+                           <span class="n">comment1</span><span class="p">,</span>
+                           <span class="n">comment2</span><span class="p">,</span>
+                           <span class="n">comment3</span><span class="p">,</span>
+                           <span class="n">comment4</span><span class="p">,</span>
+                           <span class="n">comment5</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">time_data</span><span class="p">,</span> <span class="n">channel_table</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

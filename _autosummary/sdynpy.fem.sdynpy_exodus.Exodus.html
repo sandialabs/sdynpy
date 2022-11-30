@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fem.sdynpy_exodus.Exodus &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html" />
+    <link rel="prev" title="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces" href="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_beam.html">sdynpy.fem.sdynpy_beam</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_dof.html">sdynpy.fem.sdynpy_dof</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.html">sdynpy.fem.sdynpy_exodus</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.extract_sharp_edges.html">sdynpy.fem.sdynpy_exodus.extract_sharp_edges</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.face_connectivity.html">sdynpy.fem.sdynpy_exodus.face_connectivity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.mesh_triangulation_array.html">sdynpy.fem.sdynpy_exodus.mesh_triangulation_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces.html">sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.fem.sdynpy_exodus.Exodus</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus"><code class="docutils literal notranslate"><span class="pre">Exodus</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.__init__"><code class="docutils literal notranslate"><span class="pre">Exodus.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.close"><code class="docutils literal notranslate"><span class="pre">Exodus.close()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.extract_sharp_edges"><code class="docutils literal notranslate"><span class="pre">Exodus.extract_sharp_edges()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_block_surface"><code class="docutils literal notranslate"><span class="pre">Exodus.get_block_surface()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord"><code class="docutils literal notranslate"><span class="pre">Exodus.get_coord()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_coord_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coords"><code class="docutils literal notranslate"><span class="pre">Exodus.get_coords()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_displacements"><code class="docutils literal notranslate"><span class="pre">Exodus.get_displacements()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_attr"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_attr()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_blk_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_info"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_blk_info()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_connectivity"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_connectivity()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_num_map"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_num_map()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_type"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_type()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_table"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_variable_table()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_value"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_variable_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.get_elem_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_element_property_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_value"><code class="docutils literal notranslate"><span class="pre">Exodus.get_element_property_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_global_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.get_global_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_info_records"><code class="docutils literal notranslate"><span class="pre">Exodus.get_info_records()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_num_map"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_num_map()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_dist_factors"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_set_dist_factors()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_set_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_set_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_nodes"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_set_nodes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_num_nodes"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_set_num_nodes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_value"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_variable_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.get_node_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_qa_records"><code class="docutils literal notranslate"><span class="pre">Exodus.get_qa_records()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_dist_factors"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_dist_factors()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_faces"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_faces()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_names"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_node_list()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_num_faces"><code class="docutils literal notranslate"><span class="pre">Exodus.get_side_set_num_faces()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_times"><code class="docutils literal notranslate"><span class="pre">Exodus.get_times()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.load_into_memory"><code class="docutils literal notranslate"><span class="pre">Exodus.load_into_memory()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_attr"><code class="docutils literal notranslate"><span class="pre">Exodus.num_attr()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_blks"><code class="docutils literal notranslate"><span class="pre">Exodus.num_blks</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_dimensions"><code class="docutils literal notranslate"><span class="pre">Exodus.num_dimensions</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elem_variables"><code class="docutils literal notranslate"><span class="pre">Exodus.num_elem_variables</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems"><code class="docutils literal notranslate"><span class="pre">Exodus.num_elems</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems_in_blk"><code class="docutils literal notranslate"><span class="pre">Exodus.num_elems_in_blk()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_global_variables"><code class="docutils literal notranslate"><span class="pre">Exodus.num_global_variables</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_sets"><code class="docutils literal notranslate"><span class="pre">Exodus.num_node_sets</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_variables"><code class="docutils literal notranslate"><span class="pre">Exodus.num_node_variables</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes"><code class="docutils literal notranslate"><span class="pre">Exodus.num_nodes</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes_per_elem"><code class="docutils literal notranslate"><span class="pre">Exodus.num_nodes_per_elem()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_side_sets"><code class="docutils literal notranslate"><span class="pre">Exodus.num_side_sets</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_times"><code class="docutils literal notranslate"><span class="pre">Exodus.num_times</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coord_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_coord_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coords"><code class="docutils literal notranslate"><span class="pre">Exodus.put_coords()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.put_elem_blk_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_info"><code class="docutils literal notranslate"><span class="pre">Exodus.put_elem_blk_info()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_num_map"><code class="docutils literal notranslate"><span class="pre">Exodus.put_elem_num_map()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_elem_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_element_property_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value"><code class="docutils literal notranslate"><span class="pre">Exodus.put_element_property_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_global_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_global_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_info_records"><code class="docutils literal notranslate"><span class="pre">Exodus.put_info_records()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_num_map"><code class="docutils literal notranslate"><span class="pre">Exodus.put_node_num_map()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.put_node_set_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_info"><code class="docutils literal notranslate"><span class="pre">Exodus.put_node_set_info()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_node_set_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_variable_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_node_variable_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_qa_records"><code class="docutils literal notranslate"><span class="pre">Exodus.put_qa_records()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_ids"><code class="docutils literal notranslate"><span class="pre">Exodus.put_side_set_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_info"><code class="docutils literal notranslate"><span class="pre">Exodus.put_side_set_info()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_names"><code class="docutils literal notranslate"><span class="pre">Exodus.put_side_set_names()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.reduce_to_surfaces"><code class="docutils literal notranslate"><span class="pre">Exodus.reduce_to_surfaces()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_attr"><code class="docutils literal notranslate"><span class="pre">Exodus.set_elem_attr()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_connectivity"><code class="docutils literal notranslate"><span class="pre">Exodus.set_elem_connectivity()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_value"><code class="docutils literal notranslate"><span class="pre">Exodus.set_elem_variable_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.set_elem_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_global_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.set_global_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_value"><code class="docutils literal notranslate"><span class="pre">Exodus.set_node_variable_value()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_values"><code class="docutils literal notranslate"><span class="pre">Exodus.set_node_variable_values()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_time"><code class="docutils literal notranslate"><span class="pre">Exodus.set_time()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_times"><code class="docutils literal notranslate"><span class="pre">Exodus.set_times()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.title"><code class="docutils literal notranslate"><span class="pre">Exodus.title</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.triangulate_surface_mesh"><code class="docutils literal notranslate"><span class="pre">Exodus.triangulate_surface_mesh()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html">sdynpy.fem.sdynpy_exodus.ExodusInMemory</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.subfield.html">sdynpy.fem.sdynpy_exodus.subfield</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusError.html">sdynpy.fem.sdynpy_exodus.ExodusError</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.fem.sdynpy_shaker.html">sdynpy.fem.sdynpy_shaker</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.fem.html">sdynpy.fem</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.fem.sdynpy_exodus.html">sdynpy.fem.sdynpy_exodus</a></li>
+      <li class="breadcrumb-item active">sdynpy.fem.sdynpy_exodus.Exodus</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.fem.sdynpy_exodus.Exodus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-fem-sdynpy-exodus-exodus">
+<h1>sdynpy.fem.sdynpy_exodus.Exodus<a class="headerlink" href="#sdynpy-fem-sdynpy-exodus-exodus" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Exodus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_elem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_node_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_side_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Read or write exodus files.</p>
+<p>This class creates functionality to read or write exodus files using the
+netCDF4 python module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The path string to the file that will be opened</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Mode with which the file is opened, ‘r’ - Read, ‘w’ - Write,
+‘a’ - Append.  Default is ‘r’.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the exodus file, only required if mode=’w’.</p></li>
+<li><p><strong>num_dims</strong> (<em>int</em>) – Number of dimensions in the exodus file, only required if mode=’w’.</p></li>
+<li><p><strong>num_nodes</strong> (<em>int</em>) – Number of nodes in the exodus file, only required if mode=’w’.</p></li>
+<li><p><strong>num_elem</strong> (<em>int</em>) – Number of elements in the exodus file, only required if mode=’w’.</p></li>
+<li><p><strong>num_blocks</strong> (<em>int</em>) – Number of blocks in the exodus file, only required if mode=’w’.</p></li>
+<li><p><strong>num_node_sets</strong> (<em>int</em>) – Number of node sets in the exodus file, only required if mode = ‘w’.</p></li>
+<li><p><strong>num_side_sets</strong> (<em>int</em>) – Number of side sets in the exodus file, only required if mode=’w’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_elem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_node_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_side_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.__init__" title="sdynpy.fem.sdynpy_exodus.Exodus.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(filename[, mode, title, num_dims, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.close" title="sdynpy.fem.sdynpy_exodus.Exodus.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.extract_sharp_edges" title="sdynpy.fem.sdynpy_exodus.Exodus.extract_sharp_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_sharp_edges</span></code></a>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_block_surface" title="sdynpy.fem.sdynpy_exodus.Exodus.get_block_surface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_block_surface</span></code></a>(block_id[, ...])</p></td>
+<td><p>Gets the node indices and element connectivity of surface elements</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord" title="sdynpy.fem.sdynpy_exodus.Exodus.get_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_coord</span></code></a>(index)</p></td>
+<td><p>Retrieve the coordinates of the specified node in the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_coord_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_coord_names</span></code></a>()</p></td>
+<td><p>Retrieve the coordinate names in the exodus file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coords" title="sdynpy.fem.sdynpy_exodus.Exodus.get_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_coords</span></code></a>()</p></td>
+<td><p>Retrieve the coordinates of the nodes in the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_displacements" title="sdynpy.fem.sdynpy_exodus.Exodus.get_displacements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_displacements</span></code></a>([displacement_name, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_attr" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_attr</span></code></a>(id)</p></td>
+<td><p>Gets the element attributes for a given block</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_blk_ids</span></code></a>()</p></td>
+<td><p>Gets a list of the element block ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_info" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_blk_info</span></code></a>(id)</p></td>
+<td><p>Gets the element block information for the specified element block ID</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_connectivity" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_connectivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_connectivity</span></code></a>(id)</p></td>
+<td><p>Gets the element connectivity matrix for a given block</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_num_map" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_num_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_num_map</span></code></a>()</p></td>
+<td><p>Retrieve the list of local element IDs from the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_type" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_type</span></code></a>(id)</p></td>
+<td><p>Gets the element type for a given block</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_variable_names</span></code></a>()</p></td>
+<td><p>Gets a tuple of element variable names from the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_table" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_variable_table</span></code></a>()</p></td>
+<td><p>Gets the element variable table</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_value" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_variable_value</span></code></a>(block_id, ...[, step])</p></td>
+<td><p>Gets an element's variable value for the specified timestep</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elem_variable_values</span></code></a>(block_id, name_or_index)</p></td>
+<td><p>Gets a block's element variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_element_property_names</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_value" title="sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_element_property_value</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_variable_names</span></code></a>()</p></td>
+<td><p>Gets a tuple of global variable names from the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_variable_values</span></code></a>(name_or_index[, step])</p></td>
+<td><p>Gets the global variable value for the specified timesteps</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_info_records" title="sdynpy.fem.sdynpy_exodus.Exodus.get_info_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_info_records</span></code></a>()</p></td>
+<td><p>Get the information records in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_num_map" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_num_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_num_map</span></code></a>()</p></td>
+<td><p>Retrieve the list of local node IDs from the exodus file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_dist_factors" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_dist_factors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_set_dist_factors</span></code></a>(id)</p></td>
+<td><p>Get the distribution factors of the specified node set</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_set_ids</span></code></a>()</p></td>
+<td><p>Gets a list of the node set ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_set_names</span></code></a>()</p></td>
+<td><p>Retrieve the node set names in the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_nodes" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_set_nodes</span></code></a>(id)</p></td>
+<td><p>Get the nodes in the specified node set</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_num_nodes" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_num_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_set_num_nodes</span></code></a>(id)</p></td>
+<td><p>Get the number of nodes in the specified node set</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_variable_names</span></code></a>()</p></td>
+<td><p>Gets a tuple of nodal variable names from the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_value" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_variable_value</span></code></a>(name_or_index, ...)</p></td>
+<td><p>Gets a node variable value for the specified timestep</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_variable_values</span></code></a>(name_or_index[, step])</p></td>
+<td><p>Gets the node variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_qa_records" title="sdynpy.fem.sdynpy_exodus.Exodus.get_qa_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_qa_records</span></code></a>()</p></td>
+<td><p>Get the quality assurance records in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_dist_factors" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_dist_factors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_dist_factors</span></code></a>(id)</p></td>
+<td><p>Get the distribution factors of the specified side set</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_faces" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_faces</span></code></a>(id)</p></td>
+<td><p>Get the faces in the specified side set</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_ids</span></code></a>()</p></td>
+<td><p>Gets a list of the side set ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_names" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_names</span></code></a>()</p></td>
+<td><p>Retrieve the side set names in the exouds file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_node_list</span></code></a>(id)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_num_faces" title="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_num_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_side_set_num_faces</span></code></a>(id)</p></td>
+<td><p>Get the number of faces in the specified side set</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_times" title="sdynpy.fem.sdynpy_exodus.Exodus.get_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_times</span></code></a>([indices])</p></td>
+<td><p>Gets the time values from the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.load_into_memory" title="sdynpy.fem.sdynpy_exodus.Exodus.load_into_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_into_memory</span></code></a>([close, variables, ...])</p></td>
+<td><p>Loads the exodus file into an ExodusInMemory object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_attr" title="sdynpy.fem.sdynpy_exodus.Exodus.num_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_attr</span></code></a>(id)</p></td>
+<td><p>Gets the number of attributes per element for an element block</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems_in_blk" title="sdynpy.fem.sdynpy_exodus.Exodus.num_elems_in_blk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_elems_in_blk</span></code></a>(id)</p></td>
+<td><p>Gets the number of elements in an element block</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes_per_elem" title="sdynpy.fem.sdynpy_exodus.Exodus.num_nodes_per_elem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_nodes_per_elem</span></code></a>(id)</p></td>
+<td><p>Gets the number of nodes per element in an element block</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coord_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_coord_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_coord_names</span></code></a>(coord_names)</p></td>
+<td><p>Puts the coordinate names into the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coords" title="sdynpy.fem.sdynpy_exodus.Exodus.put_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_coords</span></code></a>(coords)</p></td>
+<td><p>Puts the coordinate values into the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_elem_blk_ids</span></code></a>(block_ids)</p></td>
+<td><p>Puts a list of the element block ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_info" title="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_elem_blk_info</span></code></a>(id, elem_type, ...[, ...])</p></td>
+<td><p>Puts the element block information for an element block ID into the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_num_map" title="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_num_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_elem_num_map</span></code></a>(elem_num_map)</p></td>
+<td><p>Puts a list of local element IDs into the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_elem_variable_names</span></code></a>(elem_var_names[, ...])</p></td>
+<td><p>Puts the specified variable names in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_element_property_names</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value" title="sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_element_property_value</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_global_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_global_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_global_variable_names</span></code></a>(global_var_names)</p></td>
+<td><p>Puts the specified global variable names in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_info_records" title="sdynpy.fem.sdynpy_exodus.Exodus.put_info_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_info_records</span></code></a>(records)</p></td>
+<td><p>Puts the information records in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_num_map" title="sdynpy.fem.sdynpy_exodus.Exodus.put_node_num_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_node_num_map</span></code></a>(node_num_map)</p></td>
+<td><p>Puts a list of local node IDs into the exodus file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_node_set_ids</span></code></a>(ns_ids)</p></td>
+<td><p>Puts a list of the node set ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_info" title="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_node_set_info</span></code></a>(id, nodes[, dist_fact])</p></td>
+<td><p>Puts the node set information for a node set ID into the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_node_set_names</span></code></a>(ns_names)</p></td>
+<td><p>Puts the node set names into the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_variable_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_node_variable_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_node_variable_names</span></code></a>(node_var_names)</p></td>
+<td><p>Puts the specified variable names in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_qa_records" title="sdynpy.fem.sdynpy_exodus.Exodus.put_qa_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_qa_records</span></code></a>(records)</p></td>
+<td><p>Puts the quality assurance records in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_ids" title="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_side_set_ids</span></code></a>(ss_ids)</p></td>
+<td><p>Puts a list of the side set ID numbers in the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_info" title="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_side_set_info</span></code></a>(id, elements, sides[, ...])</p></td>
+<td><p>Puts the side set information for a side set ID into the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_names" title="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_side_set_names</span></code></a>(ss_names)</p></td>
+<td><p>Puts the side set names into the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.reduce_to_surfaces" title="sdynpy.fem.sdynpy_exodus.Exodus.reduce_to_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_to_surfaces</span></code></a>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_attr" title="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_elem_attr</span></code></a>(id, attributes)</p></td>
+<td><p>Sets the element attributes for a given block</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_connectivity" title="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_connectivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_elem_connectivity</span></code></a>(id, connectivity)</p></td>
+<td><p>Sets the element connectivity matrix for a given block</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_value" title="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_elem_variable_value</span></code></a>(block_id, ...)</p></td>
+<td><p>Sets an element variable value for the specified timestep</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_elem_variable_values</span></code></a>(block_id, ...)</p></td>
+<td><p>Sets a block's element variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_global_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.set_global_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_global_variable_values</span></code></a>(name_or_index, ...)</p></td>
+<td><p>Sets the global variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_value" title="sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_variable_value</span></code></a>(name_or_index, ...)</p></td>
+<td><p>Sets the node variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_values" title="sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_variable_values</span></code></a>(name_or_index, ...)</p></td>
+<td><p>Sets the node variable values for the specified timestep</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_time" title="sdynpy.fem.sdynpy_exodus.Exodus.set_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_time</span></code></a>(step, value)</p></td>
+<td><p>Sets the time value of a given step in the exodus file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_times" title="sdynpy.fem.sdynpy_exodus.Exodus.set_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_times</span></code></a>(values)</p></td>
+<td><p>Sets the time vector for the exodus file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.triangulate_surface_mesh" title="sdynpy.fem.sdynpy_exodus.Exodus.triangulate_surface_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triangulate_surface_mesh</span></code></a>()</p></td>
+<td><p>Triangulate a surface mesh for plotting patches</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_blks" title="sdynpy.fem.sdynpy_exodus.Exodus.num_blks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_blks</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_dimensions" title="sdynpy.fem.sdynpy_exodus.Exodus.num_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_dimensions</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elem_variables" title="sdynpy.fem.sdynpy_exodus.Exodus.num_elem_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_elem_variables</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems" title="sdynpy.fem.sdynpy_exodus.Exodus.num_elems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_elems</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_global_variables" title="sdynpy.fem.sdynpy_exodus.Exodus.num_global_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_global_variables</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_sets" title="sdynpy.fem.sdynpy_exodus.Exodus.num_node_sets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_node_sets</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_variables" title="sdynpy.fem.sdynpy_exodus.Exodus.num_node_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_node_variables</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes" title="sdynpy.fem.sdynpy_exodus.Exodus.num_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_nodes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_side_sets" title="sdynpy.fem.sdynpy_exodus.Exodus.num_side_sets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_side_sets</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_times" title="sdynpy.fem.sdynpy_exodus.Exodus.num_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_times</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.Exodus.title" title="sdynpy.fem.sdynpy_exodus.Exodus.title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code></a></p></td>
+<td><p>Get the title of the exodus file</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.extract_sharp_edges">
+<span class="sig-name descname"><span class="pre">extract_sharp_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.extract_sharp_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.extract_sharp_edges" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_block_surface">
+<span class="sig-name descname"><span class="pre">get_block_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_midside_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_block_surface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_block_surface" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the node indices and element connectivity of surface elements</p>
+<p>This function “skins” the element block, returning a list of node
+indices and a surface connectivity matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block_id</strong> (<em>int</em>) – The ID number of the block that will be skinned.</p></li>
+<li><p><strong>keep_midside_nodes</strong> (<em>bool</em>) – Specifies whether or not to keep midside nodes in the surface mesh.
+Default is False.</p></li>
+<li><p><strong>warn</strong> (<em>bool</em>) – Specifies whether or not to warn the user if the block ID doesn’t
+have a skinning method defined for its element type.  Default is
+True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>element_block_information</strong> – A list of tuples of element information.  These data are
+element_type, node_indices, block_surface_connectivity, and
+block_surface_original_elements.  The element_type is a string
+representing the new block element type (‘quad4’,’tri3’,etc.).  The
+node_indices can be used as an index into the coordinate or nodal
+variable arrays to select nodes corresponding to this block. The
+block_surface_connectivity represents the connectivity array of the
+surface faces of the block.  Values in this array correspond to
+indices into the node_indices array.  To recover the connectivity
+array in the original node indices of the exodus file, it can be
+passed through the node_indices as
+node_indices[block_surface_connectivity].  The
+block_surface_original_elements array shows the original element
+indices of the block that each surface came from.  This can be
+used to map element variables to the new surface mesh.  This list
+will normally be length 1 unless an element type is processed that
+has two different surface elements in it (e.g. wedges have
+tris and quads)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_coord">
+<span class="sig-name descname"><span class="pre">get_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_coord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the coordinates of the specified node in the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – The global node index (not node number) of the node of which the
+coordinates are desired</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>coords</strong> – Returns an array with size num_dims</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_coord_names">
+<span class="sig-name descname"><span class="pre">get_coord_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_coord_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coord_names" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the coordinate names in the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>coord_names</strong> – Returns a tuple of strings containing the coordinate names in the
+exodus file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_coords">
+<span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_coords" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the coordinates of the nodes in the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>coords</strong> – Returns a 2D array with size num_dims x num_nodes</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_displacements">
+<span class="sig-name descname"><span class="pre">get_displacements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">displacement_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Disp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capital_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_displacements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_displacements" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_attr">
+<span class="sig-name descname"><span class="pre">get_elem_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the element attributes for a given block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – The block id for which the element connectivity matrix is desired.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>attributes</strong> – The 2d attribute matrix for the block with dimensions num_elem x
+num_attributes</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.masked_array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_ids">
+<span class="sig-name descname"><span class="pre">get_elem_blk_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_blk_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a list of the element block ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>block_ids</strong> – A tuple containing the block ID numbers</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_info">
+<span class="sig-name descname"><span class="pre">get_elem_blk_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_blk_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_blk_info" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the element block information for the specified element block ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Element Block ID number</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>element_type</strong> (<em>str</em>) – Name of the Element Type</p></li>
+<li><p><strong>elements_in_block</strong> (<em>int</em>) – Number of elements in the block</p></li>
+<li><p><strong>nodes_per_element</strong> (<em>int</em>) – Number of nodes per element in the block</p></li>
+<li><p><strong>attributes_per_element</strong> (<em>int</em>) – Number of attributes per element</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_connectivity">
+<span class="sig-name descname"><span class="pre">get_elem_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_connectivity" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the element connectivity matrix for a given block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – The block id for which the element connectivity matrix is desired.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>connectivity</strong> – The 2d connectivity matrix for the block with dimensions num_elem x
+num_nodes_per_element.  The returned value is converted from the
+1-based Exodus indexing to 0-based Python/NumPy indexing.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.masked_array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_num_map">
+<span class="sig-name descname"><span class="pre">get_elem_num_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_num_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_num_map" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the list of local element IDs from the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>elem_num_map</strong> – Returns a 1D array with size num_elems, denoting the element number
+for the element in each index</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If there is no elem_num_map in the exodus file, this function simply
+returns an array from 1 to self.num_elems</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_type">
+<span class="sig-name descname"><span class="pre">get_elem_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_type" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the element type for a given block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – The block id for which the element connectivity matrix is desired.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>type</strong> – The element type of the block</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_names">
+<span class="sig-name descname"><span class="pre">get_elem_variable_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a tuple of element variable names from the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>elem_var_names</strong> – Returns a tuple containing the names of the element variables in the
+exodus file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_table">
+<span class="sig-name descname"><span class="pre">get_elem_variable_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_variable_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_table" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the element variable table</p>
+<p>Gets the element variable table showing which elements are defined for
+which blocks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>elem_var_table</strong> – A 2D array with dimension num_blocks x num_element_variables.  If
+the jth element variable is defined for the ith block,
+elem_var_table[i,j] == True</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.masked_array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_value">
+<span class="sig-name descname"><span class="pre">get_elem_variable_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_variable_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_value" title="Permalink to this definition"></a></dt>
+<dd><p>Gets an element’s variable value for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block_id</strong> (<em>int</em>) – Block id number for the block from which element variable value
+is desired.</p></li>
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the element variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>element_index</strong> (<em>int</em>) – element index at which to recover the nodal variable</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>elem_variable_value</strong> – The variable values for the specified element at the specified time
+step.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_values">
+<span class="sig-name descname"><span class="pre">get_elem_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_elem_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_elem_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a block’s element variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block_id</strong> (<em>int</em>) – Block id number for the block from which element variable values
+are desired.</p></li>
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the element variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the element variable</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>elem_variable_values</strong> – A 1d array consisting of the variable values for each element in
+the specified block at the specified time step.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>maskedarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_names">
+<span class="sig-name descname"><span class="pre">get_element_property_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_element_property_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_value">
+<span class="sig-name descname"><span class="pre">get_element_property_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_element_property_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_element_property_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_names">
+<span class="sig-name descname"><span class="pre">get_global_variable_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_global_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a tuple of global variable names from the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>global_var_names</strong> – Returns a tuple containing the names of the global variables in the
+exodus file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_values">
+<span class="sig-name descname"><span class="pre">get_global_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_global_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_global_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the global variable value for the specified timesteps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the global variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>global_variable_values</strong> – A 1d array or floating point number consisting of the variable
+values at the specified time steps.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>maskedarray or float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_info_records">
+<span class="sig-name descname"><span class="pre">get_info_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_info_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_info_records" title="Permalink to this definition"></a></dt>
+<dd><p>Get the information records in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>info_records</strong> – Returns a tuple of strings where the index is the
+record number.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_num_map">
+<span class="sig-name descname"><span class="pre">get_node_num_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_num_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_num_map" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the list of local node IDs from the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>node_num_map</strong> – Returns a 1D array with size num_nodes, denoting the node number
+for the node in each index</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If there is no node_num_map in the exodus file, this function simply
+returns an array from 1 to self.num_nodes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_dist_factors">
+<span class="sig-name descname"><span class="pre">get_node_set_dist_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_set_dist_factors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_dist_factors" title="Permalink to this definition"></a></dt>
+<dd><p>Get the distribution factors of the specified node set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Node set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dist_factor</strong> – The distribution factors in the node set</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_ids">
+<span class="sig-name descname"><span class="pre">get_node_set_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_set_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a list of the node set ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>ns_ids</strong> – A tuple containing the node set ID numbers</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_names">
+<span class="sig-name descname"><span class="pre">get_node_set_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_set_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_names" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the node set names in the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>ns_names</strong> – Returns a tuple of strings containing the node set names in the
+exodus file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_nodes">
+<span class="sig-name descname"><span class="pre">get_node_set_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_set_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the nodes in the specified node set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Node set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nodes</strong> – The node indices of nodes in the node set.  Note that while the
+Exodus file format uses 1-based indexing, the returned nodes array
+is converted so it is 0-based.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_num_nodes">
+<span class="sig-name descname"><span class="pre">get_node_set_num_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_set_num_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_set_num_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of nodes in the specified node set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Node set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>num_nodes</strong> – The number of nodes in the node set.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_names">
+<span class="sig-name descname"><span class="pre">get_node_variable_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a tuple of nodal variable names from the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>node_var_names</strong> – Returns a tuple containing the names of the nodal variables in the
+exodus file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_value">
+<span class="sig-name descname"><span class="pre">get_node_variable_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_variable_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_value" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a node variable value for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the nodal variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>node_index</strong> (<em>int</em>) – Node index at which to recover the nodal variable</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_variable_value</strong> – The variable values for the specified node at the specified time step.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_values">
+<span class="sig-name descname"><span class="pre">get_node_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_node_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_node_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the node variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the nodal variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_variable_values</strong> – A 1d array consisting of the variable values for each node at the
+specified time step.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>maskedarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_qa_records">
+<span class="sig-name descname"><span class="pre">get_qa_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_qa_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_qa_records" title="Permalink to this definition"></a></dt>
+<dd><p>Get the quality assurance records in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>qa_records</strong> – Returns a nested tuple of strings where the first index is the
+record number, and the second is the line in the record.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_dist_factors">
+<span class="sig-name descname"><span class="pre">get_side_set_dist_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_dist_factors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_dist_factors" title="Permalink to this definition"></a></dt>
+<dd><p>Get the distribution factors of the specified side set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Side set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dist_factor</strong> – The distribution factors in the node set</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_faces">
+<span class="sig-name descname"><span class="pre">get_side_set_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_faces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_faces" title="Permalink to this definition"></a></dt>
+<dd><p>Get the faces in the specified side set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Side set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>elements</strong> (<em>np.array</em>) – The element of each face in the sideset (converted from 1-based
+exodus indexing to 0-based python indexing)</p></li>
+<li><p><strong>sides</strong> (<em>np.array</em>) – The element side of each face in the sideset (converted from
+1-based exodus indexing to 0-based python indexing)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_ids">
+<span class="sig-name descname"><span class="pre">get_side_set_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a list of the side set ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>ss_ids</strong> – A tuple containing the side set ID numbers</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_names">
+<span class="sig-name descname"><span class="pre">get_side_set_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_names" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the side set names in the exouds file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>ss_names</strong> – Returns a tuple of strings containing the side set names in the
+exodus file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list">
+<span class="sig-name descname"><span class="pre">get_side_set_node_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_node_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_num_faces">
+<span class="sig-name descname"><span class="pre">get_side_set_num_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_side_set_num_faces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_num_faces" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of faces in the specified side set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – Side set ID (not index)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>num_faces</strong> – The number of faces in the side set.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.get_times">
+<span class="sig-name descname"><span class="pre">get_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.get_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.get_times" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the time values from the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>time_array</strong> – A masked_array containing the time values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.masked_array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.load_into_memory">
+<span class="sig-name descname"><span class="pre">load_into_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">close</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.load_into_memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.load_into_memory" title="Permalink to this definition"></a></dt>
+<dd><p>Loads the exodus file into an ExodusInMemory object</p>
+<p>This function loads the exodus file into memory in an ExodusInMemory
+format.  Not for use with large files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>close</strong> (<em>bool</em>) – Close the netcdf file upon loading into memory.  Optional argument,
+default is true.</p></li>
+<li><p><strong>variables</strong> (<em>iterable</em>) – A list of variable names that are loaded into memory.  Default is
+to load all variables</p></li>
+<li><p><strong>timesteps</strong> (<em>iterable</em>) – A list of timestep indices that are loaded into memory.  Default is
+to load all timesteps.</p></li>
+<li><p><strong>blocks</strong> (<em>iterable</em>) – A list of block ids that are loaded into memory.  Default is to
+load all blocks.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fexo</strong> – The exodus file in an ExodusInMemory format</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html#sdynpy.fem.sdynpy_exodus.ExodusInMemory" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory">ExodusInMemory</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_attr">
+<span class="sig-name descname"><span class="pre">num_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.num_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the number of attributes per element for an element block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>int</em>) – The block id for which the number of attributes is desired</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>attr_per_element</strong> – The number of attributes per element in a block</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_blks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_blks</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_blks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_dimensions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_dimensions</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_dimensions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_elem_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_elem_variables</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elem_variables" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_elems">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_elems</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_elems_in_blk">
+<span class="sig-name descname"><span class="pre">num_elems_in_blk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.num_elems_in_blk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_elems_in_blk" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the number of elements in an element block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>int</em>) – The block id for which the number of attributes is desired</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>elem_per_element</strong> – The number of elements in the block</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_global_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_global_variables</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_global_variables" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_node_sets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_node_sets</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_sets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_node_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_node_variables</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_node_variables" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_nodes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_nodes</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_nodes_per_elem">
+<span class="sig-name descname"><span class="pre">num_nodes_per_elem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.num_nodes_per_elem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_nodes_per_elem" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the number of nodes per element in an element block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>int</em>) – The block id for which the number of attributes is desired</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nodes_per_elem</strong> – The number of nodes per element in the block</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_side_sets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_side_sets</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_side_sets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.num_times">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_times</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.num_times" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_coord_names">
+<span class="sig-name descname"><span class="pre">put_coord_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_coord_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coord_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the coordinate names into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coord_names</strong> (<em>sequence</em><em> of </em><em>strings</em>) – A sequence (list/tuple/etc.) containing the coordinate names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_coords">
+<span class="sig-name descname"><span class="pre">put_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_coords" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the coordinate values into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<em>np.ndarray</em>) – A 2d array containing coordinate values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_ids">
+<span class="sig-name descname"><span class="pre">put_elem_blk_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_elem_blk_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Puts a list of the element block ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>block_ids</strong> (<em>array-like</em>) – A sequency of integers specifying the block id numbers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_info">
+<span class="sig-name descname"><span class="pre">put_elem_blk_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elem_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes_per_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_attrs_per_elem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_elem_blk_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_blk_info" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the element block information for an element block ID into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The block ID (not index) that the information is being specified for</p></li>
+<li><p><strong>elem_type</strong> (<em>str</em>) – The element type (‘SHELL4’,’HEX8’, etc.) in the block</p></li>
+<li><p><strong>num_elements</strong> (<em>int</em>) – The number of elements in the block</p></li>
+<li><p><strong>num_nodes_per_element</strong> (<em>int</em>) – The number of nodes per element in the block</p></li>
+<li><p><strong>num_attrs_per_element</strong> (<em>int</em>) – The number of attributes per element in the block</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_num_map">
+<span class="sig-name descname"><span class="pre">put_elem_num_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem_num_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_elem_num_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_num_map" title="Permalink to this definition"></a></dt>
+<dd><p>Puts a list of local element IDs into the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>elem_num_map</strong> (<em>np.array</em>) – A 1D array with size num_elems, denoting the element number
+for the element in each index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_elem_variable_names">
+<span class="sig-name descname"><span class="pre">put_elem_variable_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem_var_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elem_var_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_elem_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_elem_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the specified variable names in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elem_var_names</strong> (<em>tuple</em><em> of </em><em>strings</em>) – A tuple containing the names of the element variables in the exodus
+file</p></li>
+<li><p><strong>elem_var_table</strong> (<em>2d array-like</em>) – A 2d array of shape num_el_blk x num_elem_var defining which
+element variables are defined for which element blocks
+elem_var_table[i,j] should be True if the j-th element variable is
+defined for the i-th block (index, not id number) in the model.
+If not specified, it is assumed that all variables are defined for
+all blocks.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_names">
+<span class="sig-name descname"><span class="pre">put_element_property_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_element_property_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value">
+<span class="sig-name descname"><span class="pre">put_element_property_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_element_property_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_global_variable_names">
+<span class="sig-name descname"><span class="pre">put_global_variable_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_var_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_global_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_global_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the specified global variable names in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>global_var_names</strong> (<em>tuple</em><em> of </em><em>strings</em>) – A tuple containing the names of the global variables in the model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_info_records">
+<span class="sig-name descname"><span class="pre">put_info_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_info_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_info_records" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the information records in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>info_records</strong> (<em>sequence</em><em> of </em><em>strings</em>) – A sequence (list/tuple/etc.) containing the information records.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_node_num_map">
+<span class="sig-name descname"><span class="pre">put_node_num_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_num_map</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_node_num_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_num_map" title="Permalink to this definition"></a></dt>
+<dd><p>Puts a list of local node IDs into the exodus file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_num_map</strong> (<em>np.array</em>) – A 1D array with size num_nodes, denoting the node number
+for the node in each index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_ids">
+<span class="sig-name descname"><span class="pre">put_node_set_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ns_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_node_set_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Puts a list of the node set ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ns_ids</strong> (<em>array-like</em>) – A sequency of integers specifying the node set id numbers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_info">
+<span class="sig-name descname"><span class="pre">put_node_set_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_node_set_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_info" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the node set information for a node set ID into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The node set ID (not index)</p></li>
+<li><p><strong>nodes</strong> (<em>array-like</em>) – A 1d array containing the node indices.  Note the array should be
+zero-based, it will be converted to one based when written to the
+exodus file.</p></li>
+<li><p><strong>dist_fact</strong> (<em>array-like</em>) – A 1d array containing the node set distribution factors.  If not
+specified, the distribution factors will be assumed to be 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_names">
+<span class="sig-name descname"><span class="pre">put_node_set_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ns_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_node_set_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_set_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the node set names into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ns_names</strong> (<em>sequence</em><em> of </em><em>strings</em>) – A sequence (list/tuple/etc.) containing the node set names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_node_variable_names">
+<span class="sig-name descname"><span class="pre">put_node_variable_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_var_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_node_variable_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_node_variable_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the specified variable names in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_var_names</strong> (<em>tuple</em><em> of </em><em>strings</em>) – A tuple containing the names of the nodal variables in the model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_qa_records">
+<span class="sig-name descname"><span class="pre">put_qa_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_qa_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_qa_records" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the quality assurance records in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>qa_records</strong> (<em>sequence</em><em> of </em><em>sequence</em><em> of </em><em>strings</em>) – A nested sequence (list/tuple/etc.) containing the quality assurance
+records.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Each index in qa_records should consist of a length-4 tuple of strings:</p>
+<ol class="arabic simple">
+<li><p>Analysis Code Name</p></li>
+<li><p>Analysis Code Version</p></li>
+<li><p>Analysis Date</p></li>
+<li><p>Analysis Time</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_ids">
+<span class="sig-name descname"><span class="pre">put_side_set_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ss_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_side_set_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Puts a list of the side set ID numbers in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ss_ids</strong> (<em>array-like</em>) – A sequency of integers specifying the side set id numbers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_info">
+<span class="sig-name descname"><span class="pre">put_side_set_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_side_set_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_info" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the side set information for a side set ID into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The side set ID (not index)</p></li>
+<li><p><strong>elements</strong> (<em>np.array</em>) – The element of each face in the sideset (converted from 1-based
+exodus indexing to 0-based python indexing)</p></li>
+<li><p><strong>sides</strong> (<em>np.array</em>) – The element side of each face in the sideset (converted from
+1-based exodus indexing to 0-based python indexing)</p></li>
+<li><p><strong>dist_fact</strong> (<em>array-like</em>) – A 1d array containing the node set distribution factors.  If not
+specified, the distribution factors will be assumed to be 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_names">
+<span class="sig-name descname"><span class="pre">put_side_set_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ss_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.put_side_set_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.put_side_set_names" title="Permalink to this definition"></a></dt>
+<dd><p>Puts the side set names into the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ss_names</strong> (<em>sequence</em><em> of </em><em>strings</em>) – A sequence (list/tuple/etc.) containing the side set names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.reduce_to_surfaces">
+<span class="sig-name descname"><span class="pre">reduce_to_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.reduce_to_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.reduce_to_surfaces" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_attr">
+<span class="sig-name descname"><span class="pre">set_elem_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_elem_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the element attributes for a given block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The block id for which the element connectivity matrix is desired.</p></li>
+<li><p><strong>attributes</strong> (<em>2D array-like</em>) – The 2d attribute matrix for the block with dimensions num_elem x
+num_attributes</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_connectivity">
+<span class="sig-name descname"><span class="pre">set_elem_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_elem_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_connectivity" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the element connectivity matrix for a given block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The block id for which the element connectivity is being assigned</p></li>
+<li><p><strong>connectivity</strong> (<em>2D array-like</em>) – A 2D array of dimension num_elements x num_nodes_per_element
+defining the element connectivity.  Note that the connectivity
+matrix should be 0-based (first node index is zero) per Python
+conventions.  It will be converted to one-based when it is written
+to the Exodus file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_value">
+<span class="sig-name descname"><span class="pre">set_elem_variable_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_elem_variable_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_value" title="Permalink to this definition"></a></dt>
+<dd><p>Sets an element variable value for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block_id</strong> (<em>int</em>) – Block id number for the block from which element variable values
+are desired.</p></li>
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the element variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the element variable</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – The variable values for the specified element in the specified
+block at the specified time step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_values">
+<span class="sig-name descname"><span class="pre">set_elem_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_elem_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_elem_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Sets a block’s element variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block_id</strong> (<em>int</em>) – Block id number for the block from which element variable values
+are desired.</p></li>
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the element variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the element variable</p></li>
+<li><p><strong>values</strong> (<em>array-like</em>) – A 1d array consisting of the variable values for each element in
+the specified block at the specified time step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_global_variable_values">
+<span class="sig-name descname"><span class="pre">set_global_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_global_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_global_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the global variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the nodal variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+<li><p><strong>value</strong> (<em>array-like</em>) – A 1d array consisting of the variable values for each node at the
+specified time step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_value">
+<span class="sig-name descname"><span class="pre">set_node_variable_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_node_variable_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_value" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the node variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the nodal variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>node_index</strong> (<em>int</em>) – Node index at which to recover the nodal variable</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – The variable value for the specified node at the specified time step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_values">
+<span class="sig-name descname"><span class="pre">set_node_variable_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_node_variable_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_node_variable_values" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the node variable values for the specified timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_or_index</strong> (<em>str</em><em> or </em><em>int</em>) – Name or Index of the nodal variable that is desired.  If
+type(name_or_index) == str, then it is assumed to be the name.  If
+type(name_or_index) == int, then it is assumed to be the index.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – Time step at which to recover the nodal variable</p></li>
+<li><p><strong>values</strong> (<em>array-like</em>) – A 1d array consisting of the variable values for each node at the
+specified time step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_time">
+<span class="sig-name descname"><span class="pre">set_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_time" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the time value of a given step in the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> (<em>int</em>) – The index in the time vector to set to value</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – A real number to set the value of the specified index in the time
+vector to.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If step is not a valid index for the time vector, the time vector will
+be expanded so that it is.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.set_times">
+<span class="sig-name descname"><span class="pre">set_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.set_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.set_times" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the time vector for the exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>values</strong> (<em>array-like</em>) – A 1-dimensional array that has the time step values as it’s entries</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If the vector is longer than the current time step vector, it will be
+expanded.  If the vector is shorter than the current time step vector,
+only the first len(values) entries of the time vector will be assigned.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.title">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.title" title="Permalink to this definition"></a></dt>
+<dd><p>Get the title of the exodus file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.Exodus.triangulate_surface_mesh">
+<span class="sig-name descname"><span class="pre">triangulate_surface_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#Exodus.triangulate_surface_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.Exodus.triangulate_surface_mesh" title="Permalink to this definition"></a></dt>
+<dd><p>Triangulate a surface mesh for plotting patches</p>
+<p>This function generates a triangle mesh for each block in the model if
+it can.  If there are more than 3 nodes per element in a block, and the
+triangulation scheme hasn’t been defined in
+pyexodus.mesh_triangulation_array, it will be skipped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>triangulated_mesh_info</strong> – A list of tuples containing block id, node_indices, triangulated
+connectivity, and original block elements</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces.html" class="btn btn-neutral float-left" title="sdynpy.fem.sdynpy_exodus.reduce_exodus_to_surfaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html" class="btn btn-neutral float-right" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

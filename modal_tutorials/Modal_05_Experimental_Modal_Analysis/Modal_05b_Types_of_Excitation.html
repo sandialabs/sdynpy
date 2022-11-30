@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom" href="Modal_05c_Selecting_Response_and_Measurement_DoFs.html" />
+    <link rel="prev" title="Modal Tutorial 05 Part A: Computing Frequency Response from Time Data" href="Modal_05a_Computing_FRF_from_Time_Data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html">Modal Tutorial 02: Basics of Vibrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.html">Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html">Modal Tutorial 04: Modal Analysis</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Modal_05a_Computing_FRF_from_Time_Data.html">Modal Tutorial 05 Part A: Computing Frequency Response from Time Data</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Requirements-for-the-FFT">Requirements for the FFT</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Modal_05c_Selecting_Response_and_Measurement_DoFs.html">Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Modal_05d_Data_Quality_Checks.html">Modal Tutorial 05 Part D: Data Quality Checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Modal_05e_Fitting_Modes_to_FRF.html">Modal Tutorial 05 Part E: Fitting Modes to Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Modal_05f_Comparing_Test_and_Analysis.html">Modal Tutorial 05 Part F: Comparing Test and Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
+      <li class="breadcrumb-item active">Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modal_tutorials/Modal_05_Experimental_Modal_Analysis/Modal_05b_Types_of_Excitation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Modal-Tutorial-05-Part-B:-Types-of-Excitation-for-Experimental-Modal-Analysis">
+<h1>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis<a class="headerlink" href="#Modal-Tutorial-05-Part-B:-Types-of-Excitation-for-Experimental-Modal-Analysis" title="Permalink to this heading"></a></h1>
+<p>When performing experimental modal analysis, the type of excitation applied to a structure matters a great deal. Traditionally, modal excitation has come in two flavors: impact testing and shaker testing. However, there are various new techniques that blur the lines between the two types of tests. This tutorial will discuss some of the requirements for the excitation (and the responses therefrom) used in modal testing.</p>
+<section id="Requirements-for-the-FFT">
+<h2>Requirements for the FFT<a class="headerlink" href="#Requirements-for-the-FFT" title="Permalink to this heading"></a></h2>
+<p>The goal of modal testing is to compute the frequency response function, to which modes can be fit. The previous tutorial discussed approaches to computing the frequency response function. Common among all of the broadband techniques was the use for the Fast Fourier Transform (FFT) which is used to transform a sampled signal into its various frequency components. Let’s first discuss some of the practical issues surrounding the use of the FFT.</p>
+<p>First, let’s see what the FFT is supposed to do. Say, for example, that we have a signal that is a sine wave at 10 Hz. We can plot that signal, and compute its FFT, and we can see that the frequency of the sine wave has been properly identified.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import sdynpy as sdpy
+import matplotlib.pyplot as plt
+import scipy.signal
+
+# Compute the signal
+frequency = 10 # Hz
+sample_rate = 1000 # Hz
+dt = 1/sample_rate # seconds
+num_samples = 1000 # Samples
+times = np.arange(num_samples)*dt
+signal = sdpy.generator.sine(frequency,dt,num_samples)
+
+# Compute its FFT
+frequency_lines = np.fft.rfftfreq(num_samples,dt)
+signal_fft = np.fft.rfft(signal)
+
+# Plot both
+fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
+ax[0].plot(times,signal)
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].plot(frequency_lines,np.abs(signal_fft))
+ax[1].set_xlabel(&#39;Frequency (s)&#39;)
+ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_1_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_1_0.png" />
+</div>
+</div>
+<p>We set up our signal such that the sine wave has a length of 1 second, so we can quickly verify that there are 10 cycles of the sine wave over 1 second, which is equivalent to the specified frequency of 10 Hz. If we look at the amplitude of the FFT of the signal, we see that the entire FFT is zero, except for the frequency line at 10 Hz. Therefore, the FFT has identified the frequency component in the signal. Let’s look at a more complex example with a signal of many sinusoidal components.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
+frequencies = [10,20,50,100] # Hz
+amplitudes = [1,2,0.5,4]
+sample_rate = 1000 # Hz
+dt = 1/sample_rate # seconds
+num_samples = 1000 # Samples
+times = np.arange(num_samples)*dt
+signal = np.sum(
+    sdpy.generator.sine(frequencies,dt,num_samples,amplitudes),
+    axis=0)
+
+# Compute its FFT
+frequency_lines = np.fft.rfftfreq(num_samples,dt)
+signal_fft = np.fft.rfft(signal)
+
+# Plot both
+fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
+ax[0].plot(times,signal)
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].plot(frequency_lines,np.abs(signal_fft))
+ax[1].set_xlabel(&#39;Frequency (s)&#39;)
+ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_3_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_3_0.png" />
+</div>
+</div>
+<p>Note that not only does the FFT identify the correct frequency components, it also identifies the correct amplitudes of the sinusoidal components in the signal.</p>
+<p>Mathematically inclined readers familiar with the continuous Fourier Transform may be aware that the Fourier transform is actually computed using all time from negative to positive infinity.</p>
+<div class="math notranslate nohighlight">
+\[\hat{f}(\xi)=  \int_{-\infty}^\infty f(x)e^{-i2\pi\xi x}dx\]</div>
+<p>However, when running an experiment to identify frequency components of some response, we cannot affort to wait an infinite amount of time. We would much rather wait a finite amount of time to measure the signal. However, the law of the Fourier transform still stands; the signal must be infinitely long. Therefore, when performing the FFT, the assumption is that the signal could repeat indefinitely. For example, if we repeat the original 10 Hz sine wave signal indefinitely, we are still left with
+a 10 Hz sine wave.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
+frequency = 10 # Hz
+sample_rate = 1000 # Hz
+dt = 1/sample_rate # seconds
+num_samples = 3000 # Samples
+times = np.arange(num_samples)*dt
+signal = sdpy.generator.sine(frequency,dt,num_samples)
+
+# Compute its FFT
+frequency_lines = np.fft.rfftfreq(num_samples,dt)
+signal_fft = np.fft.rfft(signal)
+
+# Plot both
+fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
+ax[0].plot(times,signal)
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[0].axvline(1,color=&#39;k&#39;)
+ax[0].axvline(2,color=&#39;k&#39;)
+ax[1].plot(frequency_lines,np.abs(signal_fft))
+ax[1].set_xlabel(&#39;Frequency (s)&#39;)
+ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_5_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_5_0.png" />
+</div>
+</div>
+<p>Given this constraint, we are limited in the frequencies we can identify for a finite signal. Only frequency components that can form a standing wave within the length of time specified are valid. Stated another way, any sinusoidal component of a signal must have an integer number of periods within the measurement frame. Let’s plot a few sine waves at varying frequencies to see what is meant by this.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for frequency in [5,10,20,5.25]:
+    # Compute the signal
+    sample_rate = 1000 # Hz
+    dt = 1/sample_rate # seconds
+    num_samples = 1000 # Samples
+    times = np.arange(num_samples)*dt
+    signal = sdpy.generator.sine(frequency,dt,num_samples)
+
+    # Compute its FFT
+    frequency_lines = np.fft.rfftfreq(num_samples,dt)
+    signal_fft = np.fft.rfft(signal)
+
+    # Plot both
+    fig,ax = plt.subplots(2,1,num=&#39;Sine Signal: {:}&#39;.format(frequency))
+    ax[0].set_title(&#39;Frequency: {:}&#39;.format(frequency))
+    ax[0].plot(times,signal)
+    ax[0].set_xlabel(&#39;Time (s)&#39;)
+    ax[0].set_ylabel(&#39;Signal (-)&#39;)
+    ax[1].plot(frequency_lines,np.abs(signal_fft))
+    ax[1].set_xlabel(&#39;Frequency (s)&#39;)
+    ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
+    ax[1].set_xlim(frequency-5,frequency+5)
+    ax[0].grid(True)
+    ax[1].grid(True)
+    fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_2.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_3.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_7_3.png" />
+</div>
+</div>
+<p>Let’s briefly compare the results above. In the first three examples, we see that we have signals with 5 Hz, 10 Hz, and 20 Hz. Given the frame time of 1 second, each of these signals will have integer numbers of periods within the measurement frame. The 5 Hz sine wave, for example, have 5 cycles in the 1 second measurement frame. On the other hand, the 5.25 Hz signal does not have an integer number of periods within one measurement window. There is an extra quarter-period. We can see the effect
+of this if we try to repeat the signal indefinitely, as the FFT assumes we do.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,1,num=&#39;Leakage demonstration&#39;)
+ax[0].set_title(&#39;Frequency: {:}&#39;.format(frequency))
+ax[0].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
+ax[1].set_xlabel(&#39;Time (s)&#39;)
+ax[1].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].set_xlim(0.9,1.1)
+ax[0].grid(True)
+ax[1].grid(True)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_9_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_9_0.png" />
+</div>
+</div>
+<p>We see that when we repeat ths signal, we introduce a discontinuity in the signal. This discontinuity is not in the real signal, only in our sampling of it; however, the FFT has no knowledge of our real signal. The FFT believes that the signal supplied to the excitation must repeat, so it assumes that the real signal is something that it isn’t. The FFT believes that instead of being a 5.25 Hz sine wave, it is instead a sum of many sine waves that add up to the signal shown.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>assumed_signal = scipy.signal.resample(signal,num_samples*10)
+fig,ax = plt.subplots(2,1,num=&#39;Leakage demonstration&#39;)
+ax[0].set_title(&#39;Sampled Signal&#39;)
+ax[0].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].plot(np.arange(num_samples*10*2)*dt/10,np.concatenate((assumed_signal,assumed_signal)),&#39;b-&#39;)
+ax[1].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)),&#39;k.&#39;)
+ax[1].set_xlabel(&#39;Time (s)&#39;)
+ax[1].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].set_xlim(0.98,1.02)
+ax[1].set_title(&#39;Signal Assumed by the FFT&#39;)
+ax[0].grid(True)
+ax[1].grid(True)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_11_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_11_0.png" />
+</div>
+</div>
+<p>We can see in the previous plot that a signal can be constructed that satisfies the sampled data, but is also continuous between measurement frames. This results in the creation of “extra” frequency content in the FFT that was not in the original signal. This is a phenomenon called “spectral leakage”, where a frequency component (in this case, 5.25 Hz) leaks into the surrounding frequency bins. We can clearly see this in the FFTs of the signals, where the 5, 10, and 20 Hz signals all contain
+exactly 1 frequency bin with non-zero amplitude, but the 5.25 Hz frequency bin contains significant content at many frequency bins.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for frequency in [5,10,20,5.25]:
+    # Compute the signal
+    sample_rate = 1000 # Hz
+    dt = 1/sample_rate # seconds
+    num_samples = 1000 # Samples
+    times = np.arange(num_samples)*dt
+    signal = sdpy.generator.sine(frequency,dt,num_samples)
+
+    # Compute its FFT
+    frequency_lines = np.fft.rfftfreq(num_samples,dt)
+    signal_fft = np.fft.rfft(signal)
+
+    # Plot both
+    fig,ax = plt.subplots(1,1,num=&#39;Sine Signal: {:}&#39;.format(frequency))
+    ax.set_title(&#39;Frequency: {:}&#39;.format(frequency))
+    ax.plot(frequency_lines,np.abs(signal_fft))
+    ax.set_xlabel(&#39;Frequency (s)&#39;)
+    ax.set_ylabel(&#39;|Signal FFT| (-)&#39;)
+    ax.set_xlim(frequency-5,frequency+5)
+    ax.grid(True)
+    fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_2.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_3.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_13_3.png" />
+</div>
+</div>
+<p>This is the first lesson that the FFT can teach us when computing frequency response functions: all signals transformed by the FFT must be periodic within the measurement window, otherwise leakage will occur and the frequency-domain representation of the signal, which is used to compute the frequency response function, will be distorted.</p>
+<p>Note that this does not imply that all signals must be sinusoidal. For example, an excitation signal starting and ending at the same value (for example, zero) is also periodic within the measurement window, and no leakage will occur. This means that impacts or other transient signals that start and stop within the measurement frame will also be leakage-free.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
+frequency = 100 # Hz
+sample_rate = 1000 # Hz
+dt = 1/sample_rate # seconds
+num_samples = 1000 # Samples
+times = np.arange(num_samples)*dt
+signal = sdpy.generator.pulse(num_samples,0.1,0.01,dt=dt)
+
+# Compute its FFT
+frequency_lines = np.fft.rfftfreq(num_samples,dt)
+signal_fft = np.fft.rfft(signal)
+
+# Plot both
+fig,ax = plt.subplots(2,1,num=&#39;Pulse Signal&#39;)
+ax[0].plot(times,signal)
+ax[0].set_xlabel(&#39;Time (s)&#39;)
+ax[0].set_ylabel(&#39;Signal (-)&#39;)
+ax[1].plot(frequency_lines,np.abs(signal_fft))
+ax[1].set_xlabel(&#39;Frequency (s)&#39;)
+ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_15_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_15_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Modal_05a_Computing_FRF_from_Time_Data.html" class="btn btn-neutral float-left" title="Modal Tutorial 05 Part A: Computing Frequency Response from Time Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Modal_05c_Selecting_Response_and_Measurement_DoFs.html" class="btn btn-neutral float-right" title="Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

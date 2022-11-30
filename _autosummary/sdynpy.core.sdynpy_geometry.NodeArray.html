@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_geometry.NodeArray &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_geometry.ShapePlotter" href="sdynpy.core.sdynpy_geometry.ShapePlotter.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_geometry.GeometryPlotter" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html">sdynpy.core.sdynpy_geometry.coordinate_system_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.element_array.html">sdynpy.core.sdynpy_geometry.element_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_exodus.html">sdynpy.core.sdynpy_geometry.from_exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_imat_struct.html">sdynpy.core.sdynpy_geometry.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_uff.html">sdynpy.core.sdynpy_geometry.from_uff</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_unv.html">sdynpy.core.sdynpy_geometry.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_coord.html">sdynpy.core.sdynpy_geometry.global_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_deflection.html">sdynpy.core.sdynpy_geometry.global_deflection</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.load.html">sdynpy.core.sdynpy_geometry.load</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.local_coord.html">sdynpy.core.sdynpy_geometry.local_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.node_array.html">sdynpy.core.sdynpy_geometry.node_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.split_list.html">sdynpy.core.sdynpy_geometry.split_list</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.traceline_array.html">sdynpy.core.sdynpy_geometry.traceline_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html">sdynpy.core.sdynpy_geometry.DeflectionShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html">sdynpy.core.sdynpy_geometry.ElementArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html">sdynpy.core.sdynpy_geometry.Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html">sdynpy.core.sdynpy_geometry.GeometryPlotter</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_geometry.NodeArray</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray"><code class="docutils literal notranslate"><span class="pre">NodeArray</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.__init__"><code class="docutils literal notranslate"><span class="pre">NodeArray.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_grid"><code class="docutils literal notranslate"><span class="pre">NodeArray.by_grid()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_position"><code class="docutils literal notranslate"><span class="pre">NodeArray.by_position()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.data_dtype"><code class="docutils literal notranslate"><span class="pre">NodeArray.data_dtype</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.from_unv"><code class="docutils literal notranslate"><span class="pre">NodeArray.from_unv()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate"><code class="docutils literal notranslate"><span class="pre">NodeArray.global_coordinate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane"><code class="docutils literal notranslate"><span class="pre">NodeArray.project_to_minimum_plane()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.reduce"><code class="docutils literal notranslate"><span class="pre">NodeArray.reduce()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.triangulate"><code class="docutils literal notranslate"><span class="pre">NodeArray.triangulate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ShapePlotter.html">sdynpy.core.sdynpy_geometry.ShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TracelineArray.html">sdynpy.core.sdynpy_geometry.TracelineArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TransientPlotter.html">sdynpy.core.sdynpy_geometry.TransientPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.id_map.html">sdynpy.core.sdynpy_geometry.id_map</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_geometry.NodeArray</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-geometry-nodearray">
+<h1>sdynpy.core.sdynpy_geometry.NodeArray<a class="headerlink" href="#sdynpy-core-sdynpy-geometry-nodearray" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NodeArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a></p>
+<p>Node information array</p>
+<p>Use the node_array helper function to create the array.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_grid" title="sdynpy.core.sdynpy_geometry.NodeArray.by_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">by_grid</span></code></a>(grid_spacing[, x_min, y_min, z_min, ...])</p></td>
+<td><p>Selects nodes in a grid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_position" title="sdynpy.core.sdynpy_geometry.NodeArray.by_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">by_position</span></code></a>(position_array)</p></td>
+<td><p>Select node by closest position</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.from_unv" title="sdynpy.core.sdynpy_geometry.NodeArray.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_data_dict[, combine])</p></td>
+<td><p>Load NodeArrays from universal file data from read_unv</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate" title="sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_coordinate</span></code></a>(cs_array)</p></td>
+<td><p>Get the global coordinate of each node</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane" title="sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_to_minimum_plane</span></code></a>(coordinates[, ...])</p></td>
+<td><p>Projects coordinates to a single best-fit plane</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.reduce" title="sdynpy.core.sdynpy_geometry.NodeArray.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(node_list)</p></td>
+<td><p>Keep only nodes that are contained in node_list</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.triangulate" title="sdynpy.core.sdynpy_geometry.NodeArray.triangulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triangulate</span></code></a>(cs_array[, projection_function, ...])</p></td>
+<td><p>Creates elements for a node set using Delaunay Triangulation</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray.data_dtype" title="sdynpy.core.sdynpy_geometry.NodeArray.data_dtype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_dtype</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.by_grid">
+<span class="sig-name descname"><span class="pre">by_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.by_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_grid" title="Permalink to this definition"></a></dt>
+<dd><p>Selects nodes in a grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid_spacing</strong> (<em>float</em>) – Approximate grid spacing between selected nodes</p></li>
+<li><p><strong>x_min</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the minimum node x-coordinate.</p></li>
+<li><p><strong>y_min</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the minimum node y-coordinate.</p></li>
+<li><p><strong>z_min</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the minimum node z-coordinate.</p></li>
+<li><p><strong>x_max</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the maximum node x-coordinate.</p></li>
+<li><p><strong>y_max</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the maximum node y-coordinate.</p></li>
+<li><p><strong>z_max</strong> (<em>float</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is the maximum node z-coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NodeArray containing the closest nodes to the grid points</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray">NodeArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.by_position">
+<span class="sig-name descname"><span class="pre">by_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.by_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.by_position" title="Permalink to this definition"></a></dt>
+<dd><p>Select node by closest position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>position_array</strong> (<em>np.ndarray</em>) – A (…,3) shape array containing positions of nodes to keep</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NodArray containing nodes that were closest to the positions in
+position_array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray">NodeArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.data_dtype">
+<span class="sig-name descname"><span class="pre">data_dtype</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('id',</span> <span class="pre">'uint64'),</span> <span class="pre">('coordinate',</span> <span class="pre">'float64',</span> <span class="pre">(3,)),</span> <span class="pre">('color',</span> <span class="pre">'uint16'),</span> <span class="pre">('def_cs',</span> <span class="pre">'uint64'),</span> <span class="pre">('disp_cs',</span> <span class="pre">'uint64')]</span></em><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.data_dtype" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.from_unv">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_unv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unv_data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.from_unv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.from_unv" title="Permalink to this definition"></a></dt>
+<dd><p>Load NodeArrays from universal file data from read_unv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unv_data_dict</strong> (<em>dict</em>) – Dictionary containing data from read_unv</p></li>
+<li><p><strong>combine</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return as a single NodeArray</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output_arrays</strong> – Nodes read from unv</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray">NodeArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate">
+<span class="sig-name descname"><span class="pre">global_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cs_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.global_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>Get the global coordinate of each node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cs_array</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><em>CoordinateSystemArray</em></a>) – CoordinateSystemArray consisting of the local coordinate systems for
+each node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>points</strong> – Coordinates of the nodes in the global coordinate system.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_to_minimum_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_3D</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.project_to_minimum_plane"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane" title="Permalink to this definition"></a></dt>
+<dd><p>Projects coordinates to a single best-fit plane</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<em>np.ndarray</em>) – A (…,3) coordinate array.</p></li>
+<li><p><strong>return_3D</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return the 3D coordinates of the projected points.
+Otherwise return the projected 2D coordinate. The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Points projected to a best-fit plane.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.reduce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.reduce" title="Permalink to this definition"></a></dt>
+<dd><p>Keep only nodes that are contained in node_list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_list</strong> (<em>iterable</em>) – Iterable containing nodes to keep.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NodeArray containing only nodes in node_list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray">NodeArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.NodeArray.triangulate">
+<span class="sig-name descname"><span class="pre">triangulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cs_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_element_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#NodeArray.triangulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.NodeArray.triangulate" title="Permalink to this definition"></a></dt>
+<dd><p>Creates elements for a node set using Delaunay Triangulation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cs_array</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><em>CoordinateSystemArray</em></a>) – CoordinateSystemArray containing coordinate systems for each node.</p></li>
+<li><p><strong>projection_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function to use to project 3D coordinates to 2D coordinates for
+triangulation. The default is None.</p></li>
+<li><p><strong>return_element_array</strong> (<em>bool</em><em>, </em><em>optional</em>) – Returns an ElementArray if True, otherwise it simply returns the
+triangle simplices. The default is True.</p></li>
+<li><p><strong>element_color</strong> (<em>np.ndarray</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – Integers representing colors applied to the elements.
+The default is 1.</p></li>
+<li><p><strong>condition_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Condition number threshold used to remove triangles that are poorly
+shaped. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ElementArray containing elements or np.ndarray containing triangle
+simplices.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray">ElementArray</a> or np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_geometry.GeometryPlotter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_geometry.ShapePlotter.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_geometry.ShapePlotter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

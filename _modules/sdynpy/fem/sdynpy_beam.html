@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fem.sdynpy_beam &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fem.sdynpy_beam</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fem.sdynpy_beam</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for creating mass and stiffness matrices for beam structures.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+
+
+<div class="viewcode-block" id="beamkm"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_beam.beamkm.html#sdynpy.fem.sdynpy_beam.beamkm">[docs]</a><span class="k">def</span> <span class="nf">beamkm</span><span class="p">(</span><span class="n">node_coords</span><span class="p">,</span> <span class="n">element_connectivity</span><span class="p">,</span> <span class="n">bend_direction_1</span><span class="p">,</span>
+           <span class="n">ae</span><span class="p">,</span> <span class="n">jg</span><span class="p">,</span> <span class="n">ei1</span><span class="p">,</span> <span class="n">ei2</span><span class="p">,</span> <span class="n">mass_per_length</span><span class="p">,</span> <span class="n">tmmi_per_length</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compute mass and stiffness matrices for the given beam model</span>
+
+<span class="sd">    This function computes the mass and stiffness matrices for the beam model</span>
+<span class="sd">    defined by the given nodal coordinates, element connectivity, orientation</span>
+<span class="sd">    parameters, and elastic properties.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node_coords : ndarray</span>
+<span class="sd">        An nx3 array where node_coords[i,:] is the x,y,z coordinate of the i-th</span>
+<span class="sd">        node.  The number of rows is equal to the number of nodes in the model.</span>
+<span class="sd">    element_connectivity : ndarray</span>
+<span class="sd">        An mx2 array where element_connectivity[i,:] are the row indices of</span>
+<span class="sd">        node_coords corresponding to the nodes in the i-th element.  The number</span>
+<span class="sd">        of rows is equal to the number of elements in the model</span>
+<span class="sd">    bend_direction_1 : ndarray</span>
+<span class="sd">        An mx3 array where bend_direction_1[i,:] is the x,y,z coordinates of a</span>
+<span class="sd">        vector that defines the first bending axis of the beam.  The second</span>
+<span class="sd">        bending axis is computed from the cross product of the beam axis and</span>
+<span class="sd">        the first bending axis.  The number of rows is equal to the number of</span>
+<span class="sd">        elements in the model</span>
+<span class="sd">    ae : ndarray</span>
+<span class="sd">        A length m array where ae[i] is the axial stiffness of element i.  This</span>
+<span class="sd">        can be computed from the area of the element (A) times the elastic</span>
+<span class="sd">        modulus (E).  The length of the array should be equal to the number of</span>
+<span class="sd">        elements in the model.</span>
+<span class="sd">    jg : ndarray</span>
+<span class="sd">        A length m array where jg[i] is the torsional stiffness of element i.</span>
+<span class="sd">        This can be computed from the torsional constant (J) times the shear</span>
+<span class="sd">        modulus (G).  The length of the array should be equal to the number of</span>
+<span class="sd">        elements in the model.</span>
+<span class="sd">    ei1 : ndarray</span>
+<span class="sd">        A length m array where ei1[i] is the bending stiffness about axis 1 of</span>
+<span class="sd">        element i.  This can be computed from the second moment of area of the</span>
+<span class="sd">        beam&#39;s cross section about bending axis 1 (I1) times the elastic</span>
+<span class="sd">        modulus (E).  The length of the array should be equal to the number of</span>
+<span class="sd">        elements in the model.</span>
+<span class="sd">    ei2 : ndarray</span>
+<span class="sd">        A length m array where ei2[i] is the bending stiffness about axis 2 of</span>
+<span class="sd">        element i.  This can be computed from the second moment of area of the</span>
+<span class="sd">        beam&#39;s cross section about bending axis 2 (I2) times the elastic</span>
+<span class="sd">        modulus (E).  The length of the array should be equal to the number of</span>
+<span class="sd">        elements in the model.</span>
+<span class="sd">    mass_per_length : ndarray</span>
+<span class="sd">        A length m array where mass_per_length[i] is the linear density of</span>
+<span class="sd">        element i.  This can be computed from the density of the material times</span>
+<span class="sd">        the cross sectional area of the beam.  The length of the array should</span>
+<span class="sd">        be equal to the number of elements in the model.</span>
+<span class="sd">    tmmi_per_length : ndarray</span>
+<span class="sd">        A length m array where tmmi_per_length[i] is the torsional mass moment</span>
+<span class="sd">        of inertia per unit length of element i.  This can be computed from the</span>
+<span class="sd">        density of the material times the polar moment of inertia of the beam&#39;s</span>
+<span class="sd">        cross-section.  The length of the array should be equal to the number</span>
+<span class="sd">        of elements in the model.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : ndarray</span>
+<span class="sd">        The stiffness matrix of the beam model, which will have size 6nx6n</span>
+<span class="sd">        where n is the number of nodes in the model.</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        The mass matrix of the beam model, which will have size 6nx6n where n</span>
+<span class="sd">        is the number of nodes in the model.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The degrees of freedom in the mass and stiffness matrices will be ordered</span>
+<span class="sd">    as follows:</span>
+<span class="sd">        [disp_x_0, disp_y_0, disp_z_0, rot_x_0, rot_y_0, rot_z_0,</span>
+<span class="sd">        disp_x_1, disp_y_1, disp_z_1, rot_x_1, rot_y_1, rot_z_1,</span>
+<span class="sd">        ...</span>
+<span class="sd">        disp_x_n, disp_y_n, disp_z_n, rot_x_n, rot_y_n, rot_z_n]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Validate inputs</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">number_of_nodes</span> <span class="o">=</span> <span class="n">node_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">node_coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;node_coords should be a 2D array with shape nx3 where n is the number of nodes in the model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;node_coords should have shape nx3 where n is the number of nodes in the model&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;node_coords should be a numpy.ndarray&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">number_of_elements</span> <span class="o">=</span> <span class="n">element_connectivity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">element_connectivity</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;element_connectivity should be a 2D array with shape nx2 where n is the number of elements in the model&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">element_connectivity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;element_connectivity should have shape nx2 where n is the number of elements in the model&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;element_connectivity should be a numpy.ndarray&#39;</span><span class="p">)</span>
+    <span class="c1"># Check that the element properties that have been passed are the correct</span>
+    <span class="c1"># shape</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bend_direction_1</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">number_of_elements</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;bend_direction_1 should be a 2D array with shape (element_connectivity.shape[0],3)&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bend_direction_1 should be a numpy.ndarray&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ae</span><span class="p">,</span> <span class="n">jg</span><span class="p">,</span> <span class="n">ei1</span><span class="p">,</span> <span class="n">ei2</span><span class="p">,</span> <span class="n">mass_per_length</span><span class="p">,</span> <span class="n">tmmi_per_length</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">number_of_elements</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be 1D arrays with length element_connectivity.shape[0]&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be numpy.ndarray&#39;</span><span class="p">)</span>
+    <span class="c1"># Initialize</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span> <span class="o">*</span> <span class="n">number_of_nodes</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">number_of_nodes</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span> <span class="o">*</span> <span class="n">number_of_nodes</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">number_of_nodes</span><span class="p">))</span>
+
+    <span class="c1"># Initialize Element Matrices</span>
+    <span class="n">PA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="n">PT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="n">PB1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="n">PB2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="c1"># Loop through all elements and assemble mass and stiffness matrices</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">node_indices</span><span class="p">,</span> <span class="n">bd1</span><span class="p">,</span> <span class="n">AE</span><span class="p">,</span> <span class="n">JG</span><span class="p">,</span> <span class="n">EI1</span><span class="p">,</span> <span class="n">EI2</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">rhoT</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">element_connectivity</span><span class="p">,</span>
+                                                                             <span class="n">bend_direction_1</span><span class="p">,</span> <span class="n">ae</span><span class="p">,</span> <span class="n">jg</span><span class="p">,</span> <span class="n">ei1</span><span class="p">,</span> <span class="n">ei2</span><span class="p">,</span>
+                                                                             <span class="n">mass_per_length</span><span class="p">,</span> <span class="n">tmmi_per_length</span><span class="p">)):</span>
+        <span class="c1"># Get element length</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">node_coords</span><span class="p">[</span><span class="n">node_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">node_coords</span><span class="p">[</span><span class="n">node_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:]</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+        <span class="c1"># Compute Element Matrices</span>
+        <span class="n">KelemA</span> <span class="o">=</span> <span class="n">AE</span> <span class="o">/</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">KelemT</span> <span class="o">=</span> <span class="n">JG</span> <span class="o">/</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">KelemB1</span> <span class="o">=</span> <span class="n">EI1</span> <span class="o">/</span> <span class="n">L</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="n">KelemB2</span> <span class="o">=</span> <span class="n">EI2</span> <span class="o">/</span> <span class="n">L</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="n">Kelem</span> <span class="o">=</span> <span class="n">PA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">KelemA</span> <span class="o">@</span> <span class="n">PA</span> <span class="o">+</span> <span class="n">PT</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">KelemT</span> <span class="o">@</span> <span class="n">PT</span> <span class="o">+</span> <span class="n">PB1</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">KelemB1</span> <span class="o">@</span> <span class="n">PB1</span> <span class="o">+</span> <span class="n">PB2</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">KelemB2</span> <span class="o">@</span> <span class="n">PB2</span>
+
+        <span class="n">MelemA</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]])</span>
+        <span class="n">MelemT</span> <span class="o">=</span> <span class="n">rhoT</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]])</span>
+        <span class="n">MelemB1</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">105</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">140</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="mi">9</span> <span class="o">/</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">35</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="o">-</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">140</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">105</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="n">MelemB2</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">105</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">140</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="mi">9</span> <span class="o">/</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">35</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="o">-</span><span class="mi">13</span> <span class="o">/</span> <span class="mi">420</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">140</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">210</span> <span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">105</span> <span class="o">*</span> <span class="n">L</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="n">Melem</span> <span class="o">=</span> <span class="n">PA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">MelemA</span> <span class="o">@</span> <span class="n">PA</span> <span class="o">+</span> <span class="n">PT</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">MelemT</span> <span class="o">@</span> <span class="n">PT</span> <span class="o">+</span> <span class="n">PB1</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">MelemB1</span> <span class="o">@</span> <span class="n">PB1</span> <span class="o">+</span> <span class="n">PB2</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">MelemB2</span> <span class="o">@</span> <span class="n">PB2</span>
+        <span class="c1"># Compute Directions</span>
+        <span class="n">d0</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">bd1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bd1</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">d0</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">d2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d0</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">])</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+
+        <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">node_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="n">node_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">i2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">node_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="n">node_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">K</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">))[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">))]</span> <span class="o">+=</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Kelem</span> <span class="o">@</span> <span class="n">A</span>
+        <span class="n">M</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">))[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">))]</span> <span class="o">+=</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Melem</span> <span class="o">@</span> <span class="n">A</span>
+
+    <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">M</span></div>
+
+
+<span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">node_coords = np.array([np.linspace(0,1,10),</span>
+<span class="sd">                         np.zeros(10),</span>
+<span class="sd">                         np.zeros(10)]).T</span>
+<span class="sd">        </span>
+<span class="sd">element_connectivity = np.array([np.arange(0,9),np.arange(1,10)]).T</span>
+
+<span class="sd">bend_direction_1 = np.array([np.zeros(element_connectivity.shape[0]),np.zeros(element_connectivity.shape[0]),np.ones(element_connectivity.shape[0])]).T</span>
+
+<span class="sd">b = 0.01</span>
+<span class="sd">h = 0.01</span>
+<span class="sd">E = 69e9</span>
+<span class="sd">nu = 0.33</span>
+<span class="sd">rho = 2830</span>
+<span class="sd">I1 = b*h**3/12</span>
+<span class="sd">I2 = b**3*h/12</span>
+<span class="sd">G = E/(2*(1-nu))</span>
+<span class="sd">J = I1+I2</span>
+<span class="sd">Ixx_per_L = (1/12)*rho*b*h*(b**2+h**2)</span>
+
+<span class="sd">ae =  b*h*E * np.ones(element_connectivity.shape[0])</span>
+<span class="sd">jg = J*G * np.ones(element_connectivity.shape[0])</span>
+<span class="sd">ei1 = E*I1 * np.ones(element_connectivity.shape[0])</span>
+<span class="sd">ei2 = E*I2 * np.ones(element_connectivity.shape[0])</span>
+<span class="sd">mass_per_length = rho*b*h * np.ones(element_connectivity.shape[0])</span>
+<span class="sd">tmmi_per_length = Ixx_per_L * np.ones(element_connectivity.shape[0])</span>
+
+<span class="sd">K,M = beamkm(node_coords,element_connectivity,bend_direction_1,ae,jg,ei1,ei2,mass_per_length,tmmi_per_length)</span>
+
+<span class="sd"># Perform an eigenanalysis</span>
+<span class="sd">lam,phi = la.eigh(K,M)</span>
+<span class="sd">lam[0:6] = 0</span>
+<span class="sd">fn = np.sqrt(lam)/(2*np.pi)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="rect_beam_props"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_beam.rect_beam_props.html#sdynpy.fem.sdynpy_beam.rect_beam_props">[docs]</a><span class="k">def</span> <span class="nf">rect_beam_props</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nelem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return beam keyword dictionary for a rectangular beam.</span>
+
+<span class="sd">    Returns parameters that can be used in the beamkm function for a beam of</span>
+<span class="sd">    uniform rectangular cross-section.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    E : float</span>
+<span class="sd">        Young&#39;s Modulus</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density</span>
+<span class="sd">    nu : float</span>
+<span class="sd">        Poisson&#39;s Ratio</span>
+<span class="sd">    b : float</span>
+<span class="sd">        Thickness of the beam in the direction of bend_direction_1</span>
+<span class="sd">    h : float</span>
+<span class="sd">        Thickness of the beam in the direction of bend_direction_2.  If it is</span>
+<span class="sd">        not specified, a square cross section is assumed.</span>
+<span class="sd">    nelem : int</span>
+<span class="sd">        Number of elements.  This will repeat the values in the dict nelem</span>
+<span class="sd">        times, as is required by beamkm.  If not specified, only a single value</span>
+<span class="sd">        will be output for each entry in the dict.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        A dictionary that can be used in beamkm(**kwargs).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Steel : SI</span>
+<span class="sd">        E = 200e9 # [N/m^2],</span>
+<span class="sd">        nu = 0.25 # [-], </span>
+<span class="sd">        rho = 7850 # [kg/m^3]</span>
+<span class="sd">    Aluminum : SI</span>
+<span class="sd">        E = 69e9 # [N/m^2], </span>
+<span class="sd">        nu = 0.33 # [-], </span>
+<span class="sd">        rho = 2830 # [kg/m^3]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">b</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">h</span>
+    <span class="n">I1</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">h</span><span class="o">**</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">12</span>
+    <span class="n">I2</span> <span class="o">=</span> <span class="n">b</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">12</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">E</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">nu</span><span class="p">))</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="n">I1</span> <span class="o">+</span> <span class="n">I2</span>
+    <span class="n">Ixx_per_L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;ae&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">E</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;jg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">J</span> <span class="o">*</span> <span class="n">G</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;ei1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span> <span class="o">*</span> <span class="n">I1</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;ei2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span> <span class="o">*</span> <span class="n">I2</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;mass_per_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">A</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;tmmi_per_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ixx_per_L</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nelem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">nelem</span><span class="p">,),</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">return_dict</span></div>
+
+
+<div class="viewcode-block" id="beamkm_2d"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_beam.beamkm_2d.html#sdynpy.fem.sdynpy_beam.beamkm_2d">[docs]</a><span class="k">def</span> <span class="nf">beamkm_2d</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">axial</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;A simplified 2D beam with uniform cross section and linear materials</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    length : float</span>
+<span class="sd">        Length of the beam</span>
+<span class="sd">    width : float</span>
+<span class="sd">        Width of the beam, perpendicular to the bending plane</span>
+<span class="sd">    height : float</span>
+<span class="sd">        Height of the beam, in the bending direction.</span>
+<span class="sd">    nnodes : int</span>
+<span class="sd">        Number of nodes in the beam (number of elements + 1)</span>
+<span class="sd">    E : float</span>
+<span class="sd">        Elastic modulus</span>
+<span class="sd">    rho : float</span>
+<span class="sd">        Density</span>
+<span class="sd">    nu : float</span>
+<span class="sd">        Poisson&#39;s Ratio</span>
+<span class="sd">    axial : bool</span>
+<span class="sd">        Keep axial motions (default = True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : np.ndarray</span>
+<span class="sd">        Stiffness matrix of the beam</span>
+<span class="sd">    M : np.ndarray</span>
+<span class="sd">        Mass matrix of the beam</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Dof ordering is axial translation, bending translation, and bending</span>
+<span class="sd">    rotation repeated for each node.  Axial is X, bending is Z, and rotation is</span>
+<span class="sd">    about Y.  If axial == False, Dof ordering is bending translation, bending</span>
+<span class="sd">    rotation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">node_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">)</span>
+    <span class="n">coords_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnodes</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">coords_3d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_coords</span>
+    <span class="n">node_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">node_indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">node_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">bend_direction_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">bend_direction_1</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">props</span> <span class="o">=</span> <span class="n">rect_beam_props</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">nelem</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">))</span>
+
+    <span class="n">K</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="n">beamkm</span><span class="p">(</span><span class="n">coords_3d</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">bend_direction_1</span><span class="p">,</span> <span class="o">**</span><span class="n">props</span><span class="p">)</span>
+
+    <span class="c1"># Eliminate everything except in bend direction 1.  Keep translation in X, Z,</span>
+    <span class="c1"># and rotation about y</span>
+    <span class="k">if</span> <span class="n">axial</span><span class="p">:</span>
+        <span class="n">keep_dofs</span> <span class="o">=</span> <span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">keep_dofs</span> <span class="o">=</span> <span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">keep_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">keep_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">keep_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">keep_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

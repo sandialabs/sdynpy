@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58 &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/clipboard.min.js"></script>
+        <script src="../../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions at Nodal Degrees of Freedom</span>
+
+<span class="sd">Defines several types of functions from time histories to spectra, spectral</span>
+<span class="sd">densities, and transfer functions.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">..sdynpy_uff</span> <span class="kn">import</span> <span class="n">parse_uff_line</span><span class="p">,</span> <span class="n">parse_uff_lines</span><span class="p">,</span> <span class="n">write_uff_line</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="is_abscissa_even"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even">[docs]</a><span class="k">def</span> <span class="nf">is_abscissa_even</span><span class="p">(</span><span class="n">abscissa</span><span class="p">):</span>
+    <span class="n">abscissa_inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">abscissa</span><span class="p">))</span>
+    <span class="n">abscissa_start</span> <span class="o">=</span> <span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span> <span class="n">abscissa_start</span> <span class="o">+</span> <span class="n">abscissa_inc</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">abscissa</span><span class="o">.</span><span class="n">size</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58">[docs]</a><span class="k">class</span> <span class="nc">Sdynpy_UFF_Dataset_58</span><span class="p">:</span>
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.__init__"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span>
+                 <span class="n">function_type</span><span class="p">,</span> <span class="n">function_id</span><span class="p">,</span> <span class="n">version_number</span><span class="p">,</span> <span class="n">load_case</span><span class="p">,</span>
+                 <span class="n">response_entity_name</span><span class="p">,</span> <span class="n">response_node</span><span class="p">,</span> <span class="n">response_direction</span><span class="p">,</span>
+                 <span class="n">reference_entity_name</span><span class="p">,</span> <span class="n">reference_node</span><span class="p">,</span> <span class="n">reference_direction</span><span class="p">,</span>
+                 <span class="n">abscissa_data_type</span><span class="p">,</span> <span class="n">abscissa_length_exponent</span><span class="p">,</span>
+                 <span class="n">abscissa_force_exponent</span><span class="p">,</span> <span class="n">abscissa_temp_exponent</span><span class="p">,</span>
+                 <span class="n">abscissa_axis_label</span><span class="p">,</span> <span class="n">abscissa_units_label</span><span class="p">,</span>
+                 <span class="n">ordinate_num_data_type</span><span class="p">,</span> <span class="n">ordinate_num_length_exponent</span><span class="p">,</span>
+                 <span class="n">ordinate_num_force_exponent</span><span class="p">,</span> <span class="n">ordinate_num_temp_exponent</span><span class="p">,</span>
+                 <span class="n">ordinate_num_axis_label</span><span class="p">,</span> <span class="n">ordinate_num_units_label</span><span class="p">,</span>
+                 <span class="n">ordinate_den_data_type</span><span class="p">,</span> <span class="n">ordinate_den_length_exponent</span><span class="p">,</span>
+                 <span class="n">ordinate_den_force_exponent</span><span class="p">,</span> <span class="n">ordinate_den_temp_exponent</span><span class="p">,</span>
+                 <span class="n">ordinate_den_axis_label</span><span class="p">,</span> <span class="n">ordinate_den_units_label</span><span class="p">,</span>
+                 <span class="n">zaxis_data_type</span><span class="p">,</span> <span class="n">zaxis_length_exponent</span><span class="p">,</span>
+                 <span class="n">zaxis_force_exponent</span><span class="p">,</span> <span class="n">zaxis_temp_exponent</span><span class="p">,</span>
+                 <span class="n">zaxis_axis_label</span><span class="p">,</span> <span class="n">zaxis_units_label</span><span class="p">,</span> <span class="n">zaxis_value</span><span class="p">,</span>
+                 <span class="n">abscissa</span><span class="p">,</span> <span class="n">ordinate</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline1</span> <span class="o">=</span> <span class="n">idline1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span> <span class="o">=</span> <span class="n">idline2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline3</span> <span class="o">=</span> <span class="n">idline3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline4</span> <span class="o">=</span> <span class="n">idline4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idline5</span> <span class="o">=</span> <span class="n">idline5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function_type</span> <span class="o">=</span> <span class="n">function_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function_id</span> <span class="o">=</span> <span class="n">function_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version_number</span> <span class="o">=</span> <span class="n">version_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_case</span> <span class="o">=</span> <span class="n">load_case</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_entity_name</span> <span class="o">=</span> <span class="n">response_entity_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_node</span> <span class="o">=</span> <span class="n">response_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_direction</span> <span class="o">=</span> <span class="n">response_direction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_entity_name</span> <span class="o">=</span> <span class="n">reference_entity_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_node</span> <span class="o">=</span> <span class="n">reference_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_direction</span> <span class="o">=</span> <span class="n">reference_direction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_data_type</span> <span class="o">=</span> <span class="n">abscissa_data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_length_exponent</span> <span class="o">=</span> <span class="n">abscissa_length_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_force_exponent</span> <span class="o">=</span> <span class="n">abscissa_force_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_temp_exponent</span> <span class="o">=</span> <span class="n">abscissa_temp_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_axis_label</span> <span class="o">=</span> <span class="n">abscissa_axis_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_units_label</span> <span class="o">=</span> <span class="n">abscissa_units_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_data_type</span> <span class="o">=</span> <span class="n">ordinate_num_data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_length_exponent</span> <span class="o">=</span> <span class="n">ordinate_num_length_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_force_exponent</span> <span class="o">=</span> <span class="n">ordinate_num_force_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_temp_exponent</span> <span class="o">=</span> <span class="n">ordinate_num_temp_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_axis_label</span> <span class="o">=</span> <span class="n">ordinate_num_axis_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_units_label</span> <span class="o">=</span> <span class="n">ordinate_num_units_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_data_type</span> <span class="o">=</span> <span class="n">ordinate_den_data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_length_exponent</span> <span class="o">=</span> <span class="n">ordinate_den_length_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_force_exponent</span> <span class="o">=</span> <span class="n">ordinate_den_force_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_temp_exponent</span> <span class="o">=</span> <span class="n">ordinate_den_temp_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_axis_label</span> <span class="o">=</span> <span class="n">ordinate_den_axis_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_units_label</span> <span class="o">=</span> <span class="n">ordinate_den_units_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_data_type</span> <span class="o">=</span> <span class="n">zaxis_data_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_length_exponent</span> <span class="o">=</span> <span class="n">zaxis_length_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_force_exponent</span> <span class="o">=</span> <span class="n">zaxis_force_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_temp_exponent</span> <span class="o">=</span> <span class="n">zaxis_temp_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_axis_label</span> <span class="o">=</span> <span class="n">zaxis_axis_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_units_label</span> <span class="o">=</span> <span class="n">zaxis_units_label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_value</span> <span class="o">=</span> <span class="n">zaxis_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span> <span class="o">=</span> <span class="n">abscissa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">ordinate</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">58</span>
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.from_uff_data_array"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.from_uff_data_array">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_uff_data_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1">#        Record 1:     Format(80A1)</span>
+        <span class="c1">#                       Field 1    - ID Line 1</span>
+        <span class="c1">#</span>
+        <span class="c1">#                                                 NOTE</span>
+        <span class="c1">#</span>
+        <span class="c1">#                           ID Line 1 is generally  used  for  the  function</span>
+        <span class="c1">#                           description.</span>
+        <span class="n">idline1</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#        Record 2:     Format(80A1)</span>
+<span class="c1">#                       Field 1    - ID Line 2</span>
+        <span class="n">idline2</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#        Record 3:     Format(80A1)</span>
+<span class="c1">#                       Field 1    - ID Line 3</span>
+<span class="c1">#</span>
+<span class="c1">#                                                 NOTE</span>
+<span class="c1">#</span>
+<span class="c1">#                           ID Line 3 is generally used to identify when the</span>
+<span class="c1">#                           function  was  created.  The date is in the form</span>
+<span class="c1">#                           DD-MMM-YY, and the time is in the form HH:MM:SS,</span>
+<span class="c1">#                           with a general Format(9A1,1X,8A1).</span>
+        <span class="n">idline3</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#        Record 4:     Format(80A1)</span>
+<span class="c1">#                       Field 1    - ID Line 4</span>
+        <span class="n">idline4</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#         Record 5:     Format(80A1)</span>
+<span class="c1">#                       Field 1    - ID Line 5</span>
+        <span class="n">idline5</span><span class="p">,</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+<span class="c1">#        Record 6:     Format(2(I5,I10),2(1X,10A1,I10,I4))</span>
+<span class="c1">#                                  DOF Identification</span>
+<span class="c1">#                       Field 1    - Function Type</span>
+<span class="c1">#                                    0 - General or Unknown</span>
+<span class="c1">#                                    1 - Time Response</span>
+<span class="c1">#                                    2 - Auto Spectrum</span>
+<span class="c1">#                                    3 - Cross Spectrum</span>
+<span class="c1">#                                    4 - Frequency Response Function</span>
+<span class="c1">#                                    5 - Transmissibility</span>
+<span class="c1">#                                    6 - Coherence</span>
+<span class="c1">#                                    7 - Auto Correlation</span>
+<span class="c1">#                                    8 - Cross Correlation</span>
+<span class="c1">#                                    9 - Power Spectral Density (PSD)</span>
+<span class="c1">#                                    10 - Energy Spectral Density (ESD)</span>
+<span class="c1">#                                    11 - Probability Density Function</span>
+<span class="c1">#                                    12 - Spectrum</span>
+<span class="c1">#                                    13 - Cumulative Frequency Distribution</span>
+<span class="c1">#                                    14 - Peaks Valley</span>
+<span class="c1">#                                    15 - Stress/Cycles</span>
+<span class="c1">#                                    16 - Strain/Cycles</span>
+<span class="c1">#                                    17 - Orbit</span>
+<span class="c1">#                                    18 - Mode Indicator Function</span>
+<span class="c1">#                                    19 - Force Pattern</span>
+<span class="c1">#                                    20 - Partial Power</span>
+<span class="c1">#                                    21 - Partial Coherence</span>
+<span class="c1">#                                    22 - Eigenvalue</span>
+<span class="c1">#                                    23 - Eigenvector</span>
+<span class="c1">#                                    24 - Shock Response Spectrum</span>
+<span class="c1">#                                    25 - Finite Impulse Response Filter</span>
+<span class="c1">#                                    26 - Multiple Coherence</span>
+<span class="c1">#                                    27 - Order Function</span>
+<span class="c1">#                                    28 - Phase Compensation</span>
+<span class="c1">#                       Field 2    - Function Identification Number</span>
+<span class="c1">#                       Field 3    - Version Number, or sequence number</span>
+<span class="c1">#                       Field 4    - Load Case Identification Number</span>
+<span class="c1">#                                    0 - Single Point Excitation</span>
+<span class="c1">#                       Field 5    - Response Entity Name (&quot;NONE&quot; if unused)</span>
+<span class="c1">#                       Field 6    - Response Node</span>
+<span class="c1">#                       Field 7    - Response Direction</span>
+<span class="c1">#                                     0 - Scalar</span>
+<span class="c1">#                                     1 - +X Translation       4 - +X Rotation</span>
+<span class="c1">#                                    -1 - -X Translation      -4 - -X Rotation</span>
+<span class="c1">#                                     2 - +Y Translation       5 - +Y Rotation</span>
+<span class="c1">#                                    -2 - -Y Translation      -5 - -Y Rotation</span>
+<span class="c1">#                                     3 - +Z Translation       6 - +Z Rotation</span>
+<span class="c1">#                                    -3 - -Z Translation      -6 - -Z Rotation</span>
+<span class="c1">#                       Field 8    - Reference Entity Name (&quot;NONE&quot; if unused)</span>
+<span class="c1">#                       Field 9    - Reference Node</span>
+<span class="c1">#                       Field 10   - Reference Direction  (same as field 7)</span>
+<span class="c1">#</span>
+<span class="c1">#                                                 NOTE</span>
+<span class="c1">#</span>
+<span class="c1">#                           Fields 8, 9, and 10 are only relevant if field 4</span>
+<span class="c1">#                           is zero.</span>
+        <span class="p">(</span><span class="n">function_type</span><span class="p">,</span> <span class="n">function_id</span><span class="p">,</span> <span class="n">version_number</span><span class="p">,</span> <span class="n">load_case</span><span class="p">,</span>
+         <span class="n">response_entity_name</span><span class="p">,</span> <span class="n">response_node</span><span class="p">,</span> <span class="n">response_direction</span><span class="p">,</span>
+         <span class="n">reference_entity_name</span><span class="p">,</span> <span class="n">reference_node</span><span class="p">,</span> <span class="n">reference_direction</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">,</span> <span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A10&#39;</span><span class="p">,</span> <span class="s1">&#39;I10&#39;</span><span class="p">,</span> <span class="s1">&#39;I4&#39;</span><span class="p">]))</span>
+<span class="c1">#        Record 7:     Format(3I10,3E13.5)</span>
+<span class="c1">#                                  Data Form</span>
+<span class="c1">#                       Field 1    - Ordinate Data Type</span>
+<span class="c1">#                                    2 - real, single precision</span>
+<span class="c1">#                                    4 - real, double precision</span>
+<span class="c1">#                                    5 - complex, single precision</span>
+<span class="c1">#                                    6 - complex, double precision</span>
+<span class="c1">#                       Field 2    - Number of data pairs for uneven  abscissa</span>
+<span class="c1">#                                    spacing, or number of data values for even</span>
+<span class="c1">#                                    abscissa spacing</span>
+<span class="c1">#                       Field 3    - Abscissa Spacing</span>
+<span class="c1">#                                    0 - uneven</span>
+<span class="c1">#                                    1 - even (no abscissa values stored)</span>
+<span class="c1">#                       Field 4    - Abscissa minimum (0.0 if spacing uneven)</span>
+<span class="c1">#                       Field 5    - Abscissa increment (0.0 if spacing uneven)</span>
+<span class="c1">#                       Field 6    - Z-axis value (0.0 if unused)</span>
+        <span class="p">(</span><span class="n">ordinate_data_type</span><span class="p">,</span> <span class="n">num_data</span><span class="p">,</span> <span class="n">abscissa_spacing</span><span class="p">,</span> <span class="n">abscissa_minimum</span><span class="p">,</span>
+         <span class="n">abscissa_increment</span><span class="p">,</span> <span class="n">zaxis_value</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">]))</span>
+<span class="c1">#        Record 8:     Format(I10,3I5,2(1X,20A1))</span>
+<span class="c1">#                                  Abscissa Data Characteristics</span>
+<span class="c1">#                       Field 1    - Specific Data Type</span>
+<span class="c1">#                                    0 - unknown</span>
+<span class="c1">#                                    1 - general</span>
+<span class="c1">#                                    2 - stress</span>
+<span class="c1">#                                    3 - strain</span>
+<span class="c1">#                                    5 - temperature</span>
+<span class="c1">#                                    6 - heat flux</span>
+<span class="c1">#                                    8 - displacement</span>
+<span class="c1">#                                    9 - reaction force</span>
+<span class="c1">#                                    11 - velocity</span>
+<span class="c1">#                                    12 - acceleration</span>
+<span class="c1">#                                    13 - excitation force</span>
+<span class="c1">#                                    15 - pressure</span>
+<span class="c1">#                                    16 - mass</span>
+<span class="c1">#                                    17 - time</span>
+<span class="c1">#                                    18 - frequency</span>
+<span class="c1">#                                    19 - rpm</span>
+<span class="c1">#                                    20 - order</span>
+<span class="c1">#                                    21 - sound pressure</span>
+<span class="c1">#                                    22 - sound intensity</span>
+<span class="c1">#                                    23 - sound power</span>
+<span class="c1">#                       Field 2    - Length units exponent</span>
+<span class="c1">#                       Field 3    - Force units exponent</span>
+<span class="c1">#                       Field 4    - Temperature units exponent</span>
+<span class="c1">#</span>
+<span class="c1">#                                                 NOTE</span>
+<span class="c1">#</span>
+<span class="c1">#                           Fields 2, 3 and  4  are  relevant  only  if  the</span>
+<span class="c1">#                           Specific Data Type is General, or in the case of</span>
+<span class="c1">#                           ordinates, the response/reference direction is a</span>
+<span class="c1">#                           scalar, or the functions are being used for</span>
+<span class="c1">#                           nonlinear connectors in System Dynamics Analysis.</span>
+<span class="c1">#                           See Addendum &#39;A&#39; for the units exponent table.</span>
+<span class="c1">#</span>
+<span class="c1">#                       Field 5    - Axis label (&quot;NONE&quot; if not used)</span>
+<span class="c1">#                       Field 6    - Axis units label (&quot;NONE&quot; if not used)</span>
+<span class="c1">#</span>
+<span class="c1">#                                                 NOTE</span>
+<span class="c1">#</span>
+<span class="c1">#                           If fields  5  and  6  are  supplied,  they  take</span>
+<span class="c1">#                           precendence  over  program  generated labels and</span>
+<span class="c1">#                           units.</span>
+        <span class="p">(</span><span class="n">abscissa_data_type</span><span class="p">,</span> <span class="n">abscissa_length_exponent</span><span class="p">,</span>
+         <span class="n">abscissa_force_exponent</span><span class="p">,</span> <span class="n">abscissa_temp_exponent</span><span class="p">,</span>
+         <span class="n">abscissa_axis_label</span><span class="p">,</span> <span class="n">abscissa_units_label</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">]))</span>
+<span class="c1">#         Record 9:     Format(I10,3I5,2(1X,20A1))</span>
+<span class="c1">#                       Ordinate (or ordinate numerator) Data Characteristics</span>
+        <span class="p">(</span><span class="n">ordinate_num_data_type</span><span class="p">,</span> <span class="n">ordinate_num_length_exponent</span><span class="p">,</span>
+         <span class="n">ordinate_num_force_exponent</span><span class="p">,</span> <span class="n">ordinate_num_temp_exponent</span><span class="p">,</span>
+         <span class="n">ordinate_num_axis_label</span><span class="p">,</span> <span class="n">ordinate_num_units_label</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">]))</span>
+<span class="c1">#         Record 10:    Format(I10,3I5,2(1X,20A1))</span>
+<span class="c1">#                       Ordinate Denominator Data Characteristics</span>
+        <span class="p">(</span><span class="n">ordinate_den_data_type</span><span class="p">,</span> <span class="n">ordinate_den_length_exponent</span><span class="p">,</span>
+         <span class="n">ordinate_den_force_exponent</span><span class="p">,</span> <span class="n">ordinate_den_temp_exponent</span><span class="p">,</span>
+         <span class="n">ordinate_den_axis_label</span><span class="p">,</span> <span class="n">ordinate_den_units_label</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">]))</span>
+<span class="c1">#         Record 11:    Format(I10,3I5,2(1X,20A1))</span>
+<span class="c1">#                       Z-axis Data Characteristics</span>
+        <span class="p">(</span><span class="n">zaxis_data_type</span><span class="p">,</span> <span class="n">zaxis_length_exponent</span><span class="p">,</span>
+         <span class="n">zaxis_force_exponent</span><span class="p">,</span> <span class="n">zaxis_temp_exponent</span><span class="p">,</span>
+         <span class="n">zaxis_axis_label</span><span class="p">,</span> <span class="n">zaxis_units_label</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">]))</span>
+<span class="c1">#         Record 12:</span>
+<span class="c1">#                                   Data Values</span>
+<span class="c1">#</span>
+<span class="c1">#                         Ordinate            Abscissa</span>
+<span class="c1">#             Case     Type     Precision     Spacing       Format</span>
+<span class="c1">#           -------------------------------------------------------------</span>
+<span class="c1">#               1      real      single        even         6E13.5</span>
+<span class="c1">#               2      real      single       uneven        6E13.5</span>
+<span class="c1">#               3     complex    single        even         6E13.5</span>
+<span class="c1">#               4     complex    single       uneven        6E13.5</span>
+<span class="c1">#               5      real      double        even         4E20.12</span>
+<span class="c1">#               6      real      double       uneven     2(E13.5,E20.12)</span>
+<span class="c1">#               7     complex    double        even         4E20.12</span>
+<span class="c1">#               8     complex    double       uneven      E13.5,2E20.12</span>
+<span class="c1">#           --------------------------------------------------------------</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]):</span>   <span class="c1"># Single, regardless of abscissa or complexity</span>
+            <span class="n">read_format</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">]</span>
+            <span class="n">ordinate_data_dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>   <span class="c1"># Double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>   <span class="c1"># Even spacing</span>
+            <span class="n">read_format</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+            <span class="n">ordinate_data_dtype</span> <span class="o">=</span> <span class="s1">&#39;float64&#39;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="o">==</span> <span class="mi">4</span>       <span class="c1"># Real double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>   <span class="c1"># Uneven spacing</span>
+            <span class="n">read_format</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">,</span> <span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+            <span class="n">ordinate_data_dtype</span> <span class="o">=</span> <span class="s1">&#39;float64&#39;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="o">==</span> <span class="mi">6</span>       <span class="c1"># Complex double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>   <span class="c1"># Uneven spacing</span>
+            <span class="n">read_format</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+            <span class="n">ordinate_data_dtype</span> <span class="o">=</span> <span class="s1">&#39;float64&#39;</span>
+        <span class="c1"># Number of data points to read</span>
+        <span class="n">read_multiplication_factor</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Base value is just one value</span>
+        <span class="k">if</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>       <span class="c1"># If abscissa spacing is uneven</span>
+            <span class="n">read_multiplication_factor</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Will need to read that too</span>
+        <span class="k">if</span> <span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>  <span class="c1"># If complex,</span>
+            <span class="n">read_multiplication_factor</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Will need to read 2 ordinates</span>
+        <span class="n">total_number_of_entries</span> <span class="o">=</span> <span class="n">read_multiplication_factor</span> <span class="o">*</span> <span class="n">num_data</span>
+        <span class="c1"># Now read the data</span>
+        <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">parse_uff_lines</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">11</span><span class="p">:],</span> <span class="n">read_format</span><span class="p">,</span> <span class="n">total_number_of_entries</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">ordinate_data_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">read_multiplication_factor</span><span class="p">)</span>
+        <span class="c1"># Now parse the data into the right format</span>
+        <span class="k">if</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># If abscissa spacing is uneven</span>
+            <span class="n">abscissa</span> <span class="o">=</span> <span class="n">ordinate</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="n">ordinate</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abscissa</span> <span class="o">=</span> <span class="p">(</span><span class="n">abscissa_minimum</span> <span class="o">+</span> <span class="n">abscissa_increment</span> <span class="o">*</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>  <span class="c1"># If complex</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="n">ordinate</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ordinate</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="n">ordinate</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Now create the dataset</span>
+        <span class="n">ds_58</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span>
+                    <span class="n">function_type</span><span class="p">,</span> <span class="n">function_id</span><span class="p">,</span> <span class="n">version_number</span><span class="p">,</span> <span class="n">load_case</span><span class="p">,</span>
+                    <span class="n">response_entity_name</span><span class="p">,</span> <span class="n">response_node</span><span class="p">,</span> <span class="n">response_direction</span><span class="p">,</span>
+                    <span class="n">reference_entity_name</span><span class="p">,</span> <span class="n">reference_node</span><span class="p">,</span> <span class="n">reference_direction</span><span class="p">,</span>
+                    <span class="n">abscissa_data_type</span><span class="p">,</span> <span class="n">abscissa_length_exponent</span><span class="p">,</span>
+                    <span class="n">abscissa_force_exponent</span><span class="p">,</span> <span class="n">abscissa_temp_exponent</span><span class="p">,</span>
+                    <span class="n">abscissa_axis_label</span><span class="p">,</span> <span class="n">abscissa_units_label</span><span class="p">,</span>
+                    <span class="n">ordinate_num_data_type</span><span class="p">,</span> <span class="n">ordinate_num_length_exponent</span><span class="p">,</span>
+                    <span class="n">ordinate_num_force_exponent</span><span class="p">,</span> <span class="n">ordinate_num_temp_exponent</span><span class="p">,</span>
+                    <span class="n">ordinate_num_axis_label</span><span class="p">,</span> <span class="n">ordinate_num_units_label</span><span class="p">,</span>
+                    <span class="n">ordinate_den_data_type</span><span class="p">,</span> <span class="n">ordinate_den_length_exponent</span><span class="p">,</span>
+                    <span class="n">ordinate_den_force_exponent</span><span class="p">,</span> <span class="n">ordinate_den_temp_exponent</span><span class="p">,</span>
+                    <span class="n">ordinate_den_axis_label</span><span class="p">,</span> <span class="n">ordinate_den_units_label</span><span class="p">,</span>
+                    <span class="n">zaxis_data_type</span><span class="p">,</span> <span class="n">zaxis_length_exponent</span><span class="p">,</span>
+                    <span class="n">zaxis_force_exponent</span><span class="p">,</span> <span class="n">zaxis_temp_exponent</span><span class="p">,</span>
+                    <span class="n">zaxis_axis_label</span><span class="p">,</span> <span class="n">zaxis_units_label</span><span class="p">,</span> <span class="n">zaxis_value</span><span class="p">,</span>
+                    <span class="n">abscissa</span><span class="p">,</span> <span class="n">ordinate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_58</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Sdynpy_UFF_Dataset_58&lt;</span><span class="si">{}</span><span class="s1"> Elements in Function&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.write_string"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">return_string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">idline3</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">idline4</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">idline5</span><span class="p">,</span>
+                                         <span class="p">],</span> <span class="p">[</span><span class="s1">&#39;A80&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">function_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">function_id</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">version_number</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">load_case</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">response_entity_name</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">response_node</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">response_direction</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">reference_entity_name</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">reference_node</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">reference_direction</span><span class="p">],</span>
+                                        <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">,</span> <span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A10&#39;</span><span class="p">,</span> <span class="s1">&#39;I10&#39;</span><span class="p">,</span> <span class="s1">&#39;I4&#39;</span><span class="p">])</span>
+        <span class="c1"># Check what type of data</span>
+        <span class="n">type_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="p">):</span>  <span class="c1"># Complex</span>
+            <span class="k">if</span> <span class="n">type_size</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>  <span class="c1"># Double Precision</span>
+                <span class="n">ordinate_data_type</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="k">elif</span> <span class="n">type_size</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>  <span class="c1"># Single Precision</span>
+                <span class="n">ordinate_data_type</span> <span class="o">=</span> <span class="mi">5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Unknown data type to write to UFF file!  Should be one of &quot;float32&quot;, &quot;float64&quot;, &quot;complex64&quot;, &quot;complex128&quot;.&#39;</span><span class="p">)</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">imag</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isrealobj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="p">):</span>  <span class="c1"># Real</span>
+            <span class="k">if</span> <span class="n">type_size</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>  <span class="c1"># Double precision</span>
+                <span class="n">ordinate_data_type</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">elif</span> <span class="n">type_size</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Single Precision</span>
+                <span class="n">ordinate_data_type</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Unknown data type to write to UFF file!  Should be one of &quot;float32&quot;, &quot;float64&quot;, &quot;complex64&quot;, &quot;complex128&quot;.&#39;</span><span class="p">)</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Unknown data type to write to UFF file!  Should be one of &quot;float32&quot;, &quot;float64&quot;, &quot;complex64&quot;, &quot;complex128&quot;.&#39;</span><span class="p">)</span>
+        <span class="c1"># Check if abscissa is even</span>
+        <span class="k">if</span> <span class="n">is_abscissa_even</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">):</span>
+            <span class="n">abscissa_spacing</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">abscissa_minimum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">abscissa_increment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abscissa_spacing</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">abscissa_minimum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">abscissa_increment</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ordinate</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">number_data</span> <span class="o">=</span> <span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="n">ordinate_data_type</span><span class="p">,</span> <span class="n">number_data</span><span class="p">,</span> <span class="n">abscissa_spacing</span><span class="p">,</span>
+                                         <span class="n">abscissa_minimum</span><span class="p">,</span> <span class="n">abscissa_increment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_value</span><span class="p">],</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa_data_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_length_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_force_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_temp_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_axis_label</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_units_label</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_data_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_length_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_force_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_temp_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_axis_label</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_num_units_label</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_data_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_length_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_force_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_temp_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_axis_label</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate_den_units_label</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">])</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">zaxis_data_type</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_length_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_force_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_temp_exponent</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_axis_label</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">zaxis_units_label</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;X1&#39;</span><span class="p">,</span> <span class="s1">&#39;A20&#39;</span><span class="p">])</span>
+        <span class="c1"># Get write format</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]):</span>   <span class="c1"># Single, regardless of abscissa or complexity</span>
+            <span class="n">write_format</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>   <span class="c1"># Double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>   <span class="c1"># Even spacing</span>
+            <span class="n">write_format</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="o">==</span> <span class="mi">4</span>       <span class="c1"># Real double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>   <span class="c1"># Uneven spacing</span>
+            <span class="n">write_format</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">,</span> <span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">ordinate_data_type</span> <span class="o">==</span> <span class="mi">6</span>       <span class="c1"># Complex double precision</span>
+              <span class="ow">and</span> <span class="n">abscissa_spacing</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>   <span class="c1"># Uneven spacing</span>
+            <span class="n">write_format</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;E13.5&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;E20.12&#39;</span><span class="p">]</span>
+        <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">(</span><span class="n">ordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">write_format</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_string</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_string</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Dataset 58: Data</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Dataset 58: Data</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Sdynpy_UFF_Dataset_58</span><span class="o">.</span><span class="n">from_uff_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

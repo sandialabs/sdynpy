@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_polypy.PolyPy &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI" href="sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html" />
+    <link rel="prev" title="sdynpy.modal.sdynpy_polypy" href="sdynpy.modal.sdynpy_polypy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_ccmif.html">sdynpy.modal.sdynpy_ccmif</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.html">sdynpy.modal.sdynpy_modeshape</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.html">sdynpy.modal.sdynpy_polypy</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.modal.sdynpy_polypy.PolyPy</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy"><code class="docutils literal notranslate"><span class="pre">PolyPy</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.__init__"><code class="docutils literal notranslate"><span class="pre">PolyPy.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.analyze_pole_convergence"><code class="docutils literal notranslate"><span class="pre">PolyPy.analyze_pole_convergence()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.angular_frequencies"><code class="docutils literal notranslate"><span class="pre">PolyPy.angular_frequencies</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_poles"><code class="docutils literal notranslate"><span class="pre">PolyPy.compute_poles()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_residues"><code class="docutils literal notranslate"><span class="pre">PolyPy.compute_residues()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_shapes"><code class="docutils literal notranslate"><span class="pre">PolyPy.compute_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequencies"><code class="docutils literal notranslate"><span class="pre">PolyPy.frequencies</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequency_spacing"><code class="docutils literal notranslate"><span class="pre">PolyPy.frequency_spacing</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.plot_stability"><code class="docutils literal notranslate"><span class="pre">PolyPy.plot_stability()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.pole_list_from_indices"><code class="docutils literal notranslate"><span class="pre">PolyPy.pole_list_from_indices()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html">sdynpy.modal.sdynpy_polypy.PolyPy_GUI</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.PolyPy_Stability.html">sdynpy.modal.sdynpy_polypy.PolyPy_Stability</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_signal_processing_gui.html">sdynpy.modal.sdynpy_signal_processing_gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_smac.html">sdynpy.modal.sdynpy_smac</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.html">sdynpy.modal</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.sdynpy_polypy.html">sdynpy.modal.sdynpy_polypy</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_polypy.PolyPy</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-modal-sdynpy-polypy-polypy">
+<h1>sdynpy.modal.sdynpy_polypy.PolyPy<a class="headerlink" href="#sdynpy-modal-sdynpy-polypy-polypy" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PolyPy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><span class="pre">TransferFunctionArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><span class="pre">TransferFunctionArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.__init__" title="sdynpy.modal.sdynpy_polypy.PolyPy.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(frfs[, min_frequency, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.analyze_pole_convergence" title="sdynpy.modal.sdynpy_polypy.PolyPy.analyze_pole_convergence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_pole_convergence</span></code></a>(pole_or_index[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_poles" title="sdynpy.modal.sdynpy_polypy.PolyPy.compute_poles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_poles</span></code></a>(polynomial_orders[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_residues" title="sdynpy.modal.sdynpy_polypy.PolyPy.compute_residues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_residues</span></code></a>(poles[, residuals, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_shapes" title="sdynpy.modal.sdynpy_polypy.PolyPy.compute_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_shapes</span></code></a>([selection_criteria])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.plot_stability" title="sdynpy.modal.sdynpy_polypy.PolyPy.plot_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_stability</span></code></a>([no_converge_marger, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.pole_list_from_indices" title="sdynpy.modal.sdynpy_polypy.PolyPy.pole_list_from_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pole_list_from_indices</span></code></a>(indices)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.angular_frequencies" title="sdynpy.modal.sdynpy_polypy.PolyPy.angular_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">angular_frequencies</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequencies" title="sdynpy.modal.sdynpy_polypy.PolyPy.frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequencies</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequency_spacing" title="sdynpy.modal.sdynpy_polypy.PolyPy.frequency_spacing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency_spacing</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.analyze_pole_convergence">
+<span class="sig-name descname"><span class="pre">analyze_pole_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pole_or_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_stability_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_stability_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modal_participation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_converge_marger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'b^'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'go'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.analyze_pole_convergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.analyze_pole_convergence" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.angular_frequencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">angular_frequencies</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.angular_frequencies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.compute_poles">
+<span class="sig-name descname"><span class="pre">compute_poles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polynomial_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_stability_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_stability_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modal_participation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.compute_poles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_poles" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.compute_residues">
+<span class="sig-name descname"><span class="pre">compute_residues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'magnitude'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.compute_residues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_residues" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.compute_shapes">
+<span class="sig-name descname"><span class="pre">compute_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selection_criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ShapeSelection.DRIVE_POINT_COEFFICIENT</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.compute_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.compute_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.frequencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frequencies</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequencies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.frequency_spacing">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frequency_spacing</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.frequency_spacing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.plot_stability">
+<span class="sig-name descname"><span class="pre">plot_stability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_converge_marger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'b^'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damp_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_converge_marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'go'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_poles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mif_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cmif'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">mif_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">mif_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.plot_stability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.plot_stability" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_polypy.PolyPy.pole_list_from_indices">
+<span class="sig-name descname"><span class="pre">pole_list_from_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_polypy.html#PolyPy.pole_list_from_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_polypy.PolyPy.pole_list_from_indices" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.modal.sdynpy_polypy.html" class="btn btn-neutral float-left" title="sdynpy.modal.sdynpy_polypy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html" class="btn btn-neutral float-right" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

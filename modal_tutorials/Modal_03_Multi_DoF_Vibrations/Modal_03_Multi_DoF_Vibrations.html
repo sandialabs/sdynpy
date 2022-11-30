@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Modal Tutorial 04: Modal Analysis" href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html" />
+    <link rel="prev" title="Modal Tutorial 02: Basics of Vibrations" href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html">Modal Tutorial 02: Basics of Vibrations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#A-Spring-Mass-System-with-2-Degrees-of-Freedom">A Spring Mass System with 2 Degrees of Freedom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Free-Response-of-Multiple-Degree-of-Freedom-Systems">Free Response of Multiple Degree of Freedom Systems</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Adding-Damping">Adding Damping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Multiple-Degree-of-Freedom-Response-to-Harmonic-Excitation">Multiple Degree of Freedom Response to Harmonic Excitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Working-with-Multiple-Degree-of-Freedom-Systems-in-SDynPy">Working with Multiple Degree of Freedom Systems in SDynPy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Homework-Problems">Homework Problems</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.-Writing-Equations-of-Motion">1. Writing Equations of Motion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.-Compute-the-Frequency-Response-Function-Matrix">2. Compute the Frequency Response Function Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.-Identifying-Drive-Points">3. Identifying Drive Points</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html">Modal Tutorial 04: Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Modal_05_Experimental_Modal_Analysis/Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
+      <li class="breadcrumb-item active">Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/modal_tutorials/Modal_03_Multi_DoF_Vibrations/Modal_03_Multi_DoF_Vibrations.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Modal-Tutorial-03:-Vibrations-of-Systems-with-Multiple-Degrees-of-Freedom">
+<h1>Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom<a class="headerlink" href="#Modal-Tutorial-03:-Vibrations-of-Systems-with-Multiple-Degrees-of-Freedom" title="Permalink to this heading"></a></h1>
+<p>The previous tutorial focused on the basis of vibrations analysis using single degree of freedom systems. However, in the real world, the vast majority of systems and structures are better modelled with multiple degrees of freedom. This tutorial will therefore focus on multiple degree of freedom systems.</p>
+<section id="A-Spring-Mass-System-with-2-Degrees-of-Freedom">
+<h2>A Spring Mass System with 2 Degrees of Freedom<a class="headerlink" href="#A-Spring-Mass-System-with-2-Degrees-of-Freedom" title="Permalink to this heading"></a></h2>
+<p>To start out, we will examine a simple spring mass system with two degrees of freedom.</p>
+<p><img alt="2-mass System" src="../../_images/spring_mass_2.svg" /></p>
+<p>The mass <span class="math notranslate nohighlight">\(m_1\)</span> is attached to a spring with constant <span class="math notranslate nohighlight">\(k_1\)</span>, and that spring is attached to mass <span class="math notranslate nohighlight">\(m_2\)</span>. Mass <span class="math notranslate nohighlight">\(m_2\)</span> is also attached to spring <span class="math notranslate nohighlight">\(k_2\)</span>, which is attached to a rigid ground.</p>
+<p>To start out, let’s derive the equations of motion for this system. We will first compute the forces on <span class="math notranslate nohighlight">\(m_1\)</span>. There is an internal spring force on <span class="math notranslate nohighlight">\(m_1\)</span> that is equal to <span class="math notranslate nohighlight">\(-k_1 x_1\)</span> where <span class="math notranslate nohighlight">\(x_1\)</span> is the displacement of mass <span class="math notranslate nohighlight">\(m_1\)</span>. The spring may also apply a force on mass <span class="math notranslate nohighlight">\(m_1\)</span> if mass <span class="math notranslate nohighlight">\(m_2\)</span> moves upwards, which will be <span class="math notranslate nohighlight">\(k_1 x_2\)</span> where <span class="math notranslate nohighlight">\(x_2\)</span> is the motion of mass <span class="math notranslate nohighlight">\(m_2\)</span>. The total contribution of the spring <span class="math notranslate nohighlight">\(k_1\)</span> to the force on mass
+<span class="math notranslate nohighlight">\(m_1\)</span> is then <span class="math notranslate nohighlight">\(k_1(x_2-x_1)\)</span>. There may also be an external force <span class="math notranslate nohighlight">\(f_1\)</span> applied to mass <span class="math notranslate nohighlight">\(m_1\)</span> that could cause it to accelerate.</p>
+<div class="math notranslate nohighlight">
+\[m_1 \ddot{x}_1 = k_1(x_2-x_1) + f_1\]</div>
+<p>Performing the similar analysis on mass <span class="math notranslate nohighlight">\(m_2\)</span>, we have the equal and opposite contribution from spring <span class="math notranslate nohighlight">\(k_1\)</span>, which is <span class="math notranslate nohighlight">\(k_1(x_1-x_2)\)</span>. We also have the contribution from spring <span class="math notranslate nohighlight">\(k_2\)</span>, which is <span class="math notranslate nohighlight">\(-k_2 x_2\)</span>. Finally, there may also be an external force <span class="math notranslate nohighlight">\(f_2\)</span> applied directly to mass <span class="math notranslate nohighlight">\(m_2\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[m_2 \ddot{x}_2 = k_1(x_1-x_2) -k_2 x_2 + f_2\]</div>
+<p>At this point, we can rearrange the equations of motion such that the <span class="math notranslate nohighlight">\(x\)</span> terms are on one side of the equation and the <span class="math notranslate nohighlight">\(f\)</span> terms are on the other. We will collect coefficients of <span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_2\)</span> and their derivatives.</p>
+<div class="math notranslate nohighlight">
+\[m_1 \ddot{x}_1 + k_1 x_1 - k_1 x_2 = f_1\]</div>
+<div class="math notranslate nohighlight">
+\[m_2 \ddot{x}_2 - k_1 x_1 + (k_1 + k_2) x_2 = f_2\]</div>
+<p>Whenever we have linear systems of equations, it is usually helpful to be able to analyze them using linear algebra techniques, so we will rearrange the equations into a set of matrix equations.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix} m_1 &amp; 0 \\ 0 &amp; m_2\end{bmatrix}\begin{bmatrix}\ddot{x}_1\\\ddot{x}_2\end{bmatrix} + \begin{bmatrix} k_1 &amp; -k_1 \\ -k_1 &amp; k_1+k_2\end{bmatrix}\begin{bmatrix}{x}_1\\{x}_2\end{bmatrix} = \begin{bmatrix}{f}_1\\{f}_2\end{bmatrix}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{M}\ddot{\mathbf{x}}+\mathbf{K}\mathbf{x} = \mathbf{f}\]</div>
+<p>where the mass matrix <span class="math notranslate nohighlight">\(\mathbf{M} = \begin{bmatrix} m_1 &amp; 0 \\ 0 &amp; m_2\end{bmatrix}\)</span>, the stiffness matrix <span class="math notranslate nohighlight">\(\mathbf{K} = \begin{bmatrix} k_1 &amp; -k_1 \\ -k_1 &amp; k_1+k_2\end{bmatrix}\)</span>, the displacement vector <span class="math notranslate nohighlight">\(\mathbf{x} = \begin{bmatrix}{x}_1\\{x}_2\end{bmatrix}\)</span>, and the force vector <span class="math notranslate nohighlight">\(\mathbf{f} = \begin{bmatrix}{f}_1\\{f}_2\end{bmatrix}\)</span>. There are a few things to note here. Firstly, the mass matrix is diagonal, with zeros on the off-diagonal. This is sometimes referred to
+as a lumped mass matrix, because all of the mass is lumped onto each degree of freedom, the degrees of freedom do not share mass. Another node is that both the mass and stiffness matrices are diagonal. This will always be true for real systems. If degree of freedom 0 shares mass with degree of freedom 1, then that is equvalent to saying that degree of freedom 1 also shares mass degree of freedom 0. Additionally Newton’s law of equal and opposite forces requires that if there is a force from
+degree of freedom 0 onto degree of freedom 1, then there will need to be an equal and opposite force on degree of freedom 1 on degree of freedom 0.</p>
+</section>
+<section id="Free-Response-of-Multiple-Degree-of-Freedom-Systems">
+<h2>Free Response of Multiple Degree of Freedom Systems<a class="headerlink" href="#Free-Response-of-Multiple-Degree-of-Freedom-Systems" title="Permalink to this heading"></a></h2>
+<p>Let’s now look at an example of free response of this system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Import modules
+import numpy as np
+import sdynpy as sdpy
+
+# Set our parameters
+m1 = 1
+m2 = 2
+k1 = 1000
+k2 = 1500
+
+# Construct the matrices
+M = np.array([[m1, 0],
+              [ 0,m2]])
+K = np.array([[ k1,  -k1],
+              [-k1,k1+k2]])
+
+# Name the degrees of freedom
+dofs = sdpy.coordinate_array([1,2],&#39;Y+&#39;)
+
+# Construct a SDynPy System
+system = sdpy.System(dofs,M,K)
+
+# Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.
+initial_state = [1,0,0,0]
+
+# No external forces
+force_signals = np.zeros((2,10000))
+dt = 1/1000
+
+# Integrate equations of motion
+responses,forces = system.time_integrate(force_signals,dt,initial_state=initial_state,displacement_derivative=0)
+
+# Plot the responses
+responses.plot(one_axis=False);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_1_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_1_0.png" />
+</div>
+</div>
+<p>It is obvious here that the responses are much more complicated than in the single degree of freedom case. In that case, there was only one sine wave for an undamped system. Here, we now have sinusodial-like motion, but it is more complex.</p>
+<p>Let’s look at the frequency domain to understand what is happening in the response signals that we are showing.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>responses_fft = responses.fft()
+
+ax = responses_fft.plot(one_axis=False,subplots_kwargs={&#39;sharex&#39;:True})
+
+for a in ax:
+    a.set_yscale(&#39;log&#39;)
+    a.set_xlim(0,10)
+ax[-1].set_xlabel(&#39;Frequency (Hz)&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_3_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_3_0.png" />
+</div>
+</div>
+<p>In the frequency domain plot, instead of one main frequency component corresponding to one sine wave response, we now see two main components at different frequencies. This means that our response is now a superposition of multiple frequencies rather than just a single frequency!</p>
+<section id="Adding-Damping">
+<h3>Adding Damping<a class="headerlink" href="#Adding-Damping" title="Permalink to this heading"></a></h3>
+<p>Similar to the single degree of freedom case, we can add damping to the system, as all real structures will have some amount of damping. We will add dampers to the system <span class="math notranslate nohighlight">\(c_1\)</span> and <span class="math notranslate nohighlight">\(c_2\)</span> at the same positions as <span class="math notranslate nohighlight">\(k_1\)</span> and <span class="math notranslate nohighlight">\(k_2\)</span>, so the structure of the damping matrix will be similar to the stiffness matrix. Recall that dampers oppose velocity rather than displacement. The motion <span class="math notranslate nohighlight">\(\dot{x}_1\)</span> of the mass <span class="math notranslate nohighlight">\(m_1\)</span> will induce a damping force <span class="math notranslate nohighlight">\(-c_1 \dot{x_1}\)</span>
+to mass <span class="math notranslate nohighlight">\(m_1\)</span>. Similar to the spring, motion <span class="math notranslate nohighlight">\(\dot{x}_2\)</span> of the mass <span class="math notranslate nohighlight">\(m_2\)</span> will also induce a damping force <span class="math notranslate nohighlight">\(c_1 \dot{x_2}\)</span> to mass <span class="math notranslate nohighlight">\(m_1\)</span>. The damper affects on mass <span class="math notranslate nohighlight">\(m_2\)</span> can be similarly derived. The damped equations of motion are now</p>
+<div class="math notranslate nohighlight">
+\[m_1 \ddot{x}_1 + c_1 \dot{x}_1 - c_1 \dot{x}_2 + k_1 x_1 - k_1 x_2 = f_1\]</div>
+<div class="math notranslate nohighlight">
+\[m_2 \ddot{x}_2 - c_1 \dot{x}_1 + (c_1 + c_2) \dot{x}_2 - k_1 x_1 + (k_1 + k_2) x_2 = f_2\]</div>
+<p>Which we can combine into matrix form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix} m_0 &amp; 0 \\ 0 &amp; m_1\end{bmatrix}\begin{bmatrix}\ddot{x}_0\\\ddot{x}_1\end{bmatrix} + \begin{bmatrix} c_0 &amp; -c_0 \\ -c_0 &amp; c_0+c_1\end{bmatrix}\begin{bmatrix}\dot{x}_0\\\dot{x}_1\end{bmatrix}+ \begin{bmatrix} k_0 &amp; -k_0 \\ -k_0 &amp; k_0+k_1\end{bmatrix}\begin{bmatrix}{x}_0\\{x}_1\end{bmatrix} = \begin{bmatrix}{f}_0\\{f}_1\end{bmatrix}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{M}\ddot{\mathbf{x}}+\mathbf{C}\dot{\mathbf{x}}+\mathbf{K}\mathbf{x} = \mathbf{f}\]</div>
+<p>We can add damping to our numerical model to see how it behaves.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>c1 = 1.25
+c2 = 2.5
+
+C = np.array([[ c1,  -c1],
+              [-c1,c1+c2]])
+
+# Construct a SDynPy System
+system = sdpy.System(dofs,M,K,C)
+
+# Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.
+initial_state = [1,0,0,0]
+
+# No external forces
+force_signals = np.zeros((2,10000))
+dt = 1/1000
+
+# Integrate equations of motion
+responses,forces = system.time_integrate(force_signals,dt,initial_state=initial_state,displacement_derivative=0)
+
+# Plot the responses
+responses.plot(one_axis=False);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_5_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_5_0.png" />
+</div>
+</div>
+<p>Clearly, the part’s response is decaying over time. Interestingly, the two frequency components do not appear to decay at the same rate. We can see that the higher frequency vibration seems to decay more quickly, leaving a response that looks very much like a single degree of freedom decay towards the end of the time segment.</p>
+</section>
+</section>
+<section id="Multiple-Degree-of-Freedom-Response-to-Harmonic-Excitation">
+<h2>Multiple Degree of Freedom Response to Harmonic Excitation<a class="headerlink" href="#Multiple-Degree-of-Freedom-Response-to-Harmonic-Excitation" title="Permalink to this heading"></a></h2>
+<p>The previous section showed that the free decay of a multiple degree of freedom system in general can contain multiple response components. Let’s see what the response to harmonic excitation looks like.</p>
+<p>We will again rely on the complex exponential formulation seen previously in the single degree of freedom case. Again, it is accepted that the real part of this equation will be retained. In this case, our forces will have the general form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{f} = \begin{bmatrix}F_1\\F_2\\ \vdots \\ F_i\end{bmatrix}e^{i\omega t} = \mathbf{F}e^{i\omega t}\end{split}\]</div>
+<p>For a general multiple degree of freedom system, there will be one external force on each degree of freedom <span class="math notranslate nohighlight">\(i\)</span>, and the values <span class="math notranslate nohighlight">\(F_i\)</span> are complex numbers, which means each forces being input on each degree of freedom can have different amplitudes (including zero, or no force) as well as a different phases (i.e. pushing on one mass while you pull on another).</p>
+<p>The general response to such an input will similarly be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x} = \begin{bmatrix}X_1\\X_2\\ \vdots \\ X_i\end{bmatrix}e^{i\omega t} = \mathbf{X}e^{i\omega t}\end{split}\]</div>
+<p>where the coefficients <span class="math notranslate nohighlight">\(X_i\)</span> are also complex numbers, which will have amplitude and phase. Substituting into the matrix equation, we obtain</p>
+<div class="math notranslate nohighlight">
+\[(i\omega)^2\mathbf{M}{\mathbf{X}}e^{i\omega t}+i\omega\mathbf{C}{\mathbf{X}}e^{i\omega t}+\mathbf{K}\mathbf{X}e^{i\omega t} = \mathbf{F}e^{i\omega t}\]</div>
+<p>Cancelling out the non-zero transient <span class="math notranslate nohighlight">\(e^{i\omega t}\)</span> and collecting terms <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> leaves the general frequency-domain matrix equation.</p>
+<div class="math notranslate nohighlight">
+\[(-\omega^2\mathbf{M}+i\omega\mathbf{C}+\mathbf{K})\mathbf{X} = \mathbf{F}\]</div>
+<p>The term <span class="math notranslate nohighlight">\(-\omega^2\mathbf{M}+i\omega\mathbf{C}+\mathbf{K}\)</span> is often referred to as the dynamic stiffness matrix and assigned the value <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{Z} = -\omega^2\mathbf{M}+i\omega\mathbf{C}+\mathbf{K}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{Z}\mathbf{X} = \mathbf{F}\]</div>
+<p>This term is denoted a dynamic stiffness due to the fact that it tells us the sinusoidal force required for a given displacement. We generally would like to go the opposite direction, where we predict the responses <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> from a given sinusoidal force <span class="math notranslate nohighlight">\(\mathbf{F}\)</span>. In order to do this, we will need to invert the dynamic stiffness matrix <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\mathbf{X} = \mathbf{Z}^{-1}\mathbf{F} = \mathbf{H}\mathbf{F}\]</div>
+<p>The matrix <span class="math notranslate nohighlight">\(\mathbf{H}=\mathbf{Z}^{-1}\)</span> is often referred to as the <strong>frequency response function matrix</strong> because it similarly shows the response amplitudes and phases due to the amplitudes and phases of the input forces at a given frequency line. Note that because <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> are matrices we cannot go as far as to say <span class="math notranslate nohighlight">\(\mathbf{H} = \mathbf{X}/\mathbf{F}\)</span>, so we leave it as the previous equation <span class="math notranslate nohighlight">\(\mathbf{X} = \mathbf{H}\mathbf{F}\)</span>.</p>
+<p>Let’s walk through the above theory using the example system. First we will compute the frequency response function matrix <span class="math notranslate nohighlight">\(\mathbf{H}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,10,1001)
+
+# We will use numpy&#39;s broadcasting functionality to avoid a for-loop to loop over each frequency line
+omega = 2*np.pi*frequencies[:,np.newaxis,np.newaxis]
+# omega is now a 1001 x 1 x 1 array, so if we combine it with the system matrices which are 2 x 2, we
+# will end up with a 1001 x 2 x 2 array for a Z matrix, where the mathematics are automatically
+# performed over each entry in omega.
+Z = -omega**2*M + 1j*omega*C + K # 1001 x 2 x 2
+
+H = np.linalg.inv(Z)
+
+# Plot the components of the H matrix
+import matplotlib.pyplot as plt
+fig,axes = plt.subplots(2,2,num=&#39;Frequency Response Function Matrix&#39;,figsize=(10,6),sharex=True)
+for response_name,response_frfs,axes_row in zip(system.coordinate,np.moveaxis(H,0,-1),axes):
+    axes_row[0].set_ylabel(&#39;Response {:}\nPhase&#39;.format(str(response_name)))
+    axes_row[1].set_ylabel(&#39;Phase&#39;)
+    for frf,phase_axis in zip(response_frfs,axes_row):
+        phase_handle = phase_axis.plot(frequencies,np.angle(frf)*180/np.pi,&#39;r&#39;,linewidth=0.5)
+        phase_axis.set_yticks([-180,-90,0,90,180])
+        mag_axis = phase_axis.twinx()
+        magnitude_handle = mag_axis.plot(frequencies,np.abs(frf),&#39;b&#39;)
+        mag_axis.set_yscale(&#39;log&#39;)
+        mag_axis.set_ylabel(&#39;Magnitude&#39;)
+for input_name,ax in zip(system.coordinate,axes[-1]):
+    ax.set_xlabel(&#39;Input {:}&#39;.format(str(input_name)))
+axes[-1,-1].legend([magnitude_handle[0],phase_handle[0]],[&#39;Magnitude&#39;,&#39;Phase&#39;])
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_7_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_7_0.png" />
+</div>
+</div>
+<p>Here we can see in the above plot there are four entries in the frequency response function matrix; the first column corresponds to forces applied at mass <span class="math notranslate nohighlight">\(m_1\)</span>, and the second column corresponds to forces applied at mass <span class="math notranslate nohighlight">\(m_2\)</span>. The first row corresponds to responses at mass <span class="math notranslate nohighlight">\(m_1\)</span> and the second row corresponds to responses at mass <span class="math notranslate nohighlight">\(m_2\)</span>. Therefore, to compute the response at, for example, <span class="math notranslate nohighlight">\(m_1\)</span> due to a force at <span class="math notranslate nohighlight">\(m_2\)</span>, you would look at the first row and
+second column of the frequency response function matrix. Each entry in the frequency response function matrix is still a complex number and can be plotted either with real and imaginary part or magnitude and phase. For the above plots, the magnitude is plotted in blue, and the phase is plotted in red.</p>
+<p>Let’s examine some of the features of the plots. Similar to the single degree of freedom case, the frequency response functions have peaks, which are resonances of the structure. Unlike the single degree of freedom case, we now have steep valleys in the plots, which are called anti-resonances. These are frequencies that the structure does not like to respond. Note that while resonances tend to be global (peaks occur at the same frequency for all degrees of freedom), anti-resonances tend to be
+local to the specific degree of freedom (the anti-resonance in the 1,1 plot occurs at 5.59 Hz, and the anti-resonance in the 2,2 plot occurs at 5.02 Hz).</p>
+<p>Note the diagonal entries in the plots are the plots where the response is equal to the input. These are called drive point frequency response functions, because they are the frequency response functions for just the point that is being driven by the force. Drive point frequency response functions have special properties, namely there is always an anti-resonance between each consecutive pair of resonances, and the phase is always one-sided, meaning it is always positive or always negative for a
+displacement or an acceleration frequency response function.</p>
+<p>Another interesting aspect is the behavior of the phase as it goes through a resonance or anti-resonance. In the single degree of freedom case, we saw the phase flip 180 degrees as it travelled through resonances. This still holds here, but now the phase can traverse multiple resonances, reducing by 180 degrees each time (note that the phase will wrap around from -180 to 180, or from 0 to 360 depending on how it is plotted, due to it being a circular quantity). Interestingly, after passing an
+anti-resonance the phase will increase by 180 degrees. This behavior combined with the flipping between anti-resonance and resonance in the drive point frequency response functions is what keeps the phase on one half of the unit circle for the drive point frequency response functions.</p>
+<p>Finally, thinking back to the damping investigations performed in the single degree of freedom tutorial, it looks as if the second peak has more damping associated with it: the second peak is less sharp and is at a lower amplitude than the first peak.</p>
+<p>Clearly there is a lot that can be learned aboud a system from its frequency response functions. Let’s look at the same information, this time in the real and imaginary parts.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Plot the components of the H matrix
+axis_extent = np.max([np.abs(H.real),np.abs(H.imag)])
+
+fig,axes = plt.subplots(2,2,num=&#39;Frequency Response Function Matrix&#39;,figsize=(10,10),sharex=True,sharey=True)
+for response_name,response_frfs,axes_row in zip(system.coordinate,np.moveaxis(H,0,-1),axes):
+    axes_row[0].set_ylabel(&#39;Response {:}&#39;.format(str(response_name)))
+    for frf,axis in zip(response_frfs,axes_row):
+        axis.plot(frequencies,np.real(frf),&#39;r&#39;)
+        axis.plot(frequencies,np.imag(frf),&#39;b&#39;)
+        axis.set_ylim(-axis_extent,axis_extent)
+        axis.grid(True)
+for input_name,ax in zip(system.coordinate,axes[-1]):
+    ax.set_xlabel(&#39;Input {:}&#39;.format(str(input_name)))
+axes[-1,-1].legend([&#39;Real Part&#39;,&#39;Imaginary Part&#39;])
+fig.tight_layout()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_9_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_9_0.png" />
+</div>
+</div>
+<p>Looking at the real and imaginary parts of the frequency response functions is also instructive. Similar to the single degree of freedom case, the real part of the frequency response function will tend to go through zero at a resonance, and the imaginary part will peak at the resonance. Anti-resonances will tend to appear where the real part is crossing the zero line. For the drive point, the imaginary part will always be one-sided, it should never cross zero.</p>
+</section>
+<section id="Working-with-Multiple-Degree-of-Freedom-Systems-in-SDynPy">
+<h2>Working with Multiple Degree of Freedom Systems in SDynPy<a class="headerlink" href="#Working-with-Multiple-Degree-of-Freedom-Systems-in-SDynPy" title="Permalink to this heading"></a></h2>
+<p>Working with multiple degree of freedom systems in SDynPy is almost identical to working with single degree of freedom systems, except for some inputs to functions must now be two-dimensional arrays. The key data type in SDynPy for working with multiple degree of freedom mass/spring/damper systems remains the <code class="docutils literal notranslate"><span class="pre">sdpy.System</span></code> object. This object accepts mass, stiffness, and damping values, and stores them along with coordinate information for each degree of freedom. Labeling and keeping track of
+degrees of freedom becomes incredible important in multiple degree of freedom systems, as we need to keep track of where our forces are going in, and where our responses are coming out. Degrees of freedom can be defined with the <code class="docutils literal notranslate"><span class="pre">sdpy.coordinate_array</span></code> function, which allows definition of degree of freedom information. Let’s create a demonstration object now, with different parameters than we used before. In this case, we will only include one damper between the two masses.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
+
+# Set our parameters
+m1 = 1
+m2 = 2
+k1 = 2000
+k2 = 500
+c1 = 0.3
+
+# Construct the matrices
+M = np.array([[m1, 0],
+              [ 0,m2]])
+K = np.array([[ k1,  -k1],
+              [-k1,k1+k2]])
+C = np.array([[ c1,  -c1],
+              [-c1, c1]])
+
+# Name the degrees of freedom
+dofs = sdpy.coordinate_array([1,2],&#39;Y+&#39;)
+
+# Construct a SDynPy System
+system = sdpy.System(dofs,M,K,C)
+</pre></div>
+</div>
+</div>
+<p>We can now use the <code class="docutils literal notranslate"><span class="pre">System</span></code> object to interogate our system. Like the single degree of freedom case, we can still compute frequency response functions, but now we can also pass in coordinate information to only retrieve certain rows and columns of the frequency response function matrix. For example, if we wanted all frequency responses from all responses, but only the first force locations, we can specify a <code class="docutils literal notranslate"><span class="pre">CoordinateArray</span></code> object to the <code class="docutils literal notranslate"><span class="pre">frequency_response</span></code> method using the
+<code class="docutils literal notranslate"><span class="pre">references</span></code> and <code class="docutils literal notranslate"><span class="pre">responses</span></code> optional arguments.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>input_force_location = dofs[0]
+output_response_location = dofs
+
+print(&#39;Getting FRFs from forces at {:} and responses {:}&#39;.format(str(input_force_location),
+                                                                 str(output_response_location)))
+
+frequencies = np.linspace(0,10,1000)
+frf = system.frequency_response(frequencies,displacement_derivative = 2,references=input_force_location,
+                               responses = output_response_location)
+frf.plot(one_axis=False);
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Getting FRFs from forces at 1Y+ and responses [&#39;1Y+&#39; &#39;2Y+&#39;]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_13_1.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_13_1.png" />
+</div>
+</div>
+<p>Similarly, we can integrate equations of motion for multiple degree of freedom systems to get time responses. We can similarly choose which degrees of freedom to put forces into, and we can also choose which response degrees of freedom we would like to obtain. For example, we could put a shaker at each mass at different frequencies and measure the response at the first mass:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>excitation_frequencies = [2,8.84] # Hz
+dt = 1/100
+num_samples = 2000
+force_signal = sdpy.generator.sine(excitation_frequencies,dt,num_samples)
+# Note: force signal is now a 2 x 3000 signal due to the broadcasting of the frequencies in the sine function.
+
+responses,references = system.time_integrate(force_signal,dt,displacement_derivative=2,
+                                             responses = dofs[0],integration_oversample=10)
+
+fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
+responses.extract_elements_by_abscissa(15,np.inf).plot(ax[1])
+references.extract_elements_by_abscissa(15,np.inf).plot(ax[0])
+ax[0].set_ylabel(&#39;Force (N)&#39;)
+ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
+ax[1].set_xlabel(&#39;Time (s)&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_15_0.png" src="../../_images/modal_tutorials_Modal_03_Multi_DoF_Vibrations_Modal_03_Multi_DoF_Vibrations_15_0.png" />
+</div>
+</div>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading"></a></h2>
+<p>In this section, we looked at how to write equations of motion for a multiple degree of freedom system and assemble them into a matrix form. We then looked at how we can compute frequency response function matrices for those systems. In the next tutorial, we will revisit modal analysis to try to pull physical meaning out of the frequency response functions.</p>
+</section>
+<section id="Homework-Problems">
+<h2>Homework Problems<a class="headerlink" href="#Homework-Problems" title="Permalink to this heading"></a></h2>
+<p>This section contains some example problems to see if you can use SDynPy on your own to set up and analyze a multiple degree of freedom system.</p>
+<section id="1.-Writing-Equations-of-Motion">
+<h3>1. Writing Equations of Motion<a class="headerlink" href="#1.-Writing-Equations-of-Motion" title="Permalink to this heading"></a></h3>
+<p>Write the equations of motion for the following system, where mass 1 and mass 2 are connected with spring 1 and damper 1, mass 1 and mass 3 are connected with spring 4, mass 3 and mass 2 are connected with spring 3 and damper 2, and mass 2 is connected to the ground with spring 2. Transform the equations of motion into mass, stiffness, and damping representations. Make sure your matrices are diagonal!</p>
+<p><img alt="3-mass System" src="../../_images/spring_mass_3.svg" /></p>
+</section>
+<section id="2.-Compute-the-Frequency-Response-Function-Matrix">
+<h3>2. Compute the Frequency Response Function Matrix<a class="headerlink" href="#2.-Compute-the-Frequency-Response-Function-Matrix" title="Permalink to this heading"></a></h3>
+<p>Compute the full 3 x 3 frequency response function matrix for this system and plot it in a 3 x 3 grid. For parameters, use <span class="math notranslate nohighlight">\(m_1=10\)</span>, <span class="math notranslate nohighlight">\(m_2 = 30\)</span>, <span class="math notranslate nohighlight">\(m_3 = 1\)</span>, <span class="math notranslate nohighlight">\(k_1 = 10000\)</span>, <span class="math notranslate nohighlight">\(k_2 = 2500\)</span>, <span class="math notranslate nohighlight">\(k_3 = 1500\)</span>, <span class="math notranslate nohighlight">\(k_4 = 1500\)</span>, <span class="math notranslate nohighlight">\(c_1 = 30\)</span>, and <span class="math notranslate nohighlight">\(c_2 = 50\)</span>.</p>
+</section>
+<section id="3.-Identifying-Drive-Points">
+<h3>3. Identifying Drive Points<a class="headerlink" href="#3.-Identifying-Drive-Points" title="Permalink to this heading"></a></h3>
+<p>Flatten your 2D frequency response function matrix using <code class="docutils literal notranslate"><span class="pre">np.flatten()</span></code> and then shuffle it around using <code class="docutils literal notranslate"><span class="pre">np.random.shuffle()</span></code>. Can you identify the three drive point frequency response functions without referencing the unshuffled version? What are the distinguishing features of a drive point frequency response function?</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../Modal_02_Basics_of_Vibrations/Modal_02_Basics_of_Vibrations.html" class="btn btn-neutral float-left" title="Modal Tutorial 02: Basics of Vibrations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Modal_04_Modal_Analysis/Modal_04_Modal_Analysis.html" class="btn btn-neutral float-right" title="Modal Tutorial 04: Modal Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

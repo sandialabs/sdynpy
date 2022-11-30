@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_modeshape</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.modal.sdynpy_modeshape</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for computing shapes after the poles are known</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">TransferFunctionArray</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_shape</span> <span class="kn">import</span> <span class="n">shape_array</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">CoordinateArray</span>
+
+
+<div class="viewcode-block" id="ShapeSelection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.ShapeSelection.html#sdynpy.modal.sdynpy_modeshape.ShapeSelection">[docs]</a><span class="k">class</span> <span class="nc">ShapeSelection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ALL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DRIVE_POINT_COEFFICIENT</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PARTICIPATION_FACTOR</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="compute_residues"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_residues.html#sdynpy.modal.sdynpy_modeshape.compute_residues">[docs]</a><span class="k">def</span> <span class="nf">compute_residues</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
+                     <span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                     <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                     <span class="n">real_modes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                     <span class="n">residuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                     <span class="n">min_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">max_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">weighting</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="s1">&#39;uniform&#39;</span><span class="p">,</span>
+                     <span class="n">displacement_derivative</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                     <span class="n">frequency_lines_at_resonance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">frequency_lines_for_residuals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit residues to FRF data given frequency and damping values</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experimental_frf : TransferFunctionArray</span>
+<span class="sd">        Experimental FRF data to which modes will be fit</span>
+<span class="sd">    natural_frequencies : np.ndarray</span>
+<span class="sd">        Natural Frequencies (in Hz) at which modes will be fit</span>
+<span class="sd">    damping_ratios : np.ndarray</span>
+<span class="sd">        Damping Ratios (in Hz) at which modes will be fit</span>
+<span class="sd">    real_modes : bool, optional</span>
+<span class="sd">        If true, fit residues will be real-valued.  False allows complex modes.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    residuals : bool, optional</span>
+<span class="sd">        Use residuals in the FRF fit. The default is True.</span>
+<span class="sd">    min_frequency : float, optional</span>
+<span class="sd">        Minimum frequency to use in the shape fit. The default is the lowest</span>
+<span class="sd">        frequency in the experimental FRF.</span>
+<span class="sd">    max_frequency : float, optional</span>
+<span class="sd">        Maximum frequency to use in the shape fit. The default is the highest</span>
+<span class="sd">        frequency in the experimental FRF.</span>
+<span class="sd">    weighting : np.ndarray or string, optional</span>
+<span class="sd">        A weighting array to use to fit shapes better at specific frequencies.</span>
+<span class="sd">        The default is weighted by the log magnitude of the FRF matrix.  Can be</span>
+<span class="sd">        defined as &#39;magnitude&#39;,&#39;uniform&#39;, or an ndarray with shape identical</span>
+<span class="sd">        to the ordinate of the experimental frfs</span>
+<span class="sd">    displacement_derivative : int, optional</span>
+<span class="sd">        Defines the type of data in the FRF based on the number of derivatives</span>
+<span class="sd">        from displacement (0 - displacement, 1 - velocity, 2 - acceleration).</span>
+<span class="sd">        The default is 0 (displacement).</span>
+<span class="sd">    frequency_lines_at_resonance : int, optional</span>
+<span class="sd">        Defines the number of frequency lines to look at around the specified</span>
+<span class="sd">        natural frequencies for computing residues.  If not specified, all</span>
+<span class="sd">        frequency lines are used for computing shapes.</span>
+<span class="sd">    frequency_lines_for_residuals : int, optional</span>
+<span class="sd">        Defines the number of frequency lines at the low and high frequency to</span>
+<span class="sd">        use in computing shapes.  Only used if frequency_lines_at_resonance is</span>
+<span class="sd">        specified.  If not specified, the lower 10% and upper 10% of frequency</span>
+<span class="sd">        lines will be kept.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    shape_residues : np.ndarray</span>
+<span class="sd">        A (..., n_modes) shaped np.ndarray where ... is the shape of the input</span>
+<span class="sd">        experimental_frf array.  There will be one residue for each experimental</span>
+<span class="sd">        frf (reference and response) for each mode.</span>
+<span class="sd">    synthesized_frf : TransferFunctionArray</span>
+<span class="sd">        Transfer function array containing the analytical fits using the</span>
+<span class="sd">        residues.</span>
+<span class="sd">    residual_frf : TransferFunctionArray</span>
+<span class="sd">        Transfer function array containing the residual data from the analytical</span>
+<span class="sd">        fits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flat_frf</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">flat_frf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">min_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">frequencies</span> <span class="o">&gt;=</span> <span class="n">min_frequency</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">frequencies</span> <span class="o">&lt;=</span> <span class="n">max_frequency</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">abscissa_indices</span><span class="p">]</span>
+    <span class="n">frf_matrix</span> <span class="o">=</span> <span class="n">flat_frf</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[:,</span> <span class="n">abscissa_indices</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">angular_natural_frequencies</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">damping_ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">damping_ratios</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c1"># Reduce to the kept frequency lines</span>
+    <span class="k">if</span> <span class="n">frequency_lines_at_resonance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angular_natural_frequencies</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># print(solve_indices)</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">solve_indices</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_at_resonance</span><span class="p">)</span> <span class="o">-</span> <span class="n">frequency_lines_at_resonance</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">solve_indices</span><span class="p">[(</span><span class="n">solve_indices</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">solve_indices</span> <span class="o">&lt;</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+        <span class="c1"># Add the residual indices</span>
+        <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frequency_lines_for_residuals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span>
+                <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">solve_indices</span><span class="p">,</span> <span class="n">low_freq_indices</span><span class="p">,</span> <span class="n">high_freq_indices</span><span class="p">)))</span>
+        <span class="n">kernel_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">solve_indices</span><span class="p">,</span> <span class="n">solve_indices</span> <span class="o">+</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        <span class="c1"># print(kernel_indices)</span>
+
+    <span class="c1"># Set up the kernel to solve the least squares residue problem</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="p">((</span><span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+                   <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">damping_ratios</span> <span class="o">*</span> <span class="n">angular_natural_frequencies</span> <span class="o">*</span> <span class="n">angular_frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">kernel_rr</span> <span class="o">=</span> <span class="p">(</span><span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">kernel_ri</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">damping_ratios</span> <span class="o">*</span> <span class="n">angular_natural_frequencies</span> <span class="o">*</span> <span class="n">angular_frequencies</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">kernel_ir</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">damping_ratios</span> <span class="o">*</span> <span class="n">angular_natural_frequencies</span> <span class="o">*</span> <span class="n">angular_frequencies</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">kernel_ii</span> <span class="o">=</span> <span class="p">(</span><span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">low_frequency_residual</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">high_frequency_residual</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">kernel_rr</span><span class="p">,</span> <span class="n">kernel_ri</span><span class="p">,</span> <span class="n">low_frequency_residual</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">high_frequency_residual</span><span class="p">,</span> <span class="n">zeros</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                             <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">kernel_ir</span><span class="p">,</span> <span class="n">kernel_ii</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">low_frequency_residual</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">high_frequency_residual</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># print(kernel.shape)</span>
+
+    <span class="c1"># Reduce kernel depending on whether or not we want real modes or complex</span>
+    <span class="c1"># modes</span>
+    <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+        <span class="n">kernel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">angular_natural_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angular_natural_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Reduce kernel depending on whether or not we want residuals</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">residuals</span><span class="p">:</span>
+        <span class="n">kernel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Perform the solution in acceleration space</span>
+    <span class="n">kernel</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="o">-</span><span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">frf_matrix</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">angular_frequencies</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">displacement_derivative</span><span class="p">)</span>
+
+    <span class="c1"># print(kernel.shape)</span>
+
+    <span class="c1"># Weighting matrix</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">weighting</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">weighting</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+            <span class="n">weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">frf_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">weighting</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;magnitude&#39;</span><span class="p">:</span>
+            <span class="n">max_frf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf_matrix</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">max_frf</span><span class="p">[</span><span class="n">max_frf</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf_matrix</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_frf</span>
+            <span class="n">min_weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">weighting</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">min_weighting</span><span class="p">[</span><span class="n">min_weighting</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">weighting_ratio</span> <span class="o">=</span> <span class="n">weighting</span> <span class="o">/</span> <span class="n">min_weighting</span>
+            <span class="n">weighting_ratio</span><span class="p">[</span><span class="n">weighting_ratio</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">weighting_ratio</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;If weighting is specified as a string, must be &quot;uniform&quot; or &quot;magnitude&quot;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Now assemble the FRF matrix</span>
+    <span class="n">frf_matrix_to_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">frf_matrix</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                                        <span class="n">frf_matrix</span><span class="o">.</span><span class="n">imag</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Now perform the weighting</span>
+    <span class="n">weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">weighting</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">weighted_kernel</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">kernel</span>
+    <span class="n">weighted_frf_matrix_to_fit</span> <span class="o">=</span> <span class="p">(</span><span class="n">weighting</span> <span class="o">*</span> <span class="n">frf_matrix_to_fit</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="c1"># print(weighted_kernel.shape)</span>
+    <span class="c1"># print(weighted_frf_matrix_to_fit.shape)</span>
+
+    <span class="k">if</span> <span class="n">frequency_lines_at_resonance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weighted_kernel</span> <span class="o">=</span> <span class="n">weighted_kernel</span><span class="p">[:,</span> <span class="n">kernel_indices</span><span class="p">]</span>
+        <span class="n">weighted_frf_matrix_to_fit</span> <span class="o">=</span> <span class="n">weighted_frf_matrix_to_fit</span><span class="p">[:,</span> <span class="n">kernel_indices</span><span class="p">]</span>
+
+    <span class="c1"># now solve</span>
+    <span class="n">residues</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">weighted_kernel</span><span class="p">)</span> <span class="o">@</span> <span class="n">weighted_frf_matrix_to_fit</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">frf_fit_matrix</span> <span class="o">=</span> <span class="n">kernel</span> <span class="o">@</span> <span class="n">residues</span>
+    <span class="n">frf_fit_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">frf_fit_matrix</span><span class="p">[:</span><span class="n">frf_fit_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+                      <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">frf_fit_matrix</span><span class="p">[</span><span class="n">frf_fit_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:,</span> <span class="p">:])</span>
+    <span class="n">output_frf</span> <span class="o">=</span> <span class="n">flat_frf</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="n">abscissa_indices</span><span class="p">)</span>
+    <span class="n">output_frf</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="p">(</span><span class="n">frf_fit_matrix</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">angular_frequencies</span><span class="p">)</span>
+                           <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">displacement_derivative</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">output_frf</span> <span class="o">=</span> <span class="n">output_frf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">experimental_frf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># Extract shape residues and residuals</span>
+    <span class="n">shape_residues</span> <span class="o">=</span> <span class="p">(</span><span class="n">residues</span><span class="p">[:</span><span class="n">angular_natural_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+                      <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">residues</span><span class="p">[</span><span class="n">angular_natural_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angular_natural_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
+    <span class="n">shape_residues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">shape_residues</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">experimental_frf</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+        <span class="n">shape_residues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">shape_residues</span><span class="p">)</span>
+
+    <span class="c1"># Extract residuals</span>
+    <span class="n">residual_frf</span> <span class="o">=</span> <span class="n">flat_frf</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="n">abscissa_indices</span><span class="p">)</span>
+    <span class="n">residual_matrix</span> <span class="o">=</span> <span class="n">kernel</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">@</span> <span class="n">residues</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="n">residual_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">residual_matrix</span><span class="p">[:</span><span class="n">residual_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+                       <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">residual_matrix</span><span class="p">[</span><span class="n">residual_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:,</span> <span class="p">:])</span>
+    <span class="n">residual_frf</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="p">(</span><span class="n">residual_matrix</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">angular_frequencies</span><span class="p">)</span>
+                             <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">displacement_derivative</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">residual_frf</span> <span class="o">=</span> <span class="n">residual_frf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">experimental_frf</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">shape_residues</span><span class="p">,</span> <span class="n">output_frf</span><span class="p">,</span> <span class="n">residual_frf</span></div>
+
+
+<div class="viewcode-block" id="compute_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes.html#sdynpy.modal.sdynpy_modeshape.compute_shapes">[docs]</a><span class="k">def</span> <span class="nf">compute_shapes</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                   <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                   <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span>
+                   <span class="n">residue_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                   <span class="n">shape_selection</span><span class="o">=</span><span class="n">ShapeSelection</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
+                   <span class="n">participation_factors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">abs_coordinates</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+    <span class="n">sign_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">sign</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">equality_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">abs_coordinates</span> <span class="o">==</span> <span class="n">abs_coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">drive_point_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">equality_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">residue_scales</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sign_matrix</span><span class="p">[</span><span class="n">response_index</span><span class="p">,</span> <span class="n">reference_index</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">reference_index</span><span class="p">,</span> <span class="n">response_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">drive_point_indices</span><span class="p">)])</span>
+    <span class="n">signed_residue_matrix</span> <span class="o">=</span> <span class="n">residue_matrix</span> <span class="o">*</span> <span class="n">residue_scales</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">drive_point_residues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">signed_residue_matrix</span><span class="p">[</span><span class="n">response_index</span><span class="p">,</span> <span class="n">reference_index</span><span class="p">,</span> <span class="p">:]</span>
+                                     <span class="k">for</span> <span class="n">reference_index</span><span class="p">,</span> <span class="n">response_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">drive_point_indices</span><span class="p">)])</span>
+    <span class="n">negative_drive_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">drive_point_residues</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isrealobj</span><span class="p">(</span><span class="n">residue_matrix</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">drive_point_residues</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Negative Drive Point Residues Found!&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mode_index</span><span class="p">,</span> <span class="n">reference_index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">negative_drive_points</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Mode </span><span class="si">{:}</span><span class="s1"> Reference </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">mode_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">reference_index</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])))</span>
+    <span class="n">mode_shape_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">drive_point_residues</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isrealobj</span><span class="p">(</span>
+        <span class="n">residue_matrix</span><span class="p">)</span> <span class="k">else</span> <span class="n">drive_point_residues</span><span class="p">)</span>
+    <span class="n">mode_shape_matrix</span> <span class="o">=</span> <span class="n">signed_residue_matrix</span> <span class="o">/</span> <span class="n">mode_shape_scaling</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_selection</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">shape_selection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]:</span>
+            <span class="n">shape_selection</span> <span class="o">=</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">ALL</span>
+        <span class="k">elif</span> <span class="n">shape_selection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="s1">&#39;drive point&#39;</span><span class="p">,</span> <span class="s1">&#39;dp&#39;</span><span class="p">]:</span>
+            <span class="n">shape_selection</span> <span class="o">=</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">DRIVE_POINT_COEFFICIENT</span>
+        <span class="k">elif</span> <span class="n">shape_selection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;part&#39;</span><span class="p">,</span> <span class="s1">&#39;participation&#39;</span><span class="p">,</span> <span class="s1">&#39;participation factor&#39;</span><span class="p">]:</span>
+            <span class="n">shape_selection</span> <span class="o">=</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">PARTICIPATION_FACTOR</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shape_selection</span> <span class="o">==</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">ALL</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">shape_selection</span> <span class="o">==</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">DRIVE_POINT_COEFFICIENT</span><span class="p">:</span>
+            <span class="n">shape_selection_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">drive_point_residues</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shape_selection</span> <span class="o">==</span> <span class="n">ShapeSelection</span><span class="o">.</span><span class="n">PARTICIPATION_FACTOR</span><span class="p">:</span>
+            <span class="n">shape_selection_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">participation_factors</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid Shape Selection Technique&#39;</span><span class="p">)</span>
+        <span class="n">mode_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mode_shape_matrix</span><span class="p">[:,</span> <span class="n">reference_index</span><span class="p">,</span> <span class="n">mode_index</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">mode_index</span><span class="p">,</span> <span class="n">reference_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shape_selection_indices</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shape_selection_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mode_shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span>
+            <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">mode_shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">ref_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coordinate</span><span class="o">=</span><span class="n">coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                         <span class="n">shape_matrix</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">mode_shape_matrix</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                         <span class="n">frequency</span><span class="o">=</span><span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="n">damping_ratios</span><span class="p">,</span>
+                         <span class="n">comment1</span><span class="o">=</span><span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">string_array</span><span class="p">()[</span><span class="n">shape_selection_indices</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">negative_drive_points</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

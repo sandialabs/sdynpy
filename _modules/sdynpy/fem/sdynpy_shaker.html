@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fem.sdynpy_shaker &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fem.sdynpy_shaker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fem.sdynpy_shaker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools for modeling shakers, and includes commercial shaker objects.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># def shaker_4dof(m_armature,m_body,m_forcegauge,</span>
+<span class="c1">#                 k_suspension,k_stinger,</span>
+<span class="c1">#                 c_suspension,c_stinger,</span>
+<span class="c1">#                 resistance,inductance,force_factor):</span>
+<span class="c1">#     &#39;&#39;&#39;Creates a four degree of freedom electromechanical model of a shaker</span>
+
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     m_armature : float</span>
+<span class="c1">#         Mass of the armaturesistance</span>
+<span class="c1">#     m_body : float</span>
+<span class="c1">#         Mass of the body and trunion of the shaker</span>
+<span class="c1">#     m_forcegauge : float</span>
+<span class="c1">#         Mass of the force gauge at the tip of the stinger</span>
+<span class="c1">#     k_suspension : float</span>
+<span class="c1">#         Stiffness of the spring between the body and armature</span>
+<span class="c1">#     k_stinger : float</span>
+<span class="c1">#         Stiffness of the stinger between the armature and force gauge</span>
+<span class="c1">#     c_suspension : float</span>
+<span class="c1">#         Damping of the spring between the body and armature</span>
+<span class="c1">#     c_stinger : float</span>
+<span class="c1">#         Damping of the stinger between the armature and force gauge</span>
+<span class="c1">#     resistance : float</span>
+<span class="c1">#         Coil resistance of the electronics portion of the shaker</span>
+<span class="c1">#     inductance : float</span>
+<span class="c1">#         Coil inductance of the electronics portion of the shaker</span>
+<span class="c1">#     force_factor : float</span>
+<span class="c1">#         Force factor BL of the magnet and coil</span>
+
+<span class="c1">#     Returns</span>
+<span class="c1">#     -------</span>
+<span class="c1">#     M_shaker : ndarray</span>
+<span class="c1">#         The mass matrix of the shaker</span>
+<span class="c1">#     C_shaker : ndarray</span>
+<span class="c1">#         The damping matrix of the shaker</span>
+<span class="c1">#     K_shaker : ndarray</span>
+<span class="c1">#         The stiffness matrix of the shaker</span>
+
+<span class="c1">#     Notes</span>
+<span class="c1">#     -----</span>
+<span class="c1">#     The dof order of the responses are:</span>
+<span class="c1">#     Displacement of Armature,</span>
+<span class="c1">#     Displacement of Body,</span>
+<span class="c1">#     Displacement of Force Gauge,</span>
+<span class="c1">#     Shaker Current.</span>
+
+<span class="c1">#     The dof order of the inputs are:</span>
+<span class="c1">#     Force into Armature</span>
+<span class="c1">#     Force into Body</span>
+<span class="c1">#     Force into Force Gauge</span>
+<span class="c1">#     Shaker Voltage.</span>
+
+<span class="c1">#     The force imparted by the shaker can be computed as the stinger stiffness</span>
+<span class="c1">#     times the difference in displacement of the armature and force gauge plus</span>
+<span class="c1">#     the stinger damping times the difference in the velocity of the armature</span>
+<span class="c1">#     and force gauge.</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+
+<span class="c1">#     # Cresistanceate the matrices</span>
+<span class="c1">#     M_shaker = np.array([[m_armature,  0,  0,  0],</span>
+<span class="c1">#                          [ 0, m_body,  0,  0],</span>
+<span class="c1">#                          [ 0,  0, m_forcegauge,  0],</span>
+<span class="c1">#                          [ 0,  0,  0,  0]])</span>
+<span class="c1">#     C_shaker = np.array([[(c_suspension+c_stinger), -c_suspension, -c_stinger, 0],</span>
+<span class="c1">#                          [     -c_suspension,  c_suspension,    0, 0],</span>
+<span class="c1">#                          [     -c_stinger,    0,  c_stinger, 0],</span>
+<span class="c1">#                          [       force_factor,  -force_factor, 0,   inductance]])</span>
+<span class="c1">#     K_shaker = np.array([[(k_suspension+k_stinger), -k_suspension, -k_stinger, -force_factor],</span>
+<span class="c1">#                          [     -k_suspension,  k_suspension,    0,  force_factor],</span>
+<span class="c1">#                          [     -k_stinger,    0,  k_stinger,   0],</span>
+<span class="c1">#                          [        0,    0,    0,  resistance]])</span>
+
+<span class="c1">#     return M_shaker,C_shaker,K_shaker</span>
+
+<span class="c1"># test_shaker_dakota = shaker_4dof( m_armature = 0.227, # [kg] ~ armaturesistance mass</span>
+<span class="c1">#                                   m_body = 24.9, # [kg] ~ body mass</span>
+<span class="c1">#                                   k_suspension = 2312, # [N/m] ~ suspension stiffness</span>
+<span class="c1">#                                   c_suspension = 20, # [N/(m/s)] damping ...</span>
+<span class="c1">#                                   k_stinger = 4e6, # [N/m] stiff stinger spring</span>
+<span class="c1">#                                   m_forcegauge = 1e-2, # [kg] force gauge mass</span>
+<span class="c1">#                                   c_stinger = 10, # [N/(m/s)] damping</span>
+<span class="c1">#                                   resistance = 1.3, # [ohm] ~ coil resistance</span>
+<span class="c1">#                                   inductance = 100e-6, # [Henry] ~ coil inductance</span>
+<span class="c1">#                                   force_factor = 30 # [-] ~ Force Factor of magnet &amp; coil</span>
+<span class="c1">#                                 )</span>
+
+
+<div class="viewcode-block" id="Shaker4DoF"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF">[docs]</a><span class="k">class</span> <span class="nc">Shaker4DoF</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A class defining a four degree-of-freedom model of a shaker</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Shaker4DoF.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_armature</span><span class="p">,</span> <span class="n">m_body</span><span class="p">,</span> <span class="n">m_forcegauge</span><span class="p">,</span>
+                 <span class="n">k_suspension</span><span class="p">,</span> <span class="n">k_stinger</span><span class="p">,</span>
+                 <span class="n">c_suspension</span><span class="p">,</span> <span class="n">c_stinger</span><span class="p">,</span>
+                 <span class="n">resistance</span><span class="p">,</span> <span class="n">inductance</span><span class="p">,</span> <span class="n">force_factor</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Creates a four degree of freedom electromechanical model of a shaker</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m_armature : float</span>
+<span class="sd">            Mass of the armature</span>
+<span class="sd">        m_body : float</span>
+<span class="sd">            Mass of the body and trunion of the shaker</span>
+<span class="sd">        m_forcegauge : float</span>
+<span class="sd">            Mass of the force gauge at the tip of the stinger</span>
+<span class="sd">        k_suspension : float</span>
+<span class="sd">            Stiffness of the spring between the body and armature</span>
+<span class="sd">        k_stinger : float</span>
+<span class="sd">            Stiffness of the stinger between the armature and force gauge</span>
+<span class="sd">        c_suspension : float</span>
+<span class="sd">            Damping of the spring between the body and armature</span>
+<span class="sd">        c_stinger : float</span>
+<span class="sd">            Damping of the stinger between the armature and force gauge</span>
+<span class="sd">        resistance : float</span>
+<span class="sd">            Coil resistance of the electronics portion of the shaker</span>
+<span class="sd">        inductance : float</span>
+<span class="sd">            Coil inductance of the electronics portion of the shaker</span>
+<span class="sd">        force_factor : float</span>
+<span class="sd">            Force factor BL of the magnet and coil</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span> <span class="o">=</span> <span class="n">m_armature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span> <span class="o">=</span> <span class="n">m_body</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span> <span class="o">=</span> <span class="n">m_forcegauge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">=</span> <span class="n">k_suspension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">=</span> <span class="n">k_stinger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">=</span> <span class="n">c_suspension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">=</span> <span class="n">c_stinger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resistance</span> <span class="o">=</span> <span class="n">resistance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span> <span class="o">=</span> <span class="n">inductance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">=</span> <span class="n">force_factor</span></div>
+
+<div class="viewcode-block" id="Shaker4DoF.MCK"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.MCK">[docs]</a>    <span class="k">def</span> <span class="nf">MCK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns mass, damping, and stiffness matrices for the shakers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        M : np.ndarray</span>
+<span class="sd">            The mass matrix of the shaker</span>
+<span class="sd">        C : np.ndarray</span>
+<span class="sd">            The damping matrix of the shaker</span>
+<span class="sd">        K : np.ndarray</span>
+<span class="sd">            The stiffness matrix of the shaker</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The dof order of the responses are: </span>
+<span class="sd">        Displacement of Armature,</span>
+<span class="sd">        Displacement of Body,</span>
+<span class="sd">        Displacement of Force Gauge,</span>
+<span class="sd">        Shaker Current.</span>
+
+<span class="sd">        The dof order of the inputs are:</span>
+<span class="sd">        Force into Armature</span>
+<span class="sd">        Force into Body</span>
+<span class="sd">        Force into Force Gauge</span>
+<span class="sd">        Shaker Voltage.</span>
+
+<span class="sd">        The force imparted by the shaker can be computed as the stinger stiffness</span>
+<span class="sd">        times the difference in displacement of the armature and force gauge plus</span>
+<span class="sd">        the stinger damping times the difference in the velocity of the armature</span>
+<span class="sd">        and force gauge.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[(</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">),</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">]])</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">),</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resistance</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span></div>
+
+<div class="viewcode-block" id="Shaker4DoF.state_space"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.state_space">[docs]</a>    <span class="k">def</span> <span class="nf">state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the state space formulation of the shaker model of the form</span>
+
+<span class="sd">        x_dot = A@x + B@u</span>
+<span class="sd">        y = C@x + D@u</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A : np.ndarray</span>
+<span class="sd">            State (system) Matrix.</span>
+<span class="sd">        B : np.ndarray</span>
+<span class="sd">            Input Matrix</span>
+<span class="sd">        C : np.ndarray</span>
+<span class="sd">            Output Matrix</span>
+<span class="sd">        D : np.ndarray</span>
+<span class="sd">            Feedthrough (feedforward) Matrix</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The dof order of the state matrix is </span>
+<span class="sd">          0. armature displacement</span>
+<span class="sd">          1. body displacement</span>
+<span class="sd">          2. forcegauge displacement, </span>
+<span class="sd">          3. armature velocity</span>
+<span class="sd">          4. body velocity</span>
+<span class="sd">          5. forcegauge velocity</span>
+<span class="sd">          6. current.</span>
+
+<span class="sd">        The dof order of the input matrix is</span>
+<span class="sd">          0. external force on armature</span>
+<span class="sd">          1. external force on body</span>
+<span class="sd">          2. external force on forcegauge</span>
+<span class="sd">          3. shaker voltage</span>
+
+<span class="sd">        The dof order for the output matries is</span>
+<span class="sd">          0. Displacement of armature</span>
+<span class="sd">          1. Velocity of armature</span>
+<span class="sd">          2. Acceleration of armature</span>
+<span class="sd">          3. External force on armature</span>
+<span class="sd">          4. Displacement of body</span>
+<span class="sd">          5. Velocity of body</span>
+<span class="sd">          6. Acceleration of body</span>
+<span class="sd">          7. External force on body</span>
+<span class="sd">          8. Displacement of forcegauge</span>
+<span class="sd">          9. Velocity of forcegauge</span>
+<span class="sd">          10. Acceleration of forcegauge</span>
+<span class="sd">          11. External force on forcegauge</span>
+<span class="sd">          12. Shaker voltage</span>
+<span class="sd">          13. Shaker current</span>
+<span class="sd">          14. Current change per time</span>
+<span class="sd">          15. Force on coil due to electronics</span>
+<span class="sd">          16. Force in stinger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">-</span>
+                                                                                                                                                        <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">],</span>
+                      <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">],</span>
+                      <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">resistance</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">]])</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">]])</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="c1"># States: x1, x2, x3, xd1, xd2, xd3, i</span>
+                     <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 1</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 1</span>
+                     <span class="p">[(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">)</span> <span class="o">/</span> \
+                      <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 1</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 1</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 2</span>
+                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="o">-</span> \
+                         <span class="bp">self</span><span class="o">.</span><span class="n">c_suspension</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 3</span>
+                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> \
+                         <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Voltage</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># Current</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">,</span>
+                         <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">resistance</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">],</span>  <span class="c1"># Current change per time</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_factor</span><span class="p">],</span>  <span class="c1"># Force on coil</span>
+                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stinger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">,</span>
+                         <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">c_stinger</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Force in stinger</span>
+                     <span class="p">])</span>
+
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="c1"># Inputs: f_armature, f_body, f_forcegauge, e</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 1</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 1</span>
+                     <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_armature</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 1</span>
+                     <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 1</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 2</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Displacement of mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Velocity of mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_forcegauge</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Acceleration of mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># External Force on mass 3</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># Voltage</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Current</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inductance</span><span class="p">],</span>  <span class="c1"># Current change per time</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Force on coil</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># Force in stinger</span>
+                     <span class="p">])</span>
+        <span class="k">return</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span></div>
+
+<div class="viewcode-block" id="Shaker4DoF.transfer_function"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.transfer_function">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the shaker transfer function matrix</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        H : np.ndarray</span>
+<span class="sd">            A transfer function matrix.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MCK</span><span class="p">()</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="o">-</span><span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">angular_frequencies</span> <span class="o">*</span> <span class="n">C</span> <span class="o">+</span> <span class="n">K</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">H</span></div>
+
+<div class="viewcode-block" id="Shaker4DoF.plot_electrical_impedance"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.plot_electrical_impedance">[docs]</a>    <span class="k">def</span> <span class="nf">plot_electrical_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">test_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the electrical impedance voltage/current for the shaker model</span>
+<span class="sd">        and compares to test data if supplied</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : np.array, optional</span>
+<span class="sd">            Frequency lines. The default is np.arange(4000).</span>
+<span class="sd">        test_data : np.ndarray, optional</span>
+<span class="sd">            Test data defined at frequencies. The default is None.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_function</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">H</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">test_data</span><span class="p">))</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">H</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">test_data</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Shaker4DoF.modal_shop_100lbf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF.modal_shop_100lbf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">modal_shop_100lbf</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a shaker model for a Modal Shop Model 2100E11 100lbf modal shaker.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        shaker_model : Shaker4DoF</span>
+<span class="sd">            A 4 degree of freedom model of the Modal Shop 2100E11 100lbf modal</span>
+<span class="sd">            shaker.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The shaker uses the following parameters</span>
+<span class="sd">         - m_armature = 0.44 kg</span>
+<span class="sd">         - m_body = 15 kg</span>
+<span class="sd">         - m_forcegauge = 1e-2 kg</span>
+<span class="sd">         - k_suspension = 1.1e5 N/m</span>
+<span class="sd">         - k_stinger = 9.63e6 N/m</span>
+<span class="sd">         - c_suspension = 9.6 Ns/m</span>
+<span class="sd">         - c_stinger = 0.42 Ns/m</span>
+<span class="sd">         - resistance = 4 Ohm</span>
+<span class="sd">         - inductance = 6e-4 Henry</span>
+<span class="sd">         - force_factor = 36 (-)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">m_armature</span><span class="o">=</span><span class="mf">0.44</span><span class="p">,</span>
+                   <span class="n">m_body</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                   <span class="n">m_forcegauge</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+                   <span class="n">k_suspension</span><span class="o">=</span><span class="mf">1.1e5</span><span class="p">,</span>
+                   <span class="n">k_stinger</span><span class="o">=</span><span class="mf">9.63e6</span><span class="p">,</span>
+                   <span class="n">c_suspension</span><span class="o">=</span><span class="mf">9.6</span><span class="p">,</span>
+                   <span class="n">c_stinger</span><span class="o">=</span><span class="mf">0.42</span><span class="p">,</span>
+                   <span class="n">resistance</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                   <span class="n">inductance</span><span class="o">=</span><span class="mf">6e-4</span><span class="p">,</span>
+                   <span class="n">force_factor</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span></div></div>
+
+<span class="c1"># shaker = Shaker4DoF.modal_shop_100lbf()</span>
+<span class="c1"># shaker.m_forcegauge = 2.6</span>
+<span class="c1"># shaker.plot_electrical_impedance()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

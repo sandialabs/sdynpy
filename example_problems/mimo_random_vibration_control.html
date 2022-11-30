@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIMO Random Vibration &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modal Tutorials" href="../modal_tutorials.html" />
+    <link rel="prev" title="Substructuring using the Transmission Simulator Method" href="transmission_simulator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">SDynpy Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="airplane_modal_test.html">Airplane Modal Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rattlesnake_demonstration.html">Rattlesnake Demonstration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_fem_analysis.html">Analysis of Transient Finite Element Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_reduction/model_reduction.html">Model Reduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="craig_bampton_substructuring.html">Substructuring using Craig-Bampton Superelements from Sierra/SD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transmission_simulator.html">Substructuring using the Transmission Simulator Method</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">MIMO Random Vibration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#imports">Imports</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimizing-instrumentation-for-test">Optimizing Instrumentation for Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulating-an-environment">Simulating an Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selecting-shaker-excitation-locations">Selecting Shaker Excitation Locations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performing-vibration-control">Performing Vibration Control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simple-vibration-control-using-the-pseudoinverse">Simple Vibration Control using the Pseudoinverse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tikhonov-regularization">Tikhonov Regularization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#weighting-the-shakers">Weighting the Shakers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#response-weighting">Response Weighting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#buzz-test-method">Buzz Test Method</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-a-test">Running a Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">SDynpy Examples</a></li>
+      <li class="breadcrumb-item active">MIMO Random Vibration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_problems/mimo_random_vibration_control.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="mimo-random-vibration">
+<h1><a class="toc-backref" href="#id21">MIMO Random Vibration</a><a class="headerlink" href="#mimo-random-vibration" title="Permalink to this heading"></a></h1>
+<p>This page contains an example demonstrating some usages of SDynPy for
+multiple-input, multiple-output (MIMO) random vibration control.  In this
+example, we will:</p>
+<ol class="arabic simple">
+<li><p>Load in a demonstration model and apply forces to generate an environment
+to replicate.</p></li>
+<li><p>Select instrumentation locations to use for the vibration control</p></li>
+<li><p>Select shaker locations for the vibration test</p></li>
+<li><p>Apply weighting to response and shaker locations to tune the test</p></li>
+<li><p>Generate time histories to play for the test and apply them to the structure</p></li>
+<li><p>Compare results against the specification.</p></li>
+</ol>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#mimo-random-vibration" id="id21">MIMO Random Vibration</a></p>
+<ul>
+<li><p><a class="reference internal" href="#imports" id="id22">Imports</a></p></li>
+<li><p><a class="reference internal" href="#optimizing-instrumentation-for-test" id="id23">Optimizing Instrumentation for Test</a></p></li>
+<li><p><a class="reference internal" href="#simulating-an-environment" id="id24">Simulating an Environment</a></p></li>
+<li><p><a class="reference internal" href="#selecting-shaker-excitation-locations" id="id25">Selecting Shaker Excitation Locations</a></p></li>
+<li><p><a class="reference internal" href="#performing-vibration-control" id="id26">Performing Vibration Control</a></p>
+<ul>
+<li><p><a class="reference internal" href="#simple-vibration-control-using-the-pseudoinverse" id="id27">Simple Vibration Control using the Pseudoinverse</a></p></li>
+<li><p><a class="reference internal" href="#tikhonov-regularization" id="id28">Tikhonov Regularization</a></p></li>
+<li><p><a class="reference internal" href="#weighting-the-shakers" id="id29">Weighting the Shakers</a></p></li>
+<li><p><a class="reference internal" href="#response-weighting" id="id30">Response Weighting</a></p></li>
+<li><p><a class="reference internal" href="#buzz-test-method" id="id31">Buzz Test Method</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#running-a-test" id="id32">Running a Test</a></p></li>
+<li><p><a class="reference internal" href="#summary" id="id33">Summary</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="imports">
+<h2><a class="toc-backref" href="#id22">Imports</a><a class="headerlink" href="#imports" title="Permalink to this heading"></a></h2>
+<p>For this project, we will import the following modules, including the SDynPy
+module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> <span class="c1"># Used for numeric calculations</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span> <span class="c1"># Used for structural dynamics features</span>
+</pre></div>
+</div>
+<p>We will also import <code class="docutils literal notranslate"><span class="pre">geometry</span></code> and a <code class="docutils literal notranslate"><span class="pre">system</span></code> from the
+<a class="reference internal" href="../_autosummary/sdynpy.demo.beam_airplane.html#module-sdynpy.demo.beam_airplane" title="sdynpy.demo.beam_airplane"><code class="xref py py-mod docutils literal notranslate"><span class="pre">beam_airplane</span></code></a>
+demonstration project, which we will transform into a modal system containing
+modes below 50 Hz with 2% damping.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the demonstration problem</span>
+<span class="kn">from</span> <span class="nn">sdynpy.demo.beam_airplane</span> <span class="kn">import</span> <span class="n">geometry</span><span class="p">,</span><span class="n">system</span>
+<span class="c1"># Compute the modes of the system</span>
+<span class="n">shapes</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="c1"># Add Damping</span>
+<span class="n">shapes</span><span class="o">.</span><span class="n">damping</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="c1"># Compute a modal system</span>
+<span class="n">modal_system</span> <span class="o">=</span> <span class="n">shapes</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="optimizing-instrumentation-for-test">
+<h2><a class="toc-backref" href="#id23">Optimizing Instrumentation for Test</a><a class="headerlink" href="#optimizing-instrumentation-for-test" title="Permalink to this heading"></a></h2>
+<p>We will start by selecting a set of optimal instrumentation to use for control.
+For this example, we will use the effective independence algorithm implemented in
+<a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_dof.by_effective_independence.html#sdynpy.fem.sdynpy_dof.by_effective_independence" title="sdynpy.fem.sdynpy_dof.by_effective_independence"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdpy.dof.by_effective_independence</span></code></a>.
+This function starts with a candidate set of degrees of freedom and iteratively
+throws away the degrees of freedom with the smallest contribution to the
+effective independence of the system.  We define a number of sensors to keep
+and create a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a>
+object containing those degrees of freedom.  We can then use that object to
+index the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShapeArray</span></code></a> object to
+obtain the shape matrix.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sensors_to_keep</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">candidate_dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+                                       <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">shapes</span><span class="p">[</span><span class="n">candidate_dofs</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">keep_indices</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">dof</span><span class="o">.</span><span class="n">by_effective_independence</span><span class="p">(</span><span class="n">sensors_to_keep</span><span class="p">,</span> <span class="n">shape_matrix</span><span class="p">)</span>
+<span class="n">control_dofs</span> <span class="o">=</span> <span class="n">candidate_dofs</span><span class="p">[</span><span class="n">keep_indices</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can then plot the kept coordinates and reduce the shapes down to this set to
+see how independent the shapes are.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">control_dofs</span><span class="p">,</span><span class="n">arrow_scale</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span><span class="n">label_dofs</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">test_shapes</span> <span class="o">=</span> <span class="n">shapes</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">control_dofs</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">test_shapes</span><span class="p">),</span><span class="n">text_size</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/beam_airplane_control_dofs.png"><img alt="Control degrees of freedom on the beam airplane" src="../_images/beam_airplane_control_dofs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Degrees of freedom used to control the vibration response of the airplane.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/beam_airplane_control_dofs_mac.png"><img alt="Modal assurance criterion of the bandwidth modes" src="../_images/beam_airplane_control_dofs_mac.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Modal assurance criterion of the bandwidth modes reduced to the control
+degrees of freedom.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="simulating-an-environment">
+<h2><a class="toc-backref" href="#id24">Simulating an Environment</a><a class="headerlink" href="#simulating-an-environment" title="Permalink to this heading"></a></h2>
+<p>With the degrees of freedom selected, we will simulate an environment to attempt
+to recreate.  For a real analysis, this may come from test data measured during
+the environment, or a simulation of the environment.  In this case, we will
+create an environment that assumes the airplane is excited on the leading edge
+of the wing, the nose tip, and the tail.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">environment_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">201</span><span class="p">,</span><span class="mi">242</span><span class="p">),[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="mi">101</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]),</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">301</span><span class="p">,</span><span class="mi">302</span><span class="p">,</span><span class="mi">304</span><span class="p">,</span><span class="mi">305</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">))</span>
+
+<span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">environment_dofs</span><span class="p">,</span><span class="n">label_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">arrow_scale</span><span class="o">=</span><span class="mf">0.025</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/beam_airplane_environment_inputs.png"><img alt="Locations of environment inputs onto the airplane" src="../_images/beam_airplane_environment_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Locations and directions of environment inputs onto the airplane.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can then construct frequency response functions between the environment
+degrees of freedom and the control degrees of freedom in order to determine how
+the airplane will respond at the control degrees of freedom to inputs from the
+environment.  We can use <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.GUIPlot.html#sdynpy.core.sdynpy_data.GUIPlot" title="sdynpy.core.sdynpy_data.GUIPlot"><code class="xref py py-class docutils literal notranslate"><span class="pre">GUIPlot</span></code></a>
+to plot the frequency response functions to quickly verify that they look right.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mf">0.05</span>
+<span class="n">frfs</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">control_dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">environment_dofs</span><span class="p">,</span><span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">GUIPlot</span><span class="p">(</span><span class="n">frfs</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/beam_airplane_environment_frfs.png"><img alt="Frequency response functions for the environment" src="../_images/beam_airplane_environment_frfs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Frequency response functions between the environment degrees of freedom and
+the control degrees of freedom.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>With the frequency response functions computed, we can create arbitrary inputs
+to the environment degrees of freedom to apply to the structure.  We will define
+these using a Power Spectral Density (PSD) matrix, represented by the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.  We can use the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.eye" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.eye"><code class="xref py py-func docutils literal notranslate"><span class="pre">eye</span></code></a> method
+to create a diagonal PSD matrix, meaning the inputs to the environment degrees
+of freedom will be uncorrelated. Extra arguments to this method allow for
+shaping and setting the level of the input PSD.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up breakpoints to shape the PSD matrix</span>
+<span class="n">breakpoints</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">50</span><span class="p">]</span>
+<span class="n">breakpoint_levels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">]</span>
+<span class="c1"># Compute the input PSDs</span>
+<span class="n">input_cpsd</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span>
+    <span class="n">frequencies</span><span class="p">,</span><span class="n">environment_dofs</span><span class="p">,</span>
+    <span class="n">rms</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">full_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">breakpoint_frequencies</span> <span class="o">=</span> <span class="n">breakpoints</span><span class="p">,</span>
+    <span class="n">breakpoint_levels</span> <span class="o">=</span> <span class="n">breakpoint_levels</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can then simulate the response to these inputs by using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_forward</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+object.  This performs the <em>forward</em> MIMO random vibration problem, which is to
+project the input array through the frequency response functions to predict the
+response of the structure.  This computation gives us the specification that
+defines our simulated environment.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">environment_specification</span> <span class="o">=</span> <span class="n">input_cpsd</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">frfs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="selecting-shaker-excitation-locations">
+<h2><a class="toc-backref" href="#id25">Selecting Shaker Excitation Locations</a><a class="headerlink" href="#selecting-shaker-excitation-locations" title="Permalink to this heading"></a></h2>
+<p>While a great deal of analysis can be performed to select the optimal shaker
+locations for a MIMO vibration test, this example will simply select 4 shaker
+locations to use to recreate the environment in the laboratory.  We can again
+compute frequency response functions between the shaker locations and the
+control degrees of freedom.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">excitation_locations</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span>
+    <span class="n">string_array</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;201X+&#39;</span><span class="p">,</span><span class="s1">&#39;201Z+&#39;</span><span class="p">,</span><span class="s1">&#39;233Z+&#39;</span><span class="p">,</span><span class="s1">&#39;305Y+&#39;</span><span class="p">])</span>
+
+<span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">excitation_locations</span><span class="p">,</span><span class="n">label_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">control_frfs</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span>
+    <span class="n">frequencies</span><span class="p">,</span><span class="n">control_dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">excitation_locations</span><span class="p">,</span>
+    <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/beam_airplane_mimo_shaker_locations.png"><img alt="Shaker locations for MIMO vibration control" src="../_images/beam_airplane_mimo_shaker_locations.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Shaker locations used to simulate the environment in the laboratory.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="performing-vibration-control">
+<h2><a class="toc-backref" href="#id26">Performing Vibration Control</a><a class="headerlink" href="#performing-vibration-control" title="Permalink to this heading"></a></h2>
+<p>This example will now walk through several solutions of the control problem
+which highlight different strategies to perform the test.</p>
+<section id="simple-vibration-control-using-the-pseudoinverse">
+<h3><a class="toc-backref" href="#id27">Simple Vibration Control using the Pseudoinverse</a><a class="headerlink" href="#simple-vibration-control-using-the-pseudoinverse" title="Permalink to this heading"></a></h3>
+<p>Perhaps the simplest vibration control solution utilizes the pseudoinverse
+to compute the inverse of the frequency response function matrix to estimate
+the inputs that should be applied to the system.  This can be done in a
+straightforward way using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>.
+Combining this with the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_forward</span></code></a>
+method allows computation of predicted response in two lines of code, first
+computing the estimated inputs to the system, and then passing those inputs
+through the frequency response function matrix.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_cpsd</span> <span class="o">=</span> <span class="n">environment_specification</span><span class="o">.</span><span class="n">mimo_inverse</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+<span class="n">control_predictions</span> <span class="o">=</span> <span class="n">input_cpsd</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There are 30 x 30 = 900 functions in the specification, each with 1000 frequency
+lines, so comparing two vibration responses is non-trivial.  SDynPy offers a
+few built-in ways to compare PSD matrices.  The
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.error_summary" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.error_summary"><code class="xref py py-func docutils literal notranslate"><span class="pre">error_summary</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+produces plots of all of the auto-power spectral densities (APSD), which is the
+diagonal of the PSD.  This focuses mainly on the levels at each control degree
+of freedom and ignores the relationships between the control degrees of freedom.
+Also plotted are global error metrics.  APSDs and level for each channel can be
+plotted using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_asds" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_asds"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_asds</span></code></a>
+static method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.  This is useful for plotting the input levels required to run the test.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">plot_asds</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">input_cpsd</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/beam_airplane_pseudoinverse_control.png"><img alt="Control achieved using a simple pseudoinverse scheme." src="../_images/beam_airplane_pseudoinverse_control.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Vibration control achieved compared to the specification when using a simple
+pseudoinverse control scheme.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/beam_airplane_pseudoinverse_inputs.png"><img alt="Inputs required to achieve the pseudoinverse control" src="../_images/beam_airplane_pseudoinverse_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Inputs required to run the pseudoinverse control.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="tikhonov-regularization">
+<h3><a class="toc-backref" href="#id28">Tikhonov Regularization</a><a class="headerlink" href="#tikhonov-regularization" title="Permalink to this heading"></a></h3>
+<p>Many times it is useful to regularize the solution to a MIMO vibration control
+problem, as the inversion of the transfer function matrix can be ill-conditioned.
+The <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class accepts various weighting and regularization parameters, which results in
+the general equation</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{H}^+ = \left(\mathbf{H}^T\mathbf{W}^T\mathbf{W}\mathbf{H}+\lambda\mathbf{\Sigma}\right)^{-1}\mathbf{H}^T\mathbf{W}^T\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> is the frequency response function matrix,
+<span class="math notranslate nohighlight">\(\mathbf{W}\)</span> is a response weighting matrix, <span class="math notranslate nohighlight">\(\lambda\)</span> is the input
+regularization parameter, and <span class="math notranslate nohighlight">\(\mathbf{\Sigma}\)</span> is the input weighting
+matrix.  For Tikhonov regularization, the input weighting matrix is set to the
+identity matrix.  We can then adjust the input regularization parameter <span class="math notranslate nohighlight">\(\lambda\)</span>
+to tune the amount of regularization in the solution.  These parameters are passed
+to the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>
+method.  The forward problem is performed as usual.</p>
+<p>SDynPy provides the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">Matrix</span></code></a> class
+to specify the weighting matrices.  This class is essentially a matrix that also
+keeps track of which degrees of freedom are represented by the rows and
+columns of the matrix.  This ensures that bookkeeping is fast and easy in
+SDynPy.  For the Tikhonov weighting, we can use the helper method
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.eye" title="sdynpy.core.sdynpy_matrix.Matrix.eye"><code class="xref py py-func docutils literal notranslate"><span class="pre">eye</span></code></a>, which generates a diagonal
+matrix given the coordinates to use.  We will specify the coordinates as the
+shaker excitation degrees of freedom.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_weighting_matrix_tikhonov</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">Matrix</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">excitation_locations</span><span class="p">)</span>
+<span class="n">input_weighting_scale_tikhonov</span> <span class="o">=</span> <span class="mf">1e-4</span>
+
+<span class="n">input_cpsd_tikhonov</span> <span class="o">=</span> <span class="n">environment_specification</span><span class="o">.</span><span class="n">mimo_inverse</span><span class="p">(</span>
+    <span class="n">control_frfs</span><span class="p">,</span>
+    <span class="n">excitation_weighting_matrix</span> <span class="o">=</span> <span class="n">input_weighting_matrix_tikhonov</span><span class="p">,</span>
+    <span class="n">regularization_parameter</span> <span class="o">=</span> <span class="n">input_weighting_scale_tikhonov</span><span class="p">)</span>
+
+<span class="n">control_predictions_tikhonov</span> <span class="o">=</span> <span class="n">input_cpsd_tikhonov</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span>
+    <span class="n">control_frfs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can compare the two solutions by passing additional arguments into the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.error_summary" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.error_summary"><code class="xref py py-func docutils literal notranslate"><span class="pre">error_summary</span></code></a>
+and
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_asds" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_asds"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_asds</span></code></a>
+methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions</span><span class="p">,</span>
+                                        <span class="n">Tikhonov</span><span class="o">=</span><span class="n">control_predictions_tikhonov</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">plot_asds</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">input_cpsd</span><span class="p">,</span>
+                                              <span class="n">Tikhonov</span> <span class="o">=</span> <span class="n">input_cpsd_tikhonov</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../_images/beam_airplane_tikhonov_control.png"><img alt="Control achieved using a Tikhonov regularization scheme." src="../_images/beam_airplane_tikhonov_control.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Vibration control achieved compared to the specification and pseudoinverse
+solutions when using Tikhonov regularization.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id9">
+<a class="reference internal image-reference" href="../_images/beam_airplane_tikhonov_inputs.png"><img alt="Inputs required to achieve the Tikhonov regularization" src="../_images/beam_airplane_tikhonov_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Inputs required to run the Tikhonov-regularized pseudoinverse control.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Note that the required input force is much lower at the expense of less
+accuracy in the controlled solution.</p>
+</section>
+<section id="weighting-the-shakers">
+<h3><a class="toc-backref" href="#id29">Weighting the Shakers</a><a class="headerlink" href="#weighting-the-shakers" title="Permalink to this heading"></a></h3>
+<p>Rather than simply setting the input weighting matrix to the identity matrix,
+we can instead set it to other values to weight the inputs.  In this case,
+we will set the diagonal of the weighting matrix to the root-mean-square (RMS)
+input levels required by the pseudoinverse control.  We must also adjust the
+regularization parameter appropriately because the scale of the weighting matrix
+has changed significantly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_weighting_matrix_shaker_eq</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">Matrix</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">excitation_locations</span><span class="p">)</span>
+<span class="n">input_weighting_matrix_shaker_eq</span><span class="o">.</span><span class="n">matrix</span> <span class="o">*=</span> <span class="n">input_cpsd</span><span class="o">.</span><span class="n">rms</span><span class="p">()</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">input_weighting_scale_shaker_eq</span> <span class="o">=</span> <span class="mf">5e-7</span>
+
+<span class="n">input_weighting_matrix_shaker_eq</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id10">
+<a class="reference internal image-reference" href="../_images/beam_airplane_shaker_weighting.png"><img alt="Weighting the shaker inputs using the RMS levels" src="../_images/beam_airplane_shaker_weighting.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Weighting matrix containing RMS levels on the diagonal used to weight the
+inputs of the control problem.</span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can then solve the control problem with this new weighting and compare the
+results against the previous strategies.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_cpsd_shaker_eq</span> <span class="o">=</span> <span class="n">environment_specification</span><span class="o">.</span><span class="n">mimo_inverse</span><span class="p">(</span>
+    <span class="n">control_frfs</span><span class="p">,</span>
+    <span class="n">excitation_weighting_matrix</span> <span class="o">=</span> <span class="n">input_weighting_matrix_shaker_eq</span><span class="p">,</span>
+    <span class="n">regularization_parameter</span> <span class="o">=</span> <span class="n">input_weighting_scale_shaker_eq</span><span class="p">)</span>
+
+<span class="n">control_predictions_shaker_eq</span> <span class="o">=</span> <span class="n">input_cpsd_shaker_eq</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span>
+    <span class="n">control_frfs</span><span class="p">)</span>
+
+<span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions</span><span class="p">,</span>
+                                        <span class="n">Tikhonov</span><span class="o">=</span><span class="n">control_predictions_tikhonov</span><span class="p">,</span>
+                                        <span class="n">Shaker_Equalization</span> <span class="o">=</span> <span class="n">control_predictions_shaker_eq</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">plot_asds</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">input_cpsd</span><span class="p">,</span>
+                                              <span class="n">Tikhonov</span> <span class="o">=</span> <span class="n">input_cpsd_tikhonov</span><span class="p">,</span>
+                                              <span class="n">Shaker_Equalization</span> <span class="o">=</span> <span class="n">input_cpsd_shaker_eq</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id11">
+<a class="reference internal image-reference" href="../_images/beam_airplane_shaker_weighting_control.png"><img alt="Control achieved using a shaker weighting scheme." src="../_images/beam_airplane_shaker_weighting_control.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Vibration control achieved compared to the specification, pseudoinverse, and
+Tikhonov solutions when using shaker weighting regularization.</span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id12">
+<a class="reference internal image-reference" href="../_images/beam_airplane_shaker_weighting_inputs.png"><img alt="Inputs required to achieve the shaker weighting regularization" src="../_images/beam_airplane_shaker_weighting_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Inputs required to run the shaker-weighted pseudoinverse control.</span><a class="headerlink" href="#id12" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can see that we have improved the accuracy of the Tikhonov solution while
+maintaining the required inputs.</p>
+</section>
+<section id="response-weighting">
+<h3><a class="toc-backref" href="#id30">Response Weighting</a><a class="headerlink" href="#response-weighting" title="Permalink to this heading"></a></h3>
+<p>Another strategy when performing vibration control is to weight the responses.
+This makes the least-squares solution apply larger penalty factors to errors at
+certain degrees of freedom.  For example, we may note that the response at
+degree of freedom <code class="docutils literal notranslate"><span class="pre">101Y+</span></code> is particularly poor, so we may want to apply
+weighting to that degree of freedom to force the least squares solution to
+consider errors on that degree of freedom more seriously.</p>
+<p>We can again construct a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">Matrix</span></code></a>
+object, this time containing the control degrees of freedom rather than the
+shaker degrees of freedom.  We can then specify that the degree of freedom
+<code class="docutils literal notranslate"><span class="pre">101Y+</span></code> should be weighted 10 times that of the other degrees of freedom.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response_weighting_matrix</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">Matrix</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">control_dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+<span class="n">coordinate_to_improve</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;101Y+&#39;</span><span class="p">])</span>
+<span class="n">response_weighting_matrix</span><span class="p">[</span><span class="n">coordinate_to_improve</span><span class="p">,</span><span class="n">coordinate_to_improve</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">response_weighting_matrix</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id13">
+<a class="reference internal image-reference" href="../_images/beam_airplane_response_weighting_matrix.png"><img alt="Weighting the control degrees of freedom" src="../_images/beam_airplane_response_weighting_matrix.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Weighting the response degrees of freedom to increase accuracy of <code class="docutils literal notranslate"><span class="pre">101Y+</span></code></span><a class="headerlink" href="#id13" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Note that we were able to index the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">Matrix</span></code></a>
+object using a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a>
+object, which handles the bookkeeping automatically.</p>
+<p>We can pass this weighting matrix to the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>
+method as the <code class="docutils literal notranslate"><span class="pre">response_weighting_matrix</span></code> argument to use it in the
+pseudoinverse.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_cpsd_weighting</span> <span class="o">=</span> <span class="n">environment_specification</span><span class="o">.</span><span class="n">mimo_inverse</span><span class="p">(</span>
+    <span class="n">control_frfs</span><span class="p">,</span>
+    <span class="n">response_weighting_matrix</span><span class="o">=</span><span class="n">response_weighting_matrix</span><span class="p">)</span>
+
+<span class="n">control_predictions_weighting</span> <span class="o">=</span> <span class="n">input_cpsd_weighting</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+
+<span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions</span><span class="p">,</span>
+                                        <span class="n">Weighted_Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions_weighting</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">plot_asds</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">input_cpsd</span><span class="p">,</span>
+                                              <span class="n">Weighted_Pseudoinverse</span> <span class="o">=</span> <span class="n">input_cpsd_weighting</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id14">
+<a class="reference internal image-reference" href="../_images/beam_airplane_weighted_response_control.png"><img alt="Control achieved using a response weighting scheme." src="../_images/beam_airplane_weighted_response_control.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Vibration control achieved compared to the specification when using
+response weighting.</span><a class="headerlink" href="#id14" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id15">
+<a class="reference internal image-reference" href="../_images/beam_airplane_weighted_response_inputs.png"><img alt="Inputs required to achieve the response weighting regularization" src="../_images/beam_airplane_weighted_response_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Inputs required to run the response-weighted pseudoinverse control.</span><a class="headerlink" href="#id15" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>While the accuracy of the entire solution on average has been degraded, the
+response of the <code class="docutils literal notranslate"><span class="pre">101Y+</span></code> degree of freedom has significantly improved.  This,
+however, requires significantly more input force to achieve, as it is attempting
+to drive the structure in a way that it does not want to be driven.</p>
+</section>
+<section id="buzz-test-method">
+<h3><a class="toc-backref" href="#id31">Buzz Test Method</a><a class="headerlink" href="#buzz-test-method" title="Permalink to this heading"></a></h3>
+<p>A final approach considered here is the so-called <strong>buzz test</strong> approach, which
+modifies the specification to more closely match the structure being tested.
+In this approach, the structure is ‘buzzed’ with uncorrelated white noise at the input
+locations to attempt to determine the preferred phasing and coherence between
+the control degrees of freedom.  This is then used to modify the environment
+specification: the APSD quantites on the diagonal are kept identical, but the
+off diagonal terms are modified to match the coherence and phase of the buzz
+test.  This approach is handled gracefully by SDynPy.  We can first create our
+‘buzz’ inputs by creating an identity matrix for the specification using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.eye" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.eye"><code class="xref py py-func docutils literal notranslate"><span class="pre">eye</span></code></a> method of
+the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.  We can then pass it through the forward control problem using
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_forward</span></code></a>,
+and compute the coherence and phase of the response using methods
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.coherence" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.coherence"><code class="xref py py-func docutils literal notranslate"><span class="pre">coherence</span></code></a>
+and
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.angle" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.angle"><code class="xref py py-func docutils literal notranslate"><span class="pre">angle</span></code></a>,
+respectively.  We can then modify the coherence and phase of the existing
+specification using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.set_coherence_phase" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.set_coherence_phase"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_coherence_phase</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform buzz test to get coherence and phase of responses</span>
+<span class="n">buzz_input_cpsd</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span>
+    <span class="n">frequencies</span><span class="p">,</span><span class="n">excitation_locations</span><span class="p">,</span><span class="n">full_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">buzz_prediction</span> <span class="o">=</span> <span class="n">buzz_input_cpsd</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+<span class="n">buzz_coherence</span> <span class="o">=</span> <span class="n">buzz_prediction</span><span class="o">.</span><span class="n">coherence</span><span class="p">()</span>
+<span class="n">buzz_phase</span> <span class="o">=</span> <span class="n">buzz_prediction</span><span class="o">.</span><span class="n">angle</span><span class="p">()</span>
+
+<span class="n">modified_environment_specification</span> <span class="o">=</span> <span class="n">environment_specification</span><span class="o">.</span><span class="n">set_coherence_phase</span><span class="p">(</span>
+    <span class="n">buzz_coherence</span><span class="p">,</span><span class="n">buzz_phase</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can then plot the specification to see how it has been changed.  Note that
+we will not plot the entire 30 x 30 specification, as this is 900 functions.
+We will instead only plot the first 6 x 6 portion, which will allow us to see
+the trends in how the specification has been modified.  We can plot the
+magnitude, phase, and coherence using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_magnitude_coherence_phase" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.plot_magnitude_coherence_phase"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_magnitude_coherence_phase</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.  We can additionally pass in a second set of data to compare on the plots.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">environment_specification</span><span class="p">[:</span><span class="mi">6</span><span class="p">,:</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">plot_magnitude_coherence_phase</span><span class="p">(</span>
+    <span class="n">modified_environment_specification</span><span class="p">[:</span><span class="mi">6</span><span class="p">,:</span><span class="mi">6</span><span class="p">])</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id16">
+<a class="reference internal image-reference" href="../_images/beam_airplane_buzz_spec_modification.png"><img alt="Modification to the specification using the buzz test approach" src="../_images/beam_airplane_buzz_spec_modification.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Comparison between the original specification (dark lines) and buzz-modified
+specification (light lines) showing the magnitude (diagonal, red) unchanged
+while the phase (lower triangle, green) and coherence (upper triangle, blue)
+have been modified to be more accomodating to the structure being tested.</span><a class="headerlink" href="#id16" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>We can then control to this new specification while comparing results back to
+the old specification.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_cpsd_buzz</span> <span class="o">=</span> <span class="n">modified_environment_specification</span><span class="o">.</span><span class="n">mimo_inverse</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+
+<span class="n">control_predictions_buzz</span> <span class="o">=</span> <span class="n">input_cpsd_buzz</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">control_frfs</span><span class="p">)</span>
+
+<span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">control_predictions</span><span class="p">,</span>
+                                        <span class="n">Buzz</span><span class="o">=</span><span class="n">control_predictions_buzz</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+
+<span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">plot_asds</span><span class="p">(</span><span class="n">Pseudoinverse</span><span class="o">=</span><span class="n">input_cpsd</span><span class="p">,</span>
+                                              <span class="n">Buzz</span><span class="o">=</span><span class="n">input_cpsd_buzz</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id17">
+<a class="reference internal image-reference" href="../_images/beam_airplane_buzz_control.png"><img alt="Control achieved using a buzz test scheme." src="../_images/beam_airplane_buzz_control.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Vibration control achieved compared to the specification when controlling to
+the buzz test specification vs. controlling to the original specification.</span><a class="headerlink" href="#id17" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id18">
+<a class="reference internal image-reference" href="../_images/beam_airplane_buzz_inputs.png"><img alt="Inputs required to achieve the shaker weighting regularization" src="../_images/beam_airplane_buzz_inputs.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Inputs required to run the buzz specification compared to the original
+specification.</span><a class="headerlink" href="#id18" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The results from the buzz test approach show more accuracy with less force
+required, which makes this approach very attractive.  Note, however, that the
+error metrics considered here only consider the level and ignore the relationships
+between control degrees of freedom that will certainly be degraded due to their
+modification.</p>
+</section>
+</section>
+<section id="running-a-test">
+<h2><a class="toc-backref" href="#id32">Running a Test</a><a class="headerlink" href="#running-a-test" title="Permalink to this heading"></a></h2>
+<p>With a desired input PSD matrix developed, we will generally want to run the
+test.  This will generally consist of generating time histories to play to the
+shakers that satisfy the desired input PSDs.  SDynPy makes it easy to generate
+time histories from a PSD matrix using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.generate_time_history" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.generate_time_history"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_time_history</span></code></a>
+method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class.  Here we can specify the length of the signal we wish to generate,
+and also specify an output oversampling as well, which is useful for integrating
+equations of motion accurately, which we will do here to simulate the running
+of a test.  We will generate a 1000 second signal with 10x oversampling for
+accurate integration.  This will return a
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeHistoryArray</span></code></a>
+object containing the time response that can be played to the shakers, or
+alternatively, used to integrate equations of motion.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output_oversample</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">input_signal</span> <span class="o">=</span> <span class="n">input_cpsd_buzz</span><span class="o">.</span><span class="n">generate_time_history</span><span class="p">(</span>
+    <span class="mi">1000</span><span class="p">,</span><span class="n">output_oversample</span><span class="o">=</span><span class="n">output_oversample</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is useful to check whether the time histories generated actually satisfy the
+PSDs.  We can do this using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd" title="sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd"><code class="xref py py-func docutils literal notranslate"><span class="pre">cpsd</span></code></a> method of the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeHistoryArray</span></code></a> class,
+which computes the PSD matrix from time data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_cpsd_buzz_check</span> <span class="o">=</span> <span class="n">input_signal</span><span class="o">.</span><span class="n">cpsd</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">output_oversample</span><span class="p">,</span>
+                                          <span class="mf">0.5</span><span class="p">,</span><span class="s1">&#39;hann&#39;</span><span class="p">)</span>
+<span class="n">input_cpsd_buzz</span><span class="o">.</span><span class="n">plot_magnitude_coherence_phase</span><span class="p">(</span><span class="n">input_cpsd_buzz_check</span><span class="p">,</span>
+                                               <span class="n">magnitude_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},</span>
+                                               <span class="n">coherence_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},</span>
+                                               <span class="n">angle_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">})</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id19">
+<a class="reference internal image-reference" href="../_images/beam_airplane_time_history_generation.png"><img alt="Comparison of specified PSD to that computed from time histories" src="../_images/beam_airplane_time_history_generation.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Comparison between specified PSD and the PSD computed from the generated time
+signals showing good agreement.</span><a class="headerlink" href="#id19" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Given that the generated time histories show good agreement to the desired PSDs,
+we can now run the test with these time histories.  In this case, we will simply
+use the forces to integrate the equations of motion to simulate the response of
+the component using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-func docutils literal notranslate"><span class="pre">System.time_integrate</span></code></a>
+of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a> object.</p>
+<p>We can then downsample back to the non-oversampled rate and compute PSDs from
+the responses.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">input_signal</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">input_signal</span><span class="o">.</span><span class="n">abscissa</span><span class="p">)),</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">control_dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">references</span> <span class="o">=</span> <span class="n">excitation_locations</span><span class="p">)</span>
+
+<span class="n">control_buzz</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">output_oversample</span><span class="p">)</span><span class="o">.</span><span class="n">cpsd</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
+                                                            <span class="mf">0.5</span><span class="p">,</span><span class="s1">&#39;hann&#39;</span><span class="p">)</span>
+<span class="c1"># Throw out the first frequency line to make it consistent with the specification</span>
+<span class="n">control_buzz</span> <span class="o">=</span> <span class="n">control_buzz</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
+
+<span class="n">environment_specification</span><span class="o">.</span><span class="n">error_summary</span><span class="p">(</span><span class="n">Buzz_Prediction</span><span class="o">=</span><span class="n">control_predictions_buzz</span><span class="p">,</span>
+                                        <span class="n">Buzz_Simulation</span><span class="o">=</span><span class="n">control_buzz</span><span class="p">,</span>
+                                        <span class="n">figure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">)})</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id20">
+<a class="reference internal image-reference" href="../_images/beam_airplane_buzz_prediction_vs_simulation.png"><img alt="Comparison of simulated and predicted response" src="../_images/beam_airplane_buzz_prediction_vs_simulation.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Comparison between simulated and predicted responses</span><a class="headerlink" href="#id20" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The responses from the simulated tests match very well to those predicted from
+the initial analysis.</p>
+</section>
+<section id="summary">
+<h2><a class="toc-backref" href="#id33">Summary</a><a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<p>This tutorial walked through some of the workflow steps in performing MIMO
+vibration control.  It introduced the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a>
+class, which has several useful features for analyzing MIMO vibration data.  The
+MIMO control problem can be simulated using the
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_inverse"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>
+and
+<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.mimo_forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">mimo_forward</span></code></a>
+methods to identify the proper inputs and then apply those inputs, respectively.</p>
+<p>Several methods of tuning the vibration control were investigated, including
+regularization, weighting, and specification modification.  A test was then
+simulated by integrating equations of motion, which provided good agreement to
+the predicted responses.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transmission_simulator.html" class="btn btn-neutral float-left" title="Substructuring using the Transmission Simulator Method" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modal_tutorials.html" class="btn btn-neutral float-right" title="Modal Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

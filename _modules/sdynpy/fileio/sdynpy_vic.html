@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_vic &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_vic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_vic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for working with camera output data from VIC3D</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">et</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">coordinate_array</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_geometry</span> <span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">node_array</span><span class="p">,</span> <span class="n">coordinate_system_array</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="n">REPORT_TIME</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<div class="viewcode-block" id="extract_vic_cal_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters.html#sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters">[docs]</a><span class="k">def</span> <span class="nf">extract_vic_cal_parameters</span><span class="p">(</span><span class="n">z3d_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts camera calibration parameters from a VIC3D .z3d file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z3d_file : str</span>
+<span class="sd">        File path to the VIC3D .z3d file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_data : dict</span>
+<span class="sd">        A dictionary with keys &#39;intrinsics_0&#39;, &#39;extrinsics_0&#39;, &#39;distortion_0&#39;,</span>
+<span class="sd">        &#39;intrinsics_1&#39;, &#39;extrinsics_1&#39;, and &#39;distortion_1&#39;, which contain the</span>
+<span class="sd">        intrinsic, extrinsic, and distortion parameters for the left camera (0)</span>
+<span class="sd">        and right camera (1).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">z3d_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;project.xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pxml</span><span class="p">:</span>
+            <span class="n">xml</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pxml</span><span class="o">.</span><span class="n">readlines</span><span class="p">()])</span>
+
+    <span class="n">xml_data</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+    <span class="n">calibration_info</span> <span class="o">=</span> <span class="n">xml_data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;calibration&#39;</span><span class="p">)</span>
+
+    <span class="n">camera_infos</span> <span class="o">=</span> <span class="n">calibration_info</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;camera&#39;</span><span class="p">)</span>
+
+    <span class="n">camera_0_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">camera</span> <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="n">camera_infos</span> <span class="k">if</span> <span class="n">camera</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">camera_1_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">camera</span> <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="n">camera_infos</span> <span class="k">if</span> <span class="n">camera</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">intrinsics_0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_0_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;intrinsics&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">extrinsics_0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_0_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;orientation&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">distortion_0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_0_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;distortion&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">intrinsics_1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_1_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;intrinsics&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">extrinsics_1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_1_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;orientation&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+    <span class="n">distortion_1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">camera_1_info</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;distortion&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+
+    <span class="n">out_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;intrinsics_0&#39;</span><span class="p">:</span> <span class="n">intrinsics_0</span><span class="p">,</span>
+                <span class="s1">&#39;extrinsics_0&#39;</span><span class="p">:</span> <span class="n">extrinsics_0</span><span class="p">,</span>
+                <span class="s1">&#39;distortion_0&#39;</span><span class="p">:</span> <span class="n">distortion_0</span><span class="p">,</span>
+                <span class="s1">&#39;intrinsics_1&#39;</span><span class="p">:</span> <span class="n">intrinsics_1</span><span class="p">,</span>
+                <span class="s1">&#39;extrinsics_1&#39;</span><span class="p">:</span> <span class="n">extrinsics_1</span><span class="p">,</span>
+                <span class="s1">&#39;distortion_1&#39;</span><span class="p">:</span> <span class="n">distortion_1</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">out_data</span></div>
+
+
+<div class="viewcode-block" id="vic_angles_from_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix.html#sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix">[docs]</a><span class="k">def</span> <span class="nf">vic_angles_from_matrix</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Extract Bryant Angles from a rotation matrix.</span>
+
+<span class="sd">    Extracts rotation angles r_x, r_y, r_z for the x,y,z rotation sequence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    R : np.ndarray</span>
+<span class="sd">        A 3x3 array representing a rotation matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rx : float</span>
+<span class="sd">        Rotation angle about X in radians</span>
+<span class="sd">    ry : float</span>
+<span class="sd">        Rotation angle about Y in radians</span>
+<span class="sd">    rz : float</span>
+<span class="sd">        Rotation angle about Z in radians</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.9999</span><span class="p">:</span>
+        <span class="n">ry</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">rz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ry</span><span class="p">),</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ry</span><span class="p">))</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ry</span><span class="p">),</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ry</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ry</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">rz</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">rz</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span></div>
+
+
+<div class="viewcode-block" id="get_vic_camera_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters.html#sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters">[docs]</a><span class="k">def</span> <span class="nf">get_vic_camera_parameters</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">RT</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Computes VIC3D Camera Information for the project.xml file</span>
+
+<span class="sd">    This function computes VIC3D Camera Calibration information from a camera</span>
+<span class="sd">    intrinsic and extrinsic matrix.  This can be placed into a the project.xml</span>
+<span class="sd">    file inside the unzipped Z3D project file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    K : ndarray</span>
+<span class="sd">        A 3 x 3 upper triangular array consisting of the camera intrinisc</span>
+<span class="sd">        parameters.</span>
+<span class="sd">    RT : ndarray</span>
+<span class="sd">        A 3 x 4 array where the first three columns are an orthogonal matrix</span>
+<span class="sd">        denoting a rotation matrix, and the last column is a translation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    intrinsics : iterable</span>
+<span class="sd">        A list of parameters that define the camera intrinsic properties.  They</span>
+<span class="sd">        are ordered cx, cy, fx, fy, s</span>
+<span class="sd">    extrinsics : iterable</span>
+<span class="sd">        A list of parameters that define the camera extrinsic properties.  They</span>
+<span class="sd">        are ordered rx, ry, rz, tx, ty, tz</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">RT</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">RT</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">Rw</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="n">vic_angles_from_matrix</span><span class="p">(</span><span class="n">Rw</span><span class="p">)</span>
+    <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">tz</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">fx</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">fy</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">cx</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">fy</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">rx</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">ry</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">rz</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">tx</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">ty</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">tz</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="matrix_from_bryant_angles"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles.html#sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles">[docs]</a><span class="k">def</span> <span class="nf">matrix_from_bryant_angles</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Computes a rotation matrix from Bryant Angles</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rx : float</span>
+<span class="sd">        Rotation angle about X in radians</span>
+<span class="sd">    ry : float</span>
+<span class="sd">        Rotation angle about Y in radians</span>
+<span class="sd">    rz : float</span>
+<span class="sd">        Rotation angle about Z in radians</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    R : np.ndarray</span>
+<span class="sd">        A 3x3 array representing a rotation matrix.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rx</span><span class="p">)</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ry</span><span class="p">)</span>
+    <span class="n">c3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rz</span><span class="p">)</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rx</span><span class="p">)</span>
+    <span class="n">s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ry</span><span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rz</span><span class="p">)</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">s1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s1</span><span class="p">,</span> <span class="n">c1</span><span class="p">]])</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">s2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c2</span><span class="p">]])</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c3</span><span class="p">,</span> <span class="n">s3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s3</span><span class="p">,</span> <span class="n">c3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">D</span> <span class="o">@</span> <span class="n">C</span> <span class="o">@</span> <span class="n">B</span></div>
+
+
+<div class="viewcode-block" id="camera_matrix_from_vic_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters.html#sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters">[docs]</a><span class="k">def</span> <span class="nf">camera_matrix_from_vic_parameters</span><span class="p">(</span><span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Computes K and RT Camera matrices from information in the project.xml file</span>
+
+<span class="sd">    This function takes VIC3D Camera Calibration information and makes a camera</span>
+<span class="sd">    intrinsic and extrinsic matrix.  This can be extracted from the project.xml</span>
+<span class="sd">    file inside the unzipped Z3D project file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    intrinsics : iterable</span>
+<span class="sd">        A list of parameters that define the camera intrinsic properties.  They</span>
+<span class="sd">        are ordered cx, cy, fx, fy, s</span>
+<span class="sd">    extrinsics : iterable</span>
+<span class="sd">        A list of parameters that define the camera extrinsic properties.  They</span>
+<span class="sd">        are ordered rx, ry, rz, tx, ty, tz</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : ndarray</span>
+<span class="sd">        A 3 x 3 upper triangular array consisting of the camera intrinisc</span>
+<span class="sd">        parameters.</span>
+<span class="sd">    RT : ndarray</span>
+<span class="sd">        A 3 x 4 array where the first three columns are an orthogonal matrix</span>
+<span class="sd">        denoting a rotation matrix, and the last column is a translation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">intrinsics</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">intrinsics</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">intrinsics</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">intrinsics</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">extrinsics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rotations</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span> <span class="o">/</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">extrinsics</span><span class="p">[</span><span class="mi">3</span><span class="p">:]])[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">Rw</span> <span class="o">=</span> <span class="n">matrix_from_bryant_angles</span><span class="p">(</span><span class="o">*</span><span class="n">rotations</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">Rw</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">RT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">RT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="read_vic3D_mat_files"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files.html#sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files">[docs]</a><span class="k">def</span> <span class="nf">read_vic3D_mat_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">read_3D</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_2D</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_quality</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">sigma_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">element_triangulation_condition</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                         <span class="n">element_color_order</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span>
+                         <span class="n">allow_dropouts</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads in data from Correlated Solutions&#39; VIC3D</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    files : Iterable of str</span>
+<span class="sd">        List of strings pointing to .mat files exported from VIC3D.</span>
+<span class="sd">    read_3D : bool, optional</span>
+<span class="sd">        Flag specifying whether or not to extract 3D information. The default</span>
+<span class="sd">        is True.</span>
+<span class="sd">    read_2D : bool, optional</span>
+<span class="sd">        Flag specifying whether or not to extract 2D (pixel) information. The</span>
+<span class="sd">        default is False.</span>
+<span class="sd">    read_quality : bool, optional</span>
+<span class="sd">        Flag specifying whether or not to output quality (sigma) information.</span>
+<span class="sd">        Note that the quality value will be read regardless in order to discard</span>
+<span class="sd">        bad subsets.  This flag only specifies whether the values are returned</span>
+<span class="sd">        to the user.  The default is False.</span>
+<span class="sd">    sigma_tol : float, optional</span>
+<span class="sd">        Tolerance used to discard bad subsets. The default is 0.0.</span>
+<span class="sd">    element_triangulation_condition : float, optional</span>
+<span class="sd">        Maximum condition number for triangular elements generated from subset.</span>
+<span class="sd">        positions.  The default is 3.0.</span>
+<span class="sd">    dt : float, optional</span>
+<span class="sd">        Time spacing to be used in the returned TimeHistoryArrays.</span>
+<span class="sd">        The default is 1.0.</span>
+<span class="sd">    element_color_order : Iterable, optional</span>
+<span class="sd">        Specifies the color order used when creating elements from the various</span>
+<span class="sd">        areas of interest in the VIC3D output.  The first area of interest will</span>
+<span class="sd">        have color specified by the first entry in the array.  The array will</span>
+<span class="sd">        loop around if more areas of interest exist than values in the array.</span>
+<span class="sd">        The default is [1,3,5,7,9,11,13,15,2,4,6,8,10,12,14].</span>
+<span class="sd">    allow_dropouts : bool, optional</span>
+<span class="sd">        Specifies whether or not to allow data to drop out (True) or if the</span>
+<span class="sd">        entire point is discarded if any dropouts are detected (False).</span>
+<span class="sd">        Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geometry_3D : Geometry</span>
+<span class="sd">        Geometry object consisting of the 3D node positions from the test.</span>
+<span class="sd">        Only returned if read_3D is True</span>
+<span class="sd">    time_data_3D : TimeHistoryArray</span>
+<span class="sd">        3D Displacement data from the test.  Only returned if read_3D is True.</span>
+<span class="sd">    geometry_2D : Geometry</span>
+<span class="sd">        Geometry object consisting of the 2D (pixel) node positions from the </span>
+<span class="sd">        test.  Only returned if read_2D is True</span>
+<span class="sd">    time_data_2D : TimeHistoryArray</span>
+<span class="sd">        2D Pixel Displacement data from the test.  Only returned if read_2D is</span>
+<span class="sd">        True.</span>
+<span class="sd">    time_data_2D_disparity : TimeHistoryArray</span>
+<span class="sd">        2D Pixel Displacement data from the test for the second camera.  Adding</span>
+<span class="sd">        this array to the original pixel positions will result in the pixel</span>
+<span class="sd">        positions over time for the right image.  Only returned if read_2D is</span>
+<span class="sd">        True.</span>
+<span class="sd">    sigma_data : TimeHistoryArray</span>
+<span class="sd">        Data quality metric for the test over time.  Only returned if </span>
+<span class="sd">        read_quality is True</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">total_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ifile</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+        <span class="n">this_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">this_time</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="n">REPORT_TIME</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading File </span><span class="si">{:}</span><span class="s1"> of </span><span class="si">{:}</span><span class="s1"> (</span><span class="si">{:0.2f}</span><span class="s1">%)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">ifile</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">total_times</span><span class="p">,</span> <span class="p">(</span><span class="n">ifile</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_times</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="n">start_time</span> <span class="o">+=</span> <span class="n">REPORT_TIME</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="c1"># print(&#39;Reading Timestep {:}&#39;.format(ifile))</span>
+        <span class="c1"># Set up the initial measurement</span>
+        <span class="k">if</span> <span class="n">ifile</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># print(&#39;  Setting up variables...&#39;)</span>
+            <span class="c1"># Get the area of interest flags</span>
+            <span class="n">aois</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;sigma&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">])</span>
+            <span class="c1"># Get the degrees of freedom numbers</span>
+            <span class="n">ndofs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span> <span class="o">+</span> <span class="n">aoi</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">aoi</span> <span class="ow">in</span> <span class="n">aois</span><span class="p">]</span>
+            <span class="n">total_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)</span>
+            <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)</span>
+            <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mi">0</span><span class="p">],</span> <span class="n">boundaries</span><span class="p">))</span>
+            <span class="n">aoi_slices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">boundaries</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">boundaries</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ndofs</span><span class="p">))]</span>
+            <span class="c1"># Set up variables</span>
+            <span class="n">variable_array</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">read_3D</span><span class="p">:</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;U&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;V&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;W&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">read_2D</span><span class="p">:</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">total_dofs</span><span class="p">)</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">total_dofs</span><span class="p">)</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+                <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">total_dofs</span><span class="p">,</span> <span class="n">total_times</span><span class="p">))</span>
+            <span class="c1"># print(&#39;  ...done&#39;)</span>
+        <span class="c1"># Now read in the data</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">variable_array</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># print(&#39;  Reading variable {:}&#39;.format(name))</span>
+            <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">ifile</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># print(&#39;    Skipping Variable {:} for timestep {:}&#39;.format(name,ifile))</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">iaoi</span><span class="p">,</span> <span class="n">aoi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">aois</span><span class="p">):</span>
+                <span class="c1"># print(&#39;    Reading variable {:}{:} from AoI {:}&#39;.format(name,aoi,iaoi))</span>
+                <span class="n">key_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="n">aoi</span>
+                <span class="n">key_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span>
+                <span class="n">array_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">aoi_slices</span><span class="p">[</span><span class="n">iaoi</span><span class="p">],)</span> <span class="o">+</span> <span class="p">((</span><span class="n">ifile</span><span class="p">,)</span> <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">())</span>
+                <span class="n">array</span><span class="p">[</span><span class="n">array_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">key_data</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="c1"># Now do some bookkeeping activities</span>
+    <span class="n">original_aoi_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">total_dofs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">aoi_slice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">aoi_slices</span><span class="p">):</span>
+        <span class="n">original_aoi_indices</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># Reduce to just &quot;good&quot; dofs</span>
+    <span class="k">if</span> <span class="n">allow_dropouts</span><span class="p">:</span>
+        <span class="c1"># Only remove data if the first sample is bad</span>
+        <span class="n">good_dofs</span> <span class="o">=</span> <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">sigma_tol</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Remove data if any sample is bad</span>
+        <span class="n">good_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">sigma_tol</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variable_array</span><span class="p">:</span>
+        <span class="n">variable_array</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable_array</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="n">good_dofs</span><span class="p">]</span>
+    <span class="n">original_aoi_indices</span> <span class="o">=</span> <span class="n">original_aoi_indices</span><span class="p">[</span><span class="n">good_dofs</span><span class="p">]</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">original_aoi_indices</span> <span class="o">==</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">aois</span><span class="p">))])</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mi">0</span><span class="p">],</span> <span class="n">boundaries</span><span class="p">))</span>
+    <span class="n">aoi_slices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">boundaries</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">boundaries</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ndofs</span><span class="p">))]</span>
+    <span class="c1"># Create node numbers for geometry</span>
+    <span class="n">num_nodes_per_aoi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">boundaries</span><span class="p">)</span>
+    <span class="n">node_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">))</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">num_nodes_per_aoi</span><span class="p">])</span>
+    <span class="n">node_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">boundaries</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">aoi_slice</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">num_nodes_per_aoi</span><span class="p">,</span> <span class="n">aoi_slices</span><span class="p">)):</span>
+        <span class="n">node_numbers</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="n">node_length</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># Start accumulating output variables</span>
+    <span class="n">output_variables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">read_3D</span><span class="p">:</span>
+        <span class="c1"># Create the geometry</span>
+        <span class="n">node_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variable_array</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;XYZ&#39;</span><span class="p">])</span>
+        <span class="n">geometry_3D</span> <span class="o">=</span> <span class="n">Geometry</span><span class="p">(</span>
+            <span class="n">node_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="n">node_positions</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">),</span>  <span class="c1"># Convert from mm to meters</span>
+            <span class="n">coordinate_system_array</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Create triangulation</span>
+        <span class="n">element_arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">geometry_3D</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span><span class="o">.</span><span class="n">triangulate</span><span class="p">(</span>
+            <span class="n">geometry_3D</span><span class="o">.</span><span class="n">coordinate_system</span><span class="p">,</span> <span class="n">condition_threshold</span><span class="o">=</span><span class="n">element_triangulation_condition</span><span class="p">)</span> <span class="k">for</span> <span class="n">aoi_slice</span> <span class="ow">in</span> <span class="n">aoi_slices</span>
+            <span class="k">if</span> <span class="n">geometry_3D</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_arrays</span><span class="p">)):</span>
+            <span class="n">element_arrays</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">element_color_order</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_color_order</span><span class="p">)]</span>
+        <span class="n">geometry_3D</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">element_arrays</span><span class="p">)</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geometry_3D</span><span class="p">)</span>
+        <span class="c1"># Create time history</span>
+        <span class="n">node_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variable_array</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;UVW&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_times</span><span class="p">)</span>
+        <span class="n">node_dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total_times</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">time_data_3D</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">node_displacements</span><span class="p">,</span>
+                                  <span class="n">node_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_data_3D</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Convert from mm to meters</span>
+    <span class="k">if</span> <span class="n">read_2D</span><span class="p">:</span>
+        <span class="c1"># Create the geometry</span>
+        <span class="n">node_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variable_array</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;xy&#39;</span><span class="p">])</span>
+        <span class="n">node_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">node_positions</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">node_positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">geometry_2D</span> <span class="o">=</span> <span class="n">Geometry</span><span class="p">(</span>
+            <span class="n">node_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="n">node_positions</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+            <span class="n">coordinate_system_array</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Create triangulation</span>
+        <span class="n">element_arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">geometry_2D</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span><span class="o">.</span><span class="n">triangulate</span><span class="p">(</span>
+            <span class="n">geometry_2D</span><span class="o">.</span><span class="n">coordinate_system</span><span class="p">,</span> <span class="n">condition_threshold</span><span class="o">=</span><span class="n">element_triangulation_condition</span><span class="p">)</span> <span class="k">for</span> <span class="n">aoi_slice</span> <span class="ow">in</span> <span class="n">aoi_slices</span>
+            <span class="k">if</span> <span class="n">geometry_2D</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">aoi_slice</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_arrays</span><span class="p">)):</span>
+            <span class="n">element_arrays</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">element_color_order</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_color_order</span><span class="p">)]</span>
+        <span class="n">geometry_2D</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">element_arrays</span><span class="p">)</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geometry_2D</span><span class="p">)</span>
+        <span class="c1"># Create time history</span>
+        <span class="n">node_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variable_array</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;uv&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_times</span><span class="p">)</span>
+        <span class="n">node_dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total_times</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">time_data_2D</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">node_displacements</span><span class="p">,</span>
+                                  <span class="n">node_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_data_2D</span><span class="p">)</span>
+        <span class="c1"># Create time history for other camera</span>
+        <span class="n">node_displacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variable_array</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;qr&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_times</span><span class="p">)</span>
+        <span class="n">node_dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total_times</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
+        <span class="n">time_data_2D</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">node_displacements</span><span class="p">,</span>
+                                  <span class="n">node_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_data_2D</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">read_quality</span><span class="p">:</span>
+        <span class="n">sigma_data</span> <span class="o">=</span> <span class="n">variable_array</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+        <span class="n">sigma_dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_numbers</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">time_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">sigma_data</span><span class="p">,</span>
+                               <span class="n">sigma_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">output_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_variables</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

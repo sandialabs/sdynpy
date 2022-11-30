@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_geometry.ShapePlotter &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_geometry.TracelineArray" href="sdynpy.core.sdynpy_geometry.TracelineArray.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_geometry.NodeArray" href="sdynpy.core.sdynpy_geometry.NodeArray.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html">sdynpy.core.sdynpy_geometry.coordinate_system_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.element_array.html">sdynpy.core.sdynpy_geometry.element_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_exodus.html">sdynpy.core.sdynpy_geometry.from_exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_imat_struct.html">sdynpy.core.sdynpy_geometry.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_uff.html">sdynpy.core.sdynpy_geometry.from_uff</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_unv.html">sdynpy.core.sdynpy_geometry.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_coord.html">sdynpy.core.sdynpy_geometry.global_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_deflection.html">sdynpy.core.sdynpy_geometry.global_deflection</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.load.html">sdynpy.core.sdynpy_geometry.load</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.local_coord.html">sdynpy.core.sdynpy_geometry.local_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.node_array.html">sdynpy.core.sdynpy_geometry.node_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.split_list.html">sdynpy.core.sdynpy_geometry.split_list</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.traceline_array.html">sdynpy.core.sdynpy_geometry.traceline_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html">sdynpy.core.sdynpy_geometry.DeflectionShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html">sdynpy.core.sdynpy_geometry.ElementArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html">sdynpy.core.sdynpy_geometry.Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html">sdynpy.core.sdynpy_geometry.GeometryPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.NodeArray.html">sdynpy.core.sdynpy_geometry.NodeArray</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_geometry.ShapePlotter</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter"><code class="docutils literal notranslate"><span class="pre">ShapePlotter</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.__init__"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.add_menu_bar()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.add_toolbars()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.compute_displacements()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.next_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.play_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.prev_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation_all_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation_from_action()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_complex()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_loop()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_0p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_0p5()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_0p8()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_1()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_1p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_2p0()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_scaling_4p0()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_speed_0p8()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_speed_1()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.select_speed_1p25()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.show_comment()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.stop_animation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.toggle_undeformed()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.update_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.update_shape_mode()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TracelineArray.html">sdynpy.core.sdynpy_geometry.TracelineArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TransientPlotter.html">sdynpy.core.sdynpy_geometry.TransientPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.id_map.html">sdynpy.core.sdynpy_geometry.id_map</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_geometry.ShapePlotter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-geometry-shapeplotter">
+<h1>sdynpy.core.sdynpy_geometry.ShapePlotter<a class="headerlink" href="#sdynpy-core-sdynpy-geometry-shapeplotter" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ShapePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_plotter_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'auto_update':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undeformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html#sdynpy.core.sdynpy_geometry.GeometryPlotter" title="sdynpy.core.sdynpy_geometry.GeometryPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeometryPlotter</span></code></a></p>
+<p>Class used to plot animated shapes</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_plotter_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'auto_update':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undeformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformed_opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a Shape Plotter object to plot shapes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><em>Geometry</em></a>) – Geometry on which the shapes will be plotted</p></li>
+<li><p><strong>shapes</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><em>ShapeArray</em></a>) – Shapes to plot on the geometry</p></li>
+<li><p><strong>plot_kwargs</strong> (<em>dict</em>) – Keyword arguments passed to the Geometry.plot function</p></li>
+<li><p><strong>background_plotter_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keyword arguments passed to the BackgroundPlotter constructor.
+The default is {‘auto_update’:0.01}.</p></li>
+<li><p><strong>undeformed_opacity</strong> (<em>float</em><em>, </em><em>optional</em>) – Opacity of the undeformed geometry.  Set to zero for no undeformed
+geometry. The default is 0.25.</p></li>
+<li><p><strong>starting_scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Starting scale of the shapes on the plot. The default is 1.0.</p></li>
+<li><p><strong>shape_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name that will be used in the plotter to describe the shape. The
+default is “Mode”</p></li>
+<li><p><strong>show_damping</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean that specifies whether the damping should be displayed in
+the comment.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.__init__" title="sdynpy.core.sdynpy_geometry.ShapePlotter.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(geometry, shapes, plot_kwargs[, ...])</p></td>
+<td><p>Create a Shape Plotter object to plot shapes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar" title="sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_menu_bar</span></code></a>()</p></td>
+<td><p>Adds the menu bar to the BackgroundPlotter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars" title="sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_toolbars</span></code></a>()</p></td>
+<td><p>Adds toolbars to the BackgroundPlotter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements" title="sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_displacements</span></code></a>([compute_scale])</p></td>
+<td><p>Computes displacements to apply to the geometry</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_shape</span></code></a>()</p></td>
+<td><p>Increases the index of the shape being plotted</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play_animation</span></code></a>()</p></td>
+<td><p>Starts the animation playing</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prev_shape</span></code></a>()</p></td>
+<td><p>Decreases the index of the shape being plotted</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation</span></code></a>([filename, frames, ...])</p></td>
+<td><p>Saves the current shape animation to a file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_all_shapes</span></code></a>([filename_base, ...])</p></td>
+<td><p>Helper function to easily save animations for all shapes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_from_action</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_complex</span></code></a>()</p></td>
+<td><p>Adjusts how complex shapes are plotted</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_loop</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p25</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.25x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p5</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.5x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p8</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 0.8x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1</span></code></a>()</p></td>
+<td><p>Resets shape scaling to 1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1p25</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 1.25x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_2p0</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 2x</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_4p0</span></code></a>()</p></td>
+<td><p>Adjusts the current shape scaling by 4x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_shape</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_0p8</span></code></a>()</p></td>
+<td><p>Adjusts the current animation speed by 0.8</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1</span></code></a>()</p></td>
+<td><p>Resets animation speed to default quantities</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1p25</span></code></a>()</p></td>
+<td><p>Adjusts the current animation speed by 1.25</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment" title="sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_comment</span></code></a>()</p></td>
+<td><p>Shows or hides the shape comment</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_animation</span></code></a>()</p></td>
+<td><p>Stops the animation from playing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed" title="sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toggle_undeformed</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape</span></code></a>()</p></td>
+<td><p>Updates the shape that is being plotted</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape_mode</span></code></a>([phase])</p></td>
+<td><p>Updates the mode that is being plotted</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar">
+<span class="sig-name descname"><span class="pre">add_menu_bar</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.add_menu_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the menu bar to the BackgroundPlotter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars">
+<span class="sig-name descname"><span class="pre">add_toolbars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.add_toolbars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars" title="Permalink to this definition"></a></dt>
+<dd><p>Adds toolbars to the BackgroundPlotter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements">
+<span class="sig-name descname"><span class="pre">compute_displacements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compute_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.compute_displacements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements" title="Permalink to this definition"></a></dt>
+<dd><p>Computes displacements to apply to the geometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>compute_scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – Renormalize the displacement scaling. The default is True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape">
+<span class="sig-name descname"><span class="pre">next_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.next_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Increases the index of the shape being plotted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation">
+<span class="sig-name descname"><span class="pre">play_animation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.play_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation" title="Permalink to this definition"></a></dt>
+<dd><p>Starts the animation playing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape">
+<span class="sig-name descname"><span class="pre">prev_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.prev_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Decreases the index of the shape being plotted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation">
+<span class="sig-name descname"><span class="pre">save_animation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.save_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the current shape animation to a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the file being saved. The default is None, which returns
+the images as an array rather than saves them to a file</p></li>
+<li><p><strong>frames</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of frames in the animation. The default is 20.</p></li>
+<li><p><strong>frame_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of frames per second if the animation is saved to a GIF.
+The default is 20.</p></li>
+<li><p><strong>individual_images</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean to specify whether the images are saved as individual PNG
+files or a single GIF. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>imgs</strong> – Returns array of images if filename is None, otherwise returns None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes">
+<span class="sig-name descname"><span class="pre">save_animation_all_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Shape_{:}.gif'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.save_animation_all_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to easily save animations for all shapes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_base</strong> (<em>str</em><em>, </em><em>optional</em>) – Filename that will be passed to the format function to produce the
+actual file name for each shape. The default is ‘Shape_{:}.gif’.</p></li>
+<li><p><strong>frames</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of frames in the animation. The default is 20.</p></li>
+<li><p><strong>frame_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Number of frames per second if the animation is saved to a GIF.
+The default is 20.</p></li>
+<li><p><strong>individual_images</strong> (<em>bool</em><em>, </em><em>optional</em>) – Boolean to specify whether the images are saved as individual PNG
+files or a single GIF. The default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action">
+<span class="sig-name descname"><span class="pre">save_animation_from_action</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.save_animation_from_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex">
+<span class="sig-name descname"><span class="pre">select_complex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_complex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts how complex shapes are plotted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop">
+<span class="sig-name descname"><span class="pre">select_loop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25">
+<span class="sig-name descname"><span class="pre">select_scaling_0p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_0p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.25x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5">
+<span class="sig-name descname"><span class="pre">select_scaling_0p5</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_0p5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.5x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8">
+<span class="sig-name descname"><span class="pre">select_scaling_0p8</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_0p8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 0.8x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1">
+<span class="sig-name descname"><span class="pre">select_scaling_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1" title="Permalink to this definition"></a></dt>
+<dd><p>Resets shape scaling to 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25">
+<span class="sig-name descname"><span class="pre">select_scaling_1p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_1p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 1.25x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0">
+<span class="sig-name descname"><span class="pre">select_scaling_2p0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_2p0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 2x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0">
+<span class="sig-name descname"><span class="pre">select_scaling_4p0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_scaling_4p0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current shape scaling by 4x</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape">
+<span class="sig-name descname"><span class="pre">select_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8">
+<span class="sig-name descname"><span class="pre">select_speed_0p8</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_speed_0p8"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current animation speed by 0.8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1">
+<span class="sig-name descname"><span class="pre">select_speed_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_speed_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1" title="Permalink to this definition"></a></dt>
+<dd><p>Resets animation speed to default quantities</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25">
+<span class="sig-name descname"><span class="pre">select_speed_1p25</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.select_speed_1p25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts the current animation speed by 1.25</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment">
+<span class="sig-name descname"><span class="pre">show_comment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.show_comment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment" title="Permalink to this definition"></a></dt>
+<dd><p>Shows or hides the shape comment</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation">
+<span class="sig-name descname"><span class="pre">stop_animation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.stop_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation" title="Permalink to this definition"></a></dt>
+<dd><p>Stops the animation from playing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed">
+<span class="sig-name descname"><span class="pre">toggle_undeformed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.toggle_undeformed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape">
+<span class="sig-name descname"><span class="pre">update_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.update_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the shape that is being plotted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode">
+<span class="sig-name descname"><span class="pre">update_shape_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.update_shape_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the mode that is being plotted</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>phase</strong> (<em>float</em><em>, </em><em>optional</em>) – Sets the current phase of the shape. The default is None, which
+computes the new phase based on the time elapsed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_geometry.NodeArray.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_geometry.NodeArray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_geometry.TracelineArray.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_geometry.TracelineArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

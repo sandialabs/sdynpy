@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_uff &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_uff</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_uff</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Interface to the universal file format (UFF).</span>
+
+<span class="sd">Using the functions in this module, one can read and write unv files.  </span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="UFFReadError"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.UFFReadError.html#sdynpy.fileio.sdynpy_uff.UFFReadError">[docs]</a><span class="k">class</span> <span class="nc">UFFReadError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception to be used when there is an error reading a UNV file&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<span class="n">read_type_functions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                       <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                       <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                       <span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                       <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">}</span>
+
+<span class="n">write_type_format_operations</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;{{:&lt;</span><span class="si">{:}</span><span class="s1">s}}&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;I&#39;</span><span class="p">:</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">d}}&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">s}}&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">E}}&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">e}}&#39;</span>
+                                <span class="p">}</span>
+
+
+<div class="viewcode-block" id="parse_uff_line"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.parse_uff_line.html#sdynpy.fileio.sdynpy_uff.parse_uff_line">[docs]</a><span class="k">def</span> <span class="nf">parse_uff_line</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">format_specs</span><span class="p">,</span> <span class="n">read_number</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a line from a universal file format</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line : str</span>
+<span class="sd">        A line from a unv file</span>
+<span class="sd">    format_specs : iterable</span>
+<span class="sd">        The format specifiers for the line that determines how the string is</span>
+<span class="sd">        transformed into data</span>
+<span class="sd">    read_number : int, optional</span>
+<span class="sd">        The number of entries to read.  Will repeat the format specifiers if</span>
+<span class="sd">        necessary</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    UFFReadError</span>
+<span class="sd">        Raised if an error occurs reading the file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output : list</span>
+<span class="sd">        Data from this line of the unv file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">read_number</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">read_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_specs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">copies</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">read_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_specs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">format_specs</span> <span class="o">=</span> <span class="p">(</span><span class="n">copies</span> <span class="o">*</span> <span class="n">format_specs</span><span class="p">)[:</span><span class="n">read_number</span><span class="p">]</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">format_specs</span><span class="p">:</span>
+        <span class="n">spec_type</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">spec_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">spec_type</span> <span class="o">==</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span>
+            <span class="n">position</span> <span class="o">+=</span> <span class="n">spec_length</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">type_function</span> <span class="o">=</span> <span class="n">read_type_functions</span><span class="p">[</span><span class="n">spec_type</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span><span class="s1">&#39;Invalid Type </span><span class="si">{:}</span><span class="s1">, should be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">spec_type</span><span class="p">,</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">read_type_functions</span><span class="o">.</span><span class="n">keys</span><span class="p">()]))</span>
+        <span class="n">position_string</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">position</span><span class="p">:</span><span class="n">position</span> <span class="o">+</span> <span class="n">spec_length</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">position_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_function</span><span class="p">(</span><span class="n">position_string</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span><span class="s1">&#39;Line &quot;</span><span class="si">{:}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">  characters &quot;</span><span class="si">{:}</span><span class="s1">&quot; cannot be transformed to type </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">line</span><span class="p">,</span> <span class="n">position_string</span><span class="p">,</span> <span class="n">spec_type</span><span class="p">))</span>
+        <span class="n">position</span> <span class="o">+=</span> <span class="n">spec_length</span>
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="parse_uff_lines"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.parse_uff_lines.html#sdynpy.fileio.sdynpy_uff.parse_uff_lines">[docs]</a><span class="k">def</span> <span class="nf">parse_uff_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">line_format_spec</span><span class="p">,</span> <span class="n">read_number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads multiple lines from a universal file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lines : iterable</span>
+<span class="sd">        List of lines to read</span>
+<span class="sd">    line_format_spec : iterable</span>
+<span class="sd">        The format specifiers for the line that determines how the string is</span>
+<span class="sd">        transformed into data</span>
+<span class="sd">    read_number : int</span>
+<span class="sd">        The number of entries to read</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output</span>
+<span class="sd">        Data from the universal file over the specified lines.</span>
+<span class="sd">    lines_read : int</span>
+<span class="sd">        Number of lines read from the universal file</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_lines</span> <span class="o">=</span> <span class="n">read_number</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_format_spec</span><span class="p">)</span>
+    <span class="n">remainder</span> <span class="o">=</span> <span class="n">read_number</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_format_spec</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">full_lines</span><span class="p">),</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">line_format_spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">remainder</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="n">parse_uff_line</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">full_lines</span><span class="p">],</span> <span class="n">line_format_spec</span><span class="p">,</span> <span class="n">remainder</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">full_lines</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">remainder</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_uff_line"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.write_uff_line.html#sdynpy.fileio.sdynpy_uff.write_uff_line">[docs]</a><span class="k">def</span> <span class="nf">write_uff_line</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">format_specs</span><span class="p">,</span> <span class="n">fill_line</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write data to universal file format</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : iterable</span>
+<span class="sd">        The data to write to the universal file.</span>
+<span class="sd">    format_specs : iterable</span>
+<span class="sd">        The format specification for each value in data</span>
+<span class="sd">    fill_line : bool, optional</span>
+<span class="sd">        Fill the line completely. The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    line : str</span>
+<span class="sd">        A string representation of the data in the universal file format</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">write_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">non_X_format_specs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">format_spec</span> <span class="k">for</span> <span class="n">format_spec</span> <span class="ow">in</span> <span class="n">format_specs</span> <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;X&#39;</span> <span class="ow">in</span> <span class="n">format_spec</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+    <span class="n">copies</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">write_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_X_format_specs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">format_specs</span> <span class="o">=</span> <span class="p">(</span><span class="n">copies</span> <span class="o">*</span> <span class="p">(</span><span class="n">format_specs</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]))</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">data_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">format_specs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">continue</span>
+        <span class="n">spec_type</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">spec_format</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">spec_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spec_format</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">spec_type</span> <span class="o">==</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">write_type_format_operations</span><span class="p">[</span><span class="n">spec_type</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec_format</span><span class="p">))</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="n">data_index</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">write_type_format_operations</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec_length</span><span class="p">))</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">data_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">write_type_format_operations</span><span class="p">[</span><span class="n">spec_type</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">spec_format</span><span class="p">))</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_index</span><span class="p">])</span>
+            <span class="n">data_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">spec_length</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data to write </span><span class="si">{:}</span><span class="s1"> longer than specification length of </span><span class="si">{:}</span><span class="s1">.  Truncating!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">new_data</span><span class="p">,</span> <span class="n">spec_length</span><span class="p">))</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="n">new_data</span><span class="p">[:</span><span class="n">spec_length</span><span class="p">]</span>
+        <span class="n">line</span> <span class="o">+=</span> <span class="n">new_data</span>
+        <span class="k">if</span> <span class="n">data_index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">fill_line</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:&lt;80s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">line</span></div>
+
+
+<span class="c1"># To add a data set for reading, you must write it in a file defining a read</span>
+<span class="c1"># and write command, import it here, then add it to the dataset dictionary</span>
+<span class="c1"># using the dataset number as the key.</span>
+
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_55</span> <span class="k">as</span> <span class="n">dataset_55</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_58</span> <span class="k">as</span> <span class="n">dataset_58</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_82</span> <span class="k">as</span> <span class="n">dataset_82</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_151</span> <span class="k">as</span> <span class="n">dataset_151</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_164</span> <span class="k">as</span> <span class="n">dataset_164</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_1858</span> <span class="k">as</span> <span class="n">dataset_1858</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2400</span> <span class="k">as</span> <span class="n">dataset_2400</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2411</span> <span class="k">as</span> <span class="n">dataset_2411</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2412</span> <span class="k">as</span> <span class="n">dataset_2412</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2420</span> <span class="k">as</span> <span class="n">dataset_2420</span>
+
+<span class="n">dataset_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">55</span><span class="p">:</span> <span class="n">dataset_55</span><span class="p">,</span>
+                <span class="mi">58</span><span class="p">:</span> <span class="n">dataset_58</span><span class="p">,</span>
+                <span class="mi">82</span><span class="p">:</span> <span class="n">dataset_82</span><span class="p">,</span>
+                <span class="mi">151</span><span class="p">:</span> <span class="n">dataset_151</span><span class="p">,</span>
+                <span class="mi">164</span><span class="p">:</span> <span class="n">dataset_164</span><span class="p">,</span>
+                <span class="mi">1858</span><span class="p">:</span> <span class="n">dataset_1858</span><span class="p">,</span>
+                <span class="mi">2400</span><span class="p">:</span> <span class="n">dataset_2400</span><span class="p">,</span>
+                <span class="mi">2411</span><span class="p">:</span> <span class="n">dataset_2411</span><span class="p">,</span>
+                <span class="mi">2412</span><span class="p">:</span> <span class="n">dataset_2412</span><span class="p">,</span>
+                <span class="mi">2420</span><span class="p">:</span> <span class="n">dataset_2420</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="readuff"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.readuff.html#sdynpy.fileio.sdynpy_uff.readuff">[docs]</a><span class="k">def</span> <span class="nf">readuff</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a universal file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path to the file that should be read.</span>
+<span class="sd">    datasets : iterable, optional</span>
+<span class="sd">        List of dataset numbers to read. The default is None.</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        Output extra information when reading the file. The default is False.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    UFFReadError</span>
+<span class="sd">        Raised if errors are found when reading the file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary with keys as the dataset id numbers and values containing the</span>
+<span class="sd">        data from the universal file in those datasets.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dataset_line_num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Loop through the file until it is at its end</span>
+        <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="c1"># Find the first delimiter line</span>
+            <span class="c1"># Here we want to find a line that has -1 in the 5th and 6th column,</span>
+            <span class="c1"># and make sure that -1 isn&#39;t the only thing in the line to make sure</span>
+            <span class="c1"># that any comments at the start of the file don&#39;t accidentally line up</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">dataset_line_num</span> <span class="o">=</span> <span class="n">line_num</span>
+            <span class="c1"># Load in the dataset specifier</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Make sure that we can convert it to an integer</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span>
+                    <span class="s1">&#39;Improperly formatted dataset specification at line </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line_num</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading Dataset </span><span class="si">{:}</span><span class="s1"> at line </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
+            <span class="c1"># Load in the dataset information</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Loop through the file until we find the delimiter</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span>
+                        <span class="s1">&#39;File ended before dataset starting at line </span><span class="si">{}</span><span class="s1"> was ended.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_line_num</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">read_fn</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]</span><span class="o">.</span><span class="n">read</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1">#                raise e</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="s1"> is not implemented, skipping...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
+                <span class="c1"># Read the next line in preparation for the next loop of the script</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1">#                raise e</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="s1"> read function is not implemented, skipping...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
+                <span class="c1"># Read the next line in preparation for the next loop of the script</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">datasets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping dataset </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="s1"> due to it not being specified in the `datasets` input argument&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="n">dataset_obj</span> <span class="o">=</span> <span class="n">read_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_obj</span><span class="p">,</span> <span class="n">UFFReadError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span><span class="s1">&#39;In dataset starting at line </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">dataset_line_num</span><span class="p">,</span> <span class="n">dataset_obj</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataset_obj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset_obj</span><span class="p">]</span>
+            <span class="c1"># Read the next line in preparation for the next loop of the script</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">return_dict</span></div>
+
+
+<span class="n">readunv</span> <span class="o">=</span> <span class="n">readuff</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

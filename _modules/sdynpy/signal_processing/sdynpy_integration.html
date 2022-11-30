@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.signal_processing.sdynpy_integration &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.signal_processing.sdynpy_integration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.signal_processing.sdynpy_integration</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for integrating equations of motion in time.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">signal</span>
+
+
+<div class="viewcode-block" id="MCK_to_StateSpace"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.MCK_to_StateSpace.html#sdynpy.signal_processing.sdynpy_integration.MCK_to_StateSpace">[docs]</a><span class="k">def</span> <span class="nf">MCK_to_StateSpace</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+
+    <span class="n">ndofs</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># A = [[     0,     I],</span>
+    <span class="c1">#      [M^-1*K,M^-1*C]]</span>
+
+    <span class="n">A_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)]])</span>
+
+    <span class="c1"># B = [[     0,  M^-1]]</span>
+
+    <span class="n">B_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">M</span><span class="p">)]])</span>
+
+    <span class="c1"># C = [[     I,     0],   # Displacements</span>
+    <span class="c1">#      [     0,     I],   # Velocities</span>
+    <span class="c1">#      [M^-1*K,M^-1*C],   # Accelerations</span>
+    <span class="c1">#      [     0,     0]]   # Forces</span>
+
+    <span class="n">C_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
+                        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))]])</span>
+
+    <span class="c1"># D = [[     0],   # Displacements</span>
+    <span class="c1">#      [     0],   # Velocities</span>
+    <span class="c1">#      [  M^-1],   # Accelerations</span>
+    <span class="c1">#      [     I]]   # Forces</span>
+
+    <span class="n">D_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
+                        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
+                        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">M</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)]])</span>
+
+    <span class="k">return</span> <span class="n">A_state</span><span class="p">,</span> <span class="n">B_state</span><span class="p">,</span> <span class="n">C_state</span><span class="p">,</span> <span class="n">D_state</span></div>
+
+
+<div class="viewcode-block" id="MCK_incomplete_to_StateSpace"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.MCK_incomplete_to_StateSpace.html#sdynpy.signal_processing.sdynpy_integration.MCK_incomplete_to_StateSpace">[docs]</a><span class="k">def</span> <span class="nf">MCK_incomplete_to_StateSpace</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">massless_dofs</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="n">nomass</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">massless_dofs</span><span class="p">)</span>
+    <span class="n">mass</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">nomass</span>
+    <span class="n">mass_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">massless_dofs</span><span class="p">])</span>
+    <span class="n">massless_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">massless_dofs</span><span class="p">)</span>
+
+    <span class="n">Kmm</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">mass_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">mass_dofs</span><span class="p">]</span>
+    <span class="n">Kmn</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">mass_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">massless_dofs</span><span class="p">]</span>
+    <span class="n">Knm</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">massless_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">mass_dofs</span><span class="p">]</span>
+    <span class="n">Knn</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">massless_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">massless_dofs</span><span class="p">]</span>
+
+    <span class="n">Cmm</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">mass_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">mass_dofs</span><span class="p">]</span>
+    <span class="n">Cnm</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">massless_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">mass_dofs</span><span class="p">]</span>
+    <span class="n">Cnn</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">massless_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">massless_dofs</span><span class="p">]</span>
+
+    <span class="n">Mmm</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">mass_dofs</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">mass_dofs</span><span class="p">]</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mass</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Kmm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Cmm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Kmn</span><span class="p">)],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Knm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Cnm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Knn</span><span class="p">)]</span>
+    <span class="p">])</span>
+
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Mmm</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Cnn</span><span class="p">)]</span>
+    <span class="p">])</span>
+
+    <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mass</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive displacements</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mass</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive velocities</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Kmm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Cmm</span><span class="p">),</span> <span class="o">-</span> \
+         <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Mmm</span><span class="p">,</span> <span class="n">Kmn</span><span class="p">)],</span>  <span class="c1"># Massive Accelerations</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span>
+         <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive Inputs</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span>
+         <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nomass</span><span class="p">)],</span>  <span class="c1"># Nonmassive displacements</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Knm</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Cnm</span><span class="p">),</span> <span class="o">-</span> \
+         <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Cnn</span><span class="p">,</span> <span class="n">Knn</span><span class="p">)],</span>  <span class="c1"># Nonmassive velocities</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span>
+         <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Nonmassive inputs</span>
+    <span class="p">])</span>
+
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive displacements</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive velocities</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Mmm</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive Accelerations</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mass</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Massive Inputs</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">nomass</span><span class="p">))],</span>  <span class="c1"># Nonmassive displacements</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Cnn</span><span class="p">)],</span>  <span class="c1"># Nonmassive velocities</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nomass</span><span class="p">,</span> <span class="n">mass</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nomass</span><span class="p">)],</span>  <span class="c1"># Nonmassive inputs</span>
+    <span class="p">])</span>
+
+    <span class="n">doflist</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">doflist</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dof</span><span class="p">,</span> <span class="n">modifier</span><span class="p">)</span> <span class="k">for</span> <span class="n">modifier</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">mass_dofs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">dof</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">massless_dofs</span><span class="p">]</span>
+    <span class="n">doflist</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dof</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">mass_dofs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">dof</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">massless_dofs</span><span class="p">]</span>
+    <span class="n">doflist</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">dof</span><span class="p">,</span> <span class="n">modifier</span><span class="p">)</span> <span class="k">for</span> <span class="n">modifier</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;dd&#39;</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">mass_dofs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">dof</span><span class="p">,</span> <span class="n">modifier</span><span class="p">)</span> <span class="k">for</span> <span class="n">modifier</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">massless_dofs</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">doflist</span></div>
+
+
+<div class="viewcode-block" id="integrate_MCK"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.integrate_MCK.html#sdynpy.signal_processing.sdynpy_integration.integrate_MCK">[docs]</a><span class="k">def</span> <span class="nf">integrate_MCK</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="n">MCK_to_StateSpace</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+    <span class="n">linear_system</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">StateSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
+
+    <span class="n">times_out</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">x_out</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">lsim</span><span class="p">(</span><span class="n">linear_system</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+
+    <span class="n">sys_disps</span> <span class="o">=</span> <span class="n">sys_out</span><span class="p">[:,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">1</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">sys_vels</span> <span class="o">=</span> <span class="n">sys_out</span><span class="p">[:,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">sys_accels</span> <span class="o">=</span> <span class="n">sys_out</span><span class="p">[:,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">sys_forces</span> <span class="o">=</span> <span class="n">sys_out</span><span class="p">[:,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">4</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">sys_disps</span><span class="p">,</span> <span class="n">sys_vels</span><span class="p">,</span> <span class="n">sys_accels</span><span class="p">,</span> <span class="n">sys_forces</span></div>
+
+
+<div class="viewcode-block" id="modal_parameters_to_MCK"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.modal_parameters_to_MCK.html#sdynpy.signal_processing.sdynpy_integration.modal_parameters_to_MCK">[docs]</a><span class="k">def</span> <span class="nf">modal_parameters_to_MCK</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">):</span>
+    <span class="n">nmodes</span> <span class="o">=</span> <span class="n">natural_frequencies</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">((</span><span class="n">natural_frequencies</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">natural_frequencies</span> <span class="o">*</span> <span class="n">damping_ratios</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="integrate_modes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.integrate_modes.html#sdynpy.signal_processing.sdynpy_integration.integrate_modes">[docs]</a><span class="k">def</span> <span class="nf">integrate_modes</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">,</span> <span class="n">modal_forces</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">return_accel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="n">modal_parameters_to_MCK</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">integrate_MCK</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">modal_forces</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_accel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="frequency_domain_differentiation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_integration.frequency_domain_differentiation.html#sdynpy.signal_processing.sdynpy_integration.frequency_domain_differentiation">[docs]</a><span class="k">def</span> <span class="nf">frequency_domain_differentiation</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">abscissa</span><span class="p">))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">frequency_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">fmax</span><span class="p">)</span>
+    <span class="n">fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    <span class="c1"># Construct tuples for multidimensional analysis</span>
+    <span class="n">slice_array</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">frequency_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">axis</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">axis</span><span class="p">)</span> <span class="o">==</span>
+                        <span class="n">fft</span><span class="o">.</span><span class="n">ndim</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">ndim</span><span class="p">)])</span>
+    <span class="n">freq_slice_array</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">frequency_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">axis</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="n">i</span> <span class="o">-</span> <span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="n">fft</span><span class="o">.</span><span class="n">ndim</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">ndim</span><span class="p">)])</span>
+    <span class="n">not_freq_slice_array</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">frequency_indices</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">axis</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="n">i</span> <span class="o">-</span> <span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="n">fft</span><span class="o">.</span><span class="n">ndim</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">ndim</span><span class="p">)])</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">freqs</span><span class="p">[</span><span class="n">slice_array</span><span class="p">])</span><span class="o">**</span><span class="n">order</span>
+    <span class="c1"># Perform integration/differentiation</span>
+    <span class="n">fft</span><span class="p">[</span><span class="n">freq_slice_array</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
+    <span class="n">fft</span><span class="p">[</span><span class="n">not_freq_slice_array</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">fft</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

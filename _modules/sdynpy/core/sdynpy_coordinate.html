@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_coordinate &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_coordinate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.core.sdynpy_coordinate</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines the CoordinateArray, which specifies arrays of node numbers and directions.</span>
+
+<span class="sd">Coordinates in SDynPy are used to define degrees of freedom.  These consist of</span>
+<span class="sd">a node number (which corresponds to a node in a SDynPy Geometry object) and a</span>
+<span class="sd">direction (which corresponds to the local displacement coordinate system of</span>
+<span class="sd">that node in the SDynPy Geometry object).  Directions are the translations or</span>
+<span class="sd">rotations about the principal axis, and can be positive or negative.  The</span>
+<span class="sd">direction can also be empty for non-directional data.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_array</span> <span class="kn">import</span> <span class="n">SdynpyArray</span>
+
+<span class="c1"># This maps direction integers to their string counterparts</span>
+<span class="n">_string_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;X+&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Y+&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Z+&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;RX+&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;RY+&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;RZ+&#39;</span><span class="p">,</span>
+               <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;X-&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Y-&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Z-&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;RX-&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;RY-&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;RZ-&#39;</span><span class="p">,</span>
+               <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+
+<span class="c1"># This maps direction strings to their integer counterparts</span>
+<span class="n">_direction_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X+&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;+X&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="s1">&#39;Y+&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;+Y&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                  <span class="s1">&#39;Z+&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;+Z&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                  <span class="s1">&#39;RX+&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;RX&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;+RX&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                  <span class="s1">&#39;RY+&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;RY&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;+RY&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                  <span class="s1">&#39;RZ+&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;RZ&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;+RZ&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                  <span class="s1">&#39;X-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;-X&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="s1">&#39;Y-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;-Y&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="s1">&#39;Z-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;-Z&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+                  <span class="s1">&#39;RX-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;-RX&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+                  <span class="s1">&#39;RY-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;-RY&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>
+                  <span class="s1">&#39;RZ-&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;-RZ&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span>
+                  <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+<span class="n">_map_direction_string_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">_string_map</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+<span class="n">_map_direction_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">_direction_map</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_coordinate_string"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.parse_coordinate_string.html#sdynpy.core.sdynpy_coordinate.parse_coordinate_string">[docs]</a><span class="k">def</span> <span class="nf">parse_coordinate_string</span><span class="p">(</span><span class="n">coordinate</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse coordinate string into node and direction integers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coordinate : str</span>
+<span class="sd">        String representation of a coordinate, e.g. &#39;101X+&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    node : int</span>
+<span class="sd">        Integer representing the node number</span>
+<span class="sd">    direction : int</span>
+<span class="sd">        Integer representing the direction, &#39;X+&#39; = 1, &#39;Y+&#39; = 2, &#39;Z+&#39; = 3,</span>
+<span class="sd">        &#39;X-&#39; = -1, &#39;Y-&#39; = -2, &#39;Z-&#39; = -3</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coordinate</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span><span class="p">))</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="n">_direction_map</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coordinate</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">node</span><span class="p">,</span> <span class="n">direction</span></div>
+
+
+<span class="n">parse_coordinate_string_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">parse_coordinate_string</span><span class="p">,</span> <span class="n">otypes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;int64&#39;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="create_coordinate_string"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.create_coordinate_string.html#sdynpy.core.sdynpy_coordinate.create_coordinate_string">[docs]</a><span class="k">def</span> <span class="nf">create_coordinate_string</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a string from node and directions integers</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node : int</span>
+<span class="sd">        Node number</span>
+<span class="sd">    direction : int</span>
+<span class="sd">        Integer representing the direction, &#39;X+&#39; = 1, &#39;Y+&#39; = 2, &#39;Z+&#39; = 3,</span>
+<span class="sd">        &#39;X-&#39; = -1, &#39;Y-&#39; = -2, &#39;Z-&#39; = -3</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        String representation of the coordinate, e.g. &#39;101X+&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">+</span> <span class="n">_string_map</span><span class="p">[</span><span class="n">direction</span><span class="p">]</span></div>
+
+
+<span class="n">create_coordinate_string_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">create_coordinate_string</span><span class="p">,</span> <span class="n">otypes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&lt;U4&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="CoordinateArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray">[docs]</a><span class="k">class</span> <span class="nc">CoordinateArray</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Coordinate information specifying Degrees of Freedom (e.g. 101X+).</span>
+
+<span class="sd">    Use the coordinate_array helper function to create the array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;uint64&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">,</span> <span class="s1">&#39;int8&#39;</span><span class="p">)]</span>
+    <span class="sd">&quot;&quot;&quot;Datatype for the underlying numpy structured array&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Create the ndarray instance of our type, given the usual</span>
+        <span class="c1"># ndarray input arguments.  This will call the standard</span>
+        <span class="c1"># ndarray constructor, but return an object of our type.</span>
+        <span class="c1"># It also triggers a call to InfoArray.__array_finalize__</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">subtype</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span>
+                                                      <span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span>
+                                                      <span class="n">order</span><span class="p">)</span>
+        <span class="c1"># Finally, we must return the newly created object:</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+<div class="viewcode-block" id="CoordinateArray.string_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.string_array">[docs]</a>    <span class="k">def</span> <span class="nf">string_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string array representation of the coordinate array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            ndarray of strings representing the CoordinateArray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">create_coordinate_string_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;coordinate_array(string_array=</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="c1">#        # A string</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">character</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node_logical</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">==</span> <span class="n">value</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">direction_logical</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">value</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node_logical</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">==</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span>
+            <span class="n">direction_logical</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">node_logical</span><span class="p">,</span> <span class="n">direction_logical</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">abs_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">abs_coord</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">abs_coord</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">abs_coord</span>
+
+    <span class="k">def</span> <span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">neg_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">neg_coord</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="o">-</span><span class="n">neg_coord</span><span class="o">.</span><span class="n">direction</span>
+        <span class="k">return</span> <span class="n">neg_coord</span>
+
+    <span class="k">def</span> <span class="fm">__pos__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pos_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pos_coord</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="o">+</span><span class="n">pos_coord</span><span class="o">.</span><span class="n">direction</span>
+        <span class="k">return</span> <span class="n">pos_coord</span>
+
+<div class="viewcode-block" id="CoordinateArray.abs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.abs">[docs]</a>    <span class="k">def</span> <span class="nf">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a coordinate array with direction signs flipped positive&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__abs__</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CoordinateArray.sign"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the sign on the directions of the CoordinateArray&quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="CoordinateArray.local_direction"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.local_direction">[docs]</a>    <span class="k">def</span> <span class="nf">local_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a local direction array </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        local_direction_array : np.ndarray</span>
+<span class="sd">            Returns a (...,3) array where ... is the dimension of the</span>
+<span class="sd">            CoordinateArray.  The (...,0), (...,1), and (...,2) indices</span>
+<span class="sd">            represent the x,y,z direction of the local coordinate direction.</span>
+<span class="sd">            For example, a CoordinateArray with direction X- would return</span>
+<span class="sd">            [-1,0,0].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="n">signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sign</span><span class="p">()</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">indices</span><span class="p">[</span><span class="n">indices</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">indices</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">-=</span> <span class="mi">3</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="p">(</span><span class="n">index</span><span class="p">,)]</span> <span class="o">=</span> <span class="n">signs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="CoordinateArray.from_matlab_cellstr"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.from_matlab_cellstr">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_matlab_cellstr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cellstr_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a CoordinateArray from a matlab cellstring object loaded from</span>
+<span class="sd">        scipy.io.loadmat</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cellstr_data : np.ndarray</span>
+<span class="sd">            Dictionary entry corresponding to a cell string variable in a mat</span>
+<span class="sd">            file loaded from scipy.io.loadmat</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CoordinateArray</span>
+<span class="sd">            CoordinateArray built from the provided cell string array</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">str_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">cellstr_data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">cellstr_data</span><span class="p">):</span>
+            <span class="n">str_array</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">str_array</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateArray.from_nodelist"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray.from_nodelist">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_nodelist</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a coordinate array with a set of nodes with a set of directions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes : iterable</span>
+<span class="sd">            A list of nodes to create degrees of freedom at</span>
+<span class="sd">        directions : iterable, optional</span>
+<span class="sd">            A list of directions to create for each node. The default is [1,2,3],</span>
+<span class="sd">            which provides the three positive translations (X+, Y+, Z+).</span>
+<span class="sd">        flatten : bool, optional</span>
+<span class="sd">            Specifies that the array should be flattened prior to output. The</span>
+<span class="sd">            default is True.  If False, the output will have a dimension one</span>
+<span class="sd">            larger than  the input node list due to the added direction</span>
+<span class="sd">            dimension.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        coordinate_array : CoordinateArray</span>
+<span class="sd">            Array of coordinates with each specified direction defined at each</span>
+<span class="sd">            node.  If flatten is false, this array will have shape</span>
+<span class="sd">            nodes.shape + directions.shape.  Otherwise, this array will have</span>
+<span class="sd">            shape (nodes.size*directions.size,)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ca</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nodes</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">directions</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ca</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ca</span></div></div>
+
+
+<div class="viewcode-block" id="coordinate_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.coordinate_array.html#sdynpy.core.sdynpy_coordinate.coordinate_array">[docs]</a><span class="k">def</span> <span class="nf">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">structured_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">string_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_broadcast</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a coordinate array that specify degrees of freedom.</span>
+
+<span class="sd">    Creates an array of coordinates that specify degrees of freedom in a test</span>
+<span class="sd">    or analysis.  Coordinate arrays can be created using a numpy structured</span>
+<span class="sd">    array or two arrays for node and direction.  Multidimensional arrays can</span>
+<span class="sd">    be used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node : ndarray</span>
+<span class="sd">        Integer array corresponding to the node ids of the coordinates.  Input</span>
+<span class="sd">        will be cast to an integer (i.e. 2.0 -&gt; 2, 1.9 -&gt; 1)</span>
+<span class="sd">    direction : ndarray</span>
+<span class="sd">        Direction corresponding to the coordinate.  If a string is passed, it</span>
+<span class="sd">        must consist of a direction (RX, RY, RZ, X, Y, Z) and whether or not it</span>
+<span class="sd">        is positive or negative (+ or -).  If no positive or negative value is</span>
+<span class="sd">        given, then positive will be assumed.</span>
+<span class="sd">    structured_array : ndarray (structured)</span>
+<span class="sd">        Alternatively to node and direction, a single numpy structured array</span>
+<span class="sd">        can be passed, which should have names [&#39;node&#39;,&#39;direction&#39;]</span>
+<span class="sd">    string_array : ndarray</span>
+<span class="sd">        Alternatively to node and direction, a single numpy string array can</span>
+<span class="sd">        be passed into the function, which will be parsed to create the</span>
+<span class="sd">        data.</span>
+<span class="sd">    force_broadcast : bool, optional</span>
+<span class="sd">        Return all combinations of nodes and directions regardless of their</span>
+<span class="sd">        shapes.  This will return a flattened array</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coordinate_array : CoordinateArray</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">structured_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">structured_array</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="n">structured_array</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;structured_array must be numpy.ndarray with dtype names &quot;node&quot; and &quot;direction&quot;&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">string_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">string_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">string_array</span><span class="p">)</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">parse_coordinate_string_array</span><span class="p">(</span><span class="n">string_array</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">force_broadcast</span><span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+        <span class="n">bc_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">bc_node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">direction</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bc_node</span><span class="p">,</span> <span class="n">bc_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;node and direction should be broadcastable to the same shape (node: </span><span class="si">{:}</span><span class="s1">, direction: </span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">direction</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+    <span class="c1"># Create the coordinate array</span>
+    <span class="n">coord_array</span> <span class="o">=</span> <span class="n">CoordinateArray</span><span class="p">(</span><span class="n">bc_node</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">coord_array</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">bc_node</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">direction</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+        <span class="n">bc_direction</span> <span class="o">=</span> <span class="n">_map_direction_array</span><span class="p">(</span><span class="n">bc_direction</span><span class="p">)</span>
+    <span class="n">coord_array</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">bc_direction</span>
+
+    <span class="k">return</span> <span class="n">coord_array</span></div>
+
+
+<div class="viewcode-block" id="outer_product"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.outer_product.html#sdynpy.core.sdynpy_coordinate.outer_product">[docs]</a><span class="k">def</span> <span class="nf">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a CoordinateArray consisting of all combinations of the provided</span>
+<span class="sd">    CoordinateArrays</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args : CoordinateArray</span>
+<span class="sd">        CoordinateArrays to combine into a single CoordinateArray</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CoordinateArray</span>
+<span class="sd">        CoordinateArray consisting of combinations of provided CoordinateArrays</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">expanded_coord_array</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">Ellipsis</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndims</span><span class="p">)])</span>
+        <span class="n">expanded_coord_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">expanded_coord_array</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="from_matlab_cellstr"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_coordinate.from_matlab_cellstr.html#sdynpy.core.sdynpy_coordinate.from_matlab_cellstr">[docs]</a><span class="k">def</span> <span class="nf">from_matlab_cellstr</span><span class="p">(</span><span class="n">cellstr_data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a CoordinateArray from a matlab cellstring object loaded from</span>
+<span class="sd">    scipy.io.loadmat</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cellstr_data : np.ndarray</span>
+<span class="sd">        Dictionary entry corresponding to a cell string variable in a mat</span>
+<span class="sd">        file loaded from scipy.io.loadmat</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CoordinateArray</span>
+<span class="sd">        CoordinateArray built from the provided cell string array</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">from_matlab_cellstr</span><span class="p">(</span><span class="n">cellstr_data</span><span class="p">)</span></div>
+
+
+<span class="n">load</span> <span class="o">=</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">load</span>
+<span class="n">from_nodelist</span> <span class="o">=</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">from_nodelist</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

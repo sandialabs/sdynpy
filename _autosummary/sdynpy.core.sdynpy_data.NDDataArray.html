@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_data.NDDataArray &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray" href="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray" href="sdynpy.core.sdynpy_data.MultipleCoherenceArray.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.data_array.html">sdynpy.core.sdynpy_data.data_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.frf_from_time_data.html">sdynpy.core.sdynpy_data.frf_from_time_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.from_imat_struct.html">sdynpy.core.sdynpy_data.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.from_uff.html">sdynpy.core.sdynpy_data.from_uff</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.from_unv.html">sdynpy.core.sdynpy_data.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.load.html">sdynpy.core.sdynpy_data.load</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.CPSDPlot.html">sdynpy.core.sdynpy_data.CPSDPlot</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.CoherenceArray.html">sdynpy.core.sdynpy_data.CoherenceArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.ComplexType.html">sdynpy.core.sdynpy_data.ComplexType</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.CorrelationArray.html">sdynpy.core.sdynpy_data.CorrelationArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.FunctionTypes.html">sdynpy.core.sdynpy_data.FunctionTypes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.GUIPlot.html">sdynpy.core.sdynpy_data.GUIPlot</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.MPLCanvas.html">sdynpy.core.sdynpy_data.MPLCanvas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.MPLMultiCanvas.html">sdynpy.core.sdynpy_data.MPLMultiCanvas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.ModeIndicatorFunctionArray.html">sdynpy.core.sdynpy_data.ModeIndicatorFunctionArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.MultipleCoherenceArray.html">sdynpy.core.sdynpy_data.MultipleCoherenceArray</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_data.NDDataArray</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray"><code class="docutils literal notranslate"><span class="pre">NDDataArray</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.__init__"><code class="docutils literal notranslate"><span class="pre">NDDataArray.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.argmax"><code class="docutils literal notranslate"><span class="pre">NDDataArray.argmax()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.argmin"><code class="docutils literal notranslate"><span class="pre">NDDataArray.argmin()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.data_dimension"><code class="docutils literal notranslate"><span class="pre">NDDataArray.data_dimension</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.downsample"><code class="docutils literal notranslate"><span class="pre">NDDataArray.downsample()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements"><code class="docutils literal notranslate"><span class="pre">NDDataArray.extract_elements()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements_by_abscissa"><code class="docutils literal notranslate"><span class="pre">NDDataArray.extract_elements_by_abscissa()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_uff"><code class="docutils literal notranslate"><span class="pre">NDDataArray.from_uff()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_unv"><code class="docutils literal notranslate"><span class="pre">NDDataArray.from_unv()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.function_type"><code class="docutils literal notranslate"><span class="pre">NDDataArray.function_type</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.load"><code class="docutils literal notranslate"><span class="pre">NDDataArray.load()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.max"><code class="docutils literal notranslate"><span class="pre">NDDataArray.max()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.min"><code class="docutils literal notranslate"><span class="pre">NDDataArray.min()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_coordinates"><code class="docutils literal notranslate"><span class="pre">NDDataArray.num_coordinates</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_elements"><code class="docutils literal notranslate"><span class="pre">NDDataArray.num_elements</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot"><code class="docutils literal notranslate"><span class="pre">NDDataArray.plot()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate"><code class="docutils literal notranslate"><span class="pre">NDDataArray.reference_coordinate</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="docutils literal notranslate"><span class="pre">NDDataArray.reshape_to_matrix()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.response_coordinate"><code class="docutils literal notranslate"><span class="pre">NDDataArray.response_coordinate</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save"><code class="docutils literal notranslate"><span class="pre">NDDataArray.save()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct"><code class="docutils literal notranslate"><span class="pre">NDDataArray.to_imat_struct()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array"><code class="docutils literal notranslate"><span class="pre">NDDataArray.to_imat_struct_array()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system"><code class="docutils literal notranslate"><span class="pre">NDDataArray.transform_coordinate_system()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa"><code class="docutils literal notranslate"><span class="pre">NDDataArray.validate_common_abscissa()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html">sdynpy.core.sdynpy_data.PowerSpectralDensityArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.PowerSpectrumArray.html">sdynpy.core.sdynpy_data.PowerSpectrumArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.SpecificDataType.html">sdynpy.core.sdynpy_data.SpecificDataType</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.SpectrumArray.html">sdynpy.core.sdynpy_data.SpectrumArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html">sdynpy.core.sdynpy_data.TimeHistoryArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html">sdynpy.core.sdynpy_data.TransferFunctionArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.TransmissibilityArray.html">sdynpy.core.sdynpy_data.TransmissibilityArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_data.TypeQual.html">sdynpy.core.sdynpy_data.TypeQual</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_data.NDDataArray</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_data.NDDataArray.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-data-nddataarray">
+<h1>sdynpy.core.sdynpy_data.NDDataArray<a class="headerlink" href="#sdynpy-core-sdynpy-data-nddataarray" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NDDataArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordinate_dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a></p>
+<p>Generic N-Dimensional data structure</p>
+<p>This data structure can contain real or complex data.  More specific
+SDynPy data arrays inherit from this superclass.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.argmax" title="sdynpy.core.sdynpy_data.NDDataArray.argmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argmax</span></code></a>([reduction])</p></td>
+<td><p>Returns the index of the maximum ordinate in the data array</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.argmin" title="sdynpy.core.sdynpy_data.NDDataArray.argmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argmin</span></code></a>([reduction])</p></td>
+<td><p>Returns the index of the minimum ordinate in the data array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.downsample" title="sdynpy.core.sdynpy_data.NDDataArray.downsample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">downsample</span></code></a>(factor)</p></td>
+<td><p>Downsample a signal by keeping only every n-th abscissa/ordinate pair.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements" title="sdynpy.core.sdynpy_data.NDDataArray.extract_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_elements</span></code></a>(indices)</p></td>
+<td><p>Parses elements from the data array specified by the passed indices</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements_by_abscissa" title="sdynpy.core.sdynpy_data.NDDataArray.extract_elements_by_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_elements_by_abscissa</span></code></a>(min_abscissa, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_uff" title="sdynpy.core.sdynpy_data.NDDataArray.from_uff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_uff</span></code></a>(unv_data_dict[, squeeze])</p></td>
+<td><p>Create a data array from a unv dictionary from read_unv</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_unv" title="sdynpy.core.sdynpy_data.NDDataArray.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_data_dict[, squeeze])</p></td>
+<td><p>Create a data array from a unv dictionary from read_unv</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.load" title="sdynpy.core.sdynpy_data.NDDataArray.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
+<td><p>Load in the specified file into a SDynPy array object</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.max" title="sdynpy.core.sdynpy_data.NDDataArray.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>([reduction])</p></td>
+<td><p>Returns the maximum ordinate in the data array</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.min" title="sdynpy.core.sdynpy_data.NDDataArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>([reduction])</p></td>
+<td><p>Returns the minimum ordinate in the data array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="sdynpy.core.sdynpy_data.NDDataArray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([one_axis, subplots_kwargs, plot_kwargs])</p></td>
+<td><p>Plot the data array</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape_to_matrix</span></code></a>()</p></td>
+<td><p>Reshapes a data array to a matrix with response coordinates along the rows and reference coordinates along the columns</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="sdynpy.core.sdynpy_data.NDDataArray.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<td><p>Save the array to a numpy file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct</span></code></a>([Version, SetRecord, ...])</p></td>
+<td><p>Creates a Matlab structure that can be read the IMAT toolbox.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct_array</span></code></a>([Version, SetRecord, ...])</p></td>
+<td><p>Creates a Matlab structure that can be read the IMAT toolbox.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system" title="sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
+<td><p>Performs coordinate system transformations on the data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa" title="sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_common_abscissa</span></code></a>(**allclose_kwargs)</p></td>
+<td><p>Returns True if all functions have the same abscissa</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.data_dimension" title="sdynpy.core.sdynpy_data.NDDataArray.data_dimension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_dimension</span></code></a></p></td>
+<td><p>Number of dimensions to the data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.function_type" title="sdynpy.core.sdynpy_data.NDDataArray.function_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">function_type</span></code></a></p></td>
+<td><p>Returns the function type of the data array as a FunctionTypes Enum</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_coordinates" title="sdynpy.core.sdynpy_data.NDDataArray.num_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_coordinates</span></code></a></p></td>
+<td><p>Number of coordinates defining the data array</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_elements" title="sdynpy.core.sdynpy_data.NDDataArray.num_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_elements</span></code></a></p></td>
+<td><p>Number of elements in each data array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate" title="sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference_coordinate</span></code></a></p></td>
+<td><p>CoordinateArray corresponding to the response coordinates</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.response_coordinate" title="sdynpy.core.sdynpy_data.NDDataArray.response_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_coordinate</span></code></a></p></td>
+<td><p>CoordinateArray corresponding to the response coordinates</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.argmax">
+<span class="sig-name descname"><span class="pre">argmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argmax_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">argmax_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.argmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.argmax" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the index of the maximum ordinate in the data array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reduction</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional function to modify the data, e.g. to select maximum of the
+absolute value. The default is None.</p></li>
+<li><p><strong>*argmax_args</strong> (<em>various</em>) – Additional arguments passed to np.argmax</p></li>
+<li><p><strong>**argmax_kwargs</strong> (<em>various</em>) – Additional keyword arguments passed to np.argmax</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Index of the maximum of the flattened ordinate.  Use
+np.unravel_index with self.ordinate.shape to get the unflattened
+index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.argmin">
+<span class="sig-name descname"><span class="pre">argmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argmin_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">argmin_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.argmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.argmin" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the index of the minimum ordinate in the data array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reduction</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional function to modify the data, e.g. to select minimum of the
+absolute value. The default is None.</p></li>
+<li><p><strong>*argmin_args</strong> (<em>various</em>) – Additional arguments passed to np.argmax</p></li>
+<li><p><strong>**argmin_kwargs</strong> (<em>various</em>) – Additional keyword arguments passed to np.argmax</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Index of the minimum of the flattened ordinate.  Use
+np.unravel_index with self.ordinate.shape to get the unflattened
+index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.data_dimension">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_dimension</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.data_dimension" title="Permalink to this definition"></a></dt>
+<dd><p>Number of dimensions to the data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.downsample">
+<span class="sig-name descname"><span class="pre">downsample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.downsample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.downsample" title="Permalink to this definition"></a></dt>
+<dd><p>Downsample a signal by keeping only every n-th abscissa/ordinate pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>factor</strong> (<em>int</em>) – Downsample factor.  Only the factor-th abcissa will be kept.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The downsampled data object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray">NDDataArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.extract_elements">
+<span class="sig-name descname"><span class="pre">extract_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.extract_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Parses elements from the data array specified by the passed indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – Any type of indices into a np.ndarray to select the elements to keep</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array reduced to specified elements</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray">NDDataArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.extract_elements_by_abscissa">
+<span class="sig-name descname"><span class="pre">extract_elements_by_abscissa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_abscissa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_abscissa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.extract_elements_by_abscissa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.extract_elements_by_abscissa" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.from_uff">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_uff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unv_data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.from_uff" title="Permalink to this definition"></a></dt>
+<dd><p>Create a data array from a unv dictionary from read_unv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unv_data_dict</strong> (<em>dict</em>) – Dictionary containing data from read_unv</p></li>
+<li><p><strong>squeeze</strong> (<em>bool</em><em>, </em><em>optional</em>) – Automatically reduce dimension of the read data if possible.
+The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>return_functions</strong> – Data read from unv</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray">NDDataArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.from_unv">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_unv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unv_data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.from_unv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.from_unv" title="Permalink to this definition"></a></dt>
+<dd><p>Create a data array from a unv dictionary from read_unv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unv_data_dict</strong> (<em>dict</em>) – Dictionary containing data from read_unv</p></li>
+<li><p><strong>squeeze</strong> (<em>bool</em><em>, </em><em>optional</em>) – Automatically reduce dimension of the read data if possible.
+The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>return_functions</strong> – Data read from unv</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray">NDDataArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.function_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function_type</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.function_type" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the function type of the data array as a FunctionTypes Enum</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.load">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.load" title="Permalink to this definition"></a></dt>
+<dd><p>Load in the specified file into a SDynPy array object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename specifying the file to load.  If the filename has
+extension .unv or .uff, it will be loaded as a universal file.
+Otherwise, it will be loaded as a NumPy file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>AttributeError</strong> – Raised if a unv file is loaded from a class that does not have a
+    from_unv attribute defined.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>SDynpy array of the appropriate type from the loaded file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>cls</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.max">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">max_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">max_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.max" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the maximum ordinate in the data array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reduction</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional function to modify the data, e.g. to select maximum of the
+absolute value. The default is None.</p></li>
+<li><p><strong>*max_args</strong> (<em>various</em>) – Additional arguments passed to np.max</p></li>
+<li><p><strong>**max_kwargs</strong> (<em>various</em>) – Additional keyword arguments passed to np.max</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Maximum value in the ordinate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.min">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">min_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">min_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.min" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the minimum ordinate in the data array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reduction</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional function to modify the data, e.g. to select minimum of the
+absolute value. The default is None.</p></li>
+<li><p><strong>*min_args</strong> (<em>various</em>) – Additional arguments passed to np.min</p></li>
+<li><p><strong>**min_kwargs</strong> (<em>various</em>) – Additional keyword arguments passed to np.min</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Minimum value in the ordinate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.num_coordinates">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_coordinates</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.num_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Number of coordinates defining the data array</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.num_elements">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_elements</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.num_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Number of elements in each data array</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the data array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>one_axis</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to plot all data on one axis.  Set to False to plot
+data on multiple subplots.  one_axis can also be set to a
+matplotlib axis to plot data on an existing axis.  The default is
+True.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keywords passed to the matplotlib subplots function to create the
+figure and axes. The default is {}.</p></li>
+<li><p><strong>plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keywords passed to the matplotlib plot function. The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>axis</strong> – On which the data were plotted</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib axis or array of axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reference_coordinate</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>CoordinateArray corresponding to the response coordinates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix">
+<span class="sig-name descname"><span class="pre">reshape_to_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.reshape_to_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Reshapes a data array to a matrix with response coordinates along the
+rows and reference coordinates along the columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>output_array</strong> – 2D Array of NDDataArray</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Data Aarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.response_coordinate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">response_coordinate</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.response_coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>CoordinateArray corresponding to the response coordinates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the array to a numpy file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename that the array will be saved to.  Will be appended with
+.npz if not specified in the filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct">
+<span class="sig-name descname"><span class="pre">to_imat_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SetRecord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CreateDate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ModifyDate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OwnerName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaAxisLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaUnitsLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdNumDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdNumTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdDenDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdDenTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdinateAxisLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdinateUnitsLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZAxisDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZAxisTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZGeneralValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZRPMValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZOrderValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZTimeValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue4</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SamplingType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WeightingType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WindowType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AmplitudeUnits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OctaveFormat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OctaveAvgType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ExpDampingFact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PulsesPerRev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MeasurementRun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LoadCase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IRIGTime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.to_imat_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a Matlab structure that can be read the IMAT toolbox.</p>
+<p>This structure can be read by the IMAT toolbox in Matlab to create an
+imat_fn object.  Note this is generally a faster function than
+to_imat_struct_array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Version</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>SetRecord</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>CreateDate</strong> (<em>datetime</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ModifyDate</strong> (<em>datetime</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OwnerName</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>AbscissaDataType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>AbscissaTypeQual</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>AbscissaAxisLab</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>AbscissaUnitsLab</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdNumDataType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdNumTypeQual</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdDenDataType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdDenTypeQual</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdinateAxisLab</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OrdinateUnitsLab</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZAxisDataType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZAxisTypeQual</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZGeneralValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZRPMValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZOrderValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ZTimeValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>UserValue1</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>UserValue2</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>UserValue3</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>UserValue4</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>SamplingType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>WeightingType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>WindowType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>AmplitudeUnits</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>Normalization</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OctaveFormat</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>OctaveAvgType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>ExpDampingFact</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>PulsesPerRev</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>MeasurementRun</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>LoadCase</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+<li><p><strong>IRIGTime</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data_dict</strong> – DESCRIPTION.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>TYPE</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array">
+<span class="sig-name descname"><span class="pre">to_imat_struct_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SetRecord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CreateDate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ModifyDate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OwnerName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpecificDataType.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TypeQual.TRANSLATION</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaAxisLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AbscissaUnitsLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdNumDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpecificDataType.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdNumTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TypeQual.TRANSLATION</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdDenDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpecificDataType.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdDenTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TypeQual.TRANSLATION</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdinateAxisLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OrdinateUnitsLab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZAxisDataType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpecificDataType.UNKNOWN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZAxisTypeQual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TypeQual.TRANSLATION</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZGeneralValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZRPMValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZOrderValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ZTimeValue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UserValue4</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SamplingType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Dynamic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WeightingType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">WindowType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AmplitudeUnits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OctaveFormat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OctaveAvgType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ExpDampingFact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PulsesPerRev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MeasurementRun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LoadCase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IRIGTime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.to_imat_struct_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a Matlab structure that can be read the IMAT toolbox.</p>
+<p>This structure can be read by the IMAT toolbox in Matlab to create an
+imat_fn object.  Note this is generally a slower function than
+to_imat_struct.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Version</strong> (<em>int</em><em>, </em><em>optional</em>) – The version number of the function. The default is 1.</p></li>
+<li><p><strong>SetRecord</strong> (<em>int</em><em>, </em><em>optional</em>) – The set record of the function. The default is 0.</p></li>
+<li><p><strong>CreateDate</strong> (<em>datetime</em><em>, </em><em>optional</em>) – The date that the function was created. The default is Now.</p></li>
+<li><p><strong>ModifyDate</strong> (<em>datetime</em><em>, </em><em>optional</em>) – The date that the function was modified. The default is Now.</p></li>
+<li><p><strong>OwnerName</strong> (<em>str</em><em>, </em><em>optional</em>) – The owner of the dataset. The default is ‘’.</p></li>
+<li><p><strong>AbscissaDataType</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.SpecificDataType.html#sdynpy.core.sdynpy_data.SpecificDataType" title="sdynpy.core.sdynpy_data.SpecificDataType"><em>SpecificDataType</em></a><em>, </em><em>optional</em>) – The type of data associated with the Abscissa of the function.
+The default is SpecificDataType.UNKNOWN.</p></li>
+<li><p><strong>AbscissaTypeQual</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TypeQual.html#sdynpy.core.sdynpy_data.TypeQual" title="sdynpy.core.sdynpy_data.TypeQual"><em>TypeQual</em></a><em>, </em><em>optional</em>) – The qualifier associated with the abscissa of the function. The
+default is TypeQual.TRANSLATION.</p></li>
+<li><p><strong>AbscissaAxisLab</strong> (<em>str</em><em>, </em><em>optional</em>) – String used to label the abscissa axis. The default is ‘’.</p></li>
+<li><p><strong>AbscissaUnitsLab</strong> (<em>str</em><em>, </em><em>optional</em>) – String used to label the units on the abscissa axis. The default is ‘’.</p></li>
+<li><p><strong>OrdNumDataType</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.SpecificDataType.html#sdynpy.core.sdynpy_data.SpecificDataType" title="sdynpy.core.sdynpy_data.SpecificDataType"><em>SpecificDataType</em></a><em>, </em><em>optional</em>) – The type of data associated with the numerator of the ordinate of
+the function. The default is SpecificDataType.UNKNOWN.</p></li>
+<li><p><strong>OrdNumTypeQual</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TypeQual.html#sdynpy.core.sdynpy_data.TypeQual" title="sdynpy.core.sdynpy_data.TypeQual"><em>TypeQual</em></a><em>, </em><em>optional</em>) – The qualifier associated with the numerator of the ordinate of the
+function. The default is TypeQual.TRANSLATION.</p></li>
+<li><p><strong>OrdDenDataType</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.SpecificDataType.html#sdynpy.core.sdynpy_data.SpecificDataType" title="sdynpy.core.sdynpy_data.SpecificDataType"><em>SpecificDataType</em></a><em>, </em><em>optional</em>) – The type of data associated with the denominator of the ordinate of
+the function. The default is SpecificDataType.UNKNOWN.</p></li>
+<li><p><strong>OrdDenTypeQual</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TypeQual.html#sdynpy.core.sdynpy_data.TypeQual" title="sdynpy.core.sdynpy_data.TypeQual"><em>TypeQual</em></a><em>, </em><em>optional</em>) – The qualifier associated with the denominator of the ordinate of the
+function. The default is TypeQual.TRANSLATION.</p></li>
+<li><p><strong>OrdinateAxisLab</strong> (<em>str</em><em>, </em><em>optional</em>) – String used to label the ordinate axis. The default is ‘’.</p></li>
+<li><p><strong>OrdinateUnitsLab</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – String used to label the units on the ordinate axis. The default is ‘’.</p></li>
+<li><p><strong>ZAxisDataType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is SpecificDataType.UNKNOWN.</p></li>
+<li><p><strong>ZAxisTypeQual</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is TypeQual.TRANSLATION.</p></li>
+<li><p><strong>ZGeneralValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>ZRPMValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>ZOrderValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>ZTimeValue</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>UserValue1</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>UserValue2</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>UserValue3</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>UserValue4</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>SamplingType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘Dynamic’.</p></li>
+<li><p><strong>WeightingType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘None’.</p></li>
+<li><p><strong>WindowType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘None’.</p></li>
+<li><p><strong>AmplitudeUnits</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘Unknown’.</p></li>
+<li><p><strong>Normalization</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘Unknown’.</p></li>
+<li><p><strong>OctaveFormat</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>OctaveAvgType</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘None’.</p></li>
+<li><p><strong>ExpDampingFact</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>PulsesPerRev</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>MeasurementRun</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>LoadCase</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is 0.</p></li>
+<li><p><strong>IRIGTime</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is ‘’.</p></li>
+<li><p><strong>verbose</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – DESCRIPTION. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output_struct</strong> – A numpy structured array that can be saved to a mat file using
+scipy.io.savemat.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system">
+<span class="sig-name descname"><span class="pre">transform_coordinate_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_id_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.transform_coordinate_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system" title="Permalink to this definition"></a></dt>
+<dd><p>Performs coordinate system transformations on the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_geometry</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><em>Geometry</em></a>) – The Geometry in which the shapes are currently defined</p></li>
+<li><p><strong>new_geometry</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><em>Geometry</em></a>) – The Geometry in which the shapes are desired to be defined</p></li>
+<li><p><strong>node_id_map</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map" title="sdynpy.core.sdynpy_geometry.id_map"><em>id_map</em></a><em>, </em><em>optional</em>) – If the original and new geometries do not have common
+node ids, an id_map can be specified to map the original geometry
+node ids to new geometry node ids.  The default is None, which means no
+mapping will occur, and the geometries have common id numbers.</p></li>
+<li><p><strong>rotations</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, also transform rotational degrees of freedom. The default
+is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A NDDataArray that can now be plotted with the new geometry</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray">NDDataArray</a> or Subclass</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa">
+<span class="sig-name descname"><span class="pre">validate_common_abscissa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">allclose_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.validate_common_abscissa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if all functions have the same abscissa</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**allclose_kwargs</strong> (<em>various</em>) – Arguments to np.allclose to specify tolerances</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all functions have the same abscissa</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_data.MultipleCoherenceArray.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

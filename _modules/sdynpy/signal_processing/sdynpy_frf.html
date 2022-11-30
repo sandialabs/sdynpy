@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.signal_processing.sdynpy_frf &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.signal_processing.sdynpy_frf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.signal_processing.sdynpy_frf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools for computing frequency response functions</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sig</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="sysmat2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.sysmat2frf.html#sdynpy.signal_processing.sdynpy_frf.sysmat2frf">[docs]</a><span class="k">def</span> <span class="nf">sysmat2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">frf_type</span><span class="o">=</span><span class="s1">&#39;disp&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given system matrices M, C, and K</span>
+
+<span class="sd">    This function computes frequency response functions (FRFs) given the system</span>
+<span class="sd">    mass matrix, M, damping matrix, C, and stiffness matrix, K, in the equation</span>
+<span class="sd">    of motion</span>
+
+<span class="sd">    M x_dd + C x_d + K x = F</span>
+
+<span class="sd">    This will return the frequency response function</span>
+
+<span class="sd">    H = x/F</span>
+
+<span class="sd">    as a function of frequency.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frequencies : ndarray</span>
+<span class="sd">        frequencies should be a 1D np.ndarray consisting of the frequency lines</span>
+<span class="sd">        at which to evaluate the frequency response function.  They should be</span>
+<span class="sd">        in units of cycles per second or hertz (Hz), rather than in angular</span>
+<span class="sd">        frequency of radians/s.</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        M should be a 2D np.ndarray consisting of the system mass matrix.</span>
+<span class="sd">    C : ndarray</span>
+<span class="sd">        C should be a 2D np.ndarray consisting of the system damping matrix.</span>
+<span class="sd">    K : ndarray</span>
+<span class="sd">        K should be a 2D np.ndarray consisting of the system stiffness matrix.</span>
+<span class="sd">    frf_type : str</span>
+<span class="sd">        frf_type should be one of [&#39;disp&#39;,&#39;vel&#39;,&#39;accel&#39;] or [&#39;displacement&#39;,</span>
+<span class="sd">        &#39;velocity&#39;,&#39;acceleration&#39;] to specify which &quot;type&quot; of frequency</span>
+<span class="sd">        response function to compute.  By default it computes a displacement or</span>
+<span class="sd">        &quot;receptance&quot; FRF.  However, if an acceleration or &quot;Accelerance&quot; FRF is</span>
+<span class="sd">        desired, specify &#39;accel&#39; instead.  The displacement, velocity, and</span>
+<span class="sd">        acceleration FRFs differ by a factor of 1j*omega where omega is the</span>
+<span class="sd">        angular frequency at a given frequency line.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    H : ndarray</span>
+<span class="sd">        A 3D np array with shape (nf,no,ni), where nf is the number of</span>
+<span class="sd">        frequency lines, no is the number of outputs, and ni is the number of</span>
+<span class="sd">        inputs.  Since M, C, and K should be square, ni should equal no.</span>
+<span class="sd">        Values in H are complex.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This performs a direct inversion of the system matrix, therefore it is not</span>
+<span class="sd">    advisable to compute FRFs of large systems using this method.  An</span>
+<span class="sd">    alternative would be to compute modes first then compute the FRFs from</span>
+<span class="sd">    the modes.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;displacement&#39;</span><span class="p">,</span> <span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="s1">&#39;vel&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;accel&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;frf_type must be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="s1">&#39;displacement&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="s1">&#39;accel&#39;</span><span class="p">]))</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span>
+         <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">C</span>
+         <span class="o">+</span> <span class="n">K</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="s1">&#39;velocity&#39;</span><span class="p">]:</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+    <span class="k">elif</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accel&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">]:</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">H</span>
+
+    <span class="k">return</span> <span class="n">H</span></div>
+
+
+<div class="viewcode-block" id="modes2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.modes2frf.html#sdynpy.signal_processing.sdynpy_frf.modes2frf">[docs]</a><span class="k">def</span> <span class="nf">modes2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="p">,</span>
+              <span class="n">input_mode_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frf_type</span><span class="o">=</span><span class="s1">&#39;disp&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given modal properties</span>
+
+<span class="sd">    This function computes frequency responses given modal parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frequencies : ndarray</span>
+<span class="sd">        frequencies should be a 1D np.ndarray consisting of the frequency lines</span>
+<span class="sd">        at which to evaluate the frequency response function.  They should be</span>
+<span class="sd">        in units of cycles per second or hertz (Hz), rather than in angular</span>
+<span class="sd">        frequency of radians/s.</span>
+<span class="sd">    natural_frequencies : ndarray</span>
+<span class="sd">        Natural frequencies of the structure in cycles per second or hertz (Hz)</span>
+<span class="sd">        rather than in angular frequency of radians/s.</span>
+<span class="sd">    damping_ratios : ndarray</span>
+<span class="sd">        Critical damping ratios of the structure in ratio form rather than</span>
+<span class="sd">        percentange, e.g. 2% damping would be specified as 0.02 rather than 2.</span>
+<span class="sd">    mode_shapes : ndarray</span>
+<span class="sd">        A 2D mode shape matrix with shape (no,nm) where no is the number of</span>
+<span class="sd">        output responses and nm is the number of modes.  If the optional</span>
+<span class="sd">        argument input_mode_shapes is not specified, this mode shape matrix</span>
+<span class="sd">        will also be used for the inputs, resulting in a square FRF matrix.</span>
+<span class="sd">    input_mode_shapes : ndarray</span>
+<span class="sd">        A 2D mode shape matrix with shape (ni,nm) where ni is the number of</span>
+<span class="sd">        input forces and nm is the number of modes.  If the optional argument </span>
+<span class="sd">        input_mode_shapes is specified, it be used for the inputs, resulting in</span>
+<span class="sd">        a potentially nonsquare FRF matrix.</span>
+<span class="sd">    frf_type : str</span>
+<span class="sd">        frf_type should be one of [&#39;disp&#39;,&#39;vel&#39;,&#39;accel&#39;] or [&#39;displacement&#39;,</span>
+<span class="sd">        &#39;velocity&#39;,&#39;acceleration&#39;] to specify which &quot;type&quot; of frequency</span>
+<span class="sd">        response function to compute.  By default it computes a displacement or</span>
+<span class="sd">        &quot;receptance&quot; FRF.  However, if an acceleration or &quot;Accelerance&quot; FRF is</span>
+<span class="sd">        desired, specify &#39;accel&#39; instead.  The displacement, velocity, and</span>
+<span class="sd">        acceleration FRFs differ by a factor of 1j*omega where omega is the</span>
+<span class="sd">        angular frequency at a given frequency line.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    H : ndarray</span>
+<span class="sd">        A 3D np array with shape (nf,no,ni), where nf is the number of</span>
+<span class="sd">        frequency lines, no is the number of outputs, and ni is the number of</span>
+<span class="sd">        inputs.  Values in H are complex.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function assumes mass normalized mode shapes.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;displacement&#39;</span><span class="p">,</span> <span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="s1">&#39;vel&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;accel&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;frf_type must be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="s1">&#39;displacement&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="s1">&#39;accel&#39;</span><span class="p">]))</span>
+
+    <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+         <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span>
+         <span class="n">damping_ratios</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">natural_frequencies</span><span class="p">)</span>
+         <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">natural_frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_mode_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_mode_shapes</span> <span class="o">=</span> <span class="n">mode_shapes</span>
+
+    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,fj,lj-&gt;fil&#39;</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">Z</span><span class="p">,</span> <span class="n">input_mode_shapes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="s1">&#39;velocity&#39;</span><span class="p">]:</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+    <span class="k">elif</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accel&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">]:</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">H</span>
+
+    <span class="k">return</span> <span class="n">H</span></div>
+
+
+<div class="viewcode-block" id="timedata2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.timedata2frf.html#sdynpy.signal_processing.sdynpy_frf.timedata2frf">[docs]</a><span class="k">def</span> <span class="nf">timedata2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">samples_per_average</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">overlap</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,)),</span>
+                 <span class="n">response_fft</span><span class="o">=</span><span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                 <span class="n">reference_fft</span><span class="o">=</span><span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                 <span class="n">response_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># TODO Update DOCSTRING with changes after they are all made.</span>
+    <span class="sd">&#39;&#39;&#39;Creates an FRF matrix given time histories of responses and references</span>
+
+<span class="sd">    This function creates a nf x no x ni FRF matrix from the time histories</span>
+<span class="sd">    provided.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    references : ndarray</span>
+<span class="sd">        A ni x nt or nt array where ni is the number of references and nt is</span>
+<span class="sd">        the number of time steps in the signal.  If averaging is specified, nt</span>
+<span class="sd">        should be divisible by the number of averages.</span>
+<span class="sd">    responses : ndarray</span>
+<span class="sd">        A no x nt or nt array where no is the number of responses and nt is the</span>
+<span class="sd">        number of time steps in the signal.  If averaging is specified, nt</span>
+<span class="sd">        should be divisible by the number of averages.</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The time between samples</span>
+<span class="sd">    samples_per_average : int</span>
+<span class="sd">        The number of time samples per average.  If not specified, it is set</span>
+<span class="sd">        to the number of samples in the time signal, and no averaging is </span>
+<span class="sd">        performed</span>
+<span class="sd">    overlap : float</span>
+<span class="sd">        The overlap as a fraction of the frame (e.g. 0.5 specifies 50% overlap).</span>
+<span class="sd">        If not specified, no overlap is used.</span>
+<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;]</span>
+<span class="sd">        The method for creating the frequency response function. &#39;H1&#39; is </span>
+<span class="sd">        default if not specified.</span>
+<span class="sd">    window : ndarray or str</span>
+<span class="sd">        A 1D ndarray with length samples_per_average that specifies the</span>
+<span class="sd">        coefficients of the window.  No window is applied if not specified.</span>
+<span class="sd">        If a string is specified, then the window will be obtained from scipy</span>
+<span class="sd">    fft : function</span>
+<span class="sd">        FFT Function that should be used.  FFT must take the fft over axis -1.</span>
+<span class="sd">    response_fft_array : np.ndarray</span>
+<span class="sd">        Array to store the data into before taking the FFT.  Should be</span>
+<span class="sd">        size number_of_responses, n_averages, samples_per_average</span>
+<span class="sd">    reference_fft_array : np.ndarray</span>
+<span class="sd">        Array to store the data into before taking the FFT.  Should be</span>
+<span class="sd">        size number_of_references, n_averages, samples_per_average</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    frequencies : ndarray</span>
+<span class="sd">        A nf array of the frequency values associated with H</span>
+<span class="sd">    H : ndarray</span>
+<span class="sd">        A nf x no x ni array where nf is the number of frequency lines, no is</span>
+<span class="sd">        the number of outputs, and ni is the number of inputs.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    There are requirements for the shapes of references and responses for some</span>
+<span class="sd">    FRF computations.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">responses</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;reference and responses must have the same number of time steps (last dimension)!&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;H3&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">,</span> <span class="s1">&#39;Hcd&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method parameter must be one of [&quot;H1&quot;,&quot;H2&quot;,&quot;H3&quot;,&quot;Hv&quot;,&quot;Hcd&quot;]&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">references</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">responses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="c1"># Set up time indices</span>
+    <span class="n">ntimes_total</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">samples_per_average</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">samples_per_average</span> <span class="o">=</span> <span class="n">ntimes_total</span>
+    <span class="n">overlap_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">samples_per_average</span> <span class="o">*</span> <span class="n">overlap</span><span class="p">)</span>
+    <span class="n">time_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ntimes_total</span> <span class="o">-</span> <span class="n">samples_per_average</span> <span class="o">+</span>
+                            <span class="mi">1</span><span class="p">,</span> <span class="n">samples_per_average</span> <span class="o">-</span> <span class="n">overlap_samples</span><span class="p">)</span>
+    <span class="n">time_indices_for_averages</span> <span class="o">=</span> <span class="n">time_starts</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">samples_per_average</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">samples_per_average</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Sort the references and responses into their time arrays</span>
+    <span class="k">if</span> <span class="n">response_fft_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">response_fft_array</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">time_indices_for_averages</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">response_fft_array</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[:,</span> <span class="n">time_indices_for_averages</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+    <span class="k">if</span> <span class="n">reference_fft_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reference_fft_array</span> <span class="o">=</span> <span class="n">references</span><span class="p">[:,</span> <span class="n">time_indices_for_averages</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reference_fft_array</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">references</span><span class="p">[:,</span> <span class="n">time_indices_for_averages</span><span class="p">]</span> <span class="o">*</span> <span class="n">window</span>
+    <span class="c1"># Compute FFTs</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">samples_per_average</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">response_ffts</span> <span class="o">=</span> <span class="n">response_fft</span><span class="p">(</span><span class="n">response_fft_array</span><span class="p">)</span>
+    <span class="n">reference_ffts</span> <span class="o">=</span> <span class="n">reference_fft</span><span class="p">(</span><span class="n">reference_fft_array</span><span class="p">)</span>
+    <span class="c1"># Now start computing FFTs</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span>
+        <span class="c1"># We want to compute X*F^H = [X1;X2;X3][F1^H F2^H F3^H]</span>
+        <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="c1"># Add small values to any matrices that are singular</span>
+        <span class="n">singular_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Gff</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gff</span><span class="p">[</span><span class="n">singular_matrices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gff</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;H2&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">response_ffts</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">reference_ffts</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;For H2, Number of inputs must equal number of outputs&#39;</span><span class="p">)</span>
+        <span class="n">Gxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_ffts</span><span class="p">))</span>
+        <span class="n">Gfx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_ffts</span><span class="p">))</span>
+        <span class="n">singular_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Gfx</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gfx</span><span class="p">[</span><span class="n">singular_matrices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gfx</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxx</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;H3&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">response_ffts</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">reference_ffts</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;For H3, Number of inputs must equal number of outputs&#39;</span><span class="p">)</span>
+        <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="c1"># Add small values to any matrices that are singular</span>
+        <span class="n">singular_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Gff</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gff</span><span class="p">[</span><span class="n">singular_matrices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_ffts</span><span class="p">))</span>
+        <span class="n">Gfx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_ffts</span><span class="p">))</span>
+        <span class="n">singular_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Gfx</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gfx</span><span class="p">[</span><span class="n">singular_matrices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gfx</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gfx</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxx</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gff</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;Hcd&#39;</span><span class="p">:</span>
+        <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
+        <span class="c1"># Add small values to any matrices that are singular</span>
+        <span class="n">singular_matrices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">Gff</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Gff</span><span class="p">[</span><span class="n">singular_matrices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">Lfz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">Gff</span><span class="p">)</span>
+        <span class="n">Lzf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Lfz</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">Gxz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span>
+            <span class="n">Lzf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Lfz</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxz</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;Hv&#39;</span><span class="p">:</span>
+        <span class="n">Gxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...iaf-&gt;...if&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_ffts</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...ifj&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">reference_ffts</span><span class="p">,</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="c1"># Broadcast over all responses</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">Gff</span><span class="p">,</span><span class="n">Gxx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">Gff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="n">Gffx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">Gff</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gxf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))],</span>
+                         <span class="p">[</span><span class="n">Gxf</span><span class="p">,</span> <span class="n">Gxx</span><span class="p">]])</span>
+        <span class="c1"># Compute eigenvalues</span>
+        <span class="n">lam</span><span class="p">,</span> <span class="n">evect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Gffx</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Get the evect corresponding to the minimum eigenvalue</span>
+        <span class="n">evect</span> <span class="o">=</span> <span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Assumes evals are sorted ascending</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="o">-</span><span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:],</span>  <span class="c1"># Scale so last value is -1</span>
+                        <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">{:}</span><span class="s1"> has not been implemented yet!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">H</span></div>
+
+
+<div class="viewcode-block" id="fft2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.fft2frf.html#sdynpy.signal_processing.sdynpy_frf.fft2frf">[docs]</a><span class="k">def</span> <span class="nf">fft2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Creates an FRF matrix given ffts of responses and references</span>
+
+<span class="sd">    This function creates a nf x no x ni FRF matrix from the ffts</span>
+<span class="sd">    provided.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    references : ndarray</span>
+<span class="sd">        A ni x nf or nf array where ni is the number of references and nt is</span>
+<span class="sd">        the number of frequencies in the fft.</span>
+<span class="sd">    responses : ndarray</span>
+<span class="sd">        A no x nf or nf array where no is the number of responses and nf is the</span>
+<span class="sd">        number of time frequencies in the fft.</span>
+<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;]</span>
+<span class="sd">        The method for creating the frequency response function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    H : ndarray</span>
+<span class="sd">        A nf x no x ni array where nf is the number of frequency lines, no is</span>
+<span class="sd">        the number of outputs, and ni is the number of inputs.  The output</span>
+<span class="sd">        frequency lines will correspond to the frequency lines in the ffts.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    There are requirements for the shapes of references and responses for some</span>
+<span class="sd">    FRF computation methods.  No averaging is performed by this function.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">references</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">elif</span> <span class="n">references</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;references should be at maximum a 2 dimensional array&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">responses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">elif</span> <span class="n">responses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;responses should be at maximum a 2 dimensional array&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method parameter must be one of [&quot;H1&quot;,&quot;H2&quot;,&quot;Hs&quot;,&quot;Hv&quot;]&#39;</span><span class="p">)</span>
+<span class="c1">#    H = np.zeros((references.shape[1],responses.shape[0],references.shape[0]),dtype=complex)</span>
+<span class="c1">#    for i in range(H.shape[1]):</span>
+<span class="c1">#            for j in range(H.shape[2]):</span>
+<span class="c1">#                if method == &#39;H1&#39;:</span>
+<span class="c1">#                    H[:,i,j] = (responses[i,:]*references[j,:].conj())/(references[j,:]*references[j,:].conj())</span>
+<span class="c1">#                else:</span>
+<span class="c1">#                    raise NotImplementedError(&#39;Method {:} has not been implemented&#39;.format(method))</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span>
+        <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;if,jf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+        <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;if,jf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Gxf</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">{:}</span><span class="s1"> has not been implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">H</span></div>
+
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.plot.html#sdynpy.signal_processing.sdynpy_frf.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">real_imag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">phase_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mag_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">H_to_plot</span> <span class="o">=</span> <span class="n">H</span><span class="p">[:,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="p">]</span>
+    <span class="n">H_to_plot</span> <span class="o">=</span> <span class="n">H_to_plot</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">H_to_plot</span><span class="o">.</span><span class="n">ndim</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">H_to_plot</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">real_imag</span><span class="p">:</span>
+            <span class="n">phase_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">H_to_plot</span><span class="p">[</span><span class="n">index</span><span class="p">]))</span>
+            <span class="n">mag_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">H_to_plot</span><span class="p">[</span><span class="n">index</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phase_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">H_to_plot</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="n">mag_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">H_to_plot</span><span class="p">[</span><span class="n">index</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">real_imag</span><span class="p">:</span>
+        <span class="n">phase_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Imag(H)&#39;</span><span class="p">)</span>
+        <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Real(H)&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">phase_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Angle(H)&#39;</span><span class="p">)</span>
+        <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Abs(H)&#39;</span><span class="p">)</span>
+        <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="delay_signal"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.delay_signal.html#sdynpy.signal_processing.sdynpy_frf.delay_signal">[docs]</a><span class="k">def</span> <span class="nf">delay_signal</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Delay a time signal by the specified amount</span>
+
+<span class="sd">    This function takes a signal and delays it by a specified amount of time</span>
+<span class="sd">    that need not be an integer number of samples.  It does this by adjusting</span>
+<span class="sd">    the phaes of the signal&#39;s FFT.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    times : np.ndarray</span>
+<span class="sd">        A signal specifying the time values at which the samples in signal</span>
+<span class="sd">        occur.</span>
+<span class="sd">    signal : np.ndarray</span>
+<span class="sd">        A signal that is to be delayed (n_signals x len(times))</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The amount of time to delay the signal</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    updated_signal : np.ndarray</span>
+<span class="sd">        The time-shifted signal.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fft_omegas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">times</span><span class="p">)))</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">signal_fft</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">fft_omegas</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

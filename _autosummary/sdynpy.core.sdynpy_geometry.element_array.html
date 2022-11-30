@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_geometry.element_array &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_geometry.from_exodus" href="sdynpy.core.sdynpy_geometry.from_exodus.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_geometry.coordinate_system_array" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html">sdynpy.core.sdynpy_geometry.coordinate_system_array</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_geometry.element_array</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.element_array"><code class="docutils literal notranslate"><span class="pre">element_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_exodus.html">sdynpy.core.sdynpy_geometry.from_exodus</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_imat_struct.html">sdynpy.core.sdynpy_geometry.from_imat_struct</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_uff.html">sdynpy.core.sdynpy_geometry.from_uff</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_unv.html">sdynpy.core.sdynpy_geometry.from_unv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_coord.html">sdynpy.core.sdynpy_geometry.global_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.global_deflection.html">sdynpy.core.sdynpy_geometry.global_deflection</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.load.html">sdynpy.core.sdynpy_geometry.load</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.local_coord.html">sdynpy.core.sdynpy_geometry.local_coord</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.node_array.html">sdynpy.core.sdynpy_geometry.node_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.split_list.html">sdynpy.core.sdynpy_geometry.split_list</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.traceline_array.html">sdynpy.core.sdynpy_geometry.traceline_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html">sdynpy.core.sdynpy_geometry.DeflectionShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html">sdynpy.core.sdynpy_geometry.ElementArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.Geometry.html">sdynpy.core.sdynpy_geometry.Geometry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.GeometryPlotter.html">sdynpy.core.sdynpy_geometry.GeometryPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.NodeArray.html">sdynpy.core.sdynpy_geometry.NodeArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ShapePlotter.html">sdynpy.core.sdynpy_geometry.ShapePlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TracelineArray.html">sdynpy.core.sdynpy_geometry.TracelineArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.TransientPlotter.html">sdynpy.core.sdynpy_geometry.TransientPlotter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.id_map.html">sdynpy.core.sdynpy_geometry.id_map</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_geometry.element_array</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_geometry.element_array.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-geometry-element-array">
+<h1>sdynpy.core.sdynpy_geometry.element_array<a class="headerlink" href="#sdynpy-core-sdynpy-geometry-element-array" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.element_array">
+<span class="sig-name descname"><span class="pre">element_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structured_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#element_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.element_array" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an array that specifies elements in the geometry</p>
+<p>Creates an array of elements that specify connectivity of sensors
+in a test or analysis.  Element arrays can be created using a
+numpy structured array or individual arrays for each attribute.
+Multidimensional arrays can be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>ndarray</em>) – Integer array corresponding to the id of the node. Input
+will be cast to an integer (i.e. 2.0 -&gt; 2, 1.9 -&gt; 1)</p></li>
+<li><p><strong>type</strong> (<em>ndarray</em>) – Element types.  See notes for type mapping</p></li>
+<li><p><strong>color</strong> (<em>ndarray</em>) – color of the elements as integers</p></li>
+<li><p><strong>connectivity</strong> (<em>ndarray</em>) – An object array of iterables defining the connectivity for each element.</p></li>
+<li><p><strong>structured_array</strong> (<em>ndarray</em><em> (</em><em>structured</em><em>)</em>) – Alternatively to the individual attributes, a single numpy structured
+array can be passed, which should have the same name as the inputs to
+the function listed above.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>element_array</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray">ElementArray</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Here is a list of element types</p>
+<blockquote>
+<div><p>11 : ‘Rod’,
+21 : ‘Linear beam’,
+22 : ‘Tapered beam’,
+23 : ‘Curved beam’,
+24 : ‘Parabolic beam’,
+31 : ‘Straight pipe’,
+32 : ‘Curved pipe’,
+41 : ‘Plane Stress Linear Triangle’,
+42 : ‘Plane Stress Parabolic Triangle’,
+43 : ‘Plane Stress Cubic Triangle’,
+44 : ‘Plane Stress Linear Quadrilateral’,
+45 : ‘Plane Stress Parabolic Quadrilateral’,
+46 : ‘Plane Strain Cubic Quadrilateral’,
+51 : ‘Plane Strain Linear Triangle’,
+52 : ‘Plane Strain Parabolic Triangle’,
+53 : ‘Plane Strain Cubic Triangle’,
+54 : ‘Plane Strain Linear Quadrilateral’,
+55 : ‘Plane Strain Parabolic Quadrilateral’,
+56 : ‘Plane Strain Cubic Quadrilateral’,
+61 : ‘Plate Linear Triangle’,
+62 : ‘Plate Parabolic Triangle’,
+63 : ‘Plate Cubic Triangle’,
+64 : ‘Plate Linear Quadrilateral’,
+65 : ‘Plate Parabolic Quadrilateral’,
+66 : ‘Plate Cubic Quadrilateral’,
+71 : ‘Membrane Linear Quadrilateral’,
+72 : ‘Membrane Parabolic Triangle’,
+73 : ‘Membrane Cubic Triangle’,
+74 : ‘Membrane Linear Triangle’,
+75 : ‘Membrane Parabolic Quadrilateral’,
+76 : ‘Membrane Cubic Quadrilateral’,
+81 : ‘Axisymetric Solid Linear Triangle’,
+82 : ‘Axisymetric Solid Parabolic Triangle’,
+84 : ‘Axisymetric Solid Linear Quadrilateral’,
+85 : ‘Axisymetric Solid Parabolic Quadrilateral’,
+91 : ‘Thin Shell Linear Triangle’,
+92 : ‘Thin Shell Parabolic Triangle’,
+93 : ‘Thin Shell Cubic Triangle’,
+94 : ‘Thin Shell Linear Quadrilateral’,
+95 : ‘Thin Shell Parabolic Quadrilateral’,
+96 : ‘Thin Shell Cubic Quadrilateral’,
+101: ‘Thick Shell Linear Wedge’,
+102: ‘Thick Shell Parabolic Wedge’,
+103: ‘Thick Shell Cubic Wedge’,
+104: ‘Thick Shell Linear Brick’,
+105: ‘Thick Shell Parabolic Brick’,
+106: ‘Thick Shell Cubic Brick’,
+111: ‘Solid Linear Tetrahedron’,
+112: ‘Solid Linear Wedge’,
+113: ‘Solid Parabolic Wedge’,
+114: ‘Solid Cubic Wedge’,
+115: ‘Solid Linear Brick’,
+116: ‘Solid Parabolic Brick’,
+117: ‘Solid Cubic Brick’,
+118: ‘Solid Parabolic Tetrahedron’,
+121: ‘Rigid Bar’,
+122: ‘Rigid Element’,
+136: ‘Node To Node Translational Spring’,
+137: ‘Node To Node Rotational Spring’,
+138: ‘Node To Ground Translational Spring’,
+139: ‘Node To Ground Rotational Spring’,
+141: ‘Node To Node Damper’,
+142: ‘Node To Gound Damper’,
+151: ‘Node To Node Gap’,
+152: ‘Node To Ground Gap’,
+161: ‘Lumped Mass’,
+171: ‘Axisymetric Linear Shell’,
+172: ‘Axisymetric Parabolic Shell’,
+181: ‘Constraint’,
+191: ‘Plastic Cold Runner’,
+192: ‘Plastic Hot Runner’,
+193: ‘Plastic Water Line’,
+194: ‘Plastic Fountain’,
+195: ‘Plastic Baffle’,
+196: ‘Plastic Rod Heater’,
+201: ‘Linear node-to-node interface’,
+202: ‘Linear edge-to-edge interface’,
+203: ‘Parabolic edge-to-edge interface’,
+204: ‘Linear face-to-face interface’,
+208: ‘Parabolic face-to-face interface’,
+212: ‘Linear axisymmetric interface’,
+213: ‘Parabolic axisymmetric interface’,
+221: ‘Linear rigid surface’,
+222: ‘Parabolic rigid surface’,
+231: ‘Axisymetric linear rigid surface’,
+232: ‘Axisymentric parabolic rigid surface’</p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_geometry.coordinate_system_array" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_geometry.from_exodus.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_geometry.from_exodus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

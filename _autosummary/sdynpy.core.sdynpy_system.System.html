@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_system.System &mdash; SDynPy 0.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.demo" href="sdynpy.demo.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_system.substructure_by_position" href="sdynpy.core.sdynpy_system.substructure_by_position.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SDynPy
+          </a>
+              <div class="version">
+                0.5.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_system.substructure_by_position.html">sdynpy.core.sdynpy_system.substructure_by_position</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_system.System</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System"><code class="docutils literal notranslate"><span class="pre">System</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.__init__"><code class="docutils literal notranslate"><span class="pre">System.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.C"><code class="docutils literal notranslate"><span class="pre">System.C</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.K"><code class="docutils literal notranslate"><span class="pre">System.K</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.M"><code class="docutils literal notranslate"><span class="pre">System.M</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.beam"><code class="docutils literal notranslate"><span class="pre">System.beam()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.concatenate"><code class="docutils literal notranslate"><span class="pre">System.concatenate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.constrain"><code class="docutils literal notranslate"><span class="pre">System.constrain()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.coordinate"><code class="docutils literal notranslate"><span class="pre">System.coordinate</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.copy"><code class="docutils literal notranslate"><span class="pre">System.copy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.damping"><code class="docutils literal notranslate"><span class="pre">System.damping</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.eigensolution"><code class="docutils literal notranslate"><span class="pre">System.eigensolution()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.frequency_response"><code class="docutils literal notranslate"><span class="pre">System.frequency_response()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.from_exodus_superelement"><code class="docutils literal notranslate"><span class="pre">System.from_exodus_superelement()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate"><code class="docutils literal notranslate"><span class="pre">System.get_indices_by_coordinate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.load"><code class="docutils literal notranslate"><span class="pre">System.load()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.mass"><code class="docutils literal notranslate"><span class="pre">System.mass</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof"><code class="docutils literal notranslate"><span class="pre">System.ndof</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof_transformed"><code class="docutils literal notranslate"><span class="pre">System.ndof_transformed</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce"><code class="docutils literal notranslate"><span class="pre">System.reduce()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_craig_bampton"><code class="docutils literal notranslate"><span class="pre">System.reduce_craig_bampton()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_dynamic"><code class="docutils literal notranslate"><span class="pre">System.reduce_dynamic()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_guyan"><code class="docutils literal notranslate"><span class="pre">System.reduce_guyan()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.save"><code class="docutils literal notranslate"><span class="pre">System.save()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.set_proportional_damping"><code class="docutils literal notranslate"><span class="pre">System.set_proportional_damping()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.simulate_test"><code class="docutils literal notranslate"><span class="pre">System.simulate_test()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.spy"><code class="docutils literal notranslate"><span class="pre">System.spy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.stiffness"><code class="docutils literal notranslate"><span class="pre">System.stiffness</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_coordinate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_position"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_position()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate"><code class="docutils literal notranslate"><span class="pre">System.time_integrate()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space"><code class="docutils literal notranslate"><span class="pre">System.to_state_space()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation"><code class="docutils literal notranslate"><span class="pre">System.transformation</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="docutils literal notranslate"><span class="pre">System.transformation_matrix_at_coordinates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_system.System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_system.System.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="sdynpy-core-sdynpy-system-system">
+<h1>sdynpy.core.sdynpy_system.System<a class="headerlink" href="#sdynpy-core-sdynpy-system-system" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Matrix Equations representing a Structural Dynamics System</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create a system representation including mass, stiffness, damping, and
+transformation matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Physical degrees of freedom in the system.</p></li>
+<li><p><strong>mass</strong> (<em>np.ndarray</em>) – 2D array consisting of the mass matrix of the system</p></li>
+<li><p><strong>stiffness</strong> (<em>np.ndarray</em>) – 2D array consisting of the stiffness matrix of the system</p></li>
+<li><p><strong>damping</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – 2D array consisting of the damping matrix of the system.  If not
+specified, the damping will be zero.</p></li>
+<li><p><strong>transformation</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A transformation between internal “state” degrees of freedom and
+the physical degrees of freedom defined in <cite>coordinate</cite>. The
+default transformation is the identity matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If inputs are improperly sized</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.__init__" title="sdynpy.core.sdynpy_system.System.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(coordinate, mass, stiffness[, ...])</p></td>
+<td><p>Create a system representation including mass, stiffness, damping, and transformation matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.beam" title="sdynpy.core.sdynpy_system.System.beam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beam</span></code></a>(length, width, height, num_nodes[, E, ...])</p></td>
+<td><p>Create a beam mass and stiffness matrix</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.concatenate" title="sdynpy.core.sdynpy_system.System.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a>(systems[, coordinate_node_offset])</p></td>
+<td><p>Combine multiple systems together</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.constrain" title="sdynpy.core.sdynpy_system.System.constrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain</span></code></a>(constraint_matrix[, rcond])</p></td>
+<td><p>Apply a constraint matrix to the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.copy" title="sdynpy.core.sdynpy_system.System.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Returns a copy of the system object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.eigensolution" title="sdynpy.core.sdynpy_system.System.eigensolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eigensolution</span></code></a>([num_modes, ...])</p></td>
+<td><p>Computes the eigensolution of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.frequency_response" title="sdynpy.core.sdynpy_system.System.frequency_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency_response</span></code></a>(frequencies[, responses, ...])</p></td>
+<td><p>Computes frequency response functions at the specified frequency lines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.from_exodus_superelement" title="sdynpy.core.sdynpy_system.System.from_exodus_superelement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus_superelement</span></code></a>(superelement_nc4[, ...])</p></td>
+<td><p>Creates a system from a superelement from Sierra/SD</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate" title="sdynpy.core.sdynpy_system.System.get_indices_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_indices_by_coordinate</span></code></a>(coordinates[, ...])</p></td>
+<td><p>Gets the indices in the transformation matrix corresponding coordinates</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.load" title="sdynpy.core.sdynpy_system.System.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
+<td><p>Load a system from a file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce" title="sdynpy.core.sdynpy_system.System.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(reduction_transformation)</p></td>
+<td><p>Apply the specified reduction to the model</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_craig_bampton" title="sdynpy.core.sdynpy_system.System.reduce_craig_bampton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_craig_bampton</span></code></a>(...[, return_shape_matrix])</p></td>
+<td><p>Computes a craig-bampton substructure model for the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_dynamic" title="sdynpy.core.sdynpy_system.System.reduce_dynamic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_dynamic</span></code></a>(coordinates, frequency)</p></td>
+<td><p>Perform Dynamic condensation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_guyan" title="sdynpy.core.sdynpy_system.System.reduce_guyan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_guyan</span></code></a>(coordinates)</p></td>
+<td><p>Perform Guyan reduction on the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.save" title="sdynpy.core.sdynpy_system.System.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<td><p>Saves the system to a file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.set_proportional_damping" title="sdynpy.core.sdynpy_system.System.set_proportional_damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_proportional_damping</span></code></a>(mass_fraction, ...)</p></td>
+<td><p>Sets the damping matrix to a proportion of the mass and stiffness matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="sdynpy.core.sdynpy_system.System.simulate_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_test</span></code></a>(bandwidth, frame_length, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.spy" title="sdynpy.core.sdynpy_system.System.spy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spy</span></code></a>([subplots_kwargs, spy_kwargs])</p></td>
+<td><p>Plot the structure of the system's matrices</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate" title="sdynpy.core.sdynpy_system.System.substructure_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_coordinate</span></code></a>(dof_pairs[, ...])</p></td>
+<td><p>Constrain the system by connecting the specified degree of freedom pairs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_position" title="sdynpy.core.sdynpy_system.System.substructure_by_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_position</span></code></a>(systems, geometries)</p></td>
+<td><p>Applies constraints to systems by constraining colocated nodes together</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape" title="sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_shape</span></code></a>(constraint_shapes, ...)</p></td>
+<td><p>Constrain the system using a set of shapes in a least-squares sense.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces, dt[, responses, ...])</p></td>
+<td><p>Integrate a system to produce responses to an excitation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="sdynpy.core.sdynpy_system.System.to_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_state_space</span></code></a>([output_displacement, ...])</p></td>
+<td><p>Compute the state space representation of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix_at_coordinates</span></code></a>(coordinates)</p></td>
+<td><p>Return the transformation matrix at the specified coordinates</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.C" title="sdynpy.core.sdynpy_system.System.C"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C</span></code></a></p></td>
+<td><p>Get or set the damping matrix of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.K" title="sdynpy.core.sdynpy_system.System.K"><code class="xref py py-obj docutils literal notranslate"><span class="pre">K</span></code></a></p></td>
+<td><p>Get or set the stffness matrix of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.M" title="sdynpy.core.sdynpy_system.System.M"><code class="xref py py-obj docutils literal notranslate"><span class="pre">M</span></code></a></p></td>
+<td><p>Get or set the mass matrix of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.coordinate" title="sdynpy.core.sdynpy_system.System.coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinate</span></code></a></p></td>
+<td><p>Get or set the degrees of freedom in the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.damping" title="sdynpy.core.sdynpy_system.System.damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">damping</span></code></a></p></td>
+<td><p>Get or set the damping matrix of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.mass" title="sdynpy.core.sdynpy_system.System.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a></p></td>
+<td><p>Get or set the mass matrix of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof" title="sdynpy.core.sdynpy_system.System.ndof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndof</span></code></a></p></td>
+<td><p>Get the number of internal degrees of freedom of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof_transformed" title="sdynpy.core.sdynpy_system.System.ndof_transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndof_transformed</span></code></a></p></td>
+<td><p>Get the number of physical degrees of freedom of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.stiffness" title="sdynpy.core.sdynpy_system.System.stiffness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stiffness</span></code></a></p></td>
+<td><p>Get or set the stffness matrix of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation" title="sdynpy.core.sdynpy_system.System.transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation</span></code></a></p></td>
+<td><p>Get or set the transformation matrix</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.C">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">C</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.C" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the damping matrix of the system</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.K">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">K</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.K" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the stffness matrix of the system</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.M">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">M</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.M" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the mass matrix of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.beam">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.beam"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.beam" title="Permalink to this definition"></a></dt>
+<dd><p>Create a beam mass and stiffness matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>length</strong> (<em>float</em>) – Lenghth of the beam</p></li>
+<li><p><strong>width</strong> (<em>float</em>) – Width of the beam</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Height of the beam</p></li>
+<li><p><strong>num_nodes</strong> (<em>int</em>) – Number of nodes in the beam.</p></li>
+<li><p><strong>E</strong> (<em>float</em><em>, </em><em>optional</em>) – Young’s modulus of the beam. If not specified, a <cite>material</cite> must be
+specified instead</p></li>
+<li><p><strong>rho</strong> (<em>float</em><em>, </em><em>optional</em>) – Density of the beam. If not specified, a <cite>material</cite> must be
+specified instead</p></li>
+<li><p><strong>nu</strong> (<em>float</em><em>, </em><em>optional</em>) – Poisson’s ratio of the beam. If not specified, a <cite>material</cite> must be
+specified instead</p></li>
+<li><p><strong>material</strong> (<em>str</em><em>, </em><em>optional</em>) – A specific material can be specified instead of <cite>E</cite>, <cite>rho</cite>, and <cite>nu</cite>.
+Should be a string ‘steel’ or ‘aluminum’.  If not specified, then
+options <cite>E</cite>, <cite>rho</cite>, and <cite>nu</cite> must be specified instead.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If improper materials are defined.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>system</strong> (<em>System</em>) – A system object consisting of the beam mass and stiffness matrices.</p></li>
+<li><p><strong>geometry</strong> (<em>Geometry</em>) – A Geometry consisting of the beam geometry.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.concatenate">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">concatenate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">systems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_node_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.concatenate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.concatenate" title="Permalink to this definition"></a></dt>
+<dd><p>Combine multiple systems together</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>systems</strong> (<em>iterable</em><em> of </em><em>System objects</em>) – Iterable of Systems that will be concatenated.  Matrices will be
+assembled in block diagonal format</p></li>
+<li><p><strong>coordinate_node_offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Offset applied to the coordinates so the nodes do not overlap.
+The default is 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A system consisting of the combintation of the provided systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.constrain">
+<span class="sig-name descname"><span class="pre">constrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.constrain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.constrain" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a constraint matrix to the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constraint_matrix</strong> (<em>np.ndarray</em>) – A matrix of constraints to apply to the structure (B matrix in
+substructuring literature)</p></li>
+<li><p><strong>rcond</strong> (<em>float</em><em>, </em><em>optional</em>) – Condition tolerance for computing the nullspace. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Constrained system.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.coordinate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordinate</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the degrees of freedom in the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a copy of the system object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the system object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.damping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">damping</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.damping" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the damping matrix of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.eigensolution">
+<span class="sig-name descname"><span class="pre">eigensolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complex_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.eigensolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.eigensolution" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the eigensolution of the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_modes</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of modes of the system to compute. The default is to
+compute all the modes.</p></li>
+<li><p><strong>maximum_frequency</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum frequency to which modes will be computed.
+The default is to compute all the modes.</p></li>
+<li><p><strong>complex_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not complex modes are computed. The default is False.</p></li>
+<li><p><strong>return_shape</strong> (<em>bool</em><em>, </em><em>optional</em>) – Specifies whether or not to return a <cite>ShapeArray</cite> (True) or a reduced
+<cite>System</cite> (False). The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – Raised if complex modes are specified.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If <cite>return_shape</cite> is True, the a ShapeArray will be returned.  If
+<cite>return_shape</cite> is False, a reduced system will be returned.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a> or <a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray">ShapeArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.frequency_response">
+<span class="sig-name descname"><span class="pre">frequency_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.frequency_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.frequency_response" title="Permalink to this definition"></a></dt>
+<dd><p>Computes frequency response functions at the specified frequency lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequencies</strong> (<em>ndarray</em>) – A 1D array of frequencies.</p></li>
+<li><p><strong>responses</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – A set of coordinates to compute responses. The default is to
+create responses at all coordinates.</p></li>
+<li><p><strong>references</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – A set of coordinates to use as inputs. The default is to use all
+coordinates as inputs.</p></li>
+<li><p><strong>displacement_derivative</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of derivatives to apply to the response. The default is
+0, which corresponds to displacement.  1 would be the first
+derivative, velocity, and 2 would be the second derivative,
+acceleration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>frf</strong> – A TransferFunctionArray containing the frequency response function
+for the system at the specified input and output degrees of freedom.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray">TransferFunctionArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.from_exodus_superelement">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_exodus_superelement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">superelement_nc4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_exodus_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispZ'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_rot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_rot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.from_exodus_superelement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.from_exodus_superelement" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a system from a superelement from Sierra/SD</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>superelement_nc4</strong> (<em>netCDF4.Dataset</em><em> or </em><em>string</em>) – Dataset from which the superelement data will be loaded</p></li>
+<li><p><strong>transformation_exodus_file</strong> (<a class="reference internal" href="sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><em>Exodus</em></a><em>, </em><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html#sdynpy.fem.sdynpy_exodus.ExodusInMemory" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory"><em>ExodusInMemory</em></a><em>, or </em><em>str</em><em>, </em><em>optional</em>) – Exodus data containing the transformation between the reduced
+superelement state and the physical space.  If not specified, no
+transformation will be created.</p></li>
+<li><p><strong>x_disp</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for x-displacements in the transformation
+Exodus file. The default is ‘DispX’.</p></li>
+<li><p><strong>y_disp</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for y-displacements in the transformation
+Exodus file. The default is ‘DispY’.</p></li>
+<li><p><strong>z_disp</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for z-displacements in the transformation
+Exodus file. The default is ‘DispZ’.</p></li>
+<li><p><strong>x_rot</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for x-rotations in the transformation
+Exodus file. The default is to not read rotations.</p></li>
+<li><p><strong>y_rot</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for y-rotations in the transformation
+Exodus file. The default is to not read rotations.</p></li>
+<li><p><strong>z_rot</strong> (<em>str</em><em>, </em><em>optional</em>) – Variable name to read for z-rotations in the transformation
+Exodus file. The default is to not read rotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – raised if bad data types are passed to the arguments.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>system</strong> (<em>System</em>) – System containing the superelement representation</p></li>
+<li><p><strong>geometry</strong> (<em>Geometry</em>) – Geometry that can be used to plot the system</p></li>
+<li><p><strong>boundary_dofs</strong> (<em>CoordinateArray</em>) – Degrees of freedom that can be used to constrain the test article.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.get_indices_by_coordinate">
+<span class="sig-name descname"><span class="pre">get_indices_by_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.get_indices_by_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the indices in the transformation matrix corresponding coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Coordinates to extract transformation indices</p></li>
+<li><p><strong>ignore_sign</strong> (<em>bool</em><em>, </em><em>optional</em>) – Specify whether or not to ignore signs on the coordinates.  If True,
+then ‘101X+’ would match ‘101X+’ or ‘101X-’. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if duplicate coordinates or coordinates not in the system
+    are requested</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Array of indices.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.load">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.load" title="Permalink to this definition"></a></dt>
+<dd><p>Load a system from a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Name of the file from which the system will be loaded.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A system consisting of the mass, stiffness, damping, and transformation
+in the file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.mass">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mass</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.mass" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the mass matrix of the system</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.ndof">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndof</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.ndof" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of internal degrees of freedom of the system</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.ndof_transformed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndof_transformed</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.ndof_transformed" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of physical degrees of freedom of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction_transformation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.reduce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.reduce" title="Permalink to this definition"></a></dt>
+<dd><p>Apply the specified reduction to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reduction_transformation</strong> (<em>np.ndarray</em>) – Matrix to use in the reduction</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Reduced system.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.reduce_craig_bampton">
+<span class="sig-name descname"><span class="pre">reduce_craig_bampton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_degrees_of_freedom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_fixed_base_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_shape_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.reduce_craig_bampton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.reduce_craig_bampton" title="Permalink to this definition"></a></dt>
+<dd><p>Computes a craig-bampton substructure model for the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>connection_degrees_of_freedom</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Degrees of freedom to keep at the interface.</p></li>
+<li><p><strong>num_fixed_base_modes</strong> (<em>int</em>) – Number of fixed-base modes to use in the reduction</p></li>
+<li><p><strong>return_shape_matrix</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, return a set of shapes that represents the transformation
+in addition to the reduced system.  The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if coordinate arrays are specified when there is already a
+    transformation.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>System</em> – Reduced system in craig-bampton form</p></li>
+<li><p><em>ShapeArray</em> – Shapes representing the craig-bampton transformation</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.reduce_dynamic">
+<span class="sig-name descname"><span class="pre">reduce_dynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.reduce_dynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.reduce_dynamic" title="Permalink to this definition"></a></dt>
+<dd><p>Perform Dynamic condensation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – A list of coordinates to keep in the reduced system.</p></li>
+<li><p><strong>frequency</strong> (<em>float</em>) – The frequency to preserve in the dynamic reduction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if the transformation is not identity matrix.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Reduced system.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.reduce_guyan">
+<span class="sig-name descname"><span class="pre">reduce_guyan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.reduce_guyan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.reduce_guyan" title="Permalink to this definition"></a></dt>
+<dd><p>Perform Guyan reduction on the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – A list of coordinates to keep in the reduced system.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised the transformation matrix is not identity matrix.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Reduced system.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.save" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the system to a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Name of the file in which the system will be saved.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.set_proportional_damping">
+<span class="sig-name descname"><span class="pre">set_proportional_damping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_fraction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.set_proportional_damping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.set_proportional_damping" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the damping matrix to a proportion of the mass and stiffness matrices.</p>
+<p>The damping matrix will be set to <cite>mass_fraction*self.mass +
+stiffness_fraction*self.stiffness</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass_fraction</strong> (<em>float</em>) – Fraction of the mass matrix</p></li>
+<li><p><strong>stiffness_fraction</strong> (<em>TYPE</em>) – Fraction of the stiffness matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.simulate_test">
+<span class="sig-name descname"><span class="pre">simulate_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_averages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steady_state_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_time_between_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_cutoff_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">generator_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.simulate_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.spy">
+<span class="sig-name descname"><span class="pre">spy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'figsize':</span> <span class="pre">(10,</span> <span class="pre">3)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spy_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.spy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.spy" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the structure of the system’s matrices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Default arguments passed to <cite>matplotlib.pyplot</cite>’s <cite>subplots</cite> function.
+The default is {‘figsize’:(10,3)}.</p></li>
+<li><p><strong>spy_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Default arguments passed to <cite>matplotlib.pyplot</cite>’s ‘spy’ function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ax</strong> – Axes on which the subplots are defined.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.stiffness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stiffness</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.stiffness" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the stffness matrix of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.substructure_by_coordinate">
+<span class="sig-name descname"><span class="pre">substructure_by_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dof_pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_constrained_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.substructure_by_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate" title="Permalink to this definition"></a></dt>
+<dd><p>Constrain the system by connecting the specified degree of freedom pairs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dof_pairs</strong> (<em>iterable</em><em> of </em><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Pairs of coordinates to be connected.  None can be passed instead of
+a second degree of freedom to constrain to ground</p></li>
+<li><p><strong>rcond</strong> (<em>float</em><em>, </em><em>optional</em>) – Condition threshold to use for the nullspace calculation on the
+constraint matrix. The default is None.</p></li>
+<li><p><strong>return_constrained_system</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, apply the constraint matrix and return the constrained
+system, otherwise simply return the constraint matrix. The default
+is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a System object with the constraints applied if
+<cite>return_constrained_system</cite> is True, otherwise just return the
+constraint matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray or <a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.substructure_by_position">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substructure_by_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">systems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.substructure_by_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.substructure_by_position" title="Permalink to this definition"></a></dt>
+<dd><p>Applies constraints to systems by constraining colocated nodes together</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>systems</strong> (<em>iterable</em><em> of </em><em>System objects</em>) – A set of systems that will be combined and constrained together</p></li>
+<li><p><strong>geometries</strong> (<em>iterable</em><em> of </em><em>Geometry objects</em>) – A set of geometries that will be combined together</p></li>
+<li><p><strong>distance_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – The distance between nodes that are considered colocated.
+The default is 1e-8.</p></li>
+<li><p><strong>rcond</strong> (<em>float</em><em>, </em><em>optional</em>) – Condition number to use in the nullspace calculation on
+the constraint matrix. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>combined_system</strong> (<em>System</em>) – System consisting of constraining the input systems together.</p></li>
+<li><p><strong>combined_geometry</strong> (<em>Geometry</em>) – Combined geometry of the new system</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.substructure_by_shape">
+<span class="sig-name descname"><span class="pre">substructure_by_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_dofs_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_dofs_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_constrained_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.substructure_by_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Constrain the system using a set of shapes in a least-squares sense.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constraint_shapes</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><em>ShapeArray</em></a>) – An array of shapes to use as the basis for the constraints</p></li>
+<li><p><strong>connection_dofs_0</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Array of coordinates to use in the constraints</p></li>
+<li><p><strong>connection_dofs_1</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Array of coordinates to constrain to the coordinates in
+<cite>connection_dofs_0</cite>. If not specified, the <cite>connection_dofs_0</cite>
+degrees of freedom will be constrained to ground.</p></li>
+<li><p><strong>rcond</strong> (<em>float</em><em>, </em><em>optional</em>) – Condition threshold on the nullspace calculation. The default is None.</p></li>
+<li><p><strong>return_constrained_system</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, apply the constraint matrix and return the constrained
+system, otherwise simply return the constraint matrix. The default
+is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a System object with the constraints applied if
+<cite>return_constrained_system</cite> is True, otherwise just return the
+constraint matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray or <a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.time_integrate">
+<span class="sig-name descname"><span class="pre">time_integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.time_integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="Permalink to this definition"></a></dt>
+<dd><p>Integrate a system to produce responses to an excitation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>forces</strong> (<em>np.ndarray</em>) – The forces applied to the system, which should be a signal with
+time-step <cite>dt</cite></p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – The timestep used for the integration.</p></li>
+<li><p><strong>responses</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Coordinates at which responses are desired. The default is all
+responses.</p></li>
+<li><p><strong>references</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Coordinates at which responses are input. The default is all
+references.  Must be the same size as the number of rows in the
+<cite>forces</cite> array.</p></li>
+<li><p><strong>displacement_derivative</strong> (<em>int</em><em>, </em><em>optional</em>) – The derivative of the displacement that the output will be
+represented as.  A derivative of 0 means displacements will be
+returned, a derivative of 1 will mean velocities will be returned,
+and a derivative of 2 will mean accelerations will be returned.
+The default is 2, which returns accelerations.</p></li>
+<li><p><strong>initial_state</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The initial conditions of the integration. The default is zero
+displacement and zero velocity.</p></li>
+<li><p><strong>integration_oversample</strong> (<em>int</em>) – The amount of oversampling that will be applied to the force by
+zero-padding the fft</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>response_array</strong> (<em>TimeHistoryArray</em>) – The responses of the system to the forces applied</p></li>
+<li><p><strong>reference_array</strong> (<em>TimeHistoryArray</em>) – The forces applied to the system as a TimeHistoryArray</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.to_state_space">
+<span class="sig-name descname"><span class="pre">to_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_acceleration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.to_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the state space representation of the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_displacement</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
+displacement outputs.  The default is True.</p></li>
+<li><p><strong>output_velocity</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
+velocity outputs.  The default is True.</p></li>
+<li><p><strong>output_acceleration</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
+acceleration outputs.  The default is True.</p></li>
+<li><p><strong>output_force</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
+force outputs.  The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>A_state</strong> (<em>np.ndarray</em>) – The state matrix</p></li>
+<li><p><strong>B_state</strong> (<em>np.ndarray</em>) – The input matrix</p></li>
+<li><p><strong>C_state</strong> (<em>np.ndarray</em>) – The output matrix.</p></li>
+<li><p><strong>D_state</strong> (<em>np.ndarray</em>) – The feedforward matrix.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.transformation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformation</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.transformation" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set the transformation matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates">
+<span class="sig-name descname"><span class="pre">transformation_matrix_at_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.transformation_matrix_at_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Return the transformation matrix at the specified coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – coordinates at which the transformation matrix will be computed.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if duplicate coordinates are requested, or if coordinates that
+    do not exist in the system are requested.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>return_value</strong> – Portion of the transformation matrix corresponding to the
+coordinates input to the function.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_system.substructure_by_position.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_system.substructure_by_position" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.demo.html" class="btn btn-neutral float-right" title="sdynpy.demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
