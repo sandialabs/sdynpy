@@ -13,7 +13,7 @@ jobs:
         run: pip install .[all]
       - name: pylint badge
         run: |
-          python -m pylint --disable=C0103 --output-format=text statmechcrack | tee pylint.log || pylint-exit $?
+          python -m pylint --disable=C0103 --output-format=text src/sdynpy | tee pylint.log || pylint-exit $?
           PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint.log)
           if (( $(echo "${PYLINT_SCORE} >= 8.0" | bc -l) )); then
             COLOR=brightgreen
