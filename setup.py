@@ -33,7 +33,7 @@ setup(
     version=get_version(),
     description=('A Structural Dynamics Library for Python'),
     long_description=read("README.rst"),
-    url='https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries',
+    url='https://github.com/sandialabs/sdynpy',
     author='Daniel P. Rohe',
     author_email='dprohe@sandia.gov',
     license='Sandia Proprietary',
