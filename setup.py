@@ -68,10 +68,12 @@ setup(
                 'sphinx', 'sphinx-copybutton',
                 'sphinx-rtd-theme', 'sphinxcontrib-bibtex']},
     classifiers=['Natural Language :: English',
-                 'Operating System :: Microsoft :: Windows :: Windows 10'
+                 'Operating System :: Microsoft :: Windows :: Windows 10',
                  'Operating System :: MacOS :: MacOS X',
                  'Operating System :: POSIX :: Linux',
                  'Programming Language :: Python :: 3.8',
+                 'Programming Language :: Python :: 3.9',
+                 'Programming Language :: Python :: 3.10',
                  'Framework :: Pytest',
                  'License :: Other/Proprietary License'
                  ]
