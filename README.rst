@@ -8,6 +8,15 @@ This repository houses SDynPy, a Python module built for doing structural dynami
 It contains core objects that define test geometry and data.  It contains readers and writers for common data formats.
 It also contains various structural dynamics and signal processing tools.
 
+***********
+Information
+***********
+
+- `Documentation <https://sandialabs.github.io/sdynpy/>`_
+- `Project <https://github.com/sandialabs/sdynpy>`_
+- `Releases <https://github.com/sandialabs/sdynpy/releases>`_
+- `Tutorial <https://sandialabs.github.io/sdynpy/example_problems/airplane_modal_test.html>`_
+
 ..
     Badges ========================================================================
 
