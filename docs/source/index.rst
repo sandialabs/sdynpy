@@ -47,7 +47,7 @@ Indices and tables
 ..
     Badges ========================================================================
 
-.. |documentation|:: https://img.shields.io/github/workflow/status/sandialabs/sdynpy/pages/main?label=Documentation
+.. |documentation| image:: https://img.shields.io/github/workflow/status/sandialabs/sdynpy/pages/main?label=Documentation
     :target: https://sandialabs.github.io/sdynpy/
 
 .. |build| image:: https://img.shields.io/github/workflow/status/sandialabs/sdynpy/main?label=GitHub&logo=github
