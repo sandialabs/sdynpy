@@ -27,7 +27,7 @@ from .signal_processing import frf, cpsd, integration, correlation, complex, rot
 from .modal import PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues, compute_shapes, SignalProcessingGUI, ColoredCMIF
 from . import doc
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 # Pull things in for easier access
 SdynpyArray = array.SdynpyArray

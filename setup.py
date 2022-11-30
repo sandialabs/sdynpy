@@ -36,7 +36,7 @@ setup(
     url='https://github.com/sandialabs/sdynpy',
     author='Daniel P. Rohe',
     author_email='dprohe@sandia.gov',
-    license='Sandia Proprietary',
+    license='GPLv3',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     zip_safe=False,
@@ -75,6 +75,6 @@ setup(
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
                  'Framework :: Pytest',
-                 'License :: Other/Proprietary License'
+                 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
                  ]
 )
