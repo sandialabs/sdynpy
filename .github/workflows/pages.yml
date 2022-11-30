@@ -1,0 +1,41 @@
+name: pages
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: install package
+        run: pip install .[all]
+      - name: pylint badge
+        run: |
+          python -m pylint --disable=C0103 --output-format=text src/sdynpy | tee pylint.log || pylint-exit $?
+          PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint.log)
+          if (( $(echo "${PYLINT_SCORE} >= 8.0" | bc -l) )); then
+            COLOR=brightgreen
+          elif (( $(echo "${PYLINT_SCORE} >= 4.0" | bc -l) )); then
+            COLOR=yellow
+          elif (( $(echo "${PYLINT_SCORE} >= 2.0" | bc -l) )); then
+            COLOR=orange
+          else
+            COLOR=red
+          fi
+          curl "https://img.shields.io/badge/Pylint-${PYLINT_SCORE}-${COLOR}?logo=python&logoColor=FBE072" -o pylint.svg
+      - name: build docs
+        run: |
+          sudo apt-get install pandoc
+          sphinx-build -b html docs/source/ docs/build/html/
+          sed -i -e "s/ module</</g" docs/build/html/*.html
+          sed -i '/Built with/,/Docs<\/a>./d' docs/build/html/*.html
+          mv docs/build/html/ public/
+          mv pylint.svg public/
+      - name: deploy docs to gh-pages
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public/

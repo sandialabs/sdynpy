@@ -30,8 +30,10 @@ def get_version():
 
 
 project = 'SDynPy'
-copyright = '2022, Sandia National Laboratories'
 author = 'Daniel P. Rohe'
+copyright = '2022 National Technology & Engineering Solutions of Sandia, \
+    LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, \
+    the U.S. Government retains certain rights in this software'
 
 # The full version, including alpha/beta/rc tags
 release = get_version()
