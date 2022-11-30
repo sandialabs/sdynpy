@@ -6,7 +6,7 @@
 Welcome to SDynPy's documentation!
 ==================================
 
-|docs| |tests| |coverage| |lint| |version|
+|documentation| |build| |pylint|
 
 **SDynPy** is a package for performing structural dynamic analyses using Python.
 It contains several objects that represent various structural dynamics data
@@ -23,12 +23,10 @@ an overview of recommended workflows and a summary of current functionality.
 Information
 ***********
 
-- `Contributing <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/blob/main/CONTRIBUTING.rst>`_
-- `Documentation <http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/>`_
-- `Project <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/>`_
-- `Releases <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/releases>`_
-- `Tutorial <http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/examples.html>`_
-
+- `Documentation <https://sandialabs.github.io/sdynpy/>`_
+- `Project <https://github.com/sandialabs/sdynpy>`_
+- `Releases <https://github.com/sandialabs/sdynpy/releases>`_
+- `Tutorial <https://sandialabs.github.io/sdynpy/example_problems/airplane_modal_test.html>`_
 
 .. toctree::
    :maxdepth: 2
@@ -49,21 +47,11 @@ Indices and tables
 ..
     Badges ========================================================================
 
-.. |docs| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/docs.svg?job=pages
-    :target: http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/
-    :alt: docs
+.. |documentation|:: https://img.shields.io/github/workflow/status/sandialabs/sdynpy/pages/main?label=Documentation
+    :target: https://sandialabs.github.io/sdynpy/
 
-.. |tests| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/tests.svg?job=basic-tests
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/logs/report.xml?job=basic-tests
-    :alt: tests
+.. |build| image:: https://img.shields.io/github/workflow/status/sandialabs/sdynpy/main?label=GitHub&logo=github
+    :target: https://github.com/sandialabs/sdynpy
 
-.. |coverage| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/badges/main/coverage.svg
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/pipelines/latest
-    :alt: coverage
-
-.. |lint| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/lint.svg?job=static-code-checks
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/logs/lint.log?job=static-code-checks
-    :alt: lint
-
-.. |version| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/version.svg?job=badges
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/releases
+.. |pylint| image:: https://raw.githubusercontent.com/sandialabs/sdynpy/gh-pages/pylint.svg
+    :target: https://github.com/sandialabs/sdynpy
