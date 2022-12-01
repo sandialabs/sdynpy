@@ -2,7 +2,7 @@
 Structural Dynamics Python Libraries
 ####################################
 
-|documentation| |build| |pylint|
+|documentation| |build| |codecov| |coveralls| |pylint|
 
 This repository houses SDynPy, a Python module built for doing structural dynamics analysis using Python.
 It contains core objects that define test geometry and data.  It contains readers and writers for common data formats.
@@ -28,3 +28,9 @@ Information
 
 .. |pylint| image:: https://raw.githubusercontent.com/sandialabs/sdynpy/gh-pages/pylint.svg
     :target: https://github.com/sandialabs/sdynpy
+
+.. |coveralls| image:: https://img.shields.io/coveralls/github/sandialabs/sdynpy?logo=coveralls&label=Coveralls
+    :target: https://coveralls.io/github/sandialabs/sdynpy?branch=main
+
+.. |codecov| image:: https://img.shields.io/codecov/c/github/sandialabs/sdynpy?label=Codecov&logo=codecov
+    :target: https://codecov.io/gh/sandialabs/sdynpy
