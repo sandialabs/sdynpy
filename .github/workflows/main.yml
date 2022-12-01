@@ -24,3 +24,14 @@ jobs:
         run: python -m pylint --output-format=text src/sdynpy | tee lint.log || pylint-exit $?
       - name: pytest
         run: python -m pytest --verbose --cov=src/sdynpy --cov-report xml
+      - name: coveralls
+        run: |
+          python -m pip install coveralls
+          coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: codecov
+        uses: codecov/codecov-action@v2
+        with:
+          name: codecov-umbrella
+          verbose: true
