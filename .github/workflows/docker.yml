@@ -1,0 +1,75 @@
+name: Docker
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  release:
+    types: [ "published" ]
+jobs:
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: build
+        uses: docker/build-push-action@v3.2.0
+        with:
+          push: false
+          tags: dprohe/sdynpy:test
+  latest:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: login
+        uses: docker/login-action@v2.1.0
+        with:
+          username: dprohe
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build-push
+        uses: docker/build-push-action@v3.2.0
+        with:
+          push: true
+          tags: |
+            dprohe/sdynpy:latest
+            ghcr.io/sandialabs/sdynpy:latest
+  versioned:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: login
+        uses: docker/login-action@v2.1.0
+        with:
+          username: dprohe
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build-push
+        uses: docker/build-push-action@v3.2.0
+        with:
+          push: true
+          tags: |
+            dprohe/sdynpy:${{steps.tag.outputs.tag}}
+            dprohe/sdynpy:latest
+            ghcr.io/sandialabs/sdynpy:${{steps.tag.outputs.tag}}
+            ghcr.io/sandialabs/sdynpy:latest
