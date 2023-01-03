@@ -245,3 +245,14 @@ def test_outer_product():
                   [['3Z+', '3Z+'],
                    ['3Z+', '2Y+'],
                    ['3Z+', '1X+']]], dtype='<U3')))
+    
+def test_force_broadcast():
+    nodes = (1,2)
+    directions = (1,2,3)
+    coord_array = sdpy.coordinate_array(node = nodes, direction = directions,
+                                        force_broadcast = True)
+    broadcast_nodes,broadcast_directions = np.broadcast_arrays(
+        np.array(nodes)[:,np.newaxis],np.array(directions))
+    equals_array = sdpy.coordinate_array(broadcast_nodes,
+                                         broadcast_directions).flatten()
+    assert np.all(coord_array == equals_array)

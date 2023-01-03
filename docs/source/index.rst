@@ -26,16 +26,18 @@ Information
 - `Documentation <https://sandialabs.github.io/sdynpy/>`_
 - `Project <https://github.com/sandialabs/sdynpy>`_
 - `Releases <https://github.com/sandialabs/sdynpy/releases>`_
-- `Tutorial <https://sandialabs.github.io/sdynpy/example_problems/airplane_modal_test.html>`_
+- `Tutorial <https://sandialabs.github.io/sdynpy/sdynpy_showcase.html>`_
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
     
    usage
+   sdynpy_showcase
    examples
    modal_tutorials
    modules
+   bibliography
 
 Indices and tables
 ==================

@@ -6,7 +6,11 @@ Usage
 Installation
 ------------
 
-Forthcoming...
+SDynPy can be installed with ``pip``
+
+::
+
+    pip install sdynpy
 
 SDynPy Overview
 ---------------

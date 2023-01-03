@@ -1145,7 +1145,7 @@ class SignalProcessingGUI(QMainWindow):
 
     def saveWindowedTimeHistory(self):
         filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Select File to Save Windowed Time Data', filter='Numpy File (*.npy)')
+            self, 'Select File to Save Windowed Time Data', filter='Numpy File (*.npz)')
         if filename == '':
             return
         self.windowed_time_data.save(filename)
@@ -1155,7 +1155,7 @@ class SignalProcessingGUI(QMainWindow):
 
     def saveFRF(self):
         filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Select File to Save FRF Data', filter='Numpy File (*.npy)')
+            self, 'Select File to Save FRF Data', filter='Numpy File (*.npz)')
         if filename == '':
             return
         self.frf_data.save(filename)
@@ -1165,7 +1165,7 @@ class SignalProcessingGUI(QMainWindow):
 
     def saveCoherence(self):
         filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Select File to Save Coherence Data', filter='Numpy File (*.npy)')
+            self, 'Select File to Save Coherence Data', filter='Numpy File (*.npz)')
         if filename == '':
             return
         self.coherence_data.save(filename)
@@ -1175,7 +1175,7 @@ class SignalProcessingGUI(QMainWindow):
 
     def saveAutospectra(self):
         filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Select File to Save Autospectra Data', filter='Numpy File (*.npy)')
+            self, 'Select File to Save Autospectra Data', filter='Numpy File (*.npz)')
         if filename == '':
             return
         self.autospectra_data.save(filename)
@@ -1185,7 +1185,7 @@ class SignalProcessingGUI(QMainWindow):
 
     def saveCrossspectra(self):
         filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Select File to Save Crosspectra Data', filter='Numpy File (*.npy)')
+            self, 'Select File to Save Crosspectra Data', filter='Numpy File (*.npz)')
         if filename == '':
             return
         self.crossspectra_data.save(filename)
@@ -1239,10 +1239,10 @@ class SignalProcessingGUI(QMainWindow):
     def loadData(self):
         try:
             filename, file_filter = QFileDialog.getOpenFileName(
-                self, 'Select Time History File', filter='Numpy (*.npy);;Rattlesnake (*.nc4)')
+                self, 'Select Time History File', filter='Numpy (*.npz);;Rattlesnake (*.nc4)')
             if filename == '':
                 return
-            if file_filter == 'Numpy (*.npy)':
+            if file_filter == 'Numpy (*.npz)':
                 self.time_history_data = TimeHistoryArray.load(filename)
                 self.initialize_ui()
             elif file_filter == 'Rattlesnake (*.nc4)':

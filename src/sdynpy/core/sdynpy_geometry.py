@@ -179,7 +179,6 @@ _vtk_connectivity_reorder = {
 
 MAX_NUMBER_REPR = 100
 
-
 class GeometryPlotter(pvqt.BackgroundPlotter):
     """Class used to plot geometry
 
@@ -2296,7 +2295,6 @@ class NodeArray(SdynpyArray):
         # Remove any duplicates
         candidate_node_ids = np.unique(candidate_nodes.id)
         return candidate_nodes(candidate_node_ids)
-
 
 def node_array(id=1, coordinate=np.array((0, 0, 0)), color=1, def_cs=1, disp_cs=1,
                structured_array=None):

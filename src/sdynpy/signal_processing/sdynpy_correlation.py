@@ -27,7 +27,6 @@ import copy
 
 # Look at FRAC and TRAC values
 
-
 def mac(phi_1, phi_2=None):
     if phi_2 is None:
         phi_2 = phi_1
@@ -60,7 +59,29 @@ def trac(th_1, th_2=None):
                                                                                          th_1_flattened.conj(), axis=-1)) * np.sum(th_2_flattened * th_2_flattened.conj(), axis=-1))
     return trac.reshape(th_1_original_shape[:-1])
 
+def msf(shapes,reference_shapes = None):
+    if reference_shapes is None:
+        reference_shapes = shapes
+    output = (np.einsum('...ij,...ij->...j',shapes,reference_shapes.conj())/
+              np.einsum('...ij,...ij->...j',reference_shapes,reference_shapes.conj()))
+    return output
 
+def orthog(shapes_1,mass_matrix,shapes_2 = None,scaling = None):
+    if not scaling in ['none','unity',None]:
+        raise ValueError('Invalid scaling, should be one of "none", "unity", or None')
+    if shapes_2 is None:
+        shapes_2 = shapes_1
+    mat = np.moveaxis(shapes_1,-2,-1) @ mass_matrix @ shapes_2
+    if scaling == 'unity':
+        diagonal = np.einsum('...ii->...i',mat)
+        scaling = 1/np.sqrt(diagonal)
+        scaling_matrix = np.zeros(mat.shape)
+        scaling_matrix[...,
+                       np.arange(scaling_matrix.shape[-2]),
+                       np.arange(scaling_matrix.shape[-1])] = scaling
+        mat = scaling_matrix @ mat @ scaling_matrix
+    return mat
+        
 def matrix_plot(shape_matrix, ax=None, display_values=(0.1, 1.1), text_size=12, vmin=0, vmax=1,
                 boundaries=None):
     if boundaries is None:

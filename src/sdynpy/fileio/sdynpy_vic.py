@@ -31,7 +31,6 @@ from time import time
 
 REPORT_TIME = 5
 
-
 def extract_vic_cal_parameters(z3d_file):
     """
     Extracts camera calibration parameters from a VIC3D .z3d file.
@@ -311,6 +310,8 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
             # Set up variables
             variable_array = {}
             variable_array['sigma'] = np.empty((total_dofs, total_times))
+            variable_array['x'] = np.empty(total_dofs)
+            variable_array['y'] = np.empty(total_dofs)
             if read_3D:
                 variable_array['X'] = np.empty((total_dofs))
                 variable_array['Y'] = np.empty((total_dofs))
@@ -319,8 +320,6 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
                 variable_array['V'] = np.empty((total_dofs, total_times))
                 variable_array['W'] = np.empty((total_dofs, total_times))
             if read_2D:
-                variable_array['x'] = np.empty(total_dofs)
-                variable_array['y'] = np.empty(total_dofs)
                 variable_array['u'] = np.empty((total_dofs, total_times))
                 variable_array['v'] = np.empty((total_dofs, total_times))
                 variable_array['q'] = np.empty((total_dofs, total_times))
@@ -364,18 +363,26 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
         node_numbers[aoi_slice] = np.arange(num_nodes) + (i + 1) * 10**node_length + 1
     # Start accumulating output variables
     output_variables = []
+    # Create the 2D geometry regardless, used for element triangulation
+    node_positions = np.array([variable_array[val] for val in 'xy'])
+    node_positions = np.concatenate(
+        [node_positions, np.zeros((1, node_positions.shape[-1]))], axis=0)
+    geometry_2D = Geometry(
+        node_array(node_numbers, node_positions.T),
+        coordinate_system_array(1))
+    # Create triangulation
+    element_arrays = [geometry_2D.node[aoi_slice].triangulate(
+        geometry_2D.coordinate_system, condition_threshold=element_triangulation_condition) for aoi_slice in aoi_slices
+        if geometry_2D.node[aoi_slice].size > 3]
+    for i in range(len(element_arrays)):
+        element_arrays[i].color = element_color_order[i % len(element_color_order)]
+    geometry_2D.element = np.concatenate(element_arrays)
     if read_3D:
         # Create the geometry
         node_positions = np.array([variable_array[val] for val in 'XYZ'])
         geometry_3D = Geometry(
-            node_array(node_numbers, node_positions.T / 1000),  # Convert from mm to meters
+            node_array(node_numbers, node_positions.T),
             coordinate_system_array(1))
-        # Create triangulation
-        element_arrays = [geometry_3D.node[aoi_slice].triangulate(
-            geometry_3D.coordinate_system, condition_threshold=element_triangulation_condition) for aoi_slice in aoi_slices
-            if geometry_3D.node[aoi_slice].size > 3]
-        for i in range(len(element_arrays)):
-            element_arrays[i].color = element_color_order[i % len(element_color_order)]
         geometry_3D.element = np.concatenate(element_arrays)
         output_variables.append(geometry_3D)
         # Create time history
@@ -385,22 +392,8 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
         timesteps = np.arange(total_times) * dt
         time_data_3D = data_array(FunctionTypes.TIME_RESPONSE, timesteps, node_displacements,
                                   node_dofs[:, np.newaxis])
-        output_variables.append(time_data_3D / 1000)  # Convert from mm to meters
+        output_variables.append(time_data_3D)
     if read_2D:
-        # Create the geometry
-        node_positions = np.array([variable_array[val] for val in 'xy'])
-        node_positions = np.concatenate(
-            [node_positions, np.zeros((1, node_positions.shape[-1]))], axis=0)
-        geometry_2D = Geometry(
-            node_array(node_numbers, node_positions.T),
-            coordinate_system_array(1))
-        # Create triangulation
-        element_arrays = [geometry_2D.node[aoi_slice].triangulate(
-            geometry_2D.coordinate_system, condition_threshold=element_triangulation_condition) for aoi_slice in aoi_slices
-            if geometry_2D.node[aoi_slice].size > 3]
-        for i in range(len(element_arrays)):
-            element_arrays[i].color = element_color_order[i % len(element_color_order)]
-        geometry_2D.element = np.concatenate(element_arrays)
         output_variables.append(geometry_2D)
         # Create time history
         node_displacements = np.array([variable_array[val]

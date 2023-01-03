@@ -38,7 +38,6 @@ import copy
 import netCDF4 as nc4
 import matplotlib.pyplot as plt
 
-
 class System:
     """Matrix Equations representing a Structural Dynamics System"""
 
@@ -550,6 +549,33 @@ class System:
                          outer_product(output_coordinates, input_coordinates))
         return frf
 
+    def assign_modal_damping(self,damping_ratios):
+        """
+        Assigns a damping matrix to the system that results in equivalent
+        modal damping
+
+        Parameters
+        ----------
+        damping_ratios : ndarray
+            An array of damping values to assign to the system
+
+        Returns
+        -------
+        None.
+
+        """
+        damping_ratios = np.array(damping_ratios)
+        if damping_ratios.ndim == 1:
+            shapes = self.eigensolution(num_modes = damping_ratios.size)
+        else:
+            shapes = self.eigensolution()
+        shapes.damping = damping_ratios
+        # Compute the damping matrix
+        modal_system = shapes.system()
+        shape_pinv = np.linalg.pinv(modal_system.transformation.T)
+        full_damping_matrix = shape_pinv@modal_system.damping@shape_pinv.T
+        self.damping[:] = full_damping_matrix
+        
     def save(self, filename):
         """
         Saves the system to a file
