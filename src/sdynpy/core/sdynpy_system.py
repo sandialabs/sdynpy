@@ -259,7 +259,8 @@ class System:
         """Get the number of physical degrees of freedom of the system"""
         return self.transformation.shape[0]
 
-    def to_state_space(self, output_displacement=True, output_velocity=True, output_acceleration=True, output_force=True):
+    def to_state_space(self, output_displacement=True, output_velocity=True, output_acceleration=True, output_force=True,
+                       response_coordinates = None,input_coordinates = None):
         """
         Compute the state space representation of the system
 
@@ -291,45 +292,55 @@ class System:
 
         """
         ndofs = self.ndof
-        tdofs = self.ndof_transformed
         M = self.M
         K = self.K
         C = self.C
-        phi = self.transformation
+        if response_coordinates is None:
+            phi_response = self.transformation
+        else:
+            phi_response = self.transformation_matrix_at_coordinates(response_coordinates)
+        if input_coordinates is None:
+            phi_input = self.transformation
+        else:
+            phi_input = self.transformation_matrix_at_coordinates(input_coordinates)
+        tdofs_response = phi_response.shape[0]
+        tdofs_input = phi_input.shape[0]
         # A = [[     0,     I],
         #      [M^-1*K,M^-1*C]]
 
         A_state = np.block([[np.zeros((ndofs, ndofs)), np.eye(ndofs)],
                             [-np.linalg.solve(M, K), -np.linalg.solve(M, C)]])
 
-        # B = [[     0,  M^-1]]
+        # B = [[     0],
+        #      [  M^-1]]
 
-        B_state = np.block([[np.zeros((ndofs, tdofs))], [np.linalg.solve(M, phi.T)]])
+        B_state = np.block([[np.zeros((ndofs, tdofs_input))],
+                            [np.linalg.solve(M, phi_input.T)]])
 
         # C = [[     I,     0],   # Displacements
         #      [     0,     I],   # Velocities
         #      [M^-1*K,M^-1*C],   # Accelerations
         #      [     0,     0]]   # Forces
 
-        C_state = np.block([[phi, np.zeros((tdofs, ndofs))],
-                            [np.zeros((tdofs, ndofs)), phi],
-                            [-phi @ np.linalg.solve(M, K), -phi @ np.linalg.solve(M, C)],
-                            [np.zeros((tdofs, ndofs)), np.zeros((tdofs, ndofs))]])
+        C_state = np.block([[phi_response, np.zeros((tdofs_response, ndofs))],
+                            [np.zeros((tdofs_response, ndofs)), phi_response],
+                            [-phi_response @ np.linalg.solve(M, K), -phi_response @ np.linalg.solve(M, C)],
+                            [np.zeros((tdofs_input, ndofs)), np.zeros((tdofs_input, ndofs))]])
 
         # D = [[     0],   # Displacements
         #      [     0],   # Velocities
         #      [  M^-1],   # Accelerations
         #      [     I]]   # Forces
 
-        D_state = np.block([[np.zeros((tdofs, tdofs))],
-                            [np.zeros((tdofs, tdofs))],
-                            [phi @ np.linalg.solve(M, phi.T)],
-                            [np.eye(tdofs)]])
-        displacement_indices = np.arange(tdofs)
-        velocity_indices = np.arange(tdofs) + tdofs
-        acceleration_indices = np.arange(tdofs) + 2 * tdofs
-        force_indices = np.arange(tdofs) + 3 * tdofs
-        output_indices = np.zeros(4 * tdofs, dtype=bool)
+        D_state = np.block([[np.zeros((tdofs_response, tdofs_input))],
+                            [np.zeros((tdofs_response, tdofs_input))],
+                            [phi_response @ np.linalg.solve(M, phi_input.T)],
+                            [np.eye(tdofs_input)]])
+        displacement_indices = np.arange(tdofs_response)
+        velocity_indices = np.arange(tdofs_response) + tdofs_response
+        acceleration_indices = np.arange(tdofs_response) + 2 * tdofs_response
+        force_indices = np.arange(tdofs_input) + 3 * tdofs_response
+        output_indices = np.zeros(3 * tdofs_response + tdofs_input, dtype=bool)
         if output_displacement:
             output_indices[displacement_indices] = True
         if output_velocity:

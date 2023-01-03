@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import netCDF4 as nc4
 import numpy as np
-from ..core.sdynpy_coordinate import coordinate_array
+from ..core.sdynpy_coordinate import coordinate_array,outer_product
 from ..core.sdynpy_data import data_array, FunctionTypes
 import pandas as pd
 
@@ -85,3 +85,52 @@ def read_rattlesnake_output(file, coordinate_override_column=None):
     if isinstance(file, str):
         ds.close()
     return time_data, channel_table
+
+def read_system_id_data(file):
+    if isinstance(file,str):
+        file = np.load(file)
+    df = file['sysid_frequency_spacing']
+    if np.isnan(file['response_transformation_matrix']):
+        try:
+            response_dofs = coordinate_array(
+                [int(v) for v in file['channel_node_number'][file['response_indices']]],
+                 file['channel_node_direction'][file['response_indices']])
+        except Exception:
+            response_dofs = coordinate_array(file['response_indices']+1,0)
+    else:
+        response_dofs = coordinate_array(np.arange(file['response_transformation_matrix'].shape[0])+1,0)
+    if np.isnan(file['reference_transformation_matrix']):
+        try:
+            reference_dofs = coordinate_array(
+                [int(v) for v in file['channel_node_number'][file['reference_indices']]],
+                 file['channel_node_direction'][file['reference_indices']])
+        except Exception:
+            reference_dofs = coordinate_array(file['reference_indices']+1,0)
+    else:
+        reference_dofs = coordinate_array(np.arange(file['reference_transformation_matrix'].shape[0])+1,0)
+    ordinate = np.moveaxis(file['frf_data'],0,-1)
+    frfs = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(response_dofs,reference_dofs))
+    ordinate = np.moveaxis(file['response_cpsd'],0,-1)
+    response_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(response_dofs,response_dofs))
+    ordinate = np.moveaxis(file['reference_cpsd'],0,-1)
+    reference_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(reference_dofs,reference_dofs))
+    ordinate = np.moveaxis(file['response_noise_cpsd'],0,-1)
+    response_noise_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(response_dofs,response_dofs))
+    ordinate = np.moveaxis(file['reference_noise_cpsd'],0,-1)
+    reference_noise_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(reference_dofs,reference_dofs))
+    ordinate = np.moveaxis(file['coherence'],0,-1)
+    coherence = data_array(FunctionTypes.MULTIPLE_COHERENCE,
+                      df*np.arange(ordinate.shape[-1]),ordinate,
+                      outer_product(response_dofs))
+    return frfs,response_cpsd,reference_cpsd,response_noise_cpsd,reference_noise_cpsd,coherence
+    

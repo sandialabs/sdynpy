@@ -27,6 +27,7 @@ import copy
 
 # Look at FRAC and TRAC values
 
+
 def mac(phi_1, phi_2=None):
     if phi_2 is None:
         phi_2 = phi_1
@@ -58,7 +59,7 @@ def trac(th_1, th_2=None):
     trac = np.abs(np.sum(th_1_flattened * th_2_flattened.conj(), axis=-1))**2 / ((np.sum(th_1_flattened *
                                                                                          th_1_flattened.conj(), axis=-1)) * np.sum(th_2_flattened * th_2_flattened.conj(), axis=-1))
     return trac.reshape(th_1_original_shape[:-1])
-
+ 
 def msf(shapes,reference_shapes = None):
     if reference_shapes is None:
         reference_shapes = shapes
@@ -81,7 +82,7 @@ def orthog(shapes_1,mass_matrix,shapes_2 = None,scaling = None):
                        np.arange(scaling_matrix.shape[-1])] = scaling
         mat = scaling_matrix @ mat @ scaling_matrix
     return mat
-        
+
 def matrix_plot(shape_matrix, ax=None, display_values=(0.1, 1.1), text_size=12, vmin=0, vmax=1,
                 boundaries=None):
     if boundaries is None:

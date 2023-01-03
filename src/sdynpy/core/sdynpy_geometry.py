@@ -1609,11 +1609,11 @@ class CoordinateSystemArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     @staticmethod
@@ -1652,7 +1652,6 @@ class CoordinateSystemArray(SdynpyArray):
             output_arrays = np.concatenate(output_arrays)
         return output_arrays
 
-
 def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concatenate((np.eye(3), np.zeros((1, 3))), axis=0),
                             structured_array=None):
     """
@@ -1680,7 +1679,6 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
         Alternatively to the individual attributes, a single numpy structured
         array can be passed, which should have the same name as the inputs to
         the function listed above.
-
 
     Returns
     -------
@@ -1713,7 +1711,6 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
     coord_sys_array.matrix = matrix
 
     return coord_sys_array
-
 
 class ElementArray(SdynpyArray):
     """Element information array
@@ -1773,11 +1770,11 @@ class ElementArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2050,11 +2047,11 @@ class NodeArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2153,7 +2150,7 @@ class NodeArray(SdynpyArray):
             Points projected to a best-fit plane.
 
         """
-        coords = coordinates.T
+        coords = coordinates.T.copy()
         mean = np.mean(coords, axis=-1, keepdims=True)
         coords -= mean
         U, S, V = np.linalg.svd(coords)
@@ -2415,11 +2412,11 @@ class TracelineArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2545,7 +2542,6 @@ def traceline_array(id=1, description='', color=1,
 
 from ..fem.sdynpy_exodus import Exodus, ExodusInMemory
 from .sdynpy_shape import shape_array
-
 
 class Geometry:
     """Container for nodes, coordinate systems, tracelines, and elements
