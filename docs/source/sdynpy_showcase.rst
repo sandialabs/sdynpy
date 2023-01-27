@@ -1570,7 +1570,7 @@ method of the :py:class:`System<sdynpy.core.sdynpy_system.System>`.
         integration_oversample = 10)
         
 In addition to variables previously defined, we have also defined keyword
-arguments ``displacement_derivative = 0`` and ``integration_oversample = 10``.
+arguments ``displacement_derivative = 2`` and ``integration_oversample = 10``.
 The ``displacement_derivative`` keyword specifies what data type to return.
 Specifying a two for this value will return an acceleration quantity, which is
 the second derivative of displacement.  Specifying zero or one for this value
