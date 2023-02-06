@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 02: Basics of Vibrations &mdash; SDynPy 0.5.1 documentation</title>
+  <title>Modal Tutorial 02: Basics of Vibrations &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
@@ -82,6 +83,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -402,68 +404,68 @@ itself in the opposite direction, so internal forces develop slowing the spring 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gs
-from matplotlib.animation import FuncAnimation as fa
-import numpy as np
-import sdynpy as sdpy
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gs</span>
+<span class="kn">from</span> <span class="nn">matplotlib.animation</span> <span class="kn">import</span> <span class="n">FuncAnimation</span> <span class="k">as</span> <span class="n">fa</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
 
-def draw_spring_mass(deflection = 0, mass_size = 0.5,
-                     mass_to_ground_length = 0.75, num_windings = 5,
-                     spring_width = 0.1,arrow_sizes=[],arrow_labels=[],
-                     arrow_colors=[], arrow_offset = None,
-                     axis = None,fontsize=24):
-    spring_length = mass_to_ground_length - mass_size/2 + deflection
-    ground_position = -mass_to_ground_length
-    if axis is None:
-        fig,axis = plt.subplots(figsize=(6,8))
-    # Draw the ground
-    axis.plot([-mass_size/2,mass_size/2],
-              [ground_position,ground_position],&#39;k&#39;)
-    # Draw the spring
-    axis.plot([(i%2)*spring_width - spring_width/2 for i in range(num_windings*2)],
-              np.linspace(ground_position,ground_position+spring_length,num_windings*2),&#39;b&#39;)
-    # Draw the mass
-    mass_x,mass_y = np.meshgrid([-mass_size/2,mass_size/2],
-                                [-mass_size/2,mass_size/2],indexing=&#39;ij&#39;)
-    mass_x = mass_x.flatten()
-    mass_y = mass_y.flatten()
-    mass_x = mass_x[[0,1,3,2,0]]
-    mass_y = mass_y[[0,1,3,2,0]]
-    axis.plot(mass_x.flatten(),mass_y.flatten()+deflection,&#39;r&#39;)
-    axis.text(mass_size*2/3,deflection,&#39;$m$&#39;,fontsize=fontsize,
-              ha=&#39;left&#39;,va=&#39;center&#39;)
-    axis.text(spring_width*2/3,ground_position + spring_length/2,&#39;$k$&#39;,
-             fontsize=fontsize,ha=&#39;left&#39;,va=&#39;center&#39;)
-    num_arrows = min([len(arrow_sizes),len(arrow_labels),
-                     len(arrow_colors)])
-    if arrow_offset is None:
-        if num_arrows &gt; 1:
-            arrow_offset = mass_size/(num_arrows+2)
-        else:
-            arrow_offset = 0.0
-    if num_arrows &gt; 0:
-        arrow_positions = np.arange(num_arrows+2)*arrow_offset
-        mean_position = np.mean(arrow_positions)
-        arrow_positions -= mean_position
-        arrow_positions = arrow_positions[1:-1]
-    for size,label,color,position in zip(arrow_sizes,
-                                         arrow_labels,
-                                         arrow_colors,
-                                         arrow_positions):
-        axis.quiver(position,deflection,0,size,scale=1,color=color,
-                   angles=&#39;xy&#39;,scale_units=&#39;xy&#39;)
-        axis.text(position,deflection + mass_size/20*(-1 if size &gt; 0 else 1),
-                  label,ha=&#39;center&#39;,va=&#39;top&#39; if size &gt; 0 else &#39;bottom&#39;,
-                 fontsize=fontsize)
+<span class="k">def</span> <span class="nf">draw_spring_mass</span><span class="p">(</span><span class="n">deflection</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mass_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+                     <span class="n">mass_to_ground_length</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">num_windings</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                     <span class="n">spring_width</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span><span class="n">arrow_sizes</span><span class="o">=</span><span class="p">[],</span><span class="n">arrow_labels</span><span class="o">=</span><span class="p">[],</span>
+                     <span class="n">arrow_colors</span><span class="o">=</span><span class="p">[],</span> <span class="n">arrow_offset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">):</span>
+    <span class="n">spring_length</span> <span class="o">=</span> <span class="n">mass_to_ground_length</span> <span class="o">-</span> <span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">deflection</span>
+    <span class="n">ground_position</span> <span class="o">=</span> <span class="o">-</span><span class="n">mass_to_ground_length</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span><span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="c1"># Draw the ground</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="o">-</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+              <span class="p">[</span><span class="n">ground_position</span><span class="p">,</span><span class="n">ground_position</span><span class="p">],</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="c1"># Draw the spring</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">([(</span><span class="n">i</span><span class="o">%</span><span class="k">2</span>)*spring_width - spring_width/2 for i in range(num_windings*2)],
+              <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ground_position</span><span class="p">,</span><span class="n">ground_position</span><span class="o">+</span><span class="n">spring_length</span><span class="p">,</span><span class="n">num_windings</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="c1"># Draw the mass</span>
+    <span class="n">mass_x</span><span class="p">,</span><span class="n">mass_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">([</span><span class="o">-</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span>
+                                <span class="p">[</span><span class="o">-</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">mass_size</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span><span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+    <span class="n">mass_x</span> <span class="o">=</span> <span class="n">mass_x</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">mass_y</span> <span class="o">=</span> <span class="n">mass_y</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">mass_x</span> <span class="o">=</span> <span class="n">mass_x</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">mass_y</span> <span class="o">=</span> <span class="n">mass_y</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mass_x</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">mass_y</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">+</span><span class="n">deflection</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">mass_size</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span><span class="n">deflection</span><span class="p">,</span><span class="s1">&#39;$m$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+              <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span><span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">spring_width</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span><span class="n">ground_position</span> <span class="o">+</span> <span class="n">spring_length</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;$k$&#39;</span><span class="p">,</span>
+             <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span><span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span><span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">num_arrows</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">arrow_sizes</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">arrow_labels</span><span class="p">),</span>
+                     <span class="nb">len</span><span class="p">(</span><span class="n">arrow_colors</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">arrow_offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">num_arrows</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">arrow_offset</span> <span class="o">=</span> <span class="n">mass_size</span><span class="o">/</span><span class="p">(</span><span class="n">num_arrows</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arrow_offset</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">num_arrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">arrow_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_arrows</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">arrow_offset</span>
+        <span class="n">mean_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">arrow_positions</span><span class="p">)</span>
+        <span class="n">arrow_positions</span> <span class="o">-=</span> <span class="n">mean_position</span>
+        <span class="n">arrow_positions</span> <span class="o">=</span> <span class="n">arrow_positions</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">size</span><span class="p">,</span><span class="n">label</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">position</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">arrow_sizes</span><span class="p">,</span>
+                                         <span class="n">arrow_labels</span><span class="p">,</span>
+                                         <span class="n">arrow_colors</span><span class="p">,</span>
+                                         <span class="n">arrow_positions</span><span class="p">):</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">position</span><span class="p">,</span><span class="n">deflection</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                   <span class="n">angles</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span><span class="n">scale_units</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">position</span><span class="p">,</span><span class="n">deflection</span> <span class="o">+</span> <span class="n">mass_size</span><span class="o">/</span><span class="mi">20</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">),</span>
+                  <span class="n">label</span><span class="p">,</span><span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span><span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;bottom&#39;</span><span class="p">,</span>
+                 <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
 
-fig,axis = plt.subplots(figsize=(6,8))
-axis.axis(&#39;off&#39;)
-axis.axis(&#39;equal&#39;)
-axis.set_ylim(-0.75,0.5)
-draw_spring_mass(axis=axis,arrow_sizes = [0.5],
-                 arrow_labels=[&#39;$f$&#39;],arrow_colors=[&#39;m&#39;])
+<span class="n">fig</span><span class="p">,</span><span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.75</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">draw_spring_mass</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span><span class="n">arrow_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
+                 <span class="n">arrow_labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;$f$&#39;</span><span class="p">],</span><span class="n">arrow_colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -485,89 +487,89 @@ draw_spring_mass(axis=axis,arrow_sizes = [0.5],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Assign values to mass and stiffness
-m = 1
-k = 100
-dof_name = sdpy.coordinate_array(1,2)
-# Create a system object
-system = sdpy.System(dof_name,m,k)
-time_length = 2*np.pi*np.sqrt(m/k)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assign values to mass and stiffness</span>
+<span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">k</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">dof_name</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Create a system object</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">dof_name</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="n">time_length</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span><span class="o">/</span><span class="n">k</span><span class="p">)</span>
 
-# Let&#39;s deflect the spring by x=1 and then let it go to see what happens
-dt = time_length/1000*2
-force_signal = np.zeros((1,1000))
-initial_state = [1,0]
-responses = []
-for i in range(3):
-    response,force = system.time_integrate(force_signal,dt,
-                                           initial_state = initial_state,
-                                           displacement_derivative=i)
-    responses.append(response)
-displacement,velocity,acceleration = responses
+<span class="c1"># Let&#39;s deflect the spring by x=1 and then let it go to see what happens</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="n">time_length</span><span class="o">/</span><span class="mi">1000</span><span class="o">*</span><span class="mi">2</span>
+<span class="n">force_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1000</span><span class="p">))</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">response</span><span class="p">,</span><span class="n">force</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
+                                           <span class="n">initial_state</span> <span class="o">=</span> <span class="n">initial_state</span><span class="p">,</span>
+                                           <span class="n">displacement_derivative</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<span class="n">displacement</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="n">acceleration</span> <span class="o">=</span> <span class="n">responses</span>
 
-# Create a function to plot the response
-def plot_spring_mass_response(displacement,velocity,acceleration,force,
-                              displacement_index,drawing_axis = None,
-                              disp_axis = None, vel_axis = None,
-                              accel_axis = None, force_axis = None, dt = 1.0,
-                              mass_size = 0.5,mass_to_ground_length = 1.0,
-                              num_windings = 5,spring_width = 0.1,
-                              fontsize=24
-                              ):
-    if any([ax is None for ax in [disp_axis,vel_axis,accel_axis,force_axis,
-                                 drawing_axis]]):
-        fig = plt.figure(constrained_layout=True,figsize=(6,4))
-        spec = gs.GridSpec(4,4,figure=fig)
-        drawing_axis = fig.add_subplot(spec[:, 0])
-        disp_axis = fig.add_subplot(spec[0,1:])
-        disp_axis.set_ylabel(&#39;Disp (m)&#39;)
-        vel_axis = fig.add_subplot(spec[1,1:])
-        vel_axis.set_ylabel(&#39;Vel (m/s)&#39;)
-        accel_axis = fig.add_subplot(spec[2,1:])
-        accel_axis.set_ylabel(&#39;Accel (m/s$^2$)&#39;)
-        force_axis = fig.add_subplot(spec[3,1:])
-        force_axis.set_ylabel(&#39;Force (N)&#39;)
-        force_axis.set_xlabel(&#39;Time (s)&#39;)
-        drawing_axis.axis(&#39;off&#39;)
-        drawing_axis.axis(&#39;equal&#39;)
-    times = np.arange(displacement.size)*dt
-    if np.max(np.abs(displacement)) &gt; 0:
-        disp_size = displacement[displacement_index]/np.max(np.abs(displacement))*mass_size
-    else:
-        disp_size = 0
-    if np.max(np.abs(velocity)) &gt; 0:
-        vel_size = velocity[displacement_index]/np.max(np.abs(velocity))*mass_size
-    else:
-        vel_size = 0
-    if np.max(np.abs(acceleration)) &gt; 0:
-        accel_size = acceleration[displacement_index]/np.max(np.abs(acceleration))*mass_size
-    else:
-        accel_size = 0
-    if np.max(np.abs(force)) &gt; 0:
-        force_size = force[displacement_index]/np.max(np.abs(force))*mass_size
-    else:
-        force_size = 0
-    draw_spring_mass(disp_size,mass_size,mass_to_ground_length,
-                     num_windings,spring_width,
-                     arrow_sizes=[vel_size,accel_size,force_size],
-                     arrow_labels=[&#39;v&#39;,&#39;a&#39;,&#39;f&#39;],
-                     arrow_colors=[&#39;k&#39;,&#39;k&#39;,&#39;k&#39;],
-                     arrow_offset = None,
-                     axis = drawing_axis,fontsize=fontsize)
-    disp_axis.plot(times,displacement,&#39;b&#39;)
-    disp_axis.axvline(times[displacement_index],color=&#39;k&#39;)
-    vel_axis.plot(times,velocity,&#39;b&#39;)
-    vel_axis.axvline(times[displacement_index],color=&#39;k&#39;)
-    accel_axis.plot(times,acceleration,&#39;b&#39;)
-    accel_axis.axvline(times[displacement_index],color=&#39;k&#39;)
-    force_axis.plot(times,force,&#39;b&#39;)
-    force_axis.axvline(times[displacement_index],color=&#39;k&#39;)
+<span class="c1"># Create a function to plot the response</span>
+<span class="k">def</span> <span class="nf">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="n">acceleration</span><span class="p">,</span><span class="n">force</span><span class="p">,</span>
+                              <span class="n">displacement_index</span><span class="p">,</span><span class="n">drawing_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                              <span class="n">disp_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">vel_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                              <span class="n">accel_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">force_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+                              <span class="n">mass_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span><span class="n">mass_to_ground_length</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+                              <span class="n">num_windings</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span><span class="n">spring_width</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                              <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span>
+                              <span class="p">):</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">disp_axis</span><span class="p">,</span><span class="n">vel_axis</span><span class="p">,</span><span class="n">accel_axis</span><span class="p">,</span><span class="n">force_axis</span><span class="p">,</span>
+                                 <span class="n">drawing_axis</span><span class="p">]]):</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
+        <span class="n">drawing_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">spec</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">disp_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">disp_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Disp (m)&#39;</span><span class="p">)</span>
+        <span class="n">vel_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">vel_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Vel (m/s)&#39;</span><span class="p">)</span>
+        <span class="n">accel_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">accel_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Accel (m/s$^2$)&#39;</span><span class="p">)</span>
+        <span class="n">force_axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">force_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Force (N)&#39;</span><span class="p">)</span>
+        <span class="n">force_axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+        <span class="n">drawing_axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+        <span class="n">drawing_axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">displacement</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">displacement</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">disp_size</span> <span class="o">=</span> <span class="n">displacement</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">displacement</span><span class="p">))</span><span class="o">*</span><span class="n">mass_size</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">disp_size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">velocity</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">vel_size</span> <span class="o">=</span> <span class="n">velocity</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">velocity</span><span class="p">))</span><span class="o">*</span><span class="n">mass_size</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vel_size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">acceleration</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">accel_size</span> <span class="o">=</span> <span class="n">acceleration</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">acceleration</span><span class="p">))</span><span class="o">*</span><span class="n">mass_size</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">accel_size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">force</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">force_size</span> <span class="o">=</span> <span class="n">force</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">force</span><span class="p">))</span><span class="o">*</span><span class="n">mass_size</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">force_size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">draw_spring_mass</span><span class="p">(</span><span class="n">disp_size</span><span class="p">,</span><span class="n">mass_size</span><span class="p">,</span><span class="n">mass_to_ground_length</span><span class="p">,</span>
+                     <span class="n">num_windings</span><span class="p">,</span><span class="n">spring_width</span><span class="p">,</span>
+                     <span class="n">arrow_sizes</span><span class="o">=</span><span class="p">[</span><span class="n">vel_size</span><span class="p">,</span><span class="n">accel_size</span><span class="p">,</span><span class="n">force_size</span><span class="p">],</span>
+                     <span class="n">arrow_labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;f&#39;</span><span class="p">],</span>
+                     <span class="n">arrow_colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">],</span>
+                     <span class="n">arrow_offset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">axis</span> <span class="o">=</span> <span class="n">drawing_axis</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+    <span class="n">disp_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">displacement</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">disp_axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">vel_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">vel_axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">accel_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">acceleration</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">accel_axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">force_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">force</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">force_axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">displacement_index</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
 
 
-plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          0, dt=dt,
-                          fontsize=12)
+<span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -583,10 +585,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          75, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">75</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -602,10 +604,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          125, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">125</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -621,10 +623,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          200, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">200</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -640,10 +642,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          250, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">250</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -659,10 +661,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          325, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">325</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -678,10 +680,10 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
-                          acceleration[0].ordinate,force[0].ordinate,
-                          500, dt=dt,
-                          fontsize=12)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span>
+                          <span class="mi">500</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span>
+                          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -705,27 +707,27 @@ plot_spring_mass_response(displacement[0].ordinate,velocity[0].ordinate,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>damping_values = [0.1,1,5,20,50,100]
-time_length = 10*np.pi*np.sqrt(m/k)
-# Let&#39;s deflect the spring by x=1 and then let it go to see what happens
-dt = time_length/1000*2
-force_signal = np.zeros((1,1000))
-initial_state = [1,0]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">damping_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">]</span>
+<span class="n">time_length</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span><span class="o">/</span><span class="n">k</span><span class="p">)</span>
+<span class="c1"># Let&#39;s deflect the spring by x=1 and then let it go to see what happens</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="n">time_length</span><span class="o">/</span><span class="mi">1000</span><span class="o">*</span><span class="mi">2</span>
+<span class="n">force_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1000</span><span class="p">))</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 
-responses = []
-for c in damping_values:
-    # Create a system object
-    system = sdpy.System(dof_name,m,k,c)
+<span class="n">responses</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">damping_values</span><span class="p">:</span>
+    <span class="c1"># Create a system object</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">dof_name</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
 
-    response,force = system.time_integrate(force_signal,dt,
-                                           initial_state = initial_state,
-                                           displacement_derivative=0)
-    responses.append(response)
-responses = np.concatenate(responses)
+    <span class="n">response</span><span class="p">,</span><span class="n">force</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
+                                           <span class="n">initial_state</span> <span class="o">=</span> <span class="n">initial_state</span><span class="p">,</span>
+                                           <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
 
-ax = responses.plot(one_axis=False,subplots_kwargs={&#39;figsize&#39;:(10,6),&#39;sharex&#39;:True,&#39;sharey&#39;:True});
-for c,a in zip(damping_values,ax.flatten()):
-    a.set_ylabel(&#39;Damping: {:}\n({:.0f}% Critical)&#39;.format(c,100*c/(2*np.sqrt(k*m))))
+<span class="n">ax</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">subplots_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="s1">&#39;sharex&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span><span class="s1">&#39;sharey&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">});</span>
+<span class="k">for</span> <span class="n">c</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">damping_values</span><span class="p">,</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Damping: </span><span class="si">{:}</span><span class="se">\n</span><span class="s1">(</span><span class="si">{:.0f}</span><span class="s1">% Critical)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">c</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">m</span><span class="p">))))</span>
 </pre></div>
 </div>
 </div>
@@ -763,16 +765,16 @@ for c,a in zip(damping_values,ax.flatten()):
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,3,5000)
-amplification_factor = 1/(k-m*(2*np.pi*frequencies)**2)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">amplification_factor</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">m</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-fig,ax = plt.subplots()
-ax.plot(frequencies,amplification_factor)
-ax.set_ylabel(&#39;Amplfication (m/N)&#39;)
-ax.set_xlabel(&#39;Frequency (Hz)&#39;)
-ax.set_title(&#39;Amplification Factor&#39;)
-ax.set_ylim(-5,5)
-ax.grid(True)
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">amplification_factor</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplfication (m/N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Amplification Factor&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -821,35 +823,35 @@ the spring mass system in the previous section. Note that when the frequency is 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,3,5000)
-damping_values = [0,0.1,0.5,1]
-fig,ax = plt.subplots(2,2,sharex=True,figsize=(12,10))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">damping_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 
-for c in damping_values:
-    amplification_factor = 1/(-m*(2*np.pi*frequencies)**2 + 1j*c*(2*np.pi*frequencies) + k)
-    ax[0,0].plot(frequencies,np.angle(amplification_factor)*180/np.pi)
-    ax[1,0].plot(frequencies,np.abs(amplification_factor))
-    ax[0,1].plot(frequencies,np.real(amplification_factor))
-    ax[1,1].plot(frequencies,np.imag(amplification_factor))
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">damping_values</span><span class="p">:</span>
+    <span class="n">amplification_factor</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="o">-</span><span class="n">m</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">)</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">amplification_factor</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">amplification_factor</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">amplification_factor</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">amplification_factor</span><span class="p">))</span>
 
-ax[0,0].set_ylabel(&#39;Phase Angle (degrees)&#39;)
-ax[0,0].set_ylim(-180,180)
-ax[0,0].set_yticks([-180,-90,0,90,180])
-ax[1,0].set_ylabel(&#39;Magnitude (m/N)&#39;)
-ax[1,0].set_yscale(&#39;log&#39;)
-ax[0,1].set_ylabel(&#39;Real Part (m/N)&#39;)
-ax[1,1].set_ylabel(&#39;Imaginary Part (m/N)&#39;)
-ax[1,0].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[1,1].set_xlabel(&#39;Frequency (Hz)&#39;)
-for a in ax[:,1]:
-    a.set_ylim(-1,1)
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Phase Angle (degrees)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="mi">180</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">180</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Magnitude (m/N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Real Part (m/N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Imaginary Part (m/N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
-for a in ax.flatten():
-    a.grid(True)
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-ax[0,0].legend([&#39;c={:}&#39;.format(c) for c in damping_values])
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;c=</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">damping_values</span><span class="p">])</span>
 
-fig.tight_layout()
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -862,13 +864,13 @@ fig.tight_layout()
 </div>
 <p>It is worth pointing out some features of the frequency response function here. First, we have plotted the complex data in two ways. The left plots show a magnitude and phase plot. The right two plots show a real and imaginary part. While these representations highlight different parts of the frequency response function, they plot the same underlying data and are nominally identical.</p>
 <p>Starting with the magnitude and phase plots: we see that there is a peak in the amplitude at the resonant frequency of the part. We also see that the phase flips from 0 to -180 as the structure goes through resonance, with a phase of -90 degrees corresponding to the resonance location. We note that while the amplitude peak goes to infinity when the damping is zero, the amplitude peak no longer goes up to infinity when damping is included. The sharpness of the amplitude peak and damping
-transition from 0 to -180 degrees depends on the amount of damping, with a larger damping providing a more blunt peak and a slower phase transition. Because the magnitude often spans multiple orders of magnitude, it is often plotted on a logrithmic scale. The magnitude and phase representation is probably the most common representation of a frequency response function.</p>
+transition from 0 to -180 degrees depend on the amount of damping, with a larger damping providing a more blunt peak and a slower phase transition. Because the magnitude often spans multiple orders of magnitude, it is often plotted on a logrithmic scale. The magnitude and phase representation is probably the most common representation of a frequency response function.</p>
 <p>An alternative representation is to plot the real and imaginary part directly. We see that the real part goes through zero at resonance, and the imaginary part peaks at resonance. The imaginary part tends to be “sharper” than the magnitude, so it can be useful to look at the imaginary part of the frequency response function when identifying peaks that may be modes of the system.</p>
 </section>
 <section id="Comparison-between-Displacement,-Velocity,-and-Acceleration-Frequency-Response-Functions">
 <h3>Comparison between Displacement, Velocity, and Acceleration Frequency Response Functions<a class="headerlink" href="#Comparison-between-Displacement,-Velocity,-and-Acceleration-Frequency-Response-Functions" title="Permalink to this heading"></a></h3>
-<p>Note that the frequency reponse functions are plotted as the displacement response over the force. This is intuitive, as we often think about how the part moves when we think about dynamics. Particularly in experimental dynamics, the practitioner may be exposed to multiple data types. Accelerometers measure accelerations of the part. Laser vibrometers measure velocities of the part. Cameras and other displacement sensors measure displacements. Therefore, it is useful to become accustomed to
-what, say, the frequency response function between and acceleration and a force looks like. This basically requires differentiating the response.</p>
+<p>Note that the frequency reponse functions above are plotted as the displacement response over the force. This is intuitive, as we often think about how the part moves when we think about dynamics. However, particularly in experimental dynamics, the practitioner may be exposed to multiple data types. Accelerometers measure accelerations of the part. Laser vibrometers measure velocities of the part. Cameras and other displacement sensors measure displacements. Therefore, it is useful to become
+accustomed to what, say, the frequency response function between and acceleration and a force looks like. This basically requires differentiating the response.</p>
 <div class="math notranslate nohighlight">
 \[x = {X e^{i\omega t}}\]</div>
 <div class="math notranslate nohighlight">
@@ -883,38 +885,38 @@ what, say, the frequency response function between and acceleration and a force 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,4,5000)
-c = 1
-fig,axes = plt.subplots(4,3,sharex=True,figsize=(12,12))
-derivatives = [0,1,2]
-derivative_labels = [&#39;Displacement/Force&#39;,&#39;Velocity/Force&#39;,&#39;Acceleration/Force&#39;]
-reductions = [np.abs,
-              lambda x: np.angle(x)*180/np.pi,
-              np.real,
-              np.imag]
-reduction_labels = [&#39;Magnitude&#39;,&#39;Phase&#39;,&#39;Real Part&#39;,&#39;Imaginary Part&#39;]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
+<span class="n">derivatives</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">derivative_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Displacement/Force&#39;</span><span class="p">,</span><span class="s1">&#39;Velocity/Force&#39;</span><span class="p">,</span><span class="s1">&#39;Acceleration/Force&#39;</span><span class="p">]</span>
+<span class="n">reductions</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">,</span>
+              <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+              <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+              <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">]</span>
+<span class="n">reduction_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">,</span><span class="s1">&#39;Phase&#39;</span><span class="p">,</span><span class="s1">&#39;Real Part&#39;</span><span class="p">,</span><span class="s1">&#39;Imaginary Part&#39;</span><span class="p">]</span>
 
-for label,ax in zip(derivative_labels,axes[0,:]):
-    ax.set_title(label)
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">derivative_labels</span><span class="p">,</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
-for label,ax in zip(derivative_labels,axes[-1,:]):
-    ax.set_xlabel(&#39;Frequency (Hz)&#39;)
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">derivative_labels</span><span class="p">,</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
 
-for ax_row,reduction,label in zip(axes,reductions,reduction_labels):
-    ax_row[0].set_ylabel(label)
-    for ax,derivative in zip(ax_row,derivatives):
-        amplification_factor = ((1j*(2*np.pi*frequencies))**derivative/
-                                (-m*(2*np.pi*frequencies)**2 + 1j*c*(2*np.pi*frequencies) + k))
-        ax.plot(frequencies,reduction(amplification_factor))
-        ax.grid(True)
+<span class="k">for</span> <span class="n">ax_row</span><span class="p">,</span><span class="n">reduction</span><span class="p">,</span><span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span><span class="n">reductions</span><span class="p">,</span><span class="n">reduction_labels</span><span class="p">):</span>
+    <span class="n">ax_row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span><span class="n">derivative</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ax_row</span><span class="p">,</span><span class="n">derivatives</span><span class="p">):</span>
+        <span class="n">amplification_factor</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">))</span><span class="o">**</span><span class="n">derivative</span><span class="o">/</span>
+                                <span class="p">(</span><span class="o">-</span><span class="n">m</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">)</span> <span class="o">+</span> <span class="n">k</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">reduction</span><span class="p">(</span><span class="n">amplification_factor</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-for ax in axes[0,:]:
-    ax.set_yscale(&#39;log&#39;)
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 
-for ax in axes[1,:]:
-    ax.set_yticks([-180,-90,0,90,180])
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">180</span><span class="p">])</span>
 
-fig.tight_layout()
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -928,9 +930,9 @@ fig.tight_layout()
 <p>Briefly comparing these plots, we can highlight some important differences.</p>
 <p>Looking first at the magnitude plots in the first row, we see that at low frequency, the displacement will tend to approach a value. This value is the static stiffness of the spring, because as we go to zero Hz, it is the same as applying a constant force to the structure. For this same reason, the acceleration and velocity will trend towards zero as the frequency trends towards a constant force: when the system is undergoing a static deflection, it is no longer moving or accelerating, but
 maintaining a constant displacement.</p>
-<p>At the high frequency, the displacement frequency response function will trend towards zero motion as the frequency goes to infinity. This is because the amount of time the force is applied before it switches directions becomes very small, so the part has less opportunity to move before the force switches direction and starts pushing it the other way. Similarly, as the acceleration will approach the value obtained if there were no spring on the system, which can be obtained by the formula
-<span class="math notranslate nohighlight">\(F = ma\)</span>, because as the displacements go to zero, the influence of the spring also goes to zero, so the acceleration frequency response function becomes dominated by inertial effects.</p>
-<p>The phase plots all look similar for each data type, noting, however that the phase becomes undefined at zero frequency because the amplitude becomes zero. Because the velocity is 90 degrees out of phase with the displacement and the acceleration is 180 degrees out of phase with the displacement, we see the phase plots shifted appropriately.</p>
+<p>At the high frequency, the displacement frequency response function will trend towards zero motion as the frequency goes to infinity. This is because the amount of time the force is applied before it switches directions becomes very small, so the part has less opportunity to move before the force switches direction and starts pushing it the other way. Because displacements go to zero at high frequency, the effect of the springs will also become negligable at high frequency. The acceleration will
+therefore approach the value obtained if there were no spring on the system, which can be obtained by the formula <span class="math notranslate nohighlight">\(F = ma\)</span>. As the displacements go to zero, the influence of the spring also goes to zero, so the acceleration frequency response function becomes dominated by inertial effects.</p>
+<p>The phase plots all look similar for each data type, noting, however that the phase of the velocity and acceleration frequency response functions becomes undefined at zero frequency because the amplitude becomes zero. Because the velocity is 90 degrees out of phase with the displacement and the acceleration is 180 degrees out of phase with the displacement, we see the phase plots shifted appropriately.</p>
 <p>The real and imaginary parts are also similar, with the main exception being that the real and imaginary parts look “swapped” for the velocity, which is due to the fact that the velocity is 90 degrees out of phase with both acceleration and displacement. A 90 degree rotation effectively switches the real and imaginary parts (though one of the components will have its sign flipped depending on whether or not the rotation is +90 or -90 degrees).</p>
 <p>Note that the above trends are generally only valid for a part that is fixed to ground or attached by a spring. A “free” or “floating” structure, for example, would tend to have infinite displacement and flat acceleration at zero frequency, due to the fact that a constant force will cause a floating structure to move away indefinitely at a constant acceleration. We will examine floating structures when we talk about multiple degrees of freedom in subsequent tutorials.</p>
 </section>
@@ -944,13 +946,13 @@ important to keep track of which degree of freedom is which. Degrees of freedom 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
 
-degree_of_freedom = sdpy.coordinate_array(1,&#39;X+&#39;)
-mass = 5
-stiffness = 1000
-damping = 2.5
-system = sdpy.System(degree_of_freedom,mass,stiffness,damping)
+<span class="n">degree_of_freedom</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">)</span>
+<span class="n">mass</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">stiffness</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">damping</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">degree_of_freedom</span><span class="p">,</span><span class="n">mass</span><span class="p">,</span><span class="n">stiffness</span><span class="p">,</span><span class="n">damping</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -959,7 +961,7 @@ system = sdpy.System(degree_of_freedom,mass,stiffness,damping)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span>
 </pre></div>
 </div>
 </div>
@@ -977,7 +979,7 @@ System with 1 DoFs (1 internal DoFs)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system.M
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="o">.</span><span class="n">M</span>
 </pre></div>
 </div>
 </div>
@@ -990,15 +992,15 @@ System with 1 DoFs (1 internal DoFs)
 array([[5]])
 </pre></div></div>
 </div>
-<p>System objects have a number of functions that are useful for analyzing dynamics problems. For example, we can easily compute the frequency response function. We will use Numpy’s array functions to construct a set of frequencies at which we will compute the frequency response function. We can also specify the response derivative (0 - displacement, 1 - velocity, 2 - acceleration). This provides a <code class="docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code> object which contains the frequency response function. We can easily plot
-it by using its <code class="docutils literal notranslate"><span class="pre">plot</span></code> method.</p>
+<p>System objects have a number of functions that are useful for analyzing structural dynamics problems. For example, we can easily compute the frequency response function. We will use Numpy’s array functions to construct a set of frequencies at which we will compute the frequency response function. We can also specify the response derivative (0 - displacement, 1 - velocity, 2 - acceleration). This provides a <code class="docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code> object which contains the frequency response function. We can
+easily plot it by using its <code class="docutils literal notranslate"><span class="pre">plot</span></code> method.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,10,1000)
-frf = system.frequency_response(frequencies,displacement_derivative = 2)
-frf.plot();
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">frf</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">frf</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1014,7 +1016,7 @@ frf.plot();
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;FRF Data Shape: {:}&#39;.format(frf.ordinate.shape))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FRF Data Shape: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frf</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -1033,19 +1035,19 @@ integration oversampling to ensure that the integration is performed accurately.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequency = 2 # Hz
-dt = 1/20 # 10 samples per cycle of the 2 Hz sine wave
-num_samples = 600 # 30 seconds of data, to let any transients die out
-force_signal = sdpy.generator.sine(frequency,dt,num_samples)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequency</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">20</span> <span class="c1"># 10 samples per cycle of the 2 Hz sine wave</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">600</span> <span class="c1"># 30 seconds of data, to let any transients die out</span>
+<span class="n">force_signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
 
-responses,references = system.time_integrate(force_signal,dt,displacement_derivative=2,integration_oversample=10)
+<span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
-responses.plot(ax[1])
-references.plot(ax[0])
-ax[0].set_ylabel(&#39;Force (N)&#39;)
-ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
-ax[1].set_xlabel(&#39;Time (s)&#39;)
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Time Integration&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">responses</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">references</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Force (N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response (m/s$^2$)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1070,10 +1072,10 @@ Text(0.5, 0, &#39;Time (s)&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequency_line = np.argmin(np.abs(frf[0,0].abscissa-frequency))
-frf_value = frf.ordinate[0,0,frequency_line]
-print(&#39;Frequency Response Function at 2 Hz: {:0.2f} Amplitude, {:0.2f} Phase&#39;.format(
-    np.abs(frf_value),np.angle(frf_value)*180/np.pi))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequency_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span><span class="o">-</span><span class="n">frequency</span><span class="p">))</span>
+<span class="n">frf_value</span> <span class="o">=</span> <span class="n">frf</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">frequency_line</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequency Response Function at 2 Hz: </span><span class="si">{:0.2f}</span><span class="s1"> Amplitude, </span><span class="si">{:0.2f}</span><span class="s1"> Phase&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf_value</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">frf_value</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -1090,15 +1092,15 @@ Frequency Response Function at 2 Hz: 0.75 Amplitude, 171.44 Phase
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
-responses.extract_elements_by_abscissa(25,np.inf).plot(ax[1])
-references.extract_elements_by_abscissa(25,np.inf).plot(ax[0])
-ax[0].set_ylabel(&#39;Force (N)&#39;)
-ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
-ax[1].set_xlabel(&#39;Time (s)&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Time Integration&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">responses</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">references</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Force (N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response (m/s$^2$)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 
-ax[1].axhline(np.abs(frf_value),color=&#39;k&#39;)
-ax[1].axhline(-np.abs(frf_value),color=&#39;k&#39;);
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf_value</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf_value</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1132,7 +1134,7 @@ ax[1].axhline(-np.abs(frf_value),color=&#39;k&#39;);
 </section>
 <section id="4.-Investigate-Damping-Changes">
 <h3>4. Investigate Damping Changes<a class="headerlink" href="#4.-Investigate-Damping-Changes" title="Permalink to this heading"></a></h3>
-<p>The system from Problem 1 is still responding too high, so we would like to increase the damping. First, compute the percent of critical damping that the system currently has. Now, increase the fraction of critical damping of the system by 20% and 40%. Plot the frequency response functions for the light damping, medium damping, high damping systems. How is the peak of the frequency response function changing? Is it changing in amplitude? Is it changing in frequency?</p>
+<p>The response of the system from Problem 1 is still responding too high, so we would like to increase the damping. First, compute the percent of critical damping that the system currently has. Now, increase the fraction of critical damping of the system by 20% and 40%. Plot the frequency response functions for the light damping, medium damping, high damping systems. How is the peak of the frequency response function changing? Is it changing in amplitude? Is it changing in frequency?</p>
 </section>
 </section>
 </section>

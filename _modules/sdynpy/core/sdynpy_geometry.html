@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.core.sdynpy_geometry &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -111,6 +113,10 @@
 <span class="kn">import</span> <span class="nn">vtk</span>
 <span class="kn">from</span> <span class="nn">qtpy</span> <span class="kn">import</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtCore</span>
 <span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QKeySequence</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QAction</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QAction</span>
 <span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QMenu</span>
 <span class="kn">from</span> <span class="nn">.sdynpy_array</span> <span class="kn">import</span> <span class="n">SdynpyArray</span>
 <span class="kn">from</span> <span class="nn">.sdynpy_colors</span> <span class="kn">import</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">coord_colormap</span>
@@ -259,16 +265,15 @@
 
 <span class="n">MAX_NUMBER_REPR</span> <span class="o">=</span> <span class="mi">100</span>
 
-
 <div class="viewcode-block" id="GeometryPlotter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.GeometryPlotter.html#sdynpy.core.sdynpy_geometry.GeometryPlotter">[docs]</a><span class="k">class</span> <span class="nc">GeometryPlotter</span><span class="p">(</span><span class="n">pvqt</span><span class="o">.</span><span class="n">BackgroundPlotter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class used to plot geometry</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class used to plot geometry</span>
 
 <span class="sd">    This class is essentially identical to PyVista&#39;s BackgroundPlotter;</span>
 <span class="sd">    however a small amount of additional functionality is added.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GeometryPlotter.save_rotation_animation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.GeometryPlotter.html#sdynpy.core.sdynpy_geometry.GeometryPlotter.save_rotation_animation">[docs]</a>    <span class="k">def</span> <span class="nf">save_rotation_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">frame_rate</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                                 <span class="n">individual_images</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves an animation of the rotating geometry to a file</span>
 
 <span class="sd">        Parameters</span>
@@ -325,7 +330,7 @@
 
 
 <div class="viewcode-block" id="TransientPlotter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter">[docs]</a><span class="k">class</span> <span class="nc">TransientPlotter</span><span class="p">(</span><span class="n">GeometryPlotter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class used to plot transient deformations&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class used to plot transient deformations&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TransientPlotter.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">displacement_data</span><span class="p">,</span> <span class="n">displacement_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="n">frames_per_second</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
@@ -341,7 +346,7 @@
                  <span class="n">editor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">update_app_icon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a TransientPlotter object to plot displacements over time</span>
 
 <span class="sd">        Parameters</span>
@@ -424,7 +429,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">TransientPlotter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">show</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">off_screen</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TransientPlotter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">show</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">window_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">window_size</span><span class="p">),</span>
+                                               <span class="n">off_screen</span><span class="p">,</span>
                                                <span class="n">allow_quit_keypress</span><span class="p">,</span> <span class="n">toolbar</span><span class="p">,</span>
                                                <span class="n">menu_bar</span><span class="p">,</span> <span class="n">editor</span><span class="p">,</span> <span class="n">update_app_icon</span><span class="p">,</span>
                                                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -546,7 +552,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.add_toolbars"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.add_toolbars">[docs]</a>    <span class="k">def</span> <span class="nf">add_toolbars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds toolbars to the BackgroundPlotter</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -583,7 +589,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.add_menu_bar"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.add_menu_bar">[docs]</a>    <span class="k">def</span> <span class="nf">add_menu_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds the menu bar to the BackgroundPlotter</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -593,15 +599,30 @@
         <span class="n">scaling_menu</span> <span class="o">=</span> <span class="n">shape_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s1">&#39;Scaling&#39;</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1/4x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p25</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1/2x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p5</span><span class="p">)</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p8</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1p25</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1p25</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;2x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_2p0</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;4x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_4p0</span><span class="p">)</span>
         <span class="n">speed_menu</span> <span class="o">=</span> <span class="n">shape_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s1">&#39;Animation Speed&#39;</span><span class="p">)</span>
-        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_0p8</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_speed_0p8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">))</span>
+        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="p">)</span>
         <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1</span><span class="p">)</span>
-        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1p25</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1p25</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span>
+        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="p">)</span>
         <span class="n">shape_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_abscissa_action</span> <span class="o">=</span> <span class="n">pvqt</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;Show Abscissa&#39;</span><span class="p">,</span> <span class="n">checkable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">shape_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_abscissa_action</span><span class="p">)</span>
@@ -639,7 +660,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_0p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.25x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">0.25</span>
@@ -647,7 +668,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_0p5"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p5">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.5x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">0.5</span>
@@ -655,7 +676,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_0p8"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_0p8">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p8</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.8x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">0.8</span>
@@ -663,7 +684,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_1"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resets shape scaling to 1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -671,7 +692,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_1p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_1p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_1p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 1.25x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">1.25</span>
@@ -679,7 +700,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_2p0"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_2p0">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_2p0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 2x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">2.0</span>
@@ -687,7 +708,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_scaling_4p0"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_scaling_4p0">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_4p0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 4x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale</span> <span class="o">*=</span> <span class="mf">4.0</span>
@@ -695,19 +716,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_displacement</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_speed_1"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resets animation speed to default quantities</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">=</span> <span class="mf">1.0</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_speed_0p8"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_0p8">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_0p8</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current animation speed by 0.8</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">*=</span> <span class="mf">0.8</span></div>
 
 <div class="viewcode-block" id="TransientPlotter.select_speed_1p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.select_speed_1p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_1p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current animation speed by 1.25</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">*=</span> <span class="mf">1.25</span></div>
@@ -760,7 +781,7 @@
 <div class="viewcode-block" id="TransientPlotter.save_animation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TransientPlotter.html#sdynpy.core.sdynpy_geometry.TransientPlotter.save_animation">[docs]</a>    <span class="k">def</span> <span class="nf">save_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_rate</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                        <span class="n">individual_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stop_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves the current shape animation to a file</span>
 
 <span class="sd">        Parameters</span>
@@ -820,14 +841,14 @@
 
 
 <div class="viewcode-block" id="ShapePlotter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter">[docs]</a><span class="k">class</span> <span class="nc">ShapePlotter</span><span class="p">(</span><span class="n">GeometryPlotter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class used to plot animated shapes&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class used to plot animated shapes&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ShapePlotter.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="p">,</span>
                  <span class="n">background_plotter_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;auto_update&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
                  <span class="n">undeformed_opacity</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">starting_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape_name</span><span class="o">=</span><span class="s1">&#39;Mode&#39;</span><span class="p">,</span>
                  <span class="n">show_damping</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Shape Plotter object to plot shapes</span>
 
 <span class="sd">        Parameters</span>
@@ -919,7 +940,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">show_comment</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.compute_displacements"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.compute_displacements">[docs]</a>    <span class="k">def</span> <span class="nf">compute_displacements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compute_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes displacements to apply to the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -952,7 +973,7 @@
                 <span class="n">max_displacement</span>  <span class="c1"># Set to 5% of bounding box dimension</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.update_shape_mode"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode">[docs]</a>    <span class="k">def</span> <span class="nf">update_shape_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the mode that is being plotted</span>
 
 <span class="sd">        Parameters</span>
@@ -1004,7 +1025,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.update_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape">[docs]</a>    <span class="k">def</span> <span class="nf">update_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the shape that is being plotted</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape_mode</span><span class="p">()</span></div>
@@ -1018,7 +1039,7 @@
 
 <div class="viewcode-block" id="ShapePlotter.save_animation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation">[docs]</a>    <span class="k">def</span> <span class="nf">save_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">frame_rate</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                        <span class="n">individual_images</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves the current shape animation to a file</span>
 
 <span class="sd">        Parameters</span>
@@ -1066,7 +1087,7 @@
 <div class="viewcode-block" id="ShapePlotter.save_animation_all_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">save_animation_all_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="s1">&#39;Shape_</span><span class="si">{:}</span><span class="s1">.gif&#39;</span><span class="p">,</span>
                                   <span class="n">frames</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">frame_rate</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                                   <span class="n">individual_images</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper function to easily save animations for all shapes</span>
 
 <span class="sd">        Parameters</span>
@@ -1092,7 +1113,7 @@
                                 <span class="n">frames</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">,</span> <span class="n">individual_images</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.add_menu_bar"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.add_menu_bar">[docs]</a>    <span class="k">def</span> <span class="nf">add_menu_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds the menu bar to the BackgroundPlotter</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1121,15 +1142,30 @@
         <span class="n">scaling_menu</span> <span class="o">=</span> <span class="n">shape_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s1">&#39;Scaling&#39;</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1/4x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p25</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1/2x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p5</span><span class="p">)</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p8</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
-        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1p25</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_0p8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_0p8_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_reset_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_1p25</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_1p25_action</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;2x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_2p0</span><span class="p">)</span>
         <span class="n">scaling_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;4x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_scaling_4p0</span><span class="p">)</span>
         <span class="n">speed_menu</span> <span class="o">=</span> <span class="n">shape_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s1">&#39;Animation Speed&#39;</span><span class="p">)</span>
-        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_0p8</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;0.8x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_speed_0p8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">))</span>
+        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_0p8_action</span><span class="p">)</span>
         <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Reset&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1</span><span class="p">)</span>
-        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1p25</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;1.25x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">select_speed_1p25</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">))</span>
+        <span class="n">speed_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_1p25_action</span><span class="p">)</span>
         <span class="n">shape_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_comments_action</span> <span class="o">=</span> <span class="n">pvqt</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s1">&#39;Show Comments&#39;</span><span class="p">,</span> <span class="n">checkable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_comments_action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_comment</span><span class="p">)</span>
@@ -1144,7 +1180,7 @@
         <span class="n">display_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_undeformed</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.add_toolbars"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.add_toolbars">[docs]</a>    <span class="k">def</span> <span class="nf">add_toolbars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds toolbars to the BackgroundPlotter</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1175,7 +1211,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.play_animation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation">[docs]</a>    <span class="k">def</span> <span class="nf">play_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Starts the animation playing&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Starts the animation playing&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">pvqt</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">QTimer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -1183,7 +1219,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.stop_animation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation">[docs]</a>    <span class="k">def</span> <span class="nf">stop_animation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Stops the animation from playing&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stops the animation from playing&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -1192,7 +1228,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_0p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.25x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">0.25</span>
@@ -1201,7 +1237,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_0p5"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.5x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">0.5</span>
@@ -1210,7 +1246,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_0p8"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_0p8</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 0.8x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">0.8</span>
@@ -1219,7 +1255,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_1"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resets shape scaling to 1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -1228,7 +1264,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_1p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_1p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 1.25x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">1.25</span>
@@ -1237,7 +1273,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_2p0"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_2p0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 2x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">2.0</span>
@@ -1246,7 +1282,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_scaling_4p0"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0">[docs]</a>    <span class="k">def</span> <span class="nf">select_scaling_4p0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current shape scaling by 4x</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement_scale_modification</span> <span class="o">*=</span> <span class="mf">4.0</span>
@@ -1255,25 +1291,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_shape</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_speed_1"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resets animation speed to default quantities</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">=</span> <span class="mf">1.0</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_speed_0p8"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_0p8</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current animation speed by 0.8</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">/=</span> <span class="mf">0.8</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_speed_1p25"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25">[docs]</a>    <span class="k">def</span> <span class="nf">select_speed_1p25</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the current animation speed by 1.25</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">animation_speed</span> <span class="o">/=</span> <span class="mf">1.25</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.select_complex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex">[docs]</a>    <span class="k">def</span> <span class="nf">select_complex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts how complex shapes are plotted</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">complex_actions</span> <span class="o">=</span> <span class="p">[</span>
@@ -1298,7 +1334,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.next_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape">[docs]</a>    <span class="k">def</span> <span class="nf">next_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Increases the index of the shape being plotted</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_shape</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1311,7 +1347,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">show_comment</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.prev_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape">[docs]</a>    <span class="k">def</span> <span class="nf">prev_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decreases the index of the shape being plotted</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_shape</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -1327,7 +1363,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ShapePlotter.show_comment"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ShapePlotter.html#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment">[docs]</a>    <span class="k">def</span> <span class="nf">show_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shows or hides the shape comment</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_comments_action</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
@@ -1345,13 +1381,13 @@
 
 
 <div class="viewcode-block" id="DeflectionShapePlotter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html#sdynpy.core.sdynpy_geometry.DeflectionShapePlotter">[docs]</a><span class="k">class</span> <span class="nc">DeflectionShapePlotter</span><span class="p">(</span><span class="n">ShapePlotter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class used to plot animated deflection shapes from spectra&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class used to plot animated deflection shapes from spectra&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DeflectionShapePlotter.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html#sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">deflection_shape_data</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="p">,</span>
                  <span class="n">background_plotter_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;auto_update&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
                  <span class="n">undeformed_opacity</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">starting_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                  <span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">num_curves</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a DeflectionShapePlotter object to plot shapes</span>
 
 <span class="sd">        Parameters</span>
@@ -1464,7 +1500,7 @@
 
 
 <div class="viewcode-block" id="split_list"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.split_list.html#sdynpy.core.sdynpy_geometry.split_list">[docs]</a><span class="k">def</span> <span class="nf">split_list</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Splits a list by a value that exists in the list</span>
 
 <span class="sd">    Parameters</span>
@@ -1491,7 +1527,7 @@
 
 
 <div class="viewcode-block" id="global_coord"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.global_coord.html#sdynpy.core.sdynpy_geometry.global_coord">[docs]</a><span class="k">def</span> <span class="nf">global_coord</span><span class="p">(</span><span class="n">coordinate_system</span><span class="p">,</span> <span class="n">local_coord</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Compute global coordinates from local coordinates</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Compute global coordinates from local coordinates</span>
 
 <span class="sd">    Compute the global coordinates of a node from its local coordinates in the</span>
 <span class="sd">    corresponding coordinate system.  </span>
@@ -1533,7 +1569,7 @@
 
 
 <div class="viewcode-block" id="local_coord"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.local_coord.html#sdynpy.core.sdynpy_geometry.local_coord">[docs]</a><span class="k">def</span> <span class="nf">local_coord</span><span class="p">(</span><span class="n">coordinate_system</span><span class="p">,</span> <span class="n">global_coord</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute local coordinates from global coordinates</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute local coordinates from global coordinates</span>
 
 <span class="sd">    Compute the local coordinates of a node in the</span>
 <span class="sd">    corresponding coordinate system from its global coordinates.  </span>
@@ -1580,7 +1616,7 @@
 
 
 <div class="viewcode-block" id="global_deflection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.global_deflection.html#sdynpy.core.sdynpy_geometry.global_deflection">[docs]</a><span class="k">def</span> <span class="nf">global_deflection</span><span class="p">(</span><span class="n">coordinate_system</span><span class="p">,</span> <span class="n">local_deflection</span><span class="p">,</span> <span class="n">global_point</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute deflections in the global coordinate system</span>
 
 <span class="sd">    Parameters</span>
@@ -1635,7 +1671,7 @@
 
 
 <div class="viewcode-block" id="CoordinateSystemArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray">[docs]</a><span class="k">class</span> <span class="nc">CoordinateSystemArray</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Coordinate System Information specifying position and directions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coordinate System Information specifying position and directions.</span>
 
 <span class="sd">    Use the coordinate_system_array helper function to create the array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1667,7 +1703,7 @@
         <span class="k">return</span> <span class="n">string_out</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_by_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select coordinate system by id rather than by index</span>
 
 <span class="sd">        Parameters</span>
@@ -1690,16 +1726,16 @@
         <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">index_by_id</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ID </span><span class="si">{:}</span><span class="s1"> not found in array&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="CoordinateSystemArray.from_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray.from_unv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_unv</span><span class="p">(</span><span class="n">unv_data_dict</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load CoordinateSystemArrays from universal file data from read_unv</span>
 
 <span class="sd">        Parameters</span>
@@ -1733,10 +1769,9 @@
             <span class="n">output_arrays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">output_arrays</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_arrays</span></div></div>
 
-
 <div class="viewcode-block" id="coordinate_system_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.coordinate_system_array.html#sdynpy.core.sdynpy_geometry.coordinate_system_array">[docs]</a><span class="k">def</span> <span class="nf">coordinate_system_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cs_type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">matrix</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
                             <span class="n">structured_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an array that specifies coordinate systems in the geometry</span>
 
 <span class="sd">    Creates an array of coordinate systems that specify directions of sensors</span>
@@ -1761,7 +1796,6 @@
 <span class="sd">        Alternatively to the individual attributes, a single numpy structured</span>
 <span class="sd">        array can be passed, which should have the same name as the inputs to</span>
 <span class="sd">        the function listed above.</span>
-
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1795,9 +1829,8 @@
 
     <span class="k">return</span> <span class="n">coord_sys_array</span></div>
 
-
 <div class="viewcode-block" id="ElementArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray">[docs]</a><span class="k">class</span> <span class="nc">ElementArray</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Element information array</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Element information array</span>
 
 <span class="sd">    Use the element_array helper function to create the array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1831,7 +1864,7 @@
         <span class="k">return</span> <span class="n">string_out</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_by_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select elements by id rather than by index</span>
 
 <span class="sd">        Parameters</span>
@@ -1854,15 +1887,15 @@
         <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">index_by_id</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ID </span><span class="si">{:}</span><span class="s1"> not found in array&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="ElementArray.reduce"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Keep only elements that have all nodes contained in node_list</span>
 
 <span class="sd">        Parameters</span>
@@ -1884,7 +1917,7 @@
 
 <div class="viewcode-block" id="ElementArray.from_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray.from_unv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_unv</span><span class="p">(</span><span class="n">unv_data_dict</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load ElementArrays from universal file data from read_unv</span>
 
 <span class="sd">        Parameters</span>
@@ -1920,7 +1953,7 @@
 
 <div class="viewcode-block" id="element_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.element_array.html#sdynpy.core.sdynpy_geometry.element_array">[docs]</a><span class="k">def</span> <span class="nf">element_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                   <span class="n">connectivity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structured_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an array that specifies elements in the geometry</span>
 
 <span class="sd">    Creates an array of elements that specify connectivity of sensors</span>
@@ -2074,7 +2107,7 @@
 
 
 <div class="viewcode-block" id="NodeArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray">[docs]</a><span class="k">class</span> <span class="nc">NodeArray</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Node information array</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Node information array</span>
 
 <span class="sd">    Use the node_array helper function to create the array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2108,7 +2141,7 @@
         <span class="k">return</span> <span class="n">string_out</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_by_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select nodes by id rather than by index</span>
 
 <span class="sd">        Parameters</span>
@@ -2131,15 +2164,15 @@
         <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">index_by_id</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ID </span><span class="si">{:}</span><span class="s1"> not found in array&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="NodeArray.reduce"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Keep only nodes that are contained in node_list</span>
 
 <span class="sd">        Parameters</span>
@@ -2157,7 +2190,7 @@
 
 <div class="viewcode-block" id="NodeArray.from_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.from_unv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_unv</span><span class="p">(</span><span class="n">unv_data_dict</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load NodeArrays from universal file data from read_unv</span>
 
 <span class="sd">        Parameters</span>
@@ -2192,7 +2225,7 @@
         <span class="k">return</span> <span class="n">output_arrays</span></div>
 
 <div class="viewcode-block" id="NodeArray.by_position"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.by_position">[docs]</a>    <span class="k">def</span> <span class="nf">by_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_array</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select node by closest position</span>
 
 <span class="sd">        Parameters</span>
@@ -2217,7 +2250,7 @@
 
 <div class="viewcode-block" id="NodeArray.project_to_minimum_plane"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.project_to_minimum_plane">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">project_to_minimum_plane</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">return_3D</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Projects coordinates to a single best-fit plane</span>
 
 <span class="sd">        Parameters</span>
@@ -2234,7 +2267,7 @@
 <span class="sd">            Points projected to a best-fit plane.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">coords</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">coords</span> <span class="o">-=</span> <span class="n">mean</span>
         <span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
@@ -2246,7 +2279,7 @@
             <span class="k">return</span> <span class="n">coords</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span></div>
 
 <div class="viewcode-block" id="NodeArray.global_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.global_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">global_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_array</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the global coordinate of each node</span>
 
 <span class="sd">        Parameters</span>
@@ -2267,7 +2300,7 @@
 <div class="viewcode-block" id="NodeArray.triangulate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.triangulate">[docs]</a>    <span class="k">def</span> <span class="nf">triangulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_array</span><span class="p">,</span> <span class="n">projection_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">return_element_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">element_color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">condition_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates elements for a node set using Delaunay Triangulation</span>
 
 <span class="sd">        Parameters</span>
@@ -2319,7 +2352,7 @@
 
 <div class="viewcode-block" id="NodeArray.by_grid"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray.by_grid">[docs]</a>    <span class="k">def</span> <span class="nf">by_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_spacing</span><span class="p">,</span> <span class="n">x_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">x_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Selects nodes in a grid</span>
 
 <span class="sd">        Parameters</span>
@@ -2377,10 +2410,9 @@
         <span class="n">candidate_node_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">candidate_nodes</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">candidate_nodes</span><span class="p">(</span><span class="n">candidate_node_ids</span><span class="p">)</span></div></div>
 
-
 <div class="viewcode-block" id="node_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.node_array.html#sdynpy.core.sdynpy_geometry.node_array">[docs]</a><span class="k">def</span> <span class="nf">node_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">coordinate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">def_cs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">disp_cs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                <span class="n">structured_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an array that specifies nodes in the geometry</span>
 
 <span class="sd">    Creates an array of nodes that specify positions of sensors</span>
@@ -2441,7 +2473,7 @@
 
 
 <div class="viewcode-block" id="TracelineArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray">[docs]</a><span class="k">class</span> <span class="nc">TracelineArray</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Traceline information array</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Traceline information array</span>
 
 <span class="sd">    Use the traceline_array helper function to create the array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2474,7 +2506,7 @@
         <span class="k">return</span> <span class="n">string_out</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_by_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select nodes by id rather than by index</span>
 
 <span class="sd">        Parameters</span>
@@ -2497,15 +2529,15 @@
         <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">index_by_id</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">index_dict</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ID </span><span class="si">{:}</span><span class="s1"> not found in array&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="TracelineArray.reduce"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Keep only tracelines fully contain nodes in node_list</span>
 
 <span class="sd">        Parameters</span>
@@ -2527,7 +2559,7 @@
 
 <div class="viewcode-block" id="TracelineArray.from_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray.from_unv">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_unv</span><span class="p">(</span><span class="n">unv_data_dict</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load TracelineArrays from universal file data from read_unv</span>
 
 <span class="sd">        Parameters</span>
@@ -2563,7 +2595,7 @@
 
 <div class="viewcode-block" id="traceline_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.traceline_array.html#sdynpy.core.sdynpy_geometry.traceline_array">[docs]</a><span class="k">def</span> <span class="nf">traceline_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">connectivity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structured_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an array that specifies tracelines in the geometry</span>
 
 <span class="sd">    Creates an array of tracelines that specify connectivity of sensors</span>
@@ -2628,9 +2660,8 @@
 <span class="kn">from</span> <span class="nn">..fem.sdynpy_exodus</span> <span class="kn">import</span> <span class="n">Exodus</span><span class="p">,</span> <span class="n">ExodusInMemory</span>
 <span class="kn">from</span> <span class="nn">.sdynpy_shape</span> <span class="kn">import</span> <span class="n">shape_array</span>
 
-
 <div class="viewcode-block" id="Geometry"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry">[docs]</a><span class="k">class</span> <span class="nc">Geometry</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Container for nodes, coordinate systems, tracelines, and elements</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Container for nodes, coordinate systems, tracelines, and elements</span>
 
 <span class="sd">    Geometry is the class that is most useful for working with the positioning</span>
 <span class="sd">    and spatial visualization of test or analysis data.  It contains functions</span>
@@ -2638,7 +2669,7 @@
 
 <div class="viewcode-block" id="Geometry.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">NodeArray</span><span class="p">((</span><span class="mi">0</span><span class="p">,)),</span> <span class="n">coordinate_system</span><span class="o">=</span><span class="n">CoordinateSystemArray</span><span class="p">((</span><span class="mi">0</span><span class="p">,)),</span>
                  <span class="n">traceline</span><span class="o">=</span><span class="n">TracelineArray</span><span class="p">((</span><span class="mi">0</span><span class="p">,)),</span> <span class="n">element</span><span class="o">=</span><span class="n">ElementArray</span><span class="p">((</span><span class="mi">0</span><span class="p">,))):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a geometry object with nodes, coordinate systems, tracelines,</span>
 <span class="sd">        and elements.</span>
 
@@ -2676,7 +2707,7 @@
         <span class="k">return</span> <span class="n">string_out</span>
 
 <div class="viewcode-block" id="Geometry.reduce"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reduce the geometry to only contain nodes in `node_list`</span>
 
 <span class="sd">        Elements and tracelines will only be kept if all nodes in each element</span>
@@ -2702,7 +2733,7 @@
         <span class="k">return</span> <span class="n">Geometry</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">coordinate_system</span><span class="p">,</span> <span class="n">traceline</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Geometry.add_traceline"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.add_traceline">[docs]</a>    <span class="k">def</span> <span class="nf">add_traceline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a traceline to the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -2735,7 +2766,7 @@
 
 <div class="viewcode-block" id="Geometry.from_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.from_unv">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_unv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">unv_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a geometry from universal file format data from readunv</span>
 
 <span class="sd">        Parameters</span>
@@ -2785,7 +2816,7 @@
 
 <div class="viewcode-block" id="Geometry.from_exodus"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.from_exodus">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_exodus</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">exo</span><span class="p">:</span> <span class="n">Exodus</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preferred_local_orientation</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)),</span> <span class="n">secondary_preferred_local_orientation</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a geometry from exodus file data</span>
 
 <span class="sd">        Parameters</span>
@@ -2905,7 +2936,7 @@
 
 <div class="viewcode-block" id="Geometry.camera_visualization"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.camera_visualization">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">camera_visualization</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">RT</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a geometry used to visualize a camera specified with K and RT</span>
 
 <span class="sd">        Parameters</span>
@@ -2973,7 +3004,7 @@
 
 <div class="viewcode-block" id="Geometry.from_imat_struct"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_imat_struct</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">imat_fem_struct</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs a Geometry from an imat_fem class saved to a Matlab structure</span>
 
 <span class="sd">        In IMAT, a structure can be created from an `imat_fem` by using the get()</span>
@@ -3026,7 +3057,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">css</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">elems</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Geometry.global_node_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">global_node_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Position of the Geometry&#39;s nodes in the global coordinate system</span>
 
 
@@ -3042,7 +3073,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">global_coordinate</span><span class="p">(</span><span class="n">cs_array</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Geometry.global_deflection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.global_deflection">[docs]</a>    <span class="k">def</span> <span class="nf">global_deflection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate_array</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Direction of local deflection in the global coordinate system</span>
 
 <span class="sd">        Parameters</span>
@@ -3070,7 +3101,7 @@
 
 <div class="viewcode-block" id="Geometry.overlay_geometries"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">overlay_geometries</span><span class="p">(</span><span class="n">geometries</span><span class="p">,</span> <span class="n">color_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_node_id_offset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combines several geometries, offsetting the id numbers to avoid conflicts</span>
 
 <span class="sd">        Parameters</span>
@@ -3145,7 +3176,7 @@
 
 <div class="viewcode-block" id="Geometry.plot"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">line_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">view_up</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">view_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">show_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots the geometry in an interactive 3D window.</span>
 
 <span class="sd">        Parameters</span>
@@ -3286,7 +3317,7 @@
                                     <span class="n">faces</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span>
                                         <span class="n">face_element_connectivity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">face_element_connectivity</span><span class="p">,</span>
                                     <span class="n">lines</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_connectivity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">line_connectivity</span><span class="p">)</span>
-            <span class="n">face_mesh</span><span class="o">.</span><span class="n">cell_arrays</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_colors</span> <span class="o">+</span> <span class="n">face_element_colors</span>
+            <span class="n">face_mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_colors</span> <span class="o">+</span> <span class="n">face_element_colors</span>
 
             <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">face_mesh</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
                              <span class="n">show_edges</span><span class="o">=</span><span class="n">show_edges</span><span class="p">,</span>  <span class="c1"># True if line_width &gt; 0 else False,</span>
@@ -3299,7 +3330,7 @@
                                              <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solid_element_connectivity</span><span class="p">),</span>
                                              <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solid_element_types</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">),</span>
                                              <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">global_node_positions</span><span class="p">))</span>
-            <span class="n">solid_mesh</span><span class="o">.</span><span class="n">cell_arrays</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solid_element_colors</span>
+            <span class="n">solid_mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solid_element_colors</span>
 
             <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">solid_mesh</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
                              <span class="n">show_edges</span><span class="o">=</span><span class="n">show_edges</span><span class="p">,</span>  <span class="c1"># True if line_width &gt; 0 else False,</span>
@@ -3308,7 +3339,7 @@
 
         <span class="k">if</span> <span class="n">node_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">point_mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">global_node_positions</span><span class="p">)</span>
-            <span class="n">point_mesh</span><span class="o">.</span><span class="n">cell_arrays</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_colors</span>
+            <span class="n">point_mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_colors</span>
             <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">point_mesh</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
                              <span class="n">show_edges</span><span class="o">=</span><span class="n">show_edges</span><span class="p">,</span>  <span class="c1"># True if line_width &gt; 0 else False,</span>
                              <span class="n">show_scalar_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">point_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
@@ -3333,7 +3364,7 @@
                         <span class="n">arrow_scale_type</span><span class="o">=</span><span class="s1">&#39;bbox&#39;</span><span class="p">,</span> <span class="n">label_dofs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">label_font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                         <span class="n">arrow_ends_on_node</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots coordinate arrows on the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -3394,9 +3425,9 @@
             <span class="n">global_deflections</span> <span class="o">=</span> <span class="n">global_deflection</span><span class="p">(</span><span class="n">coordinate_systems</span><span class="p">,</span> <span class="n">local_deformations</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
             <span class="c1"># Now add the point array to the mesh</span>
             <span class="n">coord_mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_arrays</span><span class="p">[</span><span class="s1">&#39;Coordinates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_deflections</span>
-            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_arrays</span><span class="p">[</span><span class="s1">&#39;Direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_arrays</span><span class="p">[</span><span class="s1">&#39;Node ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span>
+            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;Coordinates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_deflections</span>
+            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;Direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+            <span class="n">coord_mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;Node ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span>
             <span class="k">return</span> <span class="n">coord_mesh</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">global_deflections</span>
 
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -3493,7 +3524,7 @@
         <span class="k">return</span> <span class="n">plotter</span></div>
 
 <div class="viewcode-block" id="Geometry.plot_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.plot_shape">[docs]</a>    <span class="k">def</span> <span class="nf">plot_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">background_plotter_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;editor&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">undeformed_opacity</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">starting_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot mode shapes on the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -3532,7 +3563,7 @@
                               <span class="n">background_plotter_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;editor&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                               <span class="n">undeformed_opacity</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                               <span class="n">starting_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot deflection shapes shapes on the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -3583,7 +3614,7 @@
                        <span class="n">editor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">update_app_icon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a TransientPlotter object to plot displacements over time</span>
 
 <span class="sd">        Parameters</span>
@@ -3693,7 +3724,7 @@
         <span class="k">return</span> <span class="n">Geometry</span><span class="p">(</span><span class="o">**</span><span class="n">final_fields</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Geometry.modify_ids"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.modify_ids">[docs]</a>    <span class="k">def</span> <span class="nf">modify_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_change</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">traceline_change</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">element_change</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coordinate_system_change</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shifts the id numbers in the geometry</span>
 
 <span class="sd">        Parameters</span>
@@ -3725,7 +3756,7 @@
         <span class="k">return</span> <span class="n">geom_out</span></div>
 
 <div class="viewcode-block" id="Geometry.map_ids"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.map_ids">[docs]</a>    <span class="k">def</span> <span class="nf">map_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">traceline_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">element_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coordinate_system_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maps id numbers from an original set of ids to a new set of ids.</span>
 
 <span class="sd">        This function accepts id_map classes defining &quot;from&quot; and &quot;to&quot; ids</span>
@@ -3771,7 +3802,7 @@
         <span class="k">return</span> <span class="n">geom_out</span></div>
 
 <div class="viewcode-block" id="Geometry.copy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return&#39;s a copy of the current Geometry</span>
 
 <span class="sd">        Changes to the copy will not also be applied to the original geometry</span>
@@ -3785,7 +3816,7 @@
         <span class="k">return</span> <span class="n">Geometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate_system</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="Geometry.save"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Saves the geometry to a numpy .npz file</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves the geometry to a numpy .npz file</span>
 
 <span class="sd">        The .npz file will have fields &#39;node&#39;, &#39;coordinate_system&#39;, &#39;element&#39;,</span>
 <span class="sd">        and &#39;traceline&#39;, with each field storing the respective portion of the</span>
@@ -3809,7 +3840,7 @@
                  <span class="n">traceline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Geometry.rigid_body_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">rigid_body_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inertia</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">cg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">principal_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a set of shapes corresponding to the rigid body motions</span>
 
 <span class="sd">        Rigid body translation and rotation shapes are computed analytically</span>
@@ -3875,7 +3906,7 @@
 
 <div class="viewcode-block" id="Geometry.load"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads a geometry from a numpy .npz or .unv file</span>
 
 <span class="sd">        The .npz file must have fields &#39;node&#39;, &#39;coordinate_system&#39;, &#39;element&#39;,</span>
@@ -3921,7 +3952,7 @@
                      <span class="n">write_tracelines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">write_elements</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">dataset_2412_kwargs</span><span class="o">=</span><span class="p">{},</span>
                      <span class="n">dataset_2420_kwargs</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the geometry to a unversal file format file</span>
 
 <span class="sd">        Parameters</span>
@@ -4048,10 +4079,10 @@
 
 
 <div class="viewcode-block" id="id_map"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map">[docs]</a><span class="k">class</span> <span class="nc">id_map</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class defining mapping between two sets of id numbers&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defining mapping between two sets of id numbers&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="id_map.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ids</span><span class="p">,</span> <span class="n">to_ids</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the id map</span>
 
 <span class="sd">        Parameters</span>
@@ -4071,7 +4102,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">({</span><span class="n">f</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">from_ids</span><span class="p">,</span> <span class="n">to_ids</span><span class="p">)}</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map id numbers</span>
 
 <span class="sd">        Parameters</span>

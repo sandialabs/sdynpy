@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis &mdash; SDynPy 0.5.1 documentation</title>
+  <title>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
@@ -63,8 +64,18 @@
 <li class="toctree-l3"><a class="reference internal" href="Modal_05a_Computing_FRF_from_Time_Data.html">Modal Tutorial 05 Part A: Computing Frequency Response from Time Data</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Requirements-for-the-FFT">Requirements for the FFT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Considerations-for-Multiple-Input-Excitation">Considerations for Multiple-Input Excitation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Types-of-Modal-Excitation">Types of Modal Excitation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#Random-Vibration">Random Vibration</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Pseudorandom-Excitation">Pseudorandom Excitation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Chirp-Excitation">Chirp Excitation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Burst-Random-Excitation">Burst Random Excitation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Impulse-Excitation">Impulse Excitation</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Homework-Problems">Homework Problems</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05c_Selecting_Response_and_Measurement_DoFs.html">Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05d_Data_Quality_Checks.html">Modal Tutorial 05 Part D: Data Quality Checks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05e_Fitting_Modes_to_FRF.html">Modal Tutorial 05 Part E: Fitting Modes to Data</a></li>
@@ -74,6 +85,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -386,38 +398,38 @@ div.rendered_html tbody tr:hover {
 <p>When performing experimental modal analysis, the type of excitation applied to a structure matters a great deal. Traditionally, modal excitation has come in two flavors: impact testing and shaker testing. However, there are various new techniques that blur the lines between the two types of tests. This tutorial will discuss some of the requirements for the excitation (and the responses therefrom) used in modal testing.</p>
 <section id="Requirements-for-the-FFT">
 <h2>Requirements for the FFT<a class="headerlink" href="#Requirements-for-the-FFT" title="Permalink to this heading"></a></h2>
-<p>The goal of modal testing is to compute the frequency response function, to which modes can be fit. The previous tutorial discussed approaches to computing the frequency response function. Common among all of the broadband techniques was the use for the Fast Fourier Transform (FFT) which is used to transform a sampled signal into its various frequency components. Let’s first discuss some of the practical issues surrounding the use of the FFT.</p>
+<p>The goal of modal testing is to compute the frequency response function, to which modes can be fit. The previous tutorial discussed approaches to computing the frequency response function. Common among all of the broadband techniques was the use of the Fast Fourier Transform (FFT) which is used to transform a sampled signal into its various frequency components. Let’s first discuss some of the practical issues surrounding the use of the FFT.</p>
 <p>First, let’s see what the FFT is supposed to do. Say, for example, that we have a signal that is a sine wave at 10 Hz. We can plot that signal, and compute its FFT, and we can see that the frequency of the sine wave has been properly identified.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
-import sdynpy as sdpy
-import matplotlib.pyplot as plt
-import scipy.signal
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span>
 
-# Compute the signal
-frequency = 10 # Hz
-sample_rate = 1000 # Hz
-dt = 1/sample_rate # seconds
-num_samples = 1000 # Samples
-times = np.arange(num_samples)*dt
-signal = sdpy.generator.sine(frequency,dt,num_samples)
+<span class="c1"># Compute the signal</span>
+<span class="n">frequency</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># Hz</span>
+<span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Samples</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
 
-# Compute its FFT
-frequency_lines = np.fft.rfftfreq(num_samples,dt)
-signal_fft = np.fft.rfft(signal)
+<span class="c1"># Compute its FFT</span>
+<span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-# Plot both
-fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
-ax[0].plot(times,signal)
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].plot(frequency_lines,np.abs(signal_fft))
-ax[1].set_xlabel(&#39;Frequency (s)&#39;)
-ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
-fig.tight_layout()
+<span class="c1"># Plot both</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -433,30 +445,30 @@ fig.tight_layout()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
-frequencies = [10,20,50,100] # Hz
-amplitudes = [1,2,0.5,4]
-sample_rate = 1000 # Hz
-dt = 1/sample_rate # seconds
-num_samples = 1000 # Samples
-times = np.arange(num_samples)*dt
-signal = np.sum(
-    sdpy.generator.sine(frequencies,dt,num_samples,amplitudes),
-    axis=0)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the signal</span>
+<span class="n">frequencies</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">]</span> <span class="c1"># Hz</span>
+<span class="n">amplitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Samples</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">,</span><span class="n">amplitudes</span><span class="p">),</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-# Compute its FFT
-frequency_lines = np.fft.rfftfreq(num_samples,dt)
-signal_fft = np.fft.rfft(signal)
+<span class="c1"># Compute its FFT</span>
+<span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-# Plot both
-fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
-ax[0].plot(times,signal)
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].plot(frequency_lines,np.abs(signal_fft))
-ax[1].set_xlabel(&#39;Frequency (s)&#39;)
-ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
-fig.tight_layout()
+<span class="c1"># Plot both</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -471,35 +483,35 @@ fig.tight_layout()
 <p>Mathematically inclined readers familiar with the continuous Fourier Transform may be aware that the Fourier transform is actually computed using all time from negative to positive infinity.</p>
 <div class="math notranslate nohighlight">
 \[\hat{f}(\xi)=  \int_{-\infty}^\infty f(x)e^{-i2\pi\xi x}dx\]</div>
-<p>However, when running an experiment to identify frequency components of some response, we cannot affort to wait an infinite amount of time. We would much rather wait a finite amount of time to measure the signal. However, the law of the Fourier transform still stands; the signal must be infinitely long. Therefore, when performing the FFT, the assumption is that the signal could repeat indefinitely. For example, if we repeat the original 10 Hz sine wave signal indefinitely, we are still left with
+<p>However, when running an experiment to identify frequency components of some response, we cannot afford to wait an infinite amount of time. We would much rather wait a finite amount of time to measure the signal. However, the law of the Fourier transform still stands; the signal must be infinitely long. Therefore, when performing the FFT, the assumption is that the signal could repeat indefinitely. For example, if we repeat the original 10 Hz sine wave signal indefinitely, we are still left with
 a 10 Hz sine wave.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
-frequency = 10 # Hz
-sample_rate = 1000 # Hz
-dt = 1/sample_rate # seconds
-num_samples = 3000 # Samples
-times = np.arange(num_samples)*dt
-signal = sdpy.generator.sine(frequency,dt,num_samples)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the signal</span>
+<span class="n">frequency</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># Hz</span>
+<span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">3000</span> <span class="c1"># Samples</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
 
-# Compute its FFT
-frequency_lines = np.fft.rfftfreq(num_samples,dt)
-signal_fft = np.fft.rfft(signal)
+<span class="c1"># Compute its FFT</span>
+<span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-# Plot both
-fig,ax = plt.subplots(2,1,num=&#39;Sine Signal&#39;)
-ax[0].plot(times,signal)
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[0].axvline(1,color=&#39;k&#39;)
-ax[0].axvline(2,color=&#39;k&#39;)
-ax[1].plot(frequency_lines,np.abs(signal_fft))
-ax[1].set_xlabel(&#39;Frequency (s)&#39;)
-ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
-fig.tight_layout()
+<span class="c1"># Plot both</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -515,31 +527,31 @@ fig.tight_layout()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for frequency in [5,10,20,5.25]:
-    # Compute the signal
-    sample_rate = 1000 # Hz
-    dt = 1/sample_rate # seconds
-    num_samples = 1000 # Samples
-    times = np.arange(num_samples)*dt
-    signal = sdpy.generator.sine(frequency,dt,num_samples)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mf">5.25</span><span class="p">]:</span>
+    <span class="c1"># Compute the signal</span>
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Samples</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
 
-    # Compute its FFT
-    frequency_lines = np.fft.rfftfreq(num_samples,dt)
-    signal_fft = np.fft.rfft(signal)
+    <span class="c1"># Compute its FFT</span>
+    <span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-    # Plot both
-    fig,ax = plt.subplots(2,1,num=&#39;Sine Signal: {:}&#39;.format(frequency))
-    ax[0].set_title(&#39;Frequency: {:}&#39;.format(frequency))
-    ax[0].plot(times,signal)
-    ax[0].set_xlabel(&#39;Time (s)&#39;)
-    ax[0].set_ylabel(&#39;Signal (-)&#39;)
-    ax[1].plot(frequency_lines,np.abs(signal_fft))
-    ax[1].set_xlabel(&#39;Frequency (s)&#39;)
-    ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
-    ax[1].set_xlim(frequency-5,frequency+5)
-    ax[0].grid(True)
-    ax[1].grid(True)
-    fig.tight_layout()
+    <span class="c1"># Plot both</span>
+    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">frequency</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="n">frequency</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -577,18 +589,18 @@ of this if we try to repeat the signal indefinitely, as the FFT assumes we do.</
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,1,num=&#39;Leakage demonstration&#39;)
-ax[0].set_title(&#39;Frequency: {:}&#39;.format(frequency))
-ax[0].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
-ax[1].set_xlabel(&#39;Time (s)&#39;)
-ax[1].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].set_xlim(0.9,1.1)
-ax[0].grid(True)
-ax[1].grid(True)
-fig.tight_layout()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Leakage demonstration&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span><span class="n">signal</span><span class="p">)))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span><span class="n">signal</span><span class="p">)))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mf">0.9</span><span class="p">,</span><span class="mf">1.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -604,21 +616,21 @@ fig.tight_layout()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>assumed_signal = scipy.signal.resample(signal,num_samples*10)
-fig,ax = plt.subplots(2,1,num=&#39;Leakage demonstration&#39;)
-ax[0].set_title(&#39;Sampled Signal&#39;)
-ax[0].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)))
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].plot(np.arange(num_samples*10*2)*dt/10,np.concatenate((assumed_signal,assumed_signal)),&#39;b-&#39;)
-ax[1].plot(np.arange(num_samples*2)*dt,np.concatenate((signal,signal)),&#39;k.&#39;)
-ax[1].set_xlabel(&#39;Time (s)&#39;)
-ax[1].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].set_xlim(0.98,1.02)
-ax[1].set_title(&#39;Signal Assumed by the FFT&#39;)
-ax[0].grid(True)
-ax[1].grid(True)
-fig.tight_layout()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">assumed_signal</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Leakage demonstration&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Sampled Signal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span><span class="n">signal</span><span class="p">)))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">10</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">assumed_signal</span><span class="p">,</span><span class="n">assumed_signal</span><span class="p">)),</span><span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span><span class="n">signal</span><span class="p">)),</span><span class="s1">&#39;k.&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span><span class="mf">1.02</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Signal Assumed by the FFT&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -635,27 +647,27 @@ exactly 1 frequency bin with non-zero amplitude, but the 5.25 Hz frequency bin c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for frequency in [5,10,20,5.25]:
-    # Compute the signal
-    sample_rate = 1000 # Hz
-    dt = 1/sample_rate # seconds
-    num_samples = 1000 # Samples
-    times = np.arange(num_samples)*dt
-    signal = sdpy.generator.sine(frequency,dt,num_samples)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mf">5.25</span><span class="p">]:</span>
+    <span class="c1"># Compute the signal</span>
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Samples</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
 
-    # Compute its FFT
-    frequency_lines = np.fft.rfftfreq(num_samples,dt)
-    signal_fft = np.fft.rfft(signal)
+    <span class="c1"># Compute its FFT</span>
+    <span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-    # Plot both
-    fig,ax = plt.subplots(1,1,num=&#39;Sine Signal: {:}&#39;.format(frequency))
-    ax.set_title(&#39;Frequency: {:}&#39;.format(frequency))
-    ax.plot(frequency_lines,np.abs(signal_fft))
-    ax.set_xlabel(&#39;Frequency (s)&#39;)
-    ax.set_ylabel(&#39;|Signal FFT| (-)&#39;)
-    ax.set_xlim(frequency-5,frequency+5)
-    ax.grid(True)
-    fig.tight_layout()
+    <span class="c1"># Plot both</span>
+    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">frequency</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="n">frequency</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -693,27 +705,27 @@ exactly 1 frequency bin with non-zero amplitude, but the 5.25 Hz frequency bin c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute the signal
-frequency = 100 # Hz
-sample_rate = 1000 # Hz
-dt = 1/sample_rate # seconds
-num_samples = 1000 # Samples
-times = np.arange(num_samples)*dt
-signal = sdpy.generator.pulse(num_samples,0.1,0.01,dt=dt)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the signal</span>
+<span class="n">frequency</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># Hz</span>
+<span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span> <span class="c1"># seconds</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1"># Samples</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">pulse</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 
-# Compute its FFT
-frequency_lines = np.fft.rfftfreq(num_samples,dt)
-signal_fft = np.fft.rfft(signal)
+<span class="c1"># Compute its FFT</span>
+<span class="n">frequency_lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
 
-# Plot both
-fig,ax = plt.subplots(2,1,num=&#39;Pulse Signal&#39;)
-ax[0].plot(times,signal)
-ax[0].set_xlabel(&#39;Time (s)&#39;)
-ax[0].set_ylabel(&#39;Signal (-)&#39;)
-ax[1].plot(frequency_lines,np.abs(signal_fft))
-ax[1].set_xlabel(&#39;Frequency (s)&#39;)
-ax[1].set_ylabel(&#39;|Signal FFT| (-)&#39;)
-fig.tight_layout()
+<span class="c1"># Plot both</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Pulse Signal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -724,15 +736,395 @@ fig.tight_layout()
 <img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_15_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_15_0.png" />
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
 </section>
+<section id="Considerations-for-Multiple-Input-Excitation">
+<h2>Considerations for Multiple-Input Excitation<a class="headerlink" href="#Considerations-for-Multiple-Input-Excitation" title="Permalink to this heading"></a></h2>
+<p>In addition to considerations for satisfying the FFT assumptions, there are also signals that are more useful when performing testing with multiple inputs simultaneously. In this class of testing, each excitation signal must be independent from the others in order to be able to isolate which responses are due to which exciters. If, for example, we were to play the exact same signal into each shaker, it would be impossible to figure out which portion of the response would be due to a given
+shaker. Considering the H1 technique</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{H}_1 = \mathbf{P}_{XF} {\mathbf{P}_{FF}}^{-1}\]</div>
+<p>we see that we will be inverting the <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix. In order to invert this matrix, it must be full rank. Recall that this matrix is computed from what is essentially the outer-product of the input spectra</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{P}_{FF} = {\sum_{i=1}^n \mathbf{F}_i \mathbf{F}_i^* \over n}\]</div>
+<p>Therefore, each realization of <span class="math notranslate nohighlight">\(\mathbf{F}_i \mathbf{F}_i^*\)</span> will be rank 1. Indeed, if we only used one average (<span class="math notranslate nohighlight">\(n=1\)</span>) to compute the signal, or if the relationships between the signals do not change over each average, then the matrix <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> will be rank deficient and unable to be inverted. This introduces the constraint that we must have at least as many averages as we have exciters in order to ensure that <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> is full rank.</p>
+<p>If we have multiple-exciters, it is clear that we need to change the relationships between the input signals for each measurement frame. The easiest way to do this is to add an element of randomness to the signal. If we only have one exciter, then the <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix will be full rank regardless of number of averages or characteristics of the signals, so we don’t need to worry (though averaging in this case is still useful to reduce noise).</p>
+</section>
+<section id="Types-of-Modal-Excitation">
+<h2>Types of Modal Excitation<a class="headerlink" href="#Types-of-Modal-Excitation" title="Permalink to this heading"></a></h2>
+<p>With the considerations mentioned previously in mind, we can introduce some of the more popular excitation techniques for experimental modal analysis. We will introduce the techniques on the <code class="docutils literal notranslate"><span class="pre">beam_plate</span></code> example system from the <code class="docutils literal notranslate"><span class="pre">sdynpy.demo</span></code> package. We will use the <code class="docutils literal notranslate"><span class="pre">simulate_test</span></code> method of the <code class="docutils literal notranslate"><span class="pre">System</span></code> object to easily simulate a test.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import modules</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="c1"># Import demo problem</span>
+<span class="kn">from</span> <span class="nn">sdynpy.demo.beam_plate</span> <span class="kn">import</span> <span class="n">system</span><span class="p">,</span><span class="n">geometry</span>
+<span class="c1"># Solve for the modal solution so that we have an easier system to integrate</span>
+<span class="n">shapes</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="mi">1500</span><span class="p">)</span>
+<span class="c1"># Add damping</span>
+<span class="n">shapes</span><span class="o">.</span><span class="n">damping</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">modal_system</span> <span class="o">=</span> <span class="n">shapes</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>We will investigate both a single-exciter and a multi-exciter case for each signal. We will excite the plate structure on two of the four corners, and measure responses at all nodes of the system in the perpendicular direction.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">41</span><span class="p">],</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">response_dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">reference_dofs</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p><img alt="plate_excitation_locations.gif" src="../../_images/plate_excitation_locations.gif" /></p>
+<section id="Random-Vibration">
+<h3>Random Vibration<a class="headerlink" href="#Random-Vibration" title="Permalink to this heading"></a></h3>
+<p>The first signal we will investigate is the simple random excitation. Due to the random nature of the signal any given realization of the signal may or may not have significant content at each frequency line. Therefore, we will generally use a larger number of averages for a random test.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-reference</span>
+<span class="n">response_random_mimo</span><span class="p">,</span><span class="n">reference_random_mimo</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Due to the random nature of the signal, it will not necessarily satisfy the periodicity requirement. We can see this by plotting the first and last portion of the first average to see that it does not start and end at the same value.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_random_mimo</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;First Portion of the First Average&#39;</span><span class="p">)</span>
+
+<span class="n">reference_random_mimo</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Last Portion of the First Average&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_24_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_24_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_24_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_24_1.png" />
+</div>
+</div>
+<p>Because the signal is not periodic, we will need to apply a window function in order to force periodicity. Note that this does distort the signal; however, the distortion is not as bad as the leakage that would occur without the window function.</p>
+<p>We can compute frequency response functions using the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_random_mimo</span><span class="p">,</span><span class="n">response_random_mimo</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p><img alt="random_spgui.png" src="../../_images/random_spgui.png" /></p>
+<p>From the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> we can see the effect of the window function.</p>
+<p><img alt="windowed_time_random.png" src="../../_images/windowed_time_random.png" /></p>
+<p>Note that because the Hann window attenuates the first and last section of the measurement frame, we will generally overlap the measurement frames by 50% to ensure that all portions of the signal are considered; the regions that are attenuated to zero in a frame will be unattenuated in a frame shifted by half a frame width.</p>
+<p>We can also see the frequency response function and coherence of the signal.</p>
+<p><img alt="frf_random.png" src="../../_images/frf_random.png" /> <img alt="coherence_random.png" src="../../_images/coherence_random.png" /></p>
+<p>We can see the degredation of the coherence and increased noise in the frequency response function if we remove the window function.</p>
+<p><img alt="frf_random_nowindow.png" src="../../_images/frf_random_nowindow.png" /> <img alt="coherence_random_nowindow.png" src="../../_images/coherence_random_nowindow.png" /></p>
+<p>Note that even with the window function, the coherence is still not perfect across the entire frequency band. The window function artificially attenuates portions of the signals, which results in a distortion of the input-output relationship of the system. Because the forces in the beginning of the measurement frame are attenuated, responses in the middle of the frame can appear to not correlate to any input. Additionally at the forces toward the end of the frame will have responses due to those
+forces artificially attenuated by the window. For this reason, it is expected to see coherence drops not only at the anti-resonances of the frequency response functions, but also at the resonances, particularly the lower-frequency resonances where the signal will tend to take longer to die out.</p>
+<p>Random excitation has the advantage of being relatively easy to implement. No triggering is needed to align the signal with a measurement frame. Additionally, because there is excitation and response across the entire measurement frame, the signal-to-noise ratio is relatively high. Finally, the random signal can linearize slight nonlinearities about a given excitation level, so it is useful when trying to fit modes (which inherently assumes a linear system) for slightly nonlinear systems.</p>
+<p>The main disadvantage of this signal, as stated above, is that it is not periodic within the measurement frame. Distortion of the signal is inevitable, even with a window function applied. Practically, this distortion will cause an overestimation of damping at lower frequencies. Additionally, if the coherence drop at a given mode is significant enough, shape estimates can also appear noisy or distorted.</p>
+</section>
+<section id="Pseudorandom-Excitation">
+<h3>Pseudorandom Excitation<a class="headerlink" href="#Pseudorandom-Excitation" title="Permalink to this heading"></a></h3>
+<p>With the main disadvantage of a random signal being its non-periodicity, we can imagine a signal that is random-like but is also periodic within the measurement frame. For example, if we take a set of sine waves that are periodic within the measurement frame (e.g. no leakage) and randomize their phases, we will have a random-looking signal that is also periodic within the measurement frame. Because this is a deterministic signal, we will generally not require a significant number of averages to
+obtain a clean signal.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-reference</span>
+<span class="n">response_pr_mimo</span><span class="p">,</span><span class="n">reference_pr_mimo</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;pseudorandom&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Warning: Pseudorandom generally not recommended for multi-reference excitation.
+</pre></div></div>
+</div>
+<p>We can immediately see that SDynPy has warned us against using pseudorandom excitation for a multiple-input test. This is because a pseudorandom excitation signal simply repeats the same signal over and over again to ensure periodicity in the excitation and periodicity in the responses. If, for example, we use the H1 estimator</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{H}_1 = \mathbf{P}_{XF} {\mathbf{P}_{FF}}^{-1}\]</div>
+<p>we will be trying to invert the rank deficient <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix. We can see this if we try to compute frequency response functions from the previous pseudorandom dataset. We will again compute frequency response functions with the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_pr_mimo</span><span class="p">,</span><span class="n">response_pr_mimo</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>We can set up our signal processing GUI to compute frequency response functions, recognizing for this case we do not need a window function applied to the data due to it being periodic. We also set frame acceptance to <code class="docutils literal notranslate"><span class="pre">Select</span></code> and reject the first measurement frame as the response have not yet achieved steady state responses.</p>
+<p><img alt="mimo_pr_spgui.png" src="../../_images/mimo_pr_spgui.png" /></p>
+<p>If we compute the frequency response functions for this case, they look terrible compared to the frequency response functions from the random case, again due to inverting a rank-deficient matrix.</p>
+<p><img alt="frf_pr.png" src="../../_images/frf_pr.png" /></p>
+<p>However, we will note that the coherence in this case looks very good.</p>
+<p><img alt="coherence_pr.png" src="../../_images/coherence_pr.png" /></p>
+<p>An inexperienced test engineer may look at the coherence metric and claim that because it is close to 1, this must be a good test. However, it is important to remember what the coherence is actually telling us–that the responses are due to the inputs. In this case, this is true, the responses are all very much correlated to the inputs. Unfortunately, that doesn’t mean we can tell which portions of the response came from which input, and this is required for computing the frequency response
+function.</p>
+<p>We could play some games to get multiple-input testing to work with pseudorandom excitation. For example, by re-randomizing the phases of the signals for each measurement frame we could add independent components to the <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix allowing it to be inverted. However, we must ensure we allow the system to come to steady state prior to taking the response measurement (otherwise we are back to the non-periodic random case where a window is required) This increases test time as
+well as the chance for making errors. Typically pseudorandom excitation is used only for cases where a single excitation is required.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-reference</span>
+<span class="n">response_pr_simo</span><span class="p">,</span><span class="n">reference_pr_simo</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;pseudorandom&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span>
+    <span class="p">)</span>
+<span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_pr_simo</span><span class="p">,</span><span class="n">response_pr_simo</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> similarly</p>
+<p><img alt="simo_pr_spgui.png" src="../../_images/simo_pr_spgui.png" /></p>
+<p>and get significantly improved estimation of the frequency response function.</p>
+<p><img alt="frf_simo_pr.png" src="../../_images/frf_simo_pr.png" /></p>
+<p>The coherence looks similarly good, with minor dips at the antiresonances.</p>
+<p><img alt="coherence_simo_pr.png" src="../../_images/coherence_simo_pr.png" /></p>
+</section>
+<section id="Chirp-Excitation">
+<h3>Chirp Excitation<a class="headerlink" href="#Chirp-Excitation" title="Permalink to this heading"></a></h3>
+<p>One could imagine instead of producing a random-like signal using a sum of sine waves with randomized phases to cover multiple frequencies in a broadband excitation, one could instead simply produce a single sine wave with a frequency that ramps between two values. This signal would then cover all frequencies between these two values. This is called a chirp excitation.</p>
+<p>Chirp excitation generally shares similar properties to the burst random signal. They are both deterministic signals, so few averages are required. They also do not require window functions if they are played repeatedly, allowing the system to come to steady state. Finally, they are both generally better suited to single-input testing.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-reference</span>
+<span class="n">response_chirp_simo</span><span class="p">,</span><span class="n">reference_chirp_simo</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;chirp&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span><span class="p">,</span>
+    <span class="n">excitation_min_frequency</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">excitation_max_frequency</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can see that in a given measurement frame we have excitation frequency content from the minimum specified frequency to the maximum specified frequency.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract just the first measurement frame</span>
+<span class="n">first_frame</span> <span class="o">=</span> <span class="n">reference_chirp_simo</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">first_frame</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Time Response&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">first_frame_fft</span> <span class="o">=</span> <span class="n">first_frame</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">first_frame_fft</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Response</span><span class="se">\n</span><span class="s1">Phase&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Response</span><span class="se">\n</span><span class="s1">Magnitude&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_36_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_36_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_36_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_36_1.png" />
+</div>
+</div>
+<p>We can then compute the frequency response function identically to the pseudorandom signal.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_chirp_simo</span><span class="p">,</span><span class="n">response_chirp_simo</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p><img alt="simo_chirp_spgui.png" src="../../_images/simo_chirp_spgui.png" /></p>
+<p>We get good frequency response functions and coherence.</p>
+<p><img alt="frf_chirp.png" src="../../_images/frf_chirp.png" /></p>
+<p><img alt="coherence_chirp.png" src="../../_images/coherence_chirp.png" /></p>
+<p>Note that the frequency response function was computed well over the entire bandwidth, while the chirp signal only covered a portion of the bandwidth. This is not realistic and is an artifact of the signals being synthesized analytically without any noise added. You can see in the fast Fourier transform of the excitation signal, while the major components of the signal were between 10 and 500 Hz, there was still lesser components of the signal at higher and lower frequencies. In a real test with
+realistic noise sources, these lesser components may be below the noise floor of the test and frequency response and coherence may degrade outside the bandwidth of the signal. One should generally try to tailor the signal to match the frequency range of interest.</p>
+</section>
+<section id="Burst-Random-Excitation">
+<h3>Burst Random Excitation<a class="headerlink" href="#Burst-Random-Excitation" title="Permalink to this heading"></a></h3>
+<p>We have now seen three types of signals. The Random signal was not periodic and required a window function, but it was able to be used with multiple excitation signals. The Chirp and Pseudorandom signals didn’t require a window function, but were not able to be easily used with mutliple excitation signals. The Burst Random signal attempts to provide a signal that is both periodic within the measurement frame as well as useful for multi-exciter testing.</p>
+<p>The idea of a Burst Random signal is that the excitation is only active for a portion of the measurement frame. The signal starts at zero, ramps up to a random signal at some point in the frame, then ramps back down to zero. By both starting at ending at zero, the measurement can be considered periodic because the measurement frame can be repeated indefinitely without causing discontinuities at the measurement frame boundary. Note that both the excitation force and response must be zero at the
+start and end of the frame, so the excitation must be stopped with enough time left in the frame for the measurement to decay to zero.</p>
+<p>Similar to a Random signal, the random portion of the Burst Random signal is randomly generated. This means each measurement frame will have a different realization of the signal and a different phasing between the different exciters. The <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix will therefore be full-rank and invertable assuming at least as many measurement frames as exciters are used.</p>
+<p>There are a few disadvantages of the Burst Random signal. Because it is a random signal, any given frame may not have significant excitation at a given frequency line, so a larger number of averages is generally required. Additionally, because the signal is only active for a portion of the measurement frame, the signal-to-noise ratio of the Burst Random excitation may be lower than that of a Random excitation. Finally, due to its transient nature, we are unable to overlap frames in a Burst
+Random test like we can with a Random test and the frames may need to be made longer in order to allow the response to decay to zero within a measurement frame. All of these generally contribute to a longer-running test than some of the other signals investigated. However, given it can take hours or even days to set up a single test, the addition of a few extra minutes of test time is generally a very small price to pay in order to be able to acquire all excitation locations simultaneously and
+without any distortion.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-reference</span>
+<span class="n">response_burst_mimo</span><span class="p">,</span><span class="n">reference_burst_mimo</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">4000</span><span class="p">,</span> <span class="c1"># Need to increase frame length to allow decay to 0</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;burst random&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span><span class="p">,</span>
+    <span class="n">signal_fraction</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="p">)</span>
+<span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_burst_mimo</span><span class="p">,</span><span class="n">response_burst_mimo</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> similarly to the Random case, except we will set no overlap nor window function in this case.</p>
+<p><img alt="mimo_br_spgui.png" src="../../_images/mimo_br_spgui.png" /></p>
+<p>We see that the frequency response function and coherence both look very good in this case.</p>
+<p><img alt="frf_br.png" src="../../_images/frf_br.png" /></p>
+<p><img alt="coherence_br.png" src="../../_images/coherence_br.png" /></p>
+</section>
+<section id="Impulse-Excitation">
+<h3>Impulse Excitation<a class="headerlink" href="#Impulse-Excitation" title="Permalink to this heading"></a></h3>
+<p>The previous sections all discussed various types of signals you could play into a system using a shaker to excite the structure. However setting up and aligning a shaker can be non-trivial. For many “simple” modal tests, it is much less effort to simply use an impact hammer to apply an impulse to the structure. An impulse will result in broadband excitation of the system over which frequency response functions can be computed.</p>
+<p>One disadvantage of an impulse hammer is it is much more difficult to precisely set the bandwidth of the excitation. While the user can chose, for example, the stiffness of a hammer tip (a harder tip will result in a higher-frequency excitation), it is nearly impossible to, for example, cut off the excitation content at exactly 300 Hz. For this reason, impact testing practitioners must be keenly aware of the concept of aliasing in their signals, which occurs when there is excitation or system
+response past the Nyquist frequency of the test. Particularly when using a modern data acquisition system with high-quality antialiasing filters, this is less of an issue than it has been in the past. However, one must still be aware that antialiasing filters are not perfect, so it is unwise to excite significantly past the bandwidth of interest. One must be especially aware if using a data acquisition system that is already discrete, such as imaging with a high speed camera, or downsampling
+already acquired data, as there is no anti-aliasing filter in this case.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single-reference</span>
+<span class="n">response_impact</span><span class="p">,</span><span class="n">reference_impact</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">simulate_test</span><span class="p">(</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;hammer&#39;</span><span class="p">,</span>
+    <span class="n">references</span> <span class="o">=</span> <span class="n">reference_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span><span class="p">,</span>
+    <span class="n">excitation_max_frequency</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="n">extra_time_between_frames</span> <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>It is often useful to look at the frequency response of the impact to evaluate the potential for aliasing, as well as to ensure there is significant content over the frequency band of interest.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract just the first measurement frame</span>
+<span class="n">first_frame</span> <span class="o">=</span> <span class="n">reference_impact</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">3000</span><span class="p">,</span><span class="mi">4000</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">first_frame</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Time Response&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">first_frame_fft</span> <span class="o">=</span> <span class="n">first_frame</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">first_frame_fft</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Response</span><span class="se">\n</span><span class="s1">Phase&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Response</span><span class="se">\n</span><span class="s1">Magnitude&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span><span class="mf">1e1</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_44_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_44_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_44_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_44_1.png" />
+</div>
+</div>
+<p>One can see that the frequency content of an impact tends to “roll off” slowly over frequency, and that there are significant dips in the frequency response. There is therefore no frequency where the effect of aliasing is identically 0, so one must determine when the roll-off is “good enough”. Similarly one also must decide what “good enough” is when evaluating the frequency content over the bandwidth of interest. There are several “rules of thumb” that have evolved over the years (for example,
+the autospectrum of the excitation must not drop by more than 2 orders of magnitude (100x) over the frequency band of interest). However, with the advent of low-noise, 24-bit data acquisition systems, these rules have become more flexible.</p>
+<p>When computing frequency response functions, we will generally want the impact to occur near the start of the measurement frame. For this reason, we often implement triggering of the data acquisition system based on the detection of the impulse. A pre-trigger (a small portion of the measurement frame kept before the trigger) is often added to ensure the entire impulse is capture. Most modern data acquisition systems can be triggered using the impulse. However, if triggering of the data
+acquisition system is not available, we can simply record the time data and then split the measurement up into measurement frames after the fact. While this second approach is more effort, it is also more flexible, as it gives the user the opportunity to change the measurement frame length and other signal processing parameters without re-running the test. We will assume we have the latter case here, and the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> can be used to set up the triggering.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_impact</span><span class="p">,</span><span class="n">response_impact</span><span class="p">))</span>
+<span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> to use Triggering and set the trigger channel to the force and set the levels appropriately. We ensure the measurement frame is long enough to capture the signal. Here we zoom into a single measurement frame rather than showing all frames.</p>
+<p><img alt="impact_spgui.png" src="../../_images/impact_spgui.png" /></p>
+<p>We see that the frequency response function and coherence both look very good in this case except where the signal has dropped out due to the ripples. In a real test with realistic noise sources, we would eventually see the excitation and response amplitude drop below the noise floor at high frequency, so we would expect a noisy frequency response function and poor coherence at frequencies higher than we have excited.</p>
+<p><img alt="frf_impact.png" src="../../_images/frf_br.png" /></p>
+<p><img alt="coherence_impact.png" src="../../_images/coherence_br.png" /></p>
+</section>
+</section>
+</section>
+<section id="Homework-Problems">
+<h1>Homework Problems<a class="headerlink" href="#Homework-Problems" title="Permalink to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p>For the <code class="docutils literal notranslate"><span class="pre">modal_system</span></code> in this tutorial, compute frequency response functions for Random and Burst Random excitation signals. Compute frequency response functions for the Random signal both using a Hann window and using no window. Compare the frequency response functions. How do they differ, particularly at the lower modes of the system? What would you expect to happen to the damping estimate of the system in each case?</p></li>
+<li><p>Compute a frequency response function of an impulse signal for the <code class="docutils literal notranslate"><span class="pre">modal_system</span></code> in this tutorial. Investigate what happens if the entire signal is not included in the measurement frame. Add an Exponential window to the signal to artificially reduce the signal to zero by the end of the frame. How do the frequency response functions from the windowed and un-windowed short measurement frame compare to the un-windowed measurement frame that contains the entire response?</p></li>
+<li><p>Add noise to the signals in each of the examples in this tutorial. Where do each of the excitation techniques break down if noise is present? Modify the number of averages of each signal and see how the noise on the FRF changes.</p></li>
+</ol>
 </section>
 
 

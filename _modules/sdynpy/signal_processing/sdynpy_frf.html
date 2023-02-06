@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_frf &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_frf &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -106,7 +108,7 @@
 
 
 <div class="viewcode-block" id="sysmat2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.sysmat2frf.html#sdynpy.signal_processing.sdynpy_frf.sysmat2frf">[docs]</a><span class="k">def</span> <span class="nf">sysmat2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">frf_type</span><span class="o">=</span><span class="s1">&#39;disp&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given system matrices M, C, and K</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given system matrices M, C, and K</span>
 
 <span class="sd">    This function computes frequency response functions (FRFs) given the system</span>
 <span class="sd">    mass matrix, M, damping matrix, C, and stiffness matrix, K, in the equation</span>
@@ -173,9 +175,9 @@
     <span class="k">return</span> <span class="n">H</span></div>
 
 
-<div class="viewcode-block" id="modes2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.modes2frf.html#sdynpy.signal_processing.sdynpy_frf.modes2frf">[docs]</a><span class="k">def</span> <span class="nf">modes2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="p">,</span>
+<div class="viewcode-block" id="modes2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.modes2frf.html#sdynpy.signal_processing.sdynpy_frf.modes2frf">[docs]</a><span class="k">def</span> <span class="nf">modes2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping_ratios</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">input_mode_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frf_type</span><span class="o">=</span><span class="s1">&#39;disp&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given modal properties</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Compute Frequency Response Functions given modal properties</span>
 
 <span class="sd">    This function computes frequency responses given modal parameters.</span>
 
@@ -192,17 +194,19 @@
 <span class="sd">    damping_ratios : ndarray</span>
 <span class="sd">        Critical damping ratios of the structure in ratio form rather than</span>
 <span class="sd">        percentange, e.g. 2% damping would be specified as 0.02 rather than 2.</span>
-<span class="sd">    mode_shapes : ndarray</span>
+<span class="sd">    mode_shapes : ndarray, optional</span>
 <span class="sd">        A 2D mode shape matrix with shape (no,nm) where no is the number of</span>
 <span class="sd">        output responses and nm is the number of modes.  If the optional</span>
 <span class="sd">        argument input_mode_shapes is not specified, this mode shape matrix</span>
 <span class="sd">        will also be used for the inputs, resulting in a square FRF matrix.</span>
-<span class="sd">    input_mode_shapes : ndarray</span>
+<span class="sd">        If mode_shapes is not specified, the values of the modal FRF matrix</span>
+<span class="sd">        are returned as 2D array.</span>
+<span class="sd">    input_mode_shapes : ndarray, optional</span>
 <span class="sd">        A 2D mode shape matrix with shape (ni,nm) where ni is the number of</span>
 <span class="sd">        input forces and nm is the number of modes.  If the optional argument </span>
 <span class="sd">        input_mode_shapes is specified, it be used for the inputs, resulting in</span>
 <span class="sd">        a potentially nonsquare FRF matrix.</span>
-<span class="sd">    frf_type : str</span>
+<span class="sd">    frf_type : str, optional</span>
 <span class="sd">        frf_type should be one of [&#39;disp&#39;,&#39;vel&#39;,&#39;accel&#39;] or [&#39;displacement&#39;,</span>
 <span class="sd">        &#39;velocity&#39;,&#39;acceleration&#39;] to specify which &quot;type&quot; of frequency</span>
 <span class="sd">        response function to compute.  By default it computes a displacement or</span>
@@ -214,9 +218,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    H : ndarray</span>
-<span class="sd">        A 3D np array with shape (nf,no,ni), where nf is the number of</span>
-<span class="sd">        frequency lines, no is the number of outputs, and ni is the number of</span>
-<span class="sd">        inputs.  Values in H are complex.</span>
+<span class="sd">        A 3D (or 2D) np array depending on whether or not mode_shapes is </span>
+<span class="sd">        defined with shape (nf,no,ni) or (nf,nm), where nf is the number of</span>
+<span class="sd">        frequency lines, no is the number of outputs, ni is the number of</span>
+<span class="sd">        inputs, and nm is the number of modes.  Values in H are complex.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -232,19 +237,25 @@
          <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span>
          <span class="n">damping_ratios</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">natural_frequencies</span><span class="p">)</span>
          <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">natural_frequencies</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">input_mode_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">input_mode_shapes</span> <span class="o">=</span> <span class="n">mode_shapes</span>
-
-    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,fj,lj-&gt;fil&#39;</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">Z</span><span class="p">,</span> <span class="n">input_mode_shapes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode_shapes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">input_mode_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_mode_shapes</span> <span class="o">=</span> <span class="n">mode_shapes</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,fj,lj-&gt;fil&#39;</span><span class="p">,</span> <span class="n">mode_shapes</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">Z</span><span class="p">,</span> <span class="n">input_mode_shapes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Z</span>
 
     <span class="k">if</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="s1">&#39;velocity&#39;</span><span class="p">]:</span>
-        <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="n">H</span>
+        <span class="c1"># num = [1,0]</span>
     <span class="k">elif</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;accel&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">]:</span>
-        <span class="n">H</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">H</span>
-
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">H</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">H</span>
     <span class="k">return</span> <span class="n">H</span></div>
-
 
 <div class="viewcode-block" id="timedata2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.timedata2frf.html#sdynpy.signal_processing.sdynpy_frf.timedata2frf">[docs]</a><span class="k">def</span> <span class="nf">timedata2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">samples_per_average</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">overlap</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,)),</span>
@@ -252,7 +263,7 @@
                  <span class="n">reference_fft</span><span class="o">=</span><span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
                  <span class="n">response_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO Update DOCSTRING with changes after they are all made.</span>
-    <span class="sd">&#39;&#39;&#39;Creates an FRF matrix given time histories of responses and references</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Creates an FRF matrix given time histories of responses and references</span>
 
 <span class="sd">    This function creates a nf x no x ni FRF matrix from the time histories</span>
 <span class="sd">    provided.</span>
@@ -403,7 +414,7 @@
 
 
 <div class="viewcode-block" id="fft2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.fft2frf.html#sdynpy.signal_processing.sdynpy_frf.fft2frf">[docs]</a><span class="k">def</span> <span class="nf">fft2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Creates an FRF matrix given ffts of responses and references</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Creates an FRF matrix given ffts of responses and references</span>
 
 <span class="sd">    This function creates a nf x no x ni FRF matrix from the ffts</span>
 <span class="sd">    provided.</span>
@@ -491,7 +502,7 @@
 
 
 <div class="viewcode-block" id="delay_signal"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.delay_signal.html#sdynpy.signal_processing.sdynpy_frf.delay_signal">[docs]</a><span class="k">def</span> <span class="nf">delay_signal</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Delay a time signal by the specified amount</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Delay a time signal by the specified amount</span>
 
 <span class="sd">    This function takes a signal and delays it by a specified amount of time</span>
 <span class="sd">    that need not be an integer number of samples.  It does this by adjusting</span>

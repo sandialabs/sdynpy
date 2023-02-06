@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model Reduction &mdash; SDynPy 0.5.1 documentation</title>
+  <title>Model Reduction &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../examples.html">SDynpy Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../airplane_modal_test.html">Airplane Modal Test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rattlesnake_demonstration.html">Rattlesnake Demonstration</a></li>
@@ -80,6 +81,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -397,10 +399,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
-import sdynpy.demo as demo
-import numpy as np
-import matplotlib.pyplot as plt
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">sdynpy.demo</span> <span class="k">as</span> <span class="nn">demo</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
 </div>
@@ -412,7 +414,7 @@ import matplotlib.pyplot as plt
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_kwargs = {&#39;node_size&#39;:3,&#39;line_width&#39;:2,&#39;view_from&#39;:[-1,1,1]}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;node_size&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;line_width&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;view_from&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
 </pre></div>
 </div>
 </div>
@@ -424,7 +426,7 @@ import matplotlib.pyplot as plt
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>demo.beam_airplane.component_systems
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">beam_airplane</span><span class="o">.</span><span class="n">component_systems</span>
 </pre></div>
 </div>
 </div>
@@ -445,9 +447,9 @@ import matplotlib.pyplot as plt
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>names = [&#39;fuselage&#39;,&#39;wing&#39;,&#39;tail&#39;]
-system = {name:demo.beam_airplane.component_systems[name] for name in names}
-geometry = {name:demo.beam_airplane.component_geometries[name] for name in names}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fuselage&#39;</span><span class="p">,</span><span class="s1">&#39;wing&#39;</span><span class="p">,</span><span class="s1">&#39;tail&#39;</span><span class="p">]</span>
+<span class="n">system</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">demo</span><span class="o">.</span><span class="n">beam_airplane</span><span class="o">.</span><span class="n">component_systems</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">}</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">demo</span><span class="o">.</span><span class="n">beam_airplane</span><span class="o">.</span><span class="n">component_geometries</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -457,12 +459,12 @@ geometry = {name:demo.beam_airplane.component_geometries[name] for name in names
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for i,name in enumerate(names):
-    increment = 100*(i+1) # We will add a 100s place to each node, 1XX for fuselage, 2XX for wing, 3XX for tail
-    geometry[name] = geometry[name].modify_ids(node_change = increment)
-    system[name].coordinate.node += increment
-    geometry[name].plot_coordinate(sdpy.coordinate_array(geometry[name].node.id,3),
-                                   label_dofs=True, plot_kwargs=plot_kwargs)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+    <span class="n">increment</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># We will add a 100s place to each node, 1XX for fuselage, 2XX for wing, 3XX for tail</span>
+    <span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">modify_ids</span><span class="p">(</span><span class="n">node_change</span> <span class="o">=</span> <span class="n">increment</span><span class="p">)</span>
+    <span class="n">system</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">node</span> <span class="o">+=</span> <span class="n">increment</span>
+    <span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+                                   <span class="n">label_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -501,7 +503,7 @@ c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system[&#39;fuselage&#39;].coordinate
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system</span><span class="p">[</span><span class="s1">&#39;fuselage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span>
 </pre></div>
 </div>
 </div>
@@ -538,8 +540,8 @@ array([&#39;101X+&#39;, &#39;101Y+&#39;, &#39;101Z+&#39;, &#39;101RX+&#39;, &#39
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>maximum_frequency = 100
-component_shapes = {name:system[name].eigensolution(maximum_frequency=maximum_frequency) for name in names}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">maximum_frequency</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">component_shapes</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">system</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -560,9 +562,9 @@ component_shapes = {name:system[name].eigensolution(maximum_frequency=maximum_fr
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>full_system,full_geometry = sdpy.system.substructure_by_position([system[name] for name in names],
-                                                                 [geometry[name] for name in names])
-full_shapes = full_system.eigensolution(maximum_frequency=maximum_frequency)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">full_system</span><span class="p">,</span><span class="n">full_geometry</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">([</span><span class="n">system</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],</span>
+                                                                 <span class="p">[</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+<span class="n">full_shapes</span> <span class="o">=</span> <span class="n">full_system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -571,7 +573,7 @@ full_shapes = full_system.eigensolution(maximum_frequency=maximum_frequency)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>full_geometry.plot_shape(full_shapes,plot_kwargs=plot_kwargs);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">full_geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -586,22 +588,22 @@ full_shapes = full_system.eigensolution(maximum_frequency=maximum_frequency)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Boundary degrees of freedom
-wing_boundary_dofs = sdpy.coordinate_array([105,107,221,262],[1,2,3,4,5,6],force_broadcast=True)
-tail_boundary_dofs = sdpy.coordinate_array([119,121,303,308],[1,2,3,4,5,6],force_broadcast=True)
-all_boundary_dofs = np.unique(np.concatenate((wing_boundary_dofs,tail_boundary_dofs)))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Boundary degrees of freedom</span>
+<span class="n">wing_boundary_dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">105</span><span class="p">,</span><span class="mi">107</span><span class="p">,</span><span class="mi">221</span><span class="p">,</span><span class="mi">262</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">tail_boundary_dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">119</span><span class="p">,</span><span class="mi">121</span><span class="p">,</span><span class="mi">303</span><span class="p">,</span><span class="mi">308</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">all_boundary_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">wing_boundary_dofs</span><span class="p">,</span><span class="n">tail_boundary_dofs</span><span class="p">)))</span>
 
-# Internal Degrees of Freedom
-internal_dofs = np.concatenate((
-    sdpy.coordinate_array([101,103,105,107,109,113,115,117,119,121],[1,2,3],force_broadcast=True),
-    sdpy.coordinate_array(geometry[&#39;wing&#39;].node.id[::4],[1,2,3],force_broadcast=True),
-    sdpy.coordinate_array([301,303,305,306,308,310],[1,2,3],force_broadcast=True)))
+<span class="c1"># Internal Degrees of Freedom</span>
+<span class="n">internal_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">101</span><span class="p">,</span><span class="mi">103</span><span class="p">,</span><span class="mi">105</span><span class="p">,</span><span class="mi">107</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span><span class="mi">113</span><span class="p">,</span><span class="mi">115</span><span class="p">,</span><span class="mi">117</span><span class="p">,</span><span class="mi">119</span><span class="p">,</span><span class="mi">121</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;wing&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">[::</span><span class="mi">4</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">301</span><span class="p">,</span><span class="mi">303</span><span class="p">,</span><span class="mi">305</span><span class="p">,</span><span class="mi">306</span><span class="p">,</span><span class="mi">308</span><span class="p">,</span><span class="mi">310</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
 
-# Kept dofs are combination of internal and boundary degrees of freedom
-reduction_dofs = np.unique(np.concatenate((internal_dofs,wing_boundary_dofs,tail_boundary_dofs)))
+<span class="c1"># Kept dofs are combination of internal and boundary degrees of freedom</span>
+<span class="n">reduction_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">internal_dofs</span><span class="p">,</span><span class="n">wing_boundary_dofs</span><span class="p">,</span><span class="n">tail_boundary_dofs</span><span class="p">)))</span>
 
-# Look at the entire list of dofs to keep.
-reduction_dofs
+<span class="c1"># Look at the entire list of dofs to keep.</span>
+<span class="n">reduction_dofs</span>
 </pre></div>
 </div>
 </div>
@@ -650,23 +652,23 @@ array([&#39;101X+&#39;, &#39;101Y+&#39;, &#39;101Z+&#39;, &#39;103X+&#39;, &#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Set up dictionaries to contain our reduced systems and mode shapes
-system_guyan = {}
-component_shapes_guyan = {}
-# Perform Guyan reduction for each component
-for name,system_i in system.items():
-    dofs = reduction_dofs[np.in1d(reduction_dofs,system_i.coordinate)]
-    system_guyan[name] = system_i.reduce_guyan(dofs)
-    # Compute modes and compare to original system
-    component_shapes_guyan[name] = system_guyan[name].eigensolution(maximum_frequency=maximum_frequency)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up dictionaries to contain our reduced systems and mode shapes</span>
+<span class="n">system_guyan</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">component_shapes_guyan</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1"># Perform Guyan reduction for each component</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">system_i</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">dofs</span> <span class="o">=</span> <span class="n">reduction_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">reduction_dofs</span><span class="p">,</span><span class="n">system_i</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)]</span>
+    <span class="n">system_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_i</span><span class="o">.</span><span class="n">reduce_guyan</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+    <span class="c1"># Compute modes and compare to original system</span>
+    <span class="n">component_shapes_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 
-# Perform substructuring
-full_system_guyan,full_geometry_guyan = sdpy.system.substructure_by_position(
-    [system_guyan[name] for name in names],
-    [geometry[name] for name in names])
-full_shapes_guyan = full_system_guyan.eigensolution(maximum_frequency=maximum_frequency)
+<span class="c1"># Perform substructuring</span>
+<span class="n">full_system_guyan</span><span class="p">,</span><span class="n">full_geometry_guyan</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">system_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],</span>
+    <span class="p">[</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
+<span class="n">full_shapes_guyan</span> <span class="o">=</span> <span class="n">full_system_guyan</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 
-full_system_guyan
+<span class="n">full_system_guyan</span>
 </pre></div>
 </div>
 </div>
@@ -684,11 +686,11 @@ System with 678 DoFs (114 internal DoFs)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mac = sdpy.shape.mac(full_shapes,full_shapes_guyan)
-fig,ax = plt.subplots(num=&#39;Guyan MAC&#39;,figsize=(14,14))
-sdpy.matrix_plot(mac,ax=ax,text_size=5,)
-ax.set_ylabel(&#39;Truth Shapes&#39;)
-ax.set_xlabel(&#39;Guyan Shapes&#39;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">full_shapes_guyan</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Guyan MAC&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">14</span><span class="p">))</span>
+<span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Truth Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Guyan Shapes&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -704,23 +706,23 @@ ax.set_xlabel(&#39;Guyan Shapes&#39;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>correspondences = (np.arange(mac.shape[0])[6:],np.argmax(mac,axis=-1)[6:])
-truth_shapes_to_compare = full_shapes[correspondences[0]]
-shapes_to_compare = full_shapes_guyan[correspondences[1]]
-print(&#39;Guyan Mode Table&#39;)
-print(sdpy.shape.shape_comparison_table(
-    truth_shapes_to_compare,shapes_to_compare,damping_format=None,table_format=&#39;text&#39;))
-fig,ax = plt.subplots(2,1,num=&#39;Guyan Comparison&#39;,figsize=(10,5))
-frequency_error = 100*((shapes_to_compare.frequency-truth_shapes_to_compare.frequency)
-                       /truth_shapes_to_compare.frequency)
-ax[0].plot(truth_shapes_to_compare.frequency,frequency_error)
-ax[1].plot(truth_shapes_to_compare.frequency,mac[correspondences])
-ax[0].set_title(&#39;Guyan Results&#39;)
-ax[1].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[0].set_ylabel(&#39;Frequency Error (%)&#39;)
-ax[1].set_ylabel(&#39;MAC&#39;)
-ax[0].grid(True)
-ax[1].grid(True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correspondences</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mac</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">6</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">6</span><span class="p">:])</span>
+<span class="n">truth_shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes_guyan</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Guyan Mode Table&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span>
+    <span class="n">truth_shapes_to_compare</span><span class="p">,</span><span class="n">shapes_to_compare</span><span class="p">,</span><span class="n">damping_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">table_format</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Guyan Comparison&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">frequency_error</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="o">-</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+                       <span class="o">/</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">frequency_error</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mac</span><span class="p">[</span><span class="n">correspondences</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Guyan Results&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Error (%)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -811,20 +813,20 @@ Guyan Mode Table
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dynamic_frequency = maximum_frequency/4
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dynamic_frequency</span> <span class="o">=</span> <span class="n">maximum_frequency</span><span class="o">/</span><span class="mi">4</span>
 
-system_dynamic = {}
-component_shapes_dynamic = {}
-for name,system_i in system.items():
-    dofs = reduction_dofs[np.in1d(reduction_dofs,system_i.coordinate)]
-    system_dynamic[name] = system_i.reduce_dynamic(dofs,dynamic_frequency)
-    # Compute modes and compare to original system
-    component_shapes_dynamic[name] = system_dynamic[name].eigensolution(maximum_frequency=maximum_frequency)
+<span class="n">system_dynamic</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">component_shapes_dynamic</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">system_i</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">dofs</span> <span class="o">=</span> <span class="n">reduction_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">reduction_dofs</span><span class="p">,</span><span class="n">system_i</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)]</span>
+    <span class="n">system_dynamic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_i</span><span class="o">.</span><span class="n">reduce_dynamic</span><span class="p">(</span><span class="n">dofs</span><span class="p">,</span><span class="n">dynamic_frequency</span><span class="p">)</span>
+    <span class="c1"># Compute modes and compare to original system</span>
+    <span class="n">component_shapes_dynamic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_dynamic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 
-full_system_dynamic,full_geometry_dynamic = sdpy.system.substructure_by_position(
-    [system_dynamic[name] for name in names],[geometry[name] for name in names])
+<span class="n">full_system_dynamic</span><span class="p">,</span><span class="n">full_geometry_dynamic</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">system_dynamic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],[</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
 
-full_shapes_dynamic = full_system_dynamic.eigensolution(maximum_frequency=maximum_frequency)
+<span class="n">full_shapes_dynamic</span> <span class="o">=</span> <span class="n">full_system_dynamic</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -833,11 +835,11 @@ full_shapes_dynamic = full_system_dynamic.eigensolution(maximum_frequency=maximu
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mac = sdpy.shape.mac(full_shapes,full_shapes_dynamic)
-fig,ax = plt.subplots(num=&#39;Dynamic MAC&#39;,figsize=(14,14))
-sdpy.matrix_plot(mac,ax=ax,text_size=5,)
-ax.set_ylabel(&#39;Truth Shapes&#39;)
-ax.set_xlabel(&#39;Dynamic Shapes&#39;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">full_shapes_dynamic</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Dynamic MAC&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">14</span><span class="p">))</span>
+<span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Truth Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Dynamic Shapes&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -852,23 +854,23 @@ ax.set_xlabel(&#39;Dynamic Shapes&#39;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>correspondences = (np.arange(mac.shape[0])[6:],np.argmax(mac,axis=-1)[6:])
-truth_shapes_to_compare = full_shapes[correspondences[0]]
-shapes_to_compare = full_shapes_dynamic[correspondences[1]]
-print(&#39;Dynamic Mode Table&#39;)
-print(sdpy.shape.shape_comparison_table(
-    truth_shapes_to_compare,shapes_to_compare,damping_format=None,table_format=&#39;text&#39;))
-fig,ax = plt.subplots(2,1,num=&#39;Dynamic Comparison&#39;,figsize=(10,5))
-frequency_error = 100*((shapes_to_compare.frequency-truth_shapes_to_compare.frequency)
-                       /truth_shapes_to_compare.frequency)
-ax[0].plot(truth_shapes_to_compare.frequency,frequency_error)
-ax[1].plot(truth_shapes_to_compare.frequency,mac[correspondences])
-ax[0].set_title(&#39;Dynamic Results&#39;)
-ax[1].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[0].set_ylabel(&#39;Frequency Error (%)&#39;)
-ax[1].set_ylabel(&#39;MAC&#39;)
-ax[0].grid(True)
-ax[1].grid(True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correspondences</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mac</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">6</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">6</span><span class="p">:])</span>
+<span class="n">truth_shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes_dynamic</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dynamic Mode Table&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span>
+    <span class="n">truth_shapes_to_compare</span><span class="p">,</span><span class="n">shapes_to_compare</span><span class="p">,</span><span class="n">damping_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">table_format</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Dynamic Comparison&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">frequency_error</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="o">-</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+                       <span class="o">/</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">frequency_error</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mac</span><span class="p">[</span><span class="n">correspondences</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Dynamic Results&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Error (%)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -957,21 +959,21 @@ fixed-base modes to keep. Optionally, the reduction basis can also be returned a
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system_cb = {}
-component_shapes_cb = {}
-for name,system_i in system.items():
-    dofs = all_boundary_dofs[np.in1d(all_boundary_dofs,system_i.coordinate)]
-    n_fixed_base_modes = system_guyan[name].ndof - dofs.size
-    system_cb[name],constraint_shapes = system_i.reduce_craig_bampton(
-        dofs,n_fixed_base_modes,return_shape_matrix=True)
-    geometry[name].plot_shape(constraint_shapes,plot_kwargs=plot_kwargs)
-    # Compute modes and compare to original system
-    component_shapes_cb[name] = system_cb[name].eigensolution(maximum_frequency=maximum_frequency)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system_cb</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">component_shapes_cb</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">system_i</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">dofs</span> <span class="o">=</span> <span class="n">all_boundary_dofs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">all_boundary_dofs</span><span class="p">,</span><span class="n">system_i</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)]</span>
+    <span class="n">n_fixed_base_modes</span> <span class="o">=</span> <span class="n">system_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ndof</span> <span class="o">-</span> <span class="n">dofs</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">system_cb</span><span class="p">[</span><span class="n">name</span><span class="p">],</span><span class="n">constraint_shapes</span> <span class="o">=</span> <span class="n">system_i</span><span class="o">.</span><span class="n">reduce_craig_bampton</span><span class="p">(</span>
+        <span class="n">dofs</span><span class="p">,</span><span class="n">n_fixed_base_modes</span><span class="p">,</span><span class="n">return_shape_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">constraint_shapes</span><span class="p">,</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">)</span>
+    <span class="c1"># Compute modes and compare to original system</span>
+    <span class="n">component_shapes_cb</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_cb</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 
-full_system_cb,full_geometry_cb = sdpy.system.substructure_by_position(
-    [system_cb[name] for name in names],[geometry[name] for name in names])
+<span class="n">full_system_cb</span><span class="p">,</span><span class="n">full_geometry_cb</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">system_cb</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],[</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
 
-full_shapes_cb = full_system_cb.eigensolution(maximum_frequency=maximum_frequency)
+<span class="n">full_shapes_cb</span> <span class="o">=</span> <span class="n">full_system_cb</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1018,11 +1020,11 @@ c:\users\dprohe\appdata\local\programs\python\python38\lib\site-packages\pyvista
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mac = sdpy.shape.mac(full_shapes,full_shapes_cb)
-fig,ax = plt.subplots(num=&#39;Craig-Bampton MAC&#39;,figsize=(14,12))
-sdpy.matrix_plot(mac,ax=ax,text_size=5,)
-ax.set_ylabel(&#39;Truth Shapes&#39;)
-ax.set_xlabel(&#39;Craig-Bampton Shapes&#39;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">full_shapes_cb</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Craig-Bampton MAC&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
+<span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Truth Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Craig-Bampton Shapes&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1037,23 +1039,23 @@ ax.set_xlabel(&#39;Craig-Bampton Shapes&#39;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>correspondences = (np.arange(mac.shape[0])[6:],np.argmax(mac,axis=-1)[6:])
-truth_shapes_to_compare = full_shapes[correspondences[0]]
-shapes_to_compare = full_shapes_cb[correspondences[1]]
-print(&#39;Craig-Bampton Mode Table&#39;)
-print(sdpy.shape.shape_comparison_table(
-    truth_shapes_to_compare,shapes_to_compare,damping_format=None,table_format=&#39;text&#39;))
-fig,ax = plt.subplots(2,1,num=&#39;Craig-Bampton Comparison&#39;,figsize=(10,5))
-frequency_error = 100*((shapes_to_compare.frequency-truth_shapes_to_compare.frequency)
-                       /truth_shapes_to_compare.frequency)
-ax[0].plot(truth_shapes_to_compare.frequency,frequency_error)
-ax[1].plot(truth_shapes_to_compare.frequency,mac[correspondences])
-ax[0].set_title(&#39;Craig-Bampton Results&#39;)
-ax[1].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[0].set_ylabel(&#39;Frequency Error (%)&#39;)
-ax[1].set_ylabel(&#39;MAC&#39;)
-ax[0].grid(True)
-ax[1].grid(True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correspondences</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mac</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">6</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">6</span><span class="p">:])</span>
+<span class="n">truth_shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes_cb</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Craig-Bampton Mode Table&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span>
+    <span class="n">truth_shapes_to_compare</span><span class="p">,</span><span class="n">shapes_to_compare</span><span class="p">,</span><span class="n">damping_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">table_format</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Craig-Bampton Comparison&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">frequency_error</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="o">-</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+                       <span class="o">/</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">frequency_error</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mac</span><span class="p">[</span><span class="n">correspondences</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Craig-Bampton Results&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Error (%)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1138,17 +1140,17 @@ Craig-Bampton Mode Table
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>system_cms = {}
-component_shapes_cms = {}
-for name,system_i in system.items():
-    system_cms[name] = system_i.eigensolution(num_modes = system_guyan[name].ndof,return_shape=False)
-    # Compute modes and compare to original system
-    component_shapes_dynamic[name] = system_cms[name].eigensolution(maximum_frequency=maximum_frequency)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system_cms</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">component_shapes_cms</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">system_i</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">system_cms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_i</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">system_guyan</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ndof</span><span class="p">,</span><span class="n">return_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Compute modes and compare to original system</span>
+    <span class="n">component_shapes_dynamic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_cms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 
-full_system_cms,full_geometry_cms = sdpy.system.substructure_by_position(
-    [system_cms[name] for name in names],[geometry[name] for name in names])
+<span class="n">full_system_cms</span><span class="p">,</span><span class="n">full_geometry_cms</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">substructure_by_position</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">system_cms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],[</span><span class="n">geometry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">])</span>
 
-full_shapes_cms = full_system_cms.eigensolution(maximum_frequency=maximum_frequency)
+<span class="n">full_shapes_cms</span> <span class="o">=</span> <span class="n">full_system_cms</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="n">maximum_frequency</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1166,11 +1168,11 @@ full_shapes_cms = full_system_cms.eigensolution(maximum_frequency=maximum_freque
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mac = sdpy.shape.mac(full_shapes,full_shapes_cms)
-fig,ax = plt.subplots(num=&#39;Component Mode Synthesis MAC&#39;,figsize=(14,12))
-sdpy.matrix_plot(mac,ax=ax,text_size=5,)
-ax.set_ylabel(&#39;Truth Shapes&#39;)
-ax.set_xlabel(&#39;Component Mode Synthesis Shapes&#39;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">full_shapes_cms</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Component Mode Synthesis MAC&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
+<span class="n">sdpy</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Truth Shapes&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Component Mode Synthesis Shapes&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1185,23 +1187,23 @@ ax.set_xlabel(&#39;Component Mode Synthesis Shapes&#39;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>correspondences = (np.arange(mac.shape[0])[6:],np.argmax(mac,axis=-1)[6:])
-truth_shapes_to_compare = full_shapes[correspondences[0]]
-shapes_to_compare = full_shapes_cms[correspondences[1]]
-print(&#39;Component Mode Synthesis Mode Table&#39;)
-print(sdpy.shape.shape_comparison_table(
-    truth_shapes_to_compare,shapes_to_compare,damping_format=None,table_format=&#39;text&#39;))
-fig,ax = plt.subplots(2,1,num=&#39;Component Mode Synthesis Comparison&#39;,figsize=(10,5))
-frequency_error = 100*((shapes_to_compare.frequency-truth_shapes_to_compare.frequency)
-                       /truth_shapes_to_compare.frequency)
-ax[0].plot(truth_shapes_to_compare.frequency,frequency_error)
-ax[1].plot(truth_shapes_to_compare.frequency,mac[correspondences])
-ax[0].set_title(&#39;Component Mode Synthesis Results&#39;)
-ax[1].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[0].set_ylabel(&#39;Frequency Error (%)&#39;)
-ax[1].set_ylabel(&#39;MAC&#39;)
-ax[0].grid(True)
-ax[1].grid(True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correspondences</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mac</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">6</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">6</span><span class="p">:])</span>
+<span class="n">truth_shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes_cms</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Component Mode Synthesis Mode Table&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span>
+    <span class="n">truth_shapes_to_compare</span><span class="p">,</span><span class="n">shapes_to_compare</span><span class="p">,</span><span class="n">damping_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">table_format</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Component Mode Synthesis Comparison&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">frequency_error</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="p">((</span><span class="n">shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="o">-</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+                       <span class="o">/</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">frequency_error</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">truth_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mac</span><span class="p">[</span><span class="n">correspondences</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Component Mode Synthesis Results&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Error (%)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1283,58 +1285,58 @@ Component Mode Synthesis Mode Table
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequency_errors = []
-shape_macs = []
-names = [&#39;Guyan&#39;,&#39;Dynamic&#39;,&#39;CB&#39;,&#39;CMS&#39;]
-for name,system_i,geometry_i in zip(names,
-                                    [full_system_guyan,full_system_dynamic,
-                                     full_system_cb,full_system_cms],
-                                    [full_geometry_guyan,full_geometry_dynamic,
-                                     full_geometry_cb,full_geometry_cms]):
-    # Compute mode shapes
-    shapes_i = system_i.eigensolution(maximum_frequency = maximum_frequency)
-    shapes_i.comment1 = name
-    # Compute MAC
-    mac = sdpy.shape.mac(full_shapes,shapes_i)
-    # Find best reduced shape to match the truth shapes
-    correspondences = (np.arange(mac.shape[0])[6:],np.argmax(mac,axis=-1)[6:])
-    # Reduce the shapes using correspondences
-    full_shapes_to_compare = full_shapes[correspondences[0]]
-    shapes_i_to_compare = shapes_i[correspondences[1]]
-    # Compute whether or not we need to flip signs on the shapes to get them to overlay
-    flip_signs = sdpy.shape.shape_alignment(full_shapes_to_compare,
-                                            shapes_i_to_compare)
-    shapes_i_to_compare.shape_matrix *= flip_signs[:,np.newaxis]
-    # Overlay common shapes
-    compare_geom,compare_shape = sdpy.shape.overlay_shapes(
-        (full_geometry,geometry_i),(full_shapes_to_compare,shapes_i_to_compare),[1,7])
-    # Put metadata into the shape comments
-    compare_shape.comment1 = name
-    compare_shape.comment2 = [&#39;Truth (Blue): {:0.2f} Hz, Predicted (Green): {:0.2f} Hz&#39;.format(t,p)
-                              for t,p in zip(full_shapes_to_compare.frequency,
-                                             shapes_i_to_compare.frequency)]
-    compare_shape.comment3 = [&#39;Frequency Error: {:0.2f}%&#39;.format(100*(p-t)/t)
-                              for t,p in zip(full_shapes_to_compare.frequency,
-                                             shapes_i_to_compare.frequency)]
-    compare_shape.comment4 = [&#39;MAC: {:0.2f}&#39;.format(mac[i,j]) for i,j in zip(*correspondences)]
-    # Plot the overlaid shapes
-    compare_geom.plot_shape(compare_shape,plot_kwargs,undeformed_opacity=0)
-    # Store data to plot later
-    shape_macs.append(mac[correspondences])
-    frequency_errors.append([100*(p-t)/t for t,p in zip(full_shapes_to_compare.frequency,
-                                                         shapes_i_to_compare.frequency)])
-frequency_errors = np.array(frequency_errors)
-shape_macs = np.array(shape_macs)
-fig,ax = plt.subplots(2,num=&#39;Reduction Comparison&#39;,sharex=True,figsize=(10,6))
-ax[0].plot(full_shapes[6:].frequency,frequency_errors.T)
-ax[0].set_ylim(-10,10)
-ax[1].plot(full_shapes[6:].frequency,shape_macs.T)
-ax[1].set_xlabel(&#39;Frequency (Hz)&#39;)
-ax[0].set_ylabel(&#39;Frequency Error (%)&#39;)
-ax[1].set_ylabel(&#39;MAC&#39;)
-ax[0].legend(names)
-ax[0].grid(True)
-ax[1].grid(True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequency_errors</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">shape_macs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Guyan&#39;</span><span class="p">,</span><span class="s1">&#39;Dynamic&#39;</span><span class="p">,</span><span class="s1">&#39;CB&#39;</span><span class="p">,</span><span class="s1">&#39;CMS&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">system_i</span><span class="p">,</span><span class="n">geometry_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span>
+                                    <span class="p">[</span><span class="n">full_system_guyan</span><span class="p">,</span><span class="n">full_system_dynamic</span><span class="p">,</span>
+                                     <span class="n">full_system_cb</span><span class="p">,</span><span class="n">full_system_cms</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="n">full_geometry_guyan</span><span class="p">,</span><span class="n">full_geometry_dynamic</span><span class="p">,</span>
+                                     <span class="n">full_geometry_cb</span><span class="p">,</span><span class="n">full_geometry_cms</span><span class="p">]):</span>
+    <span class="c1"># Compute mode shapes</span>
+    <span class="n">shapes_i</span> <span class="o">=</span> <span class="n">system_i</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span> <span class="o">=</span> <span class="n">maximum_frequency</span><span class="p">)</span>
+    <span class="n">shapes_i</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="c1"># Compute MAC</span>
+    <span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">,</span><span class="n">shapes_i</span><span class="p">)</span>
+    <span class="c1"># Find best reduced shape to match the truth shapes</span>
+    <span class="n">correspondences</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mac</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">6</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">6</span><span class="p">:])</span>
+    <span class="c1"># Reduce the shapes using correspondences</span>
+    <span class="n">full_shapes_to_compare</span> <span class="o">=</span> <span class="n">full_shapes</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">shapes_i_to_compare</span> <span class="o">=</span> <span class="n">shapes_i</span><span class="p">[</span><span class="n">correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="c1"># Compute whether or not we need to flip signs on the shapes to get them to overlay</span>
+    <span class="n">flip_signs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_alignment</span><span class="p">(</span><span class="n">full_shapes_to_compare</span><span class="p">,</span>
+                                            <span class="n">shapes_i_to_compare</span><span class="p">)</span>
+    <span class="n">shapes_i_to_compare</span><span class="o">.</span><span class="n">shape_matrix</span> <span class="o">*=</span> <span class="n">flip_signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="c1"># Overlay common shapes</span>
+    <span class="n">compare_geom</span><span class="p">,</span><span class="n">compare_shape</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">overlay_shapes</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">full_geometry</span><span class="p">,</span><span class="n">geometry_i</span><span class="p">),(</span><span class="n">full_shapes_to_compare</span><span class="p">,</span><span class="n">shapes_i_to_compare</span><span class="p">),[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+    <span class="c1"># Put metadata into the shape comments</span>
+    <span class="n">compare_shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">compare_shape</span><span class="o">.</span><span class="n">comment2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Truth (Blue): </span><span class="si">{:0.2f}</span><span class="s1"> Hz, Predicted (Green): </span><span class="si">{:0.2f}</span><span class="s1"> Hz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">p</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">full_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                                             <span class="n">shapes_i_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)]</span>
+    <span class="n">compare_shape</span><span class="o">.</span><span class="n">comment3</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Frequency Error: </span><span class="si">{:0.2f}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="n">t</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">full_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                                             <span class="n">shapes_i_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)]</span>
+    <span class="n">compare_shape</span><span class="o">.</span><span class="n">comment4</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MAC: </span><span class="si">{:0.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mac</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">correspondences</span><span class="p">)]</span>
+    <span class="c1"># Plot the overlaid shapes</span>
+    <span class="n">compare_geom</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">compare_shape</span><span class="p">,</span><span class="n">plot_kwargs</span><span class="p">,</span><span class="n">undeformed_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Store data to plot later</span>
+    <span class="n">shape_macs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mac</span><span class="p">[</span><span class="n">correspondences</span><span class="p">])</span>
+    <span class="n">frequency_errors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">full_shapes_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                                                         <span class="n">shapes_i_to_compare</span><span class="o">.</span><span class="n">frequency</span><span class="p">)])</span>
+<span class="n">frequency_errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frequency_errors</span><span class="p">)</span>
+<span class="n">shape_macs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shape_macs</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Reduction Comparison&#39;</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">frequency_errors</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">full_shapes</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">shape_macs</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency Error (%)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

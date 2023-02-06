@@ -664,13 +664,13 @@
    "source": [
     "It is worth pointing out some features of the frequency response function here.  First, we have plotted the complex data in two ways.  The left plots show a magnitude and phase plot.  The right two plots show a real and imaginary part.  While these representations highlight different parts of the frequency response function, they plot the same underlying data and are nominally identical.\n",
     "\n",
-    "Starting with the magnitude and phase plots:  we see that there is a peak in the amplitude at the resonant frequency of the part.  We also see that the phase flips from 0 to -180 as the structure goes through resonance, with a phase of -90 degrees corresponding to the resonance location.  We note that while the amplitude peak goes to infinity when the damping is zero, the amplitude peak no longer goes up to infinity when damping is included.  The sharpness of the amplitude peak and damping transition from 0 to -180 degrees depends on the amount of damping, with a larger damping providing a more blunt peak and a slower phase transition.  Because the magnitude often spans multiple orders of magnitude, it is often plotted on a logrithmic scale.  The magnitude and phase representation is probably the most common representation of a frequency response function.\n",
+    "Starting with the magnitude and phase plots:  we see that there is a peak in the amplitude at the resonant frequency of the part.  We also see that the phase flips from 0 to -180 as the structure goes through resonance, with a phase of -90 degrees corresponding to the resonance location.  We note that while the amplitude peak goes to infinity when the damping is zero, the amplitude peak no longer goes up to infinity when damping is included.  The sharpness of the amplitude peak and damping transition from 0 to -180 degrees depend on the amount of damping, with a larger damping providing a more blunt peak and a slower phase transition.  Because the magnitude often spans multiple orders of magnitude, it is often plotted on a logrithmic scale.  The magnitude and phase representation is probably the most common representation of a frequency response function.\n",
     "\n",
     "An alternative representation is to plot the real and imaginary part directly.  We see that the real part goes through zero at resonance, and the imaginary part peaks at resonance.  The imaginary part tends to be \"sharper\" than the magnitude, so it can be useful to look at the imaginary part of the frequency response function when identifying peaks that may be modes of the system.\n",
     "\n",
     "### Comparison between Displacement, Velocity, and Acceleration Frequency Response Functions\n",
     "\n",
-    "Note that the frequency reponse functions are plotted as the displacement response over the force.  This is intuitive, as we often think about how the part moves when we think about dynamics.  Particularly in experimental dynamics, the practitioner may be exposed to multiple data types.  Accelerometers measure accelerations of the part.  Laser vibrometers measure velocities of the part.  Cameras and other displacement sensors measure displacements.  Therefore, it is useful to become accustomed to what, say, the frequency response function between and acceleration and a force looks like.  This basically requires differentiating the response.\n",
+    "Note that the frequency reponse functions above are plotted as the displacement response over the force.  This is intuitive, as we often think about how the part moves when we think about dynamics.  However, particularly in experimental dynamics, the practitioner may be exposed to multiple data types.  Accelerometers measure accelerations of the part.  Laser vibrometers measure velocities of the part.  Cameras and other displacement sensors measure displacements.  Therefore, it is useful to become accustomed to what, say, the frequency response function between and acceleration and a force looks like.  This basically requires differentiating the response.\n",
     "\n",
     "$$x = {X e^{i\\omega t}}$$\n",
     "$$\\dot{x} = {i\\omega X e^{i\\omega t}}$$\n",
@@ -746,9 +746,9 @@
     "\n",
     "Looking first at the magnitude plots in the first row, we see that at low frequency, the displacement will tend to approach a value.  This value is the static stiffness of the spring, because as we go to zero Hz, it is the same as applying a constant force to the structure.  For this same reason, the acceleration and velocity will trend towards zero as the frequency trends towards a constant force: when the system is undergoing a static deflection, it is no longer moving or accelerating, but maintaining a constant displacement.\n",
     "\n",
-    "At the high frequency, the displacement frequency response function will trend towards zero motion as the frequency goes to infinity.  This is because the amount of time the force is applied before it switches directions becomes very small, so the part has less opportunity to move before the force switches direction and starts pushing it the other way.  Similarly, as the acceleration will approach the value obtained if there were no spring on the system, which can be obtained by the formula $F = ma$, because as the displacements go to zero, the influence of the spring also goes to zero, so the acceleration frequency response function becomes dominated by inertial effects.\n",
+    "At the high frequency, the displacement frequency response function will trend towards zero motion as the frequency goes to infinity.  This is because the amount of time the force is applied before it switches directions becomes very small, so the part has less opportunity to move before the force switches direction and starts pushing it the other way.  Because displacements go to zero at high frequency, the effect of the springs will also become negligable at high frequency.  The acceleration will therefore approach the value obtained if there were no spring on the system, which can be obtained by the formula $F = ma$.  As the displacements go to zero, the influence of the spring also goes to zero, so the acceleration frequency response function becomes dominated by inertial effects.\n",
     "\n",
-    "The phase plots all look similar for each data type, noting, however that the phase becomes undefined at zero frequency because the amplitude becomes zero.  Because the velocity is 90 degrees out of phase with the displacement and the acceleration is 180 degrees out of phase with the displacement, we see the phase plots shifted appropriately.\n",
+    "The phase plots all look similar for each data type, noting, however that the phase of the velocity and acceleration frequency response functions becomes undefined at zero frequency because the amplitude becomes zero.  Because the velocity is 90 degrees out of phase with the displacement and the acceleration is 180 degrees out of phase with the displacement, we see the phase plots shifted appropriately.\n",
     "\n",
     "The real and imaginary parts are also similar, with the main exception being that the real and imaginary parts look \"swapped\" for the velocity, which is due to the fact that the velocity is 90 degrees out of phase with both acceleration and displacement.  A 90 degree rotation effectively switches the real and imaginary parts (though one of the components will have its sign flipped depending on whether or not the rotation is +90 or -90 degrees).\n",
     "\n",
@@ -839,7 +839,7 @@
    "id": "45fc515b",
    "metadata": {},
    "source": [
-    "System objects have a number of functions that are useful for analyzing dynamics problems.  For example, we can easily compute the frequency response function.  We will use Numpy's array functions to construct a set of frequencies at which we will compute the frequency response function.  We can also specify the response derivative (0 - displacement, 1 - velocity, 2 - acceleration).  This provides a `TransferFunctionArray` object which contains the frequency response function.  We can easily plot it by using its `plot` method."
+    "System objects have a number of functions that are useful for analyzing structural dynamics problems.  For example, we can easily compute the frequency response function.  We will use Numpy's array functions to construct a set of frequencies at which we will compute the frequency response function.  We can also specify the response derivative (0 - displacement, 1 - velocity, 2 - acceleration).  This provides a `TransferFunctionArray` object which contains the frequency response function.  We can easily plot it by using its `plot` method."
    ]
   },
   {
@@ -1041,13 +1041,13 @@
     "The system from Problem 1 is undergoing some design changes to modify the resonant frequency.  Change the mass and stiffness of the system by +/-5% to identify what happens to the resonant frequency.  Does the frequency increase or decrease as mass increases?  Does the frequency increase or decrease as stiffness increases?\n",
     "\n",
     "### 4. Investigate Damping Changes\n",
-    "The system from Problem 1 is still responding too high, so we would like to increase the damping.  First, compute the percent of critical damping that the system currently has.  Now, increase the fraction of critical damping of the system by 20% and 40%.  Plot the frequency response functions for the light damping, medium damping, high damping systems.  How is the peak of the frequency response function changing?  Is it changing in amplitude?  Is it changing in frequency?"
+    "The response of the system from Problem 1 is still responding too high, so we would like to increase the damping.  First, compute the percent of critical damping that the system currently has.  Now, increase the fraction of critical damping of the system by 20% and 40%.  Plot the frequency response functions for the light damping, medium damping, high damping systems.  How is the peak of the frequency response function changing?  Is it changing in amplitude?  Is it changing in frequency?"
    ]
   }
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
@@ -1061,7 +1061,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.10"
+   "version": "3.10.9"
   }
  },
  "nbformat": 4,

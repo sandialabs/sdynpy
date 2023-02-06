@@ -328,7 +328,7 @@
     "\n",
     "Recall in the first tutorial, we described the properties of modes.  There was a frequency, a damping, and a shape associated with each mode.  Well, here we have seen that an eigenvalue of a system tells us the frequency of vibration, and the eigenvector tells us the shape of the vibration (we will discuss damping shortly).  The eigensolution is actually telling us the modal properties of our system.  This makes it very useful indeed!\n",
     "\n",
-    "Let's investigate a bit more about these modes.  First, it is important to recognize that there is one mode (eigenvalue/frequency and eigenvector/shape) for each degree of freedom in the system.  This is because the characteristic equation will end up having a polynomial order equal to the number of degrees of freedom of the system, and there will therefore be a number of roots equal to the number of degrees of freedom of the system.  Extrapolating for a second to real systems with effectively infinite degrees of freedom, there are effectively infinite modes of the system.  Thankfully, we can often only consider modes within a bandwidth of interest.  For example in the current case, if our environment only contained frequency content up to 5 Hz, we may only need to consider the response of the first mode at 3.21 Hz, and we may be able to ignore the higher frequency mode at 6.83 Hz.\n",
+    "Let's investigate a bit more about these modes.  First, it is important to recognize that there are the same number of modes (eigenvalues/frequencies and eigenvectors/shapes) as there are degrees of freedom in the system.  This is because the characteristic equation will end up having a polynomial order equal to the number of degrees of freedom of the system, and there will therefore be a number of roots equal to the number of degrees of freedom of the system.  Extrapolating for a second to real systems with effectively infinite degrees of freedom, there are effectively infinite modes of the system.  Thankfully, we can often only consider modes within a bandwidth of interest.  For example in the current case, if our environment only contained frequency content up to 4 Hz, we may only need to consider the response of the first mode at 3.21 Hz, and we may be able to ignore the higher frequency mode at 6.83 Hz.\n",
     "\n",
     "Eigenvectors (i.e. mode shapes) are typically represented as column vectors, as seen in the above equations.  However, they are often concatenated together into a *mode shape matrix* where the rows represent degrees of freedom and the columns represent mode indices.  Mode shape matrices are often given the variable $\\Phi$.\n",
     "\n",
@@ -393,7 +393,7 @@
    "source": [
     "From the above, we see that the modal mass and stiffness matrices are diagonal (except for small numerical errors).  This is a very interesting result, because it means that the system of equations are now *decoupled*, meaning the response of $q_1$ doesn't depend at all on the response of $q_2$.  This is opposed to the original system of equations, where if we modified $x_1$ (i.e. moved mass 1) it would also move mass 2.  This effectively lets us treat the modal system of equations as two simple single degree of freedom systems with masses 1.7 and 2.4 and stiffnesses 693 and 4460, rather than a single more complicated system.\n",
     "\n",
-    "We remarked earlier that eigenvectors, and therefore mode shapes, are not unique.  We can scale the mode shape by any factor, and it will still be a valid mode shape.  One might wonder if there is any kind of \"preferred\" scaling of the mode shape matrix, and there is.  For example, to simplify the modal equations, we can scale the mode shape such that modal mass matrix is the identity matrix.  If we scale the existing eigenvectors by $1/\\sqrt{\\Phi^T M \\Phi}$, we will get shape vectors that produce an identity mass matrix when the modal transformation is performed."
+    "We remarked earlier that eigenvectors, and therefore mode shapes, are not unique.  We can scale the mode shape by any factor, and it will still be a valid mode shape.  One might wonder if there is any kind of \"preferred\" scaling of the mode shape matrix, and there is.  For example, to simplify the modal equations, we can scale the mode shape such that modal mass matrix is the identity matrix.  If we scale the existing eigenvectors by $1/\\sqrt{\\Phi^T \\mathbf{M} \\Phi}$, we will get shape vectors that produce an identity mass matrix when the modal transformation is performed."
    ]
   },
   {
@@ -521,7 +521,7 @@
     "A second way to model damping is to ignore any physical damping mechanisms and assign damping per mode.  This is typically the approach used in experimental modal analysis, where we cannot measure the disappation due to specific joints or other features of the structure, but we can measure more global quantities like energy dissapation per cycle.  This is typically applied via a fraction of critical damping $\\zeta$ for each mode of the structure, where the total damping for that mode is equal to $\\tilde{c}=2\\zeta\\omega$.\n",
     "\n",
     "### General Damping Matrices\n",
-    "If there are discrete damping elements present in the system, for example in the suspension of an automobile, it is typically useful to model those specifically, which will require a general damping matrix.  It is possible that the eigenvectors will not diagonalize this damping matrix.  In some cases, the off-diagonal elements may be small, and therefore it is not terrible approximation to simply discard the off-diagonal elements and assume the matrix was diagonalized.  Alternatively, the eigensolution can be reformulated to include the damping matrix as well.  This will result in *complex modes*, where the shape is no longer a real number, but instead a complex number.  Complex modes will be covered in a later tutorial.  If we do proceed with simply discarding the off-diagonal elements, we can then compute the fraction of critical damping for each mode with the equation $\\zeta = {\\tilde{c} / ({2\\omega}})$ where $\\tilde{c}$ is the diagonal value of the modal damping matrix.\n",
+    "If there are discrete damping elements present in the system, for example in the suspension of an automobile, it is typically useful to model those explicitly, which will require a general damping matrix.  It is possible that the eigenvectors will not diagonalize this damping matrix.  In some cases, the off-diagonal elements may be small, and therefore it is not terrible approximation to simply discard the off-diagonal elements and assume the matrix was diagonalized.  Alternatively, the eigensolution can be reformulated to include the damping matrix as well.  This will result in *complex modes*, where the shape is no longer a real number, but instead a complex number.  Complex modes will be covered in a later tutorial.  If we do proceed with simply discarding the off-diagonal elements, we can then compute the fraction of critical damping for each mode with the equation $\\zeta = {\\tilde{c} / ({2\\omega}})$ where $\\tilde{c}$ is the diagonal value of the modal damping matrix.\n",
     "\n",
     "We will investigate this latter case in our system, assuming there are dampers $c_1$ and $c_2$ along with the springs $k_1$ and $k_2$."
    ]
@@ -1224,8 +1224,7 @@
    "execution_count": 24,
    "id": "20ff0a67",
    "metadata": {},
-   "outputs": [
-   ],
+   "outputs": [],
    "source": [
     "plate_geometry.plot();"
    ]
@@ -1297,8 +1296,7 @@
    "execution_count": 26,
    "id": "9ad343f1",
    "metadata": {},
-   "outputs": [
-   ],
+   "outputs": [],
    "source": [
     "plotter = plate_geometry.plot_coordinate(\n",
     "    np.unique(plate_shapes.coordinate), # Use np.unique to remove duplicate coordinates\n",
@@ -1333,7 +1331,6 @@
    ]
   },
   {
-   "attachments": {},
    "cell_type": "markdown",
    "id": "918795f7",
    "metadata": {},
@@ -1386,7 +1383,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
@@ -1400,7 +1397,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.10"
+   "version": "3.10.9"
   }
  },
  "nbformat": 4,

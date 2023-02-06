@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 04: Modal Analysis &mdash; SDynPy 0.5.1 documentation</title>
+  <title>Modal Tutorial 04: Modal Analysis &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
@@ -89,6 +90,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -451,31 +453,31 @@ the polynomial crosses zero.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Import SymPy
-import sympy as sp
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import SymPy</span>
+<span class="kn">import</span> <span class="nn">sympy</span> <span class="k">as</span> <span class="nn">sp</span>
 
-# Define the symbols we will use
-m1,m2,k1,k2,X1,X2,omega,lam = sp.symbols(&#39;m1,m2,k1,k2,X1,X2,omega,lambda&#39;)
+<span class="c1"># Define the symbols we will use</span>
+<span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">,</span><span class="n">k1</span><span class="p">,</span><span class="n">k2</span><span class="p">,</span><span class="n">X1</span><span class="p">,</span><span class="n">X2</span><span class="p">,</span><span class="n">omega</span><span class="p">,</span><span class="n">lam</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;m1,m2,k1,k2,X1,X2,omega,lambda&#39;</span><span class="p">)</span>
 
-# Construct the Matrices
-M = sp.Matrix([[m1,0],
-               [0,m2]])
-K = sp.Matrix([[ k1,  -k1],
-               [-k1,k1+k2]])
-X = sp.Matrix([[X1],
-               [X2]])
-Zero = sp.Matrix([[0],
-                  [0]])
+<span class="c1"># Construct the Matrices</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="n">m1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">m2</span><span class="p">]])</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span> <span class="n">k1</span><span class="p">,</span>  <span class="o">-</span><span class="n">k1</span><span class="p">],</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">k1</span><span class="p">,</span><span class="n">k1</span><span class="o">+</span><span class="n">k2</span><span class="p">]])</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="n">X1</span><span class="p">],</span>
+               <span class="p">[</span><span class="n">X2</span><span class="p">]])</span>
+<span class="n">Zero</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
 
-# Construct the expression
-expr = K-omega**2*M
+<span class="c1"># Construct the expression</span>
+<span class="n">expr</span> <span class="o">=</span> <span class="n">K</span><span class="o">-</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">M</span>
 
-# Substitute lambda for omega**2
-expr = expr.subs(omega**2,lam)
+<span class="c1"># Substitute lambda for omega**2</span>
+<span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">lam</span><span class="p">)</span>
 
-# Compute the determinant to get the characteristic equation
-char_expr = expr.det()
-sp.Eq(sp.collect(char_expr,lam),0)
+<span class="c1"># Compute the determinant to get the characteristic equation</span>
+<span class="n">char_expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">det</span><span class="p">()</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">Eq</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">char_expr</span><span class="p">,</span><span class="n">lam</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -492,15 +494,15 @@ $\displaystyle k_{1} k_{2} + \lambda^{2} m_{1} m_{2} + \lambda \left(- k_{1} m_{
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Import numpy as we will be working with numeric values now
-import numpy as np
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import numpy as we will be working with numeric values now</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-# Substitute numeric quantities
-# m1 = 1
-# m2 = 2
-# k1 = 1000
-# k2 = 1500
-char_expr.subs([(m1,1),(m2,2),(k1,1000),(k2,1500)])
+<span class="c1"># Substitute numeric quantities</span>
+<span class="c1"># m1 = 1</span>
+<span class="c1"># m2 = 2</span>
+<span class="c1"># k1 = 1000</span>
+<span class="c1"># k2 = 1500</span>
+<span class="n">char_expr</span><span class="o">.</span><span class="n">subs</span><span class="p">([(</span><span class="n">m1</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="n">m2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="n">k1</span><span class="p">,</span><span class="mi">1000</span><span class="p">),(</span><span class="n">k2</span><span class="p">,</span><span class="mi">1500</span><span class="p">)])</span>
 </pre></div>
 </div>
 </div>
@@ -516,10 +518,10 @@ $\displaystyle 2 \lambda^{2} - 4500 \lambda + 1500000$</div></div>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>solution = sp.solve(char_expr.subs([(m1,1),(m2,2),(k1,1000),(k2,1500)]))
-eigenvalues = [float(s.evalf()) for s in solution]
-print(&#39;lambda =&#39;)
-print(eigenvalues)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solution</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">char_expr</span><span class="o">.</span><span class="n">subs</span><span class="p">([(</span><span class="n">m1</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="n">m2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="n">k1</span><span class="p">,</span><span class="mi">1000</span><span class="p">),(</span><span class="n">k2</span><span class="p">,</span><span class="mi">1500</span><span class="p">)]))</span>
+<span class="n">eigenvalues</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">evalf</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">solution</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;lambda =&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -537,8 +539,8 @@ lambda =
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;f =&#39;)
-print([np.sqrt(eval)/(2*np.pi) for eval in eigenvalues])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;f =&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">eval</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="k">for</span> <span class="nb">eval</span> <span class="ow">in</span> <span class="n">eigenvalues</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -557,24 +559,24 @@ f =
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Define numeric constants
-m1 = 1
-m2 = 2
-k1 = 1000
-k2 = 1500
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define numeric constants</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">k1</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">k2</span> <span class="o">=</span> <span class="mi">1500</span>
 
-# Create numeric matrices
-M = np.array([[m1,0],
-               [0,m2]])
-K = np.array([[ k1,  -k1],
-               [-k1,k1+k2]])
+<span class="c1"># Create numeric matrices</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">m1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">m2</span><span class="p">]])</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">k1</span><span class="p">,</span>  <span class="o">-</span><span class="n">k1</span><span class="p">],</span>
+               <span class="p">[</span><span class="o">-</span><span class="n">k1</span><span class="p">,</span><span class="n">k1</span><span class="o">+</span><span class="n">k2</span><span class="p">]])</span>
 
-# Look at solution with eigenvalues plugged in
-for eval in eigenvalues:
-    print(&#39;Eigenvalue = {:}&#39;.format(eval))
-    expr = K-eval*M
-    print(expr)
-    print(&#39;Row 2 is {:}x Row 1&#39;.format(expr[1,0]/expr[0,0]))
+<span class="c1"># Look at solution with eigenvalues plugged in</span>
+<span class="k">for</span> <span class="nb">eval</span> <span class="ow">in</span> <span class="n">eigenvalues</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Eigenvalue = </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">eval</span><span class="p">))</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">K</span><span class="o">-</span><span class="nb">eval</span><span class="o">*</span><span class="n">M</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Row 2 is </span><span class="si">{:}</span><span class="s1">x Row 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expr</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">expr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -610,14 +612,14 @@ in general, we only need to find one, because any scaling of an eigenvector is a
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Solve for the eigenvectors
-eigenvectors = []
-for eval in eigenvalues:
-    print(&#39;Eigenvalue = {:}&#39;.format(eval))
-    eigenvectors.append([1,k1/(k1+k2-eval*m2)])
-    print(&#39;X_1 = {:}&#39;.format(eigenvectors[-1][0]))
-    print(&#39;X_2 = {:}&#39;.format(eigenvectors[-1][1]))
-eigenvectors = np.array(eigenvectors).T
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solve for the eigenvectors</span>
+<span class="n">eigenvectors</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="nb">eval</span> <span class="ow">in</span> <span class="n">eigenvalues</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Eigenvalue = </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">eval</span><span class="p">))</span>
+    <span class="n">eigenvectors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="n">k1</span><span class="o">/</span><span class="p">(</span><span class="n">k1</span><span class="o">+</span><span class="n">k2</span><span class="o">-</span><span class="nb">eval</span><span class="o">*</span><span class="n">m2</span><span class="p">)])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X_1 = </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eigenvectors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;X_2 = </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eigenvectors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">eigenvectors</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 </pre></div>
 </div>
 </div>
@@ -641,8 +643,8 @@ X_2 = -0.8430703308172537
 <p>Now, what use is this solution? Well, first and foremost, it tells us the free response of the system. The system will want to vibrate at two frequencies. The first frequency of vibration is 3.21 Hz, and as it vibrates, it will vibrate in a shape such that mass 2 is moving 0.59 times the amount of mass 1, and in the same direction due to the coefficients both being the same sign. The second frequency the system will want to vibrate at is 6.83 Hz, and as it vibrates at that frequency, it will
 want to vibrate in a shape such that mass 2 is moving 0.84 times the amount of mass 1, but now in the opposite direction due to the opposite signs on the shape coefficents.</p>
 <p>Recall in the first tutorial, we described the properties of modes. There was a frequency, a damping, and a shape associated with each mode. Well, here we have seen that an eigenvalue of a system tells us the frequency of vibration, and the eigenvector tells us the shape of the vibration (we will discuss damping shortly). The eigensolution is actually telling us the modal properties of our system. This makes it very useful indeed!</p>
-<p>Let’s investigate a bit more about these modes. First, it is important to recognize that there is one mode (eigenvalue/frequency and eigenvector/shape) for each degree of freedom in the system. This is because the characteristic equation will end up having a polynomial order equal to the number of degrees of freedom of the system, and there will therefore be a number of roots equal to the number of degrees of freedom of the system. Extrapolating for a second to real systems with effectively
-infinite degrees of freedom, there are effectively infinite modes of the system. Thankfully, we can often only consider modes within a bandwidth of interest. For example in the current case, if our environment only contained frequency content up to 5 Hz, we may only need to consider the response of the first mode at 3.21 Hz, and we may be able to ignore the higher frequency mode at 6.83 Hz.</p>
+<p>Let’s investigate a bit more about these modes. First, it is important to recognize that there are the same number of modes (eigenvalues/frequencies and eigenvectors/shapes) as there are degrees of freedom in the system. This is because the characteristic equation will end up having a polynomial order equal to the number of degrees of freedom of the system, and there will therefore be a number of roots equal to the number of degrees of freedom of the system. Extrapolating for a second to real
+systems with effectively infinite degrees of freedom, there are effectively infinite modes of the system. Thankfully, we can often only consider modes within a bandwidth of interest. For example in the current case, if our environment only contained frequency content up to 4 Hz, we may only need to consider the response of the first mode at 3.21 Hz, and we may be able to ignore the higher frequency mode at 6.83 Hz.</p>
 <p>Eigenvectors (i.e. mode shapes) are typically represented as column vectors, as seen in the above equations. However, they are often concatenated together into a <em>mode shape matrix</em> where the rows represent degrees of freedom and the columns represent mode indices. Mode shape matrices are often given the variable <span class="math notranslate nohighlight">\(\Phi\)</span>.</p>
 <p>Mode shapes allow us to perform what is called a <em>modal transformation</em>. More specifically, we wish to define a generalized degree of freedom called a <em>modal degree of freedom</em> or <em>modal coordinate</em> <span class="math notranslate nohighlight">\(q\)</span> that defines how “much” each mode is deforming at a given instance in time. For example, because there are 2 degrees of freedom in <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>, and we can construct a 2 degree-of-freedom by 2 mode mode shape matrix <span class="math notranslate nohighlight">\(\Phi\)</span>, we can define a transformation</p>
 <div class="math notranslate nohighlight">
@@ -665,12 +667,12 @@ infinite degrees of freedom, there are effectively infinite modes of the system.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>M_m = eigenvectors.T@M@eigenvectors
-K_m = eigenvectors.T@K@eigenvectors
-print(&#39;Modal Mass Matrix:&#39;)
-print(np.array2string(M_m, formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
-print(&#39;Modal Stiffness Matrix:&#39;)
-print(np.array2string(K_m, formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">M_m</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@M@eigenvectors</span>
+<span class="n">K_m</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@K@eigenvectors</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modal Mass Matrix:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">M_m</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modal Stiffness Matrix:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">K_m</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -689,19 +691,19 @@ Modal Stiffness Matrix:
 </div>
 <p>From the above, we see that the modal mass and stiffness matrices are diagonal (except for small numerical errors). This is a very interesting result, because it means that the system of equations are now <em>decoupled</em>, meaning the response of <span class="math notranslate nohighlight">\(q_1\)</span> doesn’t depend at all on the response of <span class="math notranslate nohighlight">\(q_2\)</span>. This is opposed to the original system of equations, where if we modified <span class="math notranslate nohighlight">\(x_1\)</span> (i.e. moved mass 1) it would also move mass 2. This effectively lets us treat the modal system of
 equations as two simple single degree of freedom systems with masses 1.7 and 2.4 and stiffnesses 693 and 4460, rather than a single more complicated system.</p>
-<p>We remarked earlier that eigenvectors, and therefore mode shapes, are not unique. We can scale the mode shape by any factor, and it will still be a valid mode shape. One might wonder if there is any kind of “preferred” scaling of the mode shape matrix, and there is. For example, to simplify the modal equations, we can scale the mode shape such that modal mass matrix is the identity matrix. If we scale the existing eigenvectors by <span class="math notranslate nohighlight">\(1/\sqrt{\Phi^T M \Phi}\)</span>, we will get shape vectors that
-produce an identity mass matrix when the modal transformation is performed.</p>
+<p>We remarked earlier that eigenvectors, and therefore mode shapes, are not unique. We can scale the mode shape by any factor, and it will still be a valid mode shape. One might wonder if there is any kind of “preferred” scaling of the mode shape matrix, and there is. For example, to simplify the modal equations, we can scale the mode shape such that modal mass matrix is the identity matrix. If we scale the existing eigenvectors by <span class="math notranslate nohighlight">\(1/\sqrt{\Phi^T \mathbf{M} \Phi}\)</span>, we will get shape vectors
+that produce an identity mass matrix when the modal transformation is performed.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>scaled_eigenvectors = eigenvectors/np.sqrt(np.diag(eigenvectors.T@M@eigenvectors))
-M_m = scaled_eigenvectors.T@M@scaled_eigenvectors
-K_m = scaled_eigenvectors.T@K@scaled_eigenvectors
-print(&#39;Modal Mass Matrix:&#39;)
-print(np.array2string(M_m, formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
-print(&#39;Modal Stiffness Matrix:&#39;)
-print(np.array2string(K_m, formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scaled_eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@M@eigenvectors</span><span class="p">))</span>
+<span class="n">M_m</span> <span class="o">=</span> <span class="n">scaled_eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@M@scaled_eigenvectors</span>
+<span class="n">K_m</span> <span class="o">=</span> <span class="n">scaled_eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@K@scaled_eigenvectors</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modal Mass Matrix:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">M_m</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modal Stiffness Matrix:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">K_m</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -729,7 +731,7 @@ Modal Stiffness Matrix:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(np.array2string(scaled_eigenvectors.T@np.array([[1],[0]]),formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">scaled_eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">]]),</span><span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -747,7 +749,7 @@ Modal Stiffness Matrix:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(np.array2string(scaled_eigenvectors.T@np.array([[0],[1]]),formatter={&#39;float_kind&#39;:lambda x: &quot;%.5f&quot; % x}))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">scaled_eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">]]),</span><span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float_kind&#39;</span><span class="p">:</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -793,7 +795,7 @@ equal to <span class="math notranslate nohighlight">\(\tilde{c}=2\zeta\omega\)</
 </section>
 <section id="General-Damping-Matrices">
 <h3>General Damping Matrices<a class="headerlink" href="#General-Damping-Matrices" title="Permalink to this heading"></a></h3>
-<p>If there are discrete damping elements present in the system, for example in the suspension of an automobile, it is typically useful to model those specifically, which will require a general damping matrix. It is possible that the eigenvectors will not diagonalize this damping matrix. In some cases, the off-diagonal elements may be small, and therefore it is not terrible approximation to simply discard the off-diagonal elements and assume the matrix was diagonalized. Alternatively, the
+<p>If there are discrete damping elements present in the system, for example in the suspension of an automobile, it is typically useful to model those explicitly, which will require a general damping matrix. It is possible that the eigenvectors will not diagonalize this damping matrix. In some cases, the off-diagonal elements may be small, and therefore it is not terrible approximation to simply discard the off-diagonal elements and assume the matrix was diagonalized. Alternatively, the
 eigensolution can be reformulated to include the damping matrix as well. This will result in <em>complex modes</em>, where the shape is no longer a real number, but instead a complex number. Complex modes will be covered in a later tutorial. If we do proceed with simply discarding the off-diagonal elements, we can then compute the fraction of critical damping for each mode with the equation <span class="math notranslate nohighlight">\(\zeta = {\tilde{c} / ({2\omega}})\)</span> where <span class="math notranslate nohighlight">\(\tilde{c}\)</span> is the diagonal value of the modal damping
 matrix.</p>
 <p>We will investigate this latter case in our system, assuming there are dampers <span class="math notranslate nohighlight">\(c_1\)</span> and <span class="math notranslate nohighlight">\(c_2\)</span> along with the springs <span class="math notranslate nohighlight">\(k_1\)</span> and <span class="math notranslate nohighlight">\(k_2\)</span>.</p>
@@ -801,18 +803,18 @@ matrix.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Let&#39;s add physical damping mechanisms
-c1 = 1.25
-c2 = 2.5
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s add physical damping mechanisms</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="mf">1.25</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="mf">2.5</span>
 
-# Construct the physical damping matrix
-C = np.array([[ c1,  -c1],
-              [-c1,c1+c2]])
+<span class="c1"># Construct the physical damping matrix</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">c1</span><span class="p">,</span>  <span class="o">-</span><span class="n">c1</span><span class="p">],</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">c1</span><span class="p">,</span><span class="n">c1</span><span class="o">+</span><span class="n">c2</span><span class="p">]])</span>
 
-# Now try to diagonalize it with the scaled eigenvectors
-C_m = scaled_eigenvectors.T@C@scaled_eigenvectors
-print(&#39;Modal Damping Matrix:&#39;)
-print(C_m)
+<span class="c1"># Now try to diagonalize it with the scaled eigenvectors</span>
+<span class="n">C_m</span> <span class="o">=</span> <span class="n">scaled_eigenvectors</span><span class="o">.</span><span class="n">T</span><span class="nd">@C@scaled_eigenvectors</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modal Damping Matrix:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">C_m</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -831,35 +833,35 @@ Modal Damping Matrix:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
-import matplotlib.pyplot as plt
-import scipy.linalg as la
-# Set up the system
-system_physical_damping = sdpy.System(sdpy.coordinate_array([1,2],1),M,K,C)
-# Create a modal system using the eigensolution and forming the modal equations of motion
-shapes = sdpy.System(sdpy.coordinate_array([1,2],1),M,K,C).eigensolution()
-system_modal_damping = shapes.system()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">la</span>
+<span class="c1"># Set up the system</span>
+<span class="n">system_physical_damping</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">),</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">C</span><span class="p">)</span>
+<span class="c1"># Create a modal system using the eigensolution and forming the modal equations of motion</span>
+<span class="n">shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">),</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">C</span><span class="p">)</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">()</span>
+<span class="n">system_modal_damping</span> <span class="o">=</span> <span class="n">shapes</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
 
-# Set up the initial state
-initial_state_modal = np.array([1,1,0,0])
-initial_state = (la.block_diag(shapes.shape_matrix.T,shapes.shape_matrix.T)@initial_state_modal[:,np.newaxis]).flatten()
+<span class="c1"># Set up the initial state</span>
+<span class="n">initial_state_modal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">shapes</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="nd">@initial_state_modal</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-# No external forces
-force_signals = np.zeros((2,10000))
-dt = 1/1000
+<span class="c1"># No external forces</span>
+<span class="n">force_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1000</span>
 
-# Integrate equations of motion
-responses_modal,forces = system_modal_damping.time_integrate(
-    force_signals,dt,initial_state=initial_state_modal,displacement_derivative=0)
-responses_physical,forces = system_physical_damping.time_integrate(
-    force_signals,dt,initial_state=initial_state,displacement_derivative=0)
+<span class="c1"># Integrate equations of motion</span>
+<span class="n">responses_modal</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system_modal_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state_modal</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">responses_physical</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system_physical_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-# Plot the responses
-fig,ax = plt.subplots(2,1,figsize=(10,6))
-for a,response_physical,response_modal in zip(ax,responses_physical,responses_modal):
-    response_physical.plot(a,plot_kwargs={&#39;linewidth&#39;:4})
-    response_modal.plot(a)
-a.legend([&#39;Physical&#39;,&#39;Modal&#39;]);
+<span class="c1"># Plot the responses</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">response_physical</span><span class="p">,</span><span class="n">response_modal</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">responses_physical</span><span class="p">,</span><span class="n">responses_modal</span><span class="p">):</span>
+    <span class="n">response_physical</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">})</span>
+    <span class="n">response_modal</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Physical&#39;</span><span class="p">,</span><span class="s1">&#39;Modal&#39;</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
@@ -911,27 +913,27 @@ being applied at locations with larger coefficients in the mode shape matrix wil
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,10,1001)
-omega = (frequencies*2*np.pi)[:,np.newaxis,np.newaxis]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1001</span><span class="p">)</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="p">(</span><span class="n">frequencies</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
-H_per_mode = []
-for omega_k,zeta_k,phi_k in zip(shapes.frequency*2*np.pi,shapes.damping,shapes.shape_matrix[...,np.newaxis]):
-    H_per_mode.append(phi_k@phi_k.T/(-omega**2+2j*omega*omega_k*zeta_k+omega_k**2))
+<span class="n">H_per_mode</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">omega_k</span><span class="p">,</span><span class="n">zeta_k</span><span class="p">,</span><span class="n">phi_k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="n">shapes</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span><span class="n">shapes</span><span class="o">.</span><span class="n">shape_matrix</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]):</span>
+    <span class="n">H_per_mode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi_k</span><span class="nd">@phi_k</span><span class="o">.</span><span class="n">T</span><span class="o">/</span><span class="p">(</span><span class="o">-</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">omega_k</span><span class="o">*</span><span class="n">zeta_k</span><span class="o">+</span><span class="n">omega_k</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
-fig,ax = plt.subplots(2,2,num=&#39;Mode Contributions to FRF&#39;,figsize=(10,6),sharex=True,sharey=True)
-for i in range(2):
-    for j in range(2):
-        ax[i,j].plot(frequencies,abs(H_per_mode[0][:,i,j]))
-        ax[i,j].plot(frequencies,abs(H_per_mode[1][:,i,j]))
-        ax[i,j].plot(frequencies,abs(H_per_mode[0][:,i,j]+H_per_mode[1][:,i,j]))
-        ax[i,j].set_yscale(&#39;log&#39;)
-        if i == 1:
-            ax[i,j].set_xlabel(&#39;Frequency (Hz)\n\nForce Input to DOF {:}&#39;.format(j+1))
-        if j == 0:
-            ax[i,j].set_ylabel(&#39;Response at DOF {:}\n\nFRF Magnitude (m/N)&#39;.format(j+1))
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Mode Contributions to FRF&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="nb">abs</span><span class="p">(</span><span class="n">H_per_mode</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]))</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="nb">abs</span><span class="p">(</span><span class="n">H_per_mode</span><span class="p">[</span><span class="mi">1</span><span class="p">][:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]))</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="nb">abs</span><span class="p">(</span><span class="n">H_per_mode</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">H_per_mode</span><span class="p">[</span><span class="mi">1</span><span class="p">][:,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]))</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)</span><span class="se">\n\n</span><span class="s1">Force Input to DOF </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response at DOF </span><span class="si">{:}</span><span class="se">\n\n</span><span class="s1">FRF Magnitude (m/N)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 
-ax[-1,-1].legend([&#39;Mode 1 Contribution&#39;,&#39;Mode 2 Contribution&#39;,&#39;Sum of Contributions&#39;]);
-fig.tight_layout()
+<span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Mode 1 Contribution&#39;</span><span class="p">,</span><span class="s1">&#39;Mode 2 Contribution&#39;</span><span class="p">,</span><span class="s1">&#39;Sum of Contributions&#39;</span><span class="p">]);</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -952,7 +954,7 @@ with one another. For an intuitive example, consider the addition of 1 and -1. I
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdynpy.demo.beam_plate import system as plate_system
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sdynpy.demo.beam_plate</span> <span class="kn">import</span> <span class="n">system</span> <span class="k">as</span> <span class="n">plate_system</span>
 </pre></div>
 </div>
 </div>
@@ -962,9 +964,9 @@ the damping ratios, and some comments that can be used to store other metadata. 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Solve for modes above 1000 Hz
-plate_shapes = plate_system.eigensolution(maximum_frequency=1000)
-print(&#39;Computed {:} Modes of the plate system&#39;.format(plate_shapes.size))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solve for modes above 1000 Hz</span>
+<span class="n">plate_shapes</span> <span class="o">=</span> <span class="n">plate_system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computed </span><span class="si">{:}</span><span class="s1"> Modes of the plate system&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -981,7 +983,7 @@ Computed 29 Modes of the plate system
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plate_shapes
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate_shapes</span>
 </pre></div>
 </div>
 </div>
@@ -1028,7 +1030,7 @@ Computed 29 Modes of the plate system
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plate_shapes.frequency
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">frequency</span>
 </pre></div>
 </div>
 </div>
@@ -1052,7 +1054,7 @@ array([0.00000000e+00, 0.00000000e+00, 1.68587394e-04, 1.68587394e-04,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plate_shapes.damping
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">damping</span>
 </pre></div>
 </div>
 </div>
@@ -1070,8 +1072,8 @@ array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;Shape Matrix Shape {:}&#39;.format(plate_shapes.shape_matrix.shape))
-plate_shapes.shape_matrix
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Shape Matrix Shape </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="n">plate_shapes</span><span class="o">.</span><span class="n">shape_matrix</span>
 </pre></div>
 </div>
 </div>
@@ -1110,8 +1112,8 @@ using it calculations. Alternatively, users can access the traditional mode shap
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;Modeshape Shape {:}&#39;.format(plate_shapes.modeshape.shape))
-plate_shapes.modeshape
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Modeshape Shape </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">modeshape</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="n">plate_shapes</span><span class="o">.</span><span class="n">modeshape</span>
 </pre></div>
 </div>
 </div>
@@ -1149,16 +1151,16 @@ array([[ 2.87845506e-01,  1.16437174e-02,  1.14736558e-01, ...,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(2,2,num=&#39;Matrix Diagonalization&#39;,figsize=(10,10),sharex=&#39;col&#39;)
-ax[0,0].spy(plate_system.M,1e-6)
-ax[1,0].spy(plate_system.K,1e-6)
-ax[0,0].set_title(&#39;Physical Matrices&#39;)
-ax[0,1].spy(plate_shapes.modeshape.T@plate_system.M@plate_shapes.modeshape,1e-6)
-ax[1,1].spy(plate_shapes.modeshape.T@plate_system.K@plate_shapes.modeshape,1e-6)
-ax[0,1].set_title(&#39;Modal Matrices&#39;)
-ax[0,0].set_ylabel(&#39;Mass Matrix&#39;)
-ax[1,0].set_ylabel(&#39;Stiffness Matrix&#39;)
-fig.tight_layout()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Matrix Diagonalization&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">plate_system</span><span class="o">.</span><span class="n">M</span><span class="p">,</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">plate_system</span><span class="o">.</span><span class="n">K</span><span class="p">,</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Physical Matrices&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">modeshape</span><span class="o">.</span><span class="n">T</span><span class="nd">@plate_system</span><span class="o">.</span><span class="n">M</span><span class="nd">@plate_shapes</span><span class="o">.</span><span class="n">modeshape</span><span class="p">,</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">modeshape</span><span class="o">.</span><span class="n">T</span><span class="nd">@plate_system</span><span class="o">.</span><span class="n">K</span><span class="nd">@plate_shapes</span><span class="o">.</span><span class="n">modeshape</span><span class="p">,</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Modal Matrices&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Mass Matrix&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Stiffness Matrix&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1178,8 +1180,8 @@ there is no restoring force to force it to start spinning the opposite direction
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>modal_system = plate_shapes.system()
-modal_system
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modal_system</span> <span class="o">=</span> <span class="n">plate_shapes</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+<span class="n">modal_system</span>
 </pre></div>
 </div>
 </div>
@@ -1199,8 +1201,8 @@ vibrating. For this we need a few more pieces of information. First, we need a r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdynpy.demo.beam_plate import geometry as plate_geometry
-plate_geometry
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sdynpy.demo.beam_plate</span> <span class="kn">import</span> <span class="n">geometry</span> <span class="k">as</span> <span class="n">plate_geometry</span>
+<span class="n">plate_geometry</span>
 </pre></div>
 </div>
 </div>
@@ -1355,7 +1357,7 @@ referenced by the <code class="docutils literal notranslate"><span class="pre">G
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plate_geometry.plot();
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate_geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1367,9 +1369,9 @@ objects, we can see that they actually have a <code class="docutils literal notr
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&#39;The shape matrix has shape {:} and the coordinate has shape {:}&#39;.format(
-    plate_shapes.shape_matrix.shape,plate_shapes.coordinate.shape))
-plate_shapes.coordinate
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The shape matrix has shape </span><span class="si">{:}</span><span class="s1"> and the coordinate has shape </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">plate_shapes</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="n">plate_shapes</span><span class="o">.</span><span class="n">coordinate</span>
 </pre></div>
 </div>
 </div>
@@ -1402,9 +1404,9 @@ array([[&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plotter = plate_geometry.plot_coordinate(
-    np.unique(plate_shapes.coordinate), # Use np.unique to remove duplicate coordinates
-    arrow_scale=0.025,label_dofs = True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plate_geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">plate_shapes</span><span class="o">.</span><span class="n">coordinate</span><span class="p">),</span> <span class="c1"># Use np.unique to remove duplicate coordinates</span>
+    <span class="n">arrow_scale</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span><span class="n">label_dofs</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1415,7 +1417,7 @@ array([[&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plate_geometry.plot_shape(plate_shapes);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate_geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">plate_shapes</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>

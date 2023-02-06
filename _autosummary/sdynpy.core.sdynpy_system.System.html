@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_system.System &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.core.sdynpy_system.System &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -51,6 +51,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -71,6 +72,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.C"><code class="docutils literal notranslate"><span class="pre">System.C</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.K"><code class="docutils literal notranslate"><span class="pre">System.K</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.M"><code class="docutils literal notranslate"><span class="pre">System.M</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.assign_modal_damping"><code class="docutils literal notranslate"><span class="pre">System.assign_modal_damping()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.beam"><code class="docutils literal notranslate"><span class="pre">System.beam()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.concatenate"><code class="docutils literal notranslate"><span class="pre">System.concatenate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.constrain"><code class="docutils literal notranslate"><span class="pre">System.constrain()</span></code></a></li>
@@ -119,6 +121,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -217,73 +220,76 @@ default transformation is the identity matrix.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.__init__" title="sdynpy.core.sdynpy_system.System.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(coordinate, mass, stiffness[, ...])</p></td>
 <td><p>Create a system representation including mass, stiffness, damping, and transformation matrices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.beam" title="sdynpy.core.sdynpy_system.System.beam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beam</span></code></a>(length, width, height, num_nodes[, E, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.assign_modal_damping" title="sdynpy.core.sdynpy_system.System.assign_modal_damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_modal_damping</span></code></a>(damping_ratios)</p></td>
+<td><p>Assigns a damping matrix to the system that results in equivalent modal damping</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.beam" title="sdynpy.core.sdynpy_system.System.beam"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beam</span></code></a>(length, width, height, num_nodes[, E, ...])</p></td>
 <td><p>Create a beam mass and stiffness matrix</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.concatenate" title="sdynpy.core.sdynpy_system.System.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a>(systems[, coordinate_node_offset])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.concatenate" title="sdynpy.core.sdynpy_system.System.concatenate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">concatenate</span></code></a>(systems[, coordinate_node_offset])</p></td>
 <td><p>Combine multiple systems together</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.constrain" title="sdynpy.core.sdynpy_system.System.constrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain</span></code></a>(constraint_matrix[, rcond])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.constrain" title="sdynpy.core.sdynpy_system.System.constrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain</span></code></a>(constraint_matrix[, rcond])</p></td>
 <td><p>Apply a constraint matrix to the system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.copy" title="sdynpy.core.sdynpy_system.System.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.copy" title="sdynpy.core.sdynpy_system.System.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
 <td><p>Returns a copy of the system object</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.eigensolution" title="sdynpy.core.sdynpy_system.System.eigensolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eigensolution</span></code></a>([num_modes, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.eigensolution" title="sdynpy.core.sdynpy_system.System.eigensolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eigensolution</span></code></a>([num_modes, ...])</p></td>
 <td><p>Computes the eigensolution of the system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.frequency_response" title="sdynpy.core.sdynpy_system.System.frequency_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency_response</span></code></a>(frequencies[, responses, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.frequency_response" title="sdynpy.core.sdynpy_system.System.frequency_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency_response</span></code></a>(frequencies[, responses, ...])</p></td>
 <td><p>Computes frequency response functions at the specified frequency lines.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.from_exodus_superelement" title="sdynpy.core.sdynpy_system.System.from_exodus_superelement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus_superelement</span></code></a>(superelement_nc4[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.from_exodus_superelement" title="sdynpy.core.sdynpy_system.System.from_exodus_superelement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus_superelement</span></code></a>(superelement_nc4[, ...])</p></td>
 <td><p>Creates a system from a superelement from Sierra/SD</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate" title="sdynpy.core.sdynpy_system.System.get_indices_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_indices_by_coordinate</span></code></a>(coordinates[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate" title="sdynpy.core.sdynpy_system.System.get_indices_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_indices_by_coordinate</span></code></a>(coordinates[, ...])</p></td>
 <td><p>Gets the indices in the transformation matrix corresponding coordinates</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.load" title="sdynpy.core.sdynpy_system.System.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.load" title="sdynpy.core.sdynpy_system.System.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
 <td><p>Load a system from a file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce" title="sdynpy.core.sdynpy_system.System.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(reduction_transformation)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce" title="sdynpy.core.sdynpy_system.System.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(reduction_transformation)</p></td>
 <td><p>Apply the specified reduction to the model</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_craig_bampton" title="sdynpy.core.sdynpy_system.System.reduce_craig_bampton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_craig_bampton</span></code></a>(...[, return_shape_matrix])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_craig_bampton" title="sdynpy.core.sdynpy_system.System.reduce_craig_bampton"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_craig_bampton</span></code></a>(...[, return_shape_matrix])</p></td>
 <td><p>Computes a craig-bampton substructure model for the system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_dynamic" title="sdynpy.core.sdynpy_system.System.reduce_dynamic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_dynamic</span></code></a>(coordinates, frequency)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_dynamic" title="sdynpy.core.sdynpy_system.System.reduce_dynamic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_dynamic</span></code></a>(coordinates, frequency)</p></td>
 <td><p>Perform Dynamic condensation</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_guyan" title="sdynpy.core.sdynpy_system.System.reduce_guyan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_guyan</span></code></a>(coordinates)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce_guyan" title="sdynpy.core.sdynpy_system.System.reduce_guyan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_guyan</span></code></a>(coordinates)</p></td>
 <td><p>Perform Guyan reduction on the system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.save" title="sdynpy.core.sdynpy_system.System.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.save" title="sdynpy.core.sdynpy_system.System.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
 <td><p>Saves the system to a file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.set_proportional_damping" title="sdynpy.core.sdynpy_system.System.set_proportional_damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_proportional_damping</span></code></a>(mass_fraction, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.set_proportional_damping" title="sdynpy.core.sdynpy_system.System.set_proportional_damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_proportional_damping</span></code></a>(mass_fraction, ...)</p></td>
 <td><p>Sets the damping matrix to a proportion of the mass and stiffness matrices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="sdynpy.core.sdynpy_system.System.simulate_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_test</span></code></a>(bandwidth, frame_length, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="sdynpy.core.sdynpy_system.System.simulate_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_test</span></code></a>(bandwidth, frame_length, ...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.spy" title="sdynpy.core.sdynpy_system.System.spy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spy</span></code></a>([subplots_kwargs, spy_kwargs])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.spy" title="sdynpy.core.sdynpy_system.System.spy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spy</span></code></a>([subplots_kwargs, spy_kwargs])</p></td>
 <td><p>Plot the structure of the system's matrices</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate" title="sdynpy.core.sdynpy_system.System.substructure_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_coordinate</span></code></a>(dof_pairs[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate" title="sdynpy.core.sdynpy_system.System.substructure_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_coordinate</span></code></a>(dof_pairs[, ...])</p></td>
 <td><p>Constrain the system by connecting the specified degree of freedom pairs</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_position" title="sdynpy.core.sdynpy_system.System.substructure_by_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_position</span></code></a>(systems, geometries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_position" title="sdynpy.core.sdynpy_system.System.substructure_by_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_position</span></code></a>(systems, geometries)</p></td>
 <td><p>Applies constraints to systems by constraining colocated nodes together</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape" title="sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_shape</span></code></a>(constraint_shapes, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape" title="sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_shape</span></code></a>(constraint_shapes, ...)</p></td>
 <td><p>Constrain the system using a set of shapes in a least-squares sense.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces, dt[, responses, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces, dt[, responses, ...])</p></td>
 <td><p>Integrate a system to produce responses to an excitation</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="sdynpy.core.sdynpy_system.System.to_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_state_space</span></code></a>([output_displacement, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="sdynpy.core.sdynpy_system.System.to_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_state_space</span></code></a>([output_displacement, ...])</p></td>
 <td><p>Compute the state space representation of the system</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix_at_coordinates</span></code></a>(coordinates)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix_at_coordinates</span></code></a>(coordinates)</p></td>
 <td><p>Return the transformation matrix at the specified coordinates</p></td>
 </tr>
 </tbody>
@@ -343,6 +349,21 @@ default transformation is the identity matrix.</p></li>
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.M">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">M</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.M" title="Permalink to this definition"></a></dt>
 <dd><p>Get or set the mass matrix of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.assign_modal_damping">
+<span class="sig-name descname"><span class="pre">assign_modal_damping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">damping_ratios</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.assign_modal_damping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.assign_modal_damping" title="Permalink to this definition"></a></dt>
+<dd><p>Assigns a damping matrix to the system that results in equivalent
+modal damping</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>damping_ratios</strong> (<em>ndarray</em>) – An array of damping values to assign to the system</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -878,7 +899,7 @@ zero-padding the fft</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.to_state_space">
-<span class="sig-name descname"><span class="pre">to_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_acceleration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.to_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_acceleration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.to_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the state space representation of the system</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

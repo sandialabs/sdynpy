@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -107,7 +109,7 @@
 <span class="kn">from</span> <span class="nn">.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span><span class="n">outer_product</span><span class="p">,</span><span class="n">coordinate_array</span>
 
 <div class="viewcode-block" id="Matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix">[docs]</a><span class="k">class</span> <span class="nc">Matrix</span><span class="p">(</span><span class="n">SdynpyArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Matrix with degrees of freedom stored for better bookkeeping.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix with degrees of freedom stored for better bookkeeping.</span>
 
 <span class="sd">    Use the matrix helper function to create the object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -116,7 +118,7 @@
     
 <div class="viewcode-block" id="Matrix.data_dtype"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.data_dtype">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">data_dtype</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Data type of the underlying numpy structured array for real shapes</span>
 
 <span class="sd">        Parameters</span>
@@ -138,8 +140,8 @@
             <span class="p">(</span><span class="s1">&#39;row_coordinate&#39;</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,)),</span>
             <span class="p">(</span><span class="s1">&#39;column_coordinate&#39;</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span> <span class="p">(</span><span class="n">columns</span><span class="p">,)),</span>
         <span class="p">]</span></div>
-    
-    <span class="sd">&quot;&quot;&quot;Datatype for the underlying numpy structured array&quot;&quot;&quot;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Datatype for the underlying numpy structured array&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -156,7 +158,7 @@
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the full coordinate array for the matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">outer_product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">column_coordinate</span><span class="p">)</span>
@@ -167,14 +169,14 @@
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_coordinate_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of coordinate rows</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_coordinate_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of coordinate columns</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -333,7 +335,7 @@
                           <span class="s1">&#39;column coordinates = </span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_coordinate</span><span class="p">)])</span>
     
 <div class="viewcode-block" id="Matrix.argsort_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.argsort_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">argsort_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns indices used to sort the coordinates on the rows and columns</span>
 
 <span class="sd">        Returns</span>
@@ -352,7 +354,7 @@
         <span class="k">return</span> <span class="n">row_indices</span><span class="p">[</span><span class="o">...</span><span class="p">,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">column_indices</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span></div>
     
 <div class="viewcode-block" id="Matrix.sort_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.sort_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">sort_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a copy of the Matrix with coordinate sorted</span>
 
 <span class="sd">        Returns</span>
@@ -370,7 +372,7 @@
         <span class="k">return</span> <span class="n">return_val</span></div>
             
 <div class="viewcode-block" id="Matrix.plot"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">show_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="o">**</span><span class="n">imshow_args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots the matrix with coordinates labeled</span>
 
 <span class="sd">        Parameters</span>
@@ -419,7 +421,7 @@
         
 <div class="viewcode-block" id="Matrix.eye"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.eye">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">eye</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">row_coordinate</span><span class="p">,</span><span class="n">column_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates an identity matrix with the specified coordinates</span>
 
 <span class="sd">        Parameters</span>
@@ -443,7 +445,7 @@
     
 <div class="viewcode-block" id="matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.matrix.html#sdynpy.core.sdynpy_matrix.matrix">[docs]</a><span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="n">row_coordinate</span><span class="p">,</span><span class="n">column_coordinate</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a matrix object</span>
 
 <span class="sd">    Parameters</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -118,13 +120,12 @@
 <span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc4</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System">[docs]</a><span class="k">class</span> <span class="nc">System</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Matrix Equations representing a Structural Dynamics System&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix Equations representing a Structural Dynamics System&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="System.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a system representation including mass, stiffness, damping, and</span>
 <span class="sd">        transformation matrices.</span>
 
@@ -203,7 +204,7 @@
         <span class="k">return</span> <span class="s1">&#39;System with </span><span class="si">{:}</span><span class="s1"> DoFs (</span><span class="si">{:}</span><span class="s1"> internal DoFs)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndof_transformed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndof</span><span class="p">)</span>
 
 <div class="viewcode-block" id="System.spy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.spy">[docs]</a>    <span class="k">def</span> <span class="nf">spy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplots_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figsize&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)},</span> <span class="n">spy_kwargs</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the structure of the system&#39;s matrices</span>
 
 <span class="sd">        Parameters</span>
@@ -251,12 +252,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get or set the transformation matrix&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the transformation matrix&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformation</span>
 
     <span class="nd">@transformation</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the transformation matrix&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the transformation matrix&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;transformation must be 2D&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -266,12 +267,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get or set the degrees of freedom in the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the degrees of freedom in the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate</span>
 
     <span class="nd">@coordinate</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the degrees of freedom in the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the degrees of freedom in the system&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;coordinate must be a CoordinateArray object&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -280,12 +281,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get or set the mass matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the mass matrix of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass</span>
 
     <span class="nd">@mass</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the mass matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the mass matrix of the system&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mass and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -296,12 +297,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stiffness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get or set the stffness matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the stffness matrix of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stiffness</span>
 
     <span class="nd">@stiffness</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">stiffness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the stiffness matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the stiffness matrix of the system&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mass and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -312,12 +313,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">damping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get or set the damping matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the damping matrix of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_damping</span>
 
     <span class="nd">@damping</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the damping matrix of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the damping matrix of the system&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;damping and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -332,16 +333,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ndof</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the number of internal degrees of freedom of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of internal degrees of freedom of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ndof_transformed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the number of physical degrees of freedom of the system&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of physical degrees of freedom of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="System.to_state_space"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.to_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">to_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_displacement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_acceleration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_force</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="System.to_state_space"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.to_state_space">[docs]</a>    <span class="k">def</span> <span class="nf">to_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_displacement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_acceleration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">response_coordinates</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span><span class="n">input_coordinates</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the state space representation of the system</span>
 
 <span class="sd">        Parameters</span>
@@ -372,45 +374,55 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ndofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndof</span>
-        <span class="n">tdofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndof_transformed</span>
         <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
         <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span>
-        <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
+        <span class="k">if</span> <span class="n">response_coordinates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phi_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phi_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">input_coordinates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phi_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phi_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">input_coordinates</span><span class="p">)</span>
+        <span class="n">tdofs_response</span> <span class="o">=</span> <span class="n">phi_response</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tdofs_input</span> <span class="o">=</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># A = [[     0,     I],</span>
         <span class="c1">#      [M^-1*K,M^-1*C]]</span>
 
         <span class="n">A_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)],</span>
                             <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)]])</span>
 
-        <span class="c1"># B = [[     0,  M^-1]]</span>
+        <span class="c1"># B = [[     0],</span>
+        <span class="c1">#      [  M^-1]]</span>
 
-        <span class="n">B_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">tdofs</span><span class="p">))],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi</span><span class="o">.</span><span class="n">T</span><span class="p">)]])</span>
+        <span class="n">B_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
+                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">T</span><span class="p">)]])</span>
 
         <span class="c1"># C = [[     I,     0],   # Displacements</span>
         <span class="c1">#      [     0,     I],   # Velocities</span>
         <span class="c1">#      [M^-1*K,M^-1*C],   # Accelerations</span>
         <span class="c1">#      [     0,     0]]   # Forces</span>
 
-        <span class="n">C_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">phi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">phi</span><span class="p">],</span>
-                            <span class="p">[</span><span class="o">-</span><span class="n">phi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">phi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))]])</span>
+        <span class="n">C_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">phi_response</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
+                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">phi_response</span><span class="p">],</span>
+                            <span class="p">[</span><span class="o">-</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)],</span>
+                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_input</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_input</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))]])</span>
 
         <span class="c1"># D = [[     0],   # Displacements</span>
         <span class="c1">#      [     0],   # Velocities</span>
         <span class="c1">#      [  M^-1],   # Accelerations</span>
         <span class="c1">#      [     I]]   # Forces</span>
 
-        <span class="n">D_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">tdofs</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs</span><span class="p">,</span> <span class="n">tdofs</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">phi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi</span><span class="o">.</span><span class="n">T</span><span class="p">)],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">tdofs</span><span class="p">)]])</span>
-        <span class="n">displacement_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs</span><span class="p">)</span>
-        <span class="n">velocity_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs</span><span class="p">)</span> <span class="o">+</span> <span class="n">tdofs</span>
-        <span class="n">acceleration_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tdofs</span>
-        <span class="n">force_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">tdofs</span>
-        <span class="n">output_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">tdofs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">D_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
+                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
+                            <span class="p">[</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">T</span><span class="p">)],</span>
+                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">tdofs_input</span><span class="p">)]])</span>
+        <span class="n">displacement_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span>
+        <span class="n">velocity_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span> <span class="o">+</span> <span class="n">tdofs_response</span>
+        <span class="n">acceleration_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tdofs_response</span>
+        <span class="n">force_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_input</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">tdofs_response</span>
+        <span class="n">output_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">tdofs_response</span> <span class="o">+</span> <span class="n">tdofs_input</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">output_displacement</span><span class="p">:</span>
             <span class="n">output_indices</span><span class="p">[</span><span class="n">displacement_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">output_velocity</span><span class="p">:</span>
@@ -426,7 +438,7 @@
 <div class="viewcode-block" id="System.time_integrate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.time_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">time_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Integrate a system to produce responses to an excitation</span>
 
 <span class="sd">        Parameters</span>
@@ -520,7 +532,7 @@
         <span class="k">return</span> <span class="n">response_array</span><span class="p">,</span> <span class="n">reference_array</span></div>
 
 <div class="viewcode-block" id="System.eigensolution"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.eigensolution">[docs]</a>    <span class="k">def</span> <span class="nf">eigensolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_modes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">complex_modes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the eigensolution of the system</span>
 
 <span class="sd">        Parameters</span>
@@ -579,7 +591,7 @@
 
 <div class="viewcode-block" id="System.frequency_response"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.frequency_response">[docs]</a>    <span class="k">def</span> <span class="nf">frequency_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes frequency response functions at the specified frequency lines.</span>
 
 <span class="sd">        Parameters</span>
@@ -630,8 +642,35 @@
                          <span class="n">outer_product</span><span class="p">(</span><span class="n">output_coordinates</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">frf</span></div>
 
+<div class="viewcode-block" id="System.assign_modal_damping"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.assign_modal_damping">[docs]</a>    <span class="k">def</span> <span class="nf">assign_modal_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">damping_ratios</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assigns a damping matrix to the system that results in equivalent</span>
+<span class="sd">        modal damping</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        damping_ratios : ndarray</span>
+<span class="sd">            An array of damping values to assign to the system</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">damping_ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">damping_ratios</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">damping_ratios</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">damping_ratios</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">()</span>
+        <span class="n">shapes</span><span class="o">.</span><span class="n">damping</span> <span class="o">=</span> <span class="n">damping_ratios</span>
+        <span class="c1"># Compute the damping matrix</span>
+        <span class="n">modal_system</span> <span class="o">=</span> <span class="n">shapes</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+        <span class="n">shape_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">modal_system</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">full_damping_matrix</span> <span class="o">=</span> <span class="n">shape_pinv</span><span class="nd">@modal_system</span><span class="o">.</span><span class="n">damping</span><span class="nd">@shape_pinv</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">full_damping_matrix</span></div>
+        
 <div class="viewcode-block" id="System.save"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves the system to a file</span>
 
 <span class="sd">        Parameters</span>
@@ -649,7 +688,7 @@
 
 <div class="viewcode-block" id="System.load"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a system from a file</span>
 
 <span class="sd">        Parameters</span>
@@ -677,7 +716,7 @@
 
 <div class="viewcode-block" id="System.concatenate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.concatenate">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">concatenate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">systems</span><span class="p">,</span> <span class="n">coordinate_node_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combine multiple systems together</span>
 
 <span class="sd">        Parameters</span>
@@ -708,7 +747,7 @@
 
 <div class="viewcode-block" id="System.substructure_by_position"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.substructure_by_position">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">substructure_by_position</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">systems</span><span class="p">,</span> <span class="n">geometries</span><span class="p">,</span> <span class="n">distance_threshold</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Applies constraints to systems by constraining colocated nodes together</span>
 
 <span class="sd">        Parameters</span>
@@ -777,7 +816,7 @@
         <span class="k">return</span> <span class="n">combined_system</span><span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="n">constraint_matrix</span><span class="p">,</span> <span class="n">rcond</span><span class="p">),</span> <span class="n">combined_geometry</span></div>
 
 <div class="viewcode-block" id="System.constrain"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.constrain">[docs]</a>    <span class="k">def</span> <span class="nf">constrain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint_matrix</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a constraint matrix to the system</span>
 
 <span class="sd">        Parameters</span>
@@ -802,7 +841,7 @@
         <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">new_mass</span><span class="p">,</span> <span class="n">new_stiffness</span><span class="p">,</span> <span class="n">new_damping</span><span class="p">,</span> <span class="n">new_transform</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.transformation_matrix_at_coordinates"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the transformation matrix at the specified coordinates</span>
 
 <span class="sd">        Parameters</span>
@@ -845,7 +884,7 @@
 
 <div class="viewcode-block" id="System.substructure_by_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.substructure_by_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">substructure_by_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dof_pairs</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">return_constrained_system</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constrain the system by connecting the specified degree of freedom pairs</span>
 
 <span class="sd">        Parameters</span>
@@ -884,7 +923,7 @@
 <div class="viewcode-block" id="System.substructure_by_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.substructure_by_shape">[docs]</a>    <span class="k">def</span> <span class="nf">substructure_by_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint_shapes</span><span class="p">,</span> <span class="n">connection_dofs_0</span><span class="p">,</span>
                               <span class="n">connection_dofs_1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">return_constrained_system</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constrain the system using a set of shapes in a least-squares sense.</span>
 
 <span class="sd">        Parameters</span>
@@ -925,7 +964,7 @@
             <span class="k">return</span> <span class="n">constraint_matrix</span></div>
 
 <div class="viewcode-block" id="System.copy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a copy of the system object</span>
 
 <span class="sd">        Returns</span>
@@ -938,7 +977,7 @@
                       <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="System.set_proportional_damping"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.set_proportional_damping">[docs]</a>    <span class="k">def</span> <span class="nf">set_proportional_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mass_fraction</span><span class="p">,</span> <span class="n">stiffness_fraction</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the damping matrix to a proportion of the mass and stiffness matrices.</span>
 
 <span class="sd">        The damping matrix will be set to `mass_fraction*self.mass + </span>
@@ -960,7 +999,7 @@
 
 <div class="viewcode-block" id="System.beam"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.beam">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">beam</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a beam mass and stiffness matrix</span>
 
 <span class="sd">        Parameters</span>
@@ -1032,7 +1071,7 @@
         <span class="k">return</span> <span class="n">system</span><span class="p">,</span> <span class="n">geometry</span></div>
 
 <div class="viewcode-block" id="System.get_indices_by_coordinate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">get_indices_by_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">ignore_sign</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the indices in the transformation matrix corresponding coordinates</span>
 
 <span class="sd">        Parameters</span>
@@ -1077,7 +1116,7 @@
         <span class="k">return</span> <span class="n">return_value</span><span class="p">[</span><span class="n">inverse_indices</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="System.reduce"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction_transformation</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply the specified reduction to the model</span>
 
 <span class="sd">        Parameters</span>
@@ -1102,7 +1141,7 @@
         <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.reduce_guyan"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.reduce_guyan">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_guyan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform Guyan reduction on the system</span>
 
 <span class="sd">        Parameters</span>
@@ -1139,7 +1178,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">T_guyan</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.reduce_dynamic"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.reduce_dynamic">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform Dynamic condensation</span>
 
 <span class="sd">        Parameters</span>
@@ -1181,7 +1220,7 @@
 <div class="viewcode-block" id="System.reduce_craig_bampton"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.reduce_craig_bampton">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_craig_bampton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_degrees_of_freedom</span><span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span>
                              <span class="n">num_fixed_base_modes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                              <span class="n">return_shape_matrix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes a craig-bampton substructure model for the system</span>
 
 <span class="sd">        Parameters</span>
@@ -1250,7 +1289,7 @@
     <span class="k">def</span> <span class="nf">from_exodus_superelement</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">superelement_nc4</span><span class="p">,</span> <span class="n">transformation_exodus_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">x_disp</span><span class="o">=</span><span class="s1">&#39;DispX&#39;</span><span class="p">,</span> <span class="n">y_disp</span><span class="o">=</span><span class="s1">&#39;DispY&#39;</span><span class="p">,</span> <span class="n">z_disp</span><span class="o">=</span><span class="s1">&#39;DispZ&#39;</span><span class="p">,</span>
                                  <span class="n">x_rot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_rot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_rot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a system from a superelement from Sierra/SD</span>
 
 <span class="sd">        Parameters</span>
@@ -1428,7 +1467,7 @@
             <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="s1">&#39;Warning: Hammer impact generally not recommended for multi-reference excitation, consider multi-hammer instead&#39;</span><span class="p">)</span>
-            <span class="n">pulse_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">bandwidth</span>
+            <span class="n">pulse_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">)</span>
             <span class="n">signal_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span> <span class="o">*</span> <span class="n">num_averages</span> <span class="o">+</span> <span class="p">(</span><span class="n">num_averages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                                 <span class="o">*</span> <span class="n">extra_time_between_frames</span> <span class="o">*</span> <span class="n">sample_rate</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pulse_width</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)</span>
             <span class="n">pulse_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_averages</span><span class="p">)[</span>

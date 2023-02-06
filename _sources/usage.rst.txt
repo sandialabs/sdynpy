@@ -6,7 +6,11 @@ Usage
 Installation
 ------------
 
-Forthcoming...
+SDynPy can be installed with ``pip``
+
+::
+
+    pip install sdynpy
 
 SDynPy Overview
 ---------------
@@ -126,12 +130,12 @@ Experimental Modal Analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SDynPy has the ability to fit modes to structures using the Synthesize Modes and
-Correlate :py:class:`sdpy.SMAC<sdynpy.modal.sdynpy_smac.SMAC>` or PolyMax
-:py:class:`sdpy.PolyMax<sdynpy.modal.sdynpy_polymax.PolyMax>` routines.
+Correlate :py:class:`sdpy.SMAC<sdynpy.modal.sdynpy_smac.SMAC>` or PolyPy
+:py:class:`sdpy.PolyPy<sdynpy.modal.sdynpy_polypy.PolyPy>` routines.
 
-Both SMAC and PolyMax have graphical user interfaces available to make the curve
+Both SMAC and PolyPy have graphical user interfaces available to make the curve
 fitting process easier (:py:class:`sdpy.SMAC_GUI<sdynpy.modal.sdynpy_smac.SMAC_GUI>`,
-:py:class:`sdpy.PolyMax_GUI<sdynpy.modal.sdynpy_polymax.PolyMax_GUI>`).  These can be
+:py:class:`sdpy.PolyPy_GUI<sdynpy.modal.sdynpy_polypy.PolyPy_GUI>`).  These can be
 run from an IPython console.
 
 Included in SDynPy is interactive plotting capabilities where mode shapes can

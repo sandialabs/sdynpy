@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sdynpy.fileio.sdynpy_uff" href="sdynpy.fileio.sdynpy_uff.html" />
-    <link rel="prev" title="sdynpy.fileio.sdynpy_rattlesnake" href="sdynpy.fileio.sdynpy_rattlesnake.html" /> 
+    <link rel="next" title="sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data" href="sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data.html" />
+    <link rel="prev" title="sdynpy.fileio.sdynpy_rattlesnake.read_modal_data" href="sdynpy.fileio.sdynpy_rattlesnake.read_modal_data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,7 +38,7 @@
             <a href="../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -51,6 +51,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -61,10 +62,12 @@
 <li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="sdynpy.fileio.sdynpy_rattlesnake.html">sdynpy.fileio.sdynpy_rattlesnake</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fileio.sdynpy_rattlesnake.read_modal_data.html">sdynpy.fileio.sdynpy_rattlesnake.read_modal_data</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output"><code class="docutils literal notranslate"><span class="pre">read_rattlesnake_output()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data.html">sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.fileio.sdynpy_uff.html">sdynpy.fileio.sdynpy_uff</a></li>
@@ -78,6 +81,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -136,7 +140,7 @@
 <h1>sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output<a class="headerlink" href="#sdynpy-fileio-sdynpy-rattlesnake-read-rattlesnake-output" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output">
-<span class="sig-name descname"><span class="pre">read_rattlesnake_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_override_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fileio/sdynpy_rattlesnake.html#read_rattlesnake_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">read_rattlesnake_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_override_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fileio/sdynpy_rattlesnake.html#read_rattlesnake_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fileio.sdynpy_rattlesnake.read_rattlesnake_output" title="Permalink to this definition"></a></dt>
 <dd><p>Reads in a Rattlesnake data file and returns the time history array as well
 as the channel table</p>
 <dl class="field-list simple">
@@ -159,8 +163,8 @@ as the channel table</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sdynpy.fileio.sdynpy_rattlesnake.html" class="btn btn-neutral float-left" title="sdynpy.fileio.sdynpy_rattlesnake" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="sdynpy.fileio.sdynpy_uff.html" class="btn btn-neutral float-right" title="sdynpy.fileio.sdynpy_uff" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sdynpy.fileio.sdynpy_rattlesnake.read_modal_data.html" class="btn btn-neutral float-left" title="sdynpy.fileio.sdynpy_rattlesnake.read_modal_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data.html" class="btn btn-neutral float-right" title="sdynpy.fileio.sdynpy_rattlesnake.read_system_id_data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

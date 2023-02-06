@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.modal.sdynpy_signal_processing_gui &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.modal.sdynpy_signal_processing_gui &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -108,16 +110,20 @@
 <span class="kn">from</span> <span class="nn">..core.sdynpy_geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
 <span class="kn">from</span> <span class="nn">.sdynpy_smac</span> <span class="kn">import</span> <span class="n">SMAC_GUI</span>
 <span class="kn">from</span> <span class="nn">.sdynpy_polypy</span> <span class="kn">import</span> <span class="n">PolyPy_GUI</span>
-<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QIcon</span><span class="p">,</span> <span class="n">QFont</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QCoreApplication</span><span class="p">,</span> <span class="n">QRect</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QToolTip</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">qtpy</span> <span class="kn">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QIcon</span><span class="p">,</span> <span class="n">QFont</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QCoreApplication</span><span class="p">,</span> <span class="n">QRect</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QToolTip</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span>
                              <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span>
                              <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span>
                              <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QErrorMessage</span><span class="p">,</span> <span class="n">QListWidget</span><span class="p">,</span> <span class="n">QListWidgetItem</span><span class="p">,</span>
                              <span class="n">QLineEdit</span><span class="p">,</span>
                              <span class="n">QDockWidget</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">,</span> <span class="n">QButtonGroup</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span>
-                             <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QRadioButton</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QAction</span><span class="p">)</span>
+                             <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QRadioButton</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QAction</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QAction</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyqtgraph</span> <span class="k">as</span> <span class="nn">pqtg</span>
 <span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
@@ -125,11 +131,11 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 
 <div class="viewcode-block" id="SignalProcessingGUI"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI">[docs]</a><span class="k">class</span> <span class="nc">SignalProcessingGUI</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An iteractive window allowing users to compute FRFs&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An iteractive window allowing users to compute FRFs&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SignalProcessingGUI.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_history_array</span><span class="p">:</span> <span class="n">TimeHistoryArray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Signal Processing window to compute FRF and other spectral data.</span>
 
 <span class="sd">        A TimeHistoryArray can be passed as an argument, or data can be loaded</span>
@@ -673,7 +679,7 @@
 <div class="viewcode-block" id="SignalProcessingGUI.frequencyLinesChanged"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.frequencyLinesChanged">[docs]</a>    <span class="k">def</span> <span class="nf">frequencyLinesChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequency Lines Changed&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_sampling_signals</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">frame_size</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencyLinesSpinBox</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="n">frame_size</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencyLinesSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frameSizeSpinBox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">frame_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frameTimeDoubleSpinBox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">frame_size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frequencySpacingDoubleSpinBox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">/</span> <span class="n">frame_size</span><span class="p">)</span>
@@ -1225,7 +1231,7 @@
 
 <div class="viewcode-block" id="SignalProcessingGUI.saveWindowedTimeHistory"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.saveWindowedTimeHistory">[docs]</a>    <span class="k">def</span> <span class="nf">saveWindowedTimeHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Windowed Time Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npy)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Windowed Time Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npz)&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">windowed_time_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
@@ -1235,7 +1241,7 @@
 
 <div class="viewcode-block" id="SignalProcessingGUI.saveFRF"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.saveFRF">[docs]</a>    <span class="k">def</span> <span class="nf">saveFRF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save FRF Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npy)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save FRF Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npz)&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frf_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
@@ -1245,7 +1251,7 @@
 
 <div class="viewcode-block" id="SignalProcessingGUI.saveCoherence"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.saveCoherence">[docs]</a>    <span class="k">def</span> <span class="nf">saveCoherence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Coherence Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npy)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Coherence Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npz)&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coherence_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
@@ -1255,7 +1261,7 @@
 
 <div class="viewcode-block" id="SignalProcessingGUI.saveAutospectra"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.saveAutospectra">[docs]</a>    <span class="k">def</span> <span class="nf">saveAutospectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Autospectra Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npy)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Autospectra Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npz)&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">autospectra_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
@@ -1265,7 +1271,7 @@
 
 <div class="viewcode-block" id="SignalProcessingGUI.saveCrossspectra"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.saveCrossspectra">[docs]</a>    <span class="k">def</span> <span class="nf">saveCrossspectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Crosspectra Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npy)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select File to Save Crosspectra Data&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy File (*.npz)&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossspectra_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
@@ -1319,10 +1325,10 @@
 <div class="viewcode-block" id="SignalProcessingGUI.loadData"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.loadData">[docs]</a>    <span class="k">def</span> <span class="nf">loadData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">filename</span><span class="p">,</span> <span class="n">file_filter</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select Time History File&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy (*.npy);;Rattlesnake (*.nc4)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Select Time History File&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;Numpy (*.npz);;Rattlesnake (*.nc4)&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="k">return</span>
-            <span class="k">if</span> <span class="n">file_filter</span> <span class="o">==</span> <span class="s1">&#39;Numpy (*.npy)&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_filter</span> <span class="o">==</span> <span class="s1">&#39;Numpy (*.npz)&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time_history_data</span> <span class="o">=</span> <span class="n">TimeHistoryArray</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">initialize_ui</span><span class="p">()</span>
             <span class="k">elif</span> <span class="n">file_filter</span> <span class="o">==</span> <span class="s1">&#39;Rattlesnake (*.nc4)&#39;</span><span class="p">:</span>

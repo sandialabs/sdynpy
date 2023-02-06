@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.modal.sdynpy_ccmif &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.modal.sdynpy_ccmif &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
@@ -35,7 +35,7 @@
             <a href="../../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -48,9 +48,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -112,16 +114,20 @@
 <span class="kn">from</span> <span class="nn">..core.sdynpy_geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
 <span class="kn">from</span> <span class="nn">..core.sdynpy_shape</span> <span class="kn">import</span> <span class="n">ShapeArray</span><span class="p">,</span> <span class="n">mac</span><span class="p">,</span> <span class="n">matrix_plot</span>
 
-<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QIcon</span><span class="p">,</span> <span class="n">QFont</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QCoreApplication</span><span class="p">,</span> <span class="n">QRect</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QToolTip</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">qtpy</span> <span class="kn">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QIcon</span><span class="p">,</span> <span class="n">QFont</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QCoreApplication</span><span class="p">,</span> <span class="n">QRect</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QToolTip</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span>
                              <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span>
                              <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QSizePolicy</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span>
                              <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QErrorMessage</span><span class="p">,</span> <span class="n">QListWidget</span><span class="p">,</span> <span class="n">QListWidgetItem</span><span class="p">,</span>
                              <span class="n">QLineEdit</span><span class="p">,</span>
                              <span class="n">QDockWidget</span><span class="p">,</span> <span class="n">QGridLayout</span><span class="p">,</span> <span class="n">QButtonGroup</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span>
-                             <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QRadioButton</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QAction</span><span class="p">)</span>
+                             <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QRadioButton</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QAction</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QAction</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 
 
@@ -155,7 +161,7 @@
 
 
 <div class="viewcode-block" id="ColoredCMIF"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_ccmif.ColoredCMIF.html#sdynpy.modal.sdynpy_ccmif.ColoredCMIF">[docs]</a><span class="k">class</span> <span class="nc">ColoredCMIF</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An Interactive Window for Selecting Shapes from Single Reference Data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An Interactive Window for Selecting Shapes from Single Reference Data&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ColoredCMIF.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_ccmif.ColoredCMIF.html#sdynpy.modal.sdynpy_ccmif.ColoredCMIF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TransferFunctionArray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">shapes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ShapeArray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

@@ -285,7 +285,7 @@ the general equation
 
 .. math::
 
-    \mathbf{H}^+ = \left(\mathbf{H}^T\mathbf{W}^T\mathbf{W}\mathbf{H}+\lambda\mathbf{\Sigma}\right)^{-1}\mathbf{H}^T\mathbf{W}^T
+    \mathbf{H}^+ = \left(\mathbf{H}^H\mathbf{W}^H\mathbf{W}\mathbf{H}+\lambda\mathbf{\Sigma}\right)^{-1}\mathbf{H}^H\mathbf{W}^H\mathbf{W}
     
 where :math:`\mathbf{H}` is the frequency response function matrix,
 :math:`\mathbf{W}` is a response weighting matrix, :math:`\lambda` is the input

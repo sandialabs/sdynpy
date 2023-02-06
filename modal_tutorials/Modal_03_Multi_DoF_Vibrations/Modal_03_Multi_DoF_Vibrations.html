@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom &mdash; SDynPy 0.5.1 documentation</title>
+  <title>Modal Tutorial 03: Vibrations of Systems with Multiple Degrees of Freedom &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -40,7 +40,7 @@
             <a href="../../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../modal_tutorials.html">Modal Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../Modal_01_What_is_Modal_Analysis/Modal_01_What_is_Modal_Analysis.html">Modal Tutorial 01: What is modal analysis?</a></li>
@@ -79,6 +80,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -412,8 +414,8 @@ div.rendered_html tbody tr:hover {
 <div class="math notranslate nohighlight">
 \[\mathbf{M}\ddot{\mathbf{x}}+\mathbf{K}\mathbf{x} = \mathbf{f}\]</div>
 <p>where the mass matrix <span class="math notranslate nohighlight">\(\mathbf{M} = \begin{bmatrix} m_1 &amp; 0 \\ 0 &amp; m_2\end{bmatrix}\)</span>, the stiffness matrix <span class="math notranslate nohighlight">\(\mathbf{K} = \begin{bmatrix} k_1 &amp; -k_1 \\ -k_1 &amp; k_1+k_2\end{bmatrix}\)</span>, the displacement vector <span class="math notranslate nohighlight">\(\mathbf{x} = \begin{bmatrix}{x}_1\\{x}_2\end{bmatrix}\)</span>, and the force vector <span class="math notranslate nohighlight">\(\mathbf{f} = \begin{bmatrix}{f}_1\\{f}_2\end{bmatrix}\)</span>. There are a few things to note here. Firstly, the mass matrix is diagonal, with zeros on the off-diagonal. This is sometimes referred to
-as a lumped mass matrix, because all of the mass is lumped onto each degree of freedom, the degrees of freedom do not share mass. Another node is that both the mass and stiffness matrices are diagonal. This will always be true for real systems. If degree of freedom 0 shares mass with degree of freedom 1, then that is equvalent to saying that degree of freedom 1 also shares mass degree of freedom 0. Additionally Newton’s law of equal and opposite forces requires that if there is a force from
-degree of freedom 0 onto degree of freedom 1, then there will need to be an equal and opposite force on degree of freedom 1 on degree of freedom 0.</p>
+as a lumped mass matrix, because all of the mass is lumped onto each degree of freedom, the degrees of freedom do not share mass. Another note is that both the mass and stiffness matrices are diagonal. This will always be true for real systems. If degree of freedom 1 shares mass with degree of freedom 2, then that is equvalent to saying that degree of freedom 2 also shares mass degree of freedom 1. Additionally Newton’s law of equal and opposite forces requires that if there is a force from
+degree of freedom 1 onto degree of freedom 2, then there will need to be an equal and opposite force on degree of freedom 2 on degree of freedom 1.</p>
 </section>
 <section id="Free-Response-of-Multiple-Degree-of-Freedom-Systems">
 <h2>Free Response of Multiple Degree of Freedom Systems<a class="headerlink" href="#Free-Response-of-Multiple-Degree-of-Freedom-Systems" title="Permalink to this heading"></a></h2>
@@ -422,40 +424,40 @@ degree of freedom 0 onto degree of freedom 1, then there will need to be an equa
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Import modules
-import numpy as np
-import sdynpy as sdpy
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import modules</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
 
-# Set our parameters
-m1 = 1
-m2 = 2
-k1 = 1000
-k2 = 1500
+<span class="c1"># Set our parameters</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">k1</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">k2</span> <span class="o">=</span> <span class="mi">1500</span>
 
-# Construct the matrices
-M = np.array([[m1, 0],
-              [ 0,m2]])
-K = np.array([[ k1,  -k1],
-              [-k1,k1+k2]])
+<span class="c1"># Construct the matrices</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">m1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+              <span class="p">[</span> <span class="mi">0</span><span class="p">,</span><span class="n">m2</span><span class="p">]])</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">k1</span><span class="p">,</span>  <span class="o">-</span><span class="n">k1</span><span class="p">],</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">k1</span><span class="p">,</span><span class="n">k1</span><span class="o">+</span><span class="n">k2</span><span class="p">]])</span>
 
-# Name the degrees of freedom
-dofs = sdpy.coordinate_array([1,2],&#39;Y+&#39;)
+<span class="c1"># Name the degrees of freedom</span>
+<span class="n">dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="s1">&#39;Y+&#39;</span><span class="p">)</span>
 
-# Construct a SDynPy System
-system = sdpy.System(dofs,M,K)
+<span class="c1"># Construct a SDynPy System</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">dofs</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">)</span>
 
-# Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.
-initial_state = [1,0,0,0]
+<span class="c1"># Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 
-# No external forces
-force_signals = np.zeros((2,10000))
-dt = 1/1000
+<span class="c1"># No external forces</span>
+<span class="n">force_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1000</span>
 
-# Integrate equations of motion
-responses,forces = system.time_integrate(force_signals,dt,initial_state=initial_state,displacement_derivative=0)
+<span class="c1"># Integrate equations of motion</span>
+<span class="n">responses</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-# Plot the responses
-responses.plot(one_axis=False);
+<span class="c1"># Plot the responses</span>
+<span class="n">responses</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -472,14 +474,14 @@ responses.plot(one_axis=False);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>responses_fft = responses.fft()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">responses_fft</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span>
 
-ax = responses_fft.plot(one_axis=False,subplots_kwargs={&#39;sharex&#39;:True})
+<span class="n">ax</span> <span class="o">=</span> <span class="n">responses_fft</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">subplots_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;sharex&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
 
-for a in ax:
-    a.set_yscale(&#39;log&#39;)
-    a.set_xlim(0,10)
-ax[-1].set_xlabel(&#39;Frequency (Hz)&#39;);
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">:</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -510,27 +512,27 @@ to mass <span class="math notranslate nohighlight">\(m_1\)</span>. Similar to th
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>c1 = 1.25
-c2 = 2.5
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c1</span> <span class="o">=</span> <span class="mf">1.25</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="mf">2.5</span>
 
-C = np.array([[ c1,  -c1],
-              [-c1,c1+c2]])
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">c1</span><span class="p">,</span>  <span class="o">-</span><span class="n">c1</span><span class="p">],</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">c1</span><span class="p">,</span><span class="n">c1</span><span class="o">+</span><span class="n">c2</span><span class="p">]])</span>
 
-# Construct a SDynPy System
-system = sdpy.System(dofs,M,K,C)
+<span class="c1"># Construct a SDynPy System</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">dofs</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">C</span><span class="p">)</span>
 
-# Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.
-initial_state = [1,0,0,0]
+<span class="c1"># Set up the initial state by holding m2 fixed and pulling back m1.  Both will start with zero velocity.</span>
+<span class="n">initial_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 
-# No external forces
-force_signals = np.zeros((2,10000))
-dt = 1/1000
+<span class="c1"># No external forces</span>
+<span class="n">force_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1000</span>
 
-# Integrate equations of motion
-responses,forces = system.time_integrate(force_signals,dt,initial_state=initial_state,displacement_derivative=0)
+<span class="c1"># Integrate equations of motion</span>
+<span class="n">responses</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-# Plot the responses
-responses.plot(one_axis=False);
+<span class="c1"># Plot the responses</span>
+<span class="n">responses</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -574,34 +576,34 @@ responses.plot(one_axis=False);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>frequencies = np.linspace(0,10,1001)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1001</span><span class="p">)</span>
 
-# We will use numpy&#39;s broadcasting functionality to avoid a for-loop to loop over each frequency line
-omega = 2*np.pi*frequencies[:,np.newaxis,np.newaxis]
-# omega is now a 1001 x 1 x 1 array, so if we combine it with the system matrices which are 2 x 2, we
-# will end up with a 1001 x 2 x 2 array for a Z matrix, where the mathematics are automatically
-# performed over each entry in omega.
-Z = -omega**2*M + 1j*omega*C + K # 1001 x 2 x 2
+<span class="c1"># We will use numpy&#39;s broadcasting functionality to avoid a for-loop to loop over each frequency line</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+<span class="c1"># omega is now a 1001 x 1 x 1 array, so if we combine it with the system matrices which are 2 x 2, we</span>
+<span class="c1"># will end up with a 1001 x 2 x 2 array for a Z matrix, where the mathematics are automatically</span>
+<span class="c1"># performed over each entry in omega.</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="o">-</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">C</span> <span class="o">+</span> <span class="n">K</span> <span class="c1"># 1001 x 2 x 2</span>
 
-H = np.linalg.inv(Z)
+<span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
 
-# Plot the components of the H matrix
-import matplotlib.pyplot as plt
-fig,axes = plt.subplots(2,2,num=&#39;Frequency Response Function Matrix&#39;,figsize=(10,6),sharex=True)
-for response_name,response_frfs,axes_row in zip(system.coordinate,np.moveaxis(H,0,-1),axes):
-    axes_row[0].set_ylabel(&#39;Response {:}\nPhase&#39;.format(str(response_name)))
-    axes_row[1].set_ylabel(&#39;Phase&#39;)
-    for frf,phase_axis in zip(response_frfs,axes_row):
-        phase_handle = phase_axis.plot(frequencies,np.angle(frf)*180/np.pi,&#39;r&#39;,linewidth=0.5)
-        phase_axis.set_yticks([-180,-90,0,90,180])
-        mag_axis = phase_axis.twinx()
-        magnitude_handle = mag_axis.plot(frequencies,np.abs(frf),&#39;b&#39;)
-        mag_axis.set_yscale(&#39;log&#39;)
-        mag_axis.set_ylabel(&#39;Magnitude&#39;)
-for input_name,ax in zip(system.coordinate,axes[-1]):
-    ax.set_xlabel(&#39;Input {:}&#39;.format(str(input_name)))
-axes[-1,-1].legend([magnitude_handle[0],phase_handle[0]],[&#39;Magnitude&#39;,&#39;Phase&#39;])
-fig.tight_layout()
+<span class="c1"># Plot the components of the H matrix</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Frequency Response Function Matrix&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">response_name</span><span class="p">,</span><span class="n">response_frfs</span><span class="p">,</span><span class="n">axes_row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">H</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">axes</span><span class="p">):</span>
+    <span class="n">axes_row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response </span><span class="si">{:}</span><span class="se">\n</span><span class="s1">Phase&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response_name</span><span class="p">)))</span>
+    <span class="n">axes_row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">frf</span><span class="p">,</span><span class="n">phase_axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">response_frfs</span><span class="p">,</span><span class="n">axes_row</span><span class="p">):</span>
+        <span class="n">phase_handle</span> <span class="o">=</span> <span class="n">phase_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">frf</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">phase_axis</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">180</span><span class="p">])</span>
+        <span class="n">mag_axis</span> <span class="o">=</span> <span class="n">phase_axis</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+        <span class="n">magnitude_handle</span> <span class="o">=</span> <span class="n">mag_axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frf</span><span class="p">),</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+        <span class="n">mag_axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">input_name</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Input </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_name</span><span class="p">)))</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">magnitude_handle</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">phase_handle</span><span class="p">[</span><span class="mi">0</span><span class="p">]],[</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">,</span><span class="s1">&#39;Phase&#39;</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -616,31 +618,31 @@ fig.tight_layout()
 second column of the frequency response function matrix. Each entry in the frequency response function matrix is still a complex number and can be plotted either with real and imaginary part or magnitude and phase. For the above plots, the magnitude is plotted in blue, and the phase is plotted in red.</p>
 <p>Let’s examine some of the features of the plots. Similar to the single degree of freedom case, the frequency response functions have peaks, which are resonances of the structure. Unlike the single degree of freedom case, we now have steep valleys in the plots, which are called anti-resonances. These are frequencies that the structure does not like to respond. Note that while resonances tend to be global (peaks occur at the same frequency for all degrees of freedom), anti-resonances tend to be
 local to the specific degree of freedom (the anti-resonance in the 1,1 plot occurs at 5.59 Hz, and the anti-resonance in the 2,2 plot occurs at 5.02 Hz).</p>
-<p>Note the diagonal entries in the plots are the plots where the response is equal to the input. These are called drive point frequency response functions, because they are the frequency response functions for just the point that is being driven by the force. Drive point frequency response functions have special properties, namely there is always an anti-resonance between each consecutive pair of resonances, and the phase is always one-sided, meaning it is always positive or always negative for a
-displacement or an acceleration frequency response function.</p>
+<p>Note the diagonal entries in the above plots are the frequency response functions where the response is equal to the input. These are called drive point frequency response functions, because they are the frequency response functions for just the point that is being driven by the force. Drive point frequency response functions have special properties, namely there is always an anti-resonance between each consecutive pair of resonances, and the phase is always one-sided, meaning it is always
+positive or always negative for a displacement or an acceleration frequency response function.</p>
 <p>Another interesting aspect is the behavior of the phase as it goes through a resonance or anti-resonance. In the single degree of freedom case, we saw the phase flip 180 degrees as it travelled through resonances. This still holds here, but now the phase can traverse multiple resonances, reducing by 180 degrees each time (note that the phase will wrap around from -180 to 180, or from 0 to 360 depending on how it is plotted, due to it being a circular quantity). Interestingly, after passing an
 anti-resonance the phase will increase by 180 degrees. This behavior combined with the flipping between anti-resonance and resonance in the drive point frequency response functions is what keeps the phase on one half of the unit circle for the drive point frequency response functions.</p>
 <p>Finally, thinking back to the damping investigations performed in the single degree of freedom tutorial, it looks as if the second peak has more damping associated with it: the second peak is less sharp and is at a lower amplitude than the first peak.</p>
-<p>Clearly there is a lot that can be learned aboud a system from its frequency response functions. Let’s look at the same information, this time in the real and imaginary parts.</p>
+<p>Clearly there is a lot that can be learned about a system from its frequency response functions. Let’s look at the same information, this time in the real and imaginary parts.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Plot the components of the H matrix
-axis_extent = np.max([np.abs(H.real),np.abs(H.imag)])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the components of the H matrix</span>
+<span class="n">axis_extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">real</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">imag</span><span class="p">)])</span>
 
-fig,axes = plt.subplots(2,2,num=&#39;Frequency Response Function Matrix&#39;,figsize=(10,10),sharex=True,sharey=True)
-for response_name,response_frfs,axes_row in zip(system.coordinate,np.moveaxis(H,0,-1),axes):
-    axes_row[0].set_ylabel(&#39;Response {:}&#39;.format(str(response_name)))
-    for frf,axis in zip(response_frfs,axes_row):
-        axis.plot(frequencies,np.real(frf),&#39;r&#39;)
-        axis.plot(frequencies,np.imag(frf),&#39;b&#39;)
-        axis.set_ylim(-axis_extent,axis_extent)
-        axis.grid(True)
-for input_name,ax in zip(system.coordinate,axes[-1]):
-    ax.set_xlabel(&#39;Input {:}&#39;.format(str(input_name)))
-axes[-1,-1].legend([&#39;Real Part&#39;,&#39;Imaginary Part&#39;])
-fig.tight_layout()
+<span class="n">fig</span><span class="p">,</span><span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Frequency Response Function Matrix&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">response_name</span><span class="p">,</span><span class="n">response_frfs</span><span class="p">,</span><span class="n">axes_row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">H</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">axes</span><span class="p">):</span>
+    <span class="n">axes_row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response_name</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">frf</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">response_frfs</span><span class="p">,</span><span class="n">axes_row</span><span class="p">):</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">frf</span><span class="p">),</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">frf</span><span class="p">),</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="n">axis_extent</span><span class="p">,</span><span class="n">axis_extent</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">input_name</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Input </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_name</span><span class="p">)))</span>
+<span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Real Part&#39;</span><span class="p">,</span><span class="s1">&#39;Imaginary Part&#39;</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -661,47 +663,47 @@ degrees of freedom becomes incredible important in multiple degree of freedom sy
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sdynpy as sdpy
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
 
-# Set our parameters
-m1 = 1
-m2 = 2
-k1 = 2000
-k2 = 500
-c1 = 0.3
+<span class="c1"># Set our parameters</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">k1</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">k2</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="mf">0.3</span>
 
-# Construct the matrices
-M = np.array([[m1, 0],
-              [ 0,m2]])
-K = np.array([[ k1,  -k1],
-              [-k1,k1+k2]])
-C = np.array([[ c1,  -c1],
-              [-c1, c1]])
+<span class="c1"># Construct the matrices</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">m1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+              <span class="p">[</span> <span class="mi">0</span><span class="p">,</span><span class="n">m2</span><span class="p">]])</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">k1</span><span class="p">,</span>  <span class="o">-</span><span class="n">k1</span><span class="p">],</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">k1</span><span class="p">,</span><span class="n">k1</span><span class="o">+</span><span class="n">k2</span><span class="p">]])</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">c1</span><span class="p">,</span>  <span class="o">-</span><span class="n">c1</span><span class="p">],</span>
+              <span class="p">[</span><span class="o">-</span><span class="n">c1</span><span class="p">,</span> <span class="n">c1</span><span class="p">]])</span>
 
-# Name the degrees of freedom
-dofs = sdpy.coordinate_array([1,2],&#39;Y+&#39;)
+<span class="c1"># Name the degrees of freedom</span>
+<span class="n">dofs</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="s1">&#39;Y+&#39;</span><span class="p">)</span>
 
-# Construct a SDynPy System
-system = sdpy.System(dofs,M,K,C)
+<span class="c1"># Construct a SDynPy System</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">dofs</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">C</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>We can now use the <code class="docutils literal notranslate"><span class="pre">System</span></code> object to interogate our system. Like the single degree of freedom case, we can still compute frequency response functions, but now we can also pass in coordinate information to only retrieve certain rows and columns of the frequency response function matrix. For example, if we wanted all frequency responses from all responses, but only the first force locations, we can specify a <code class="docutils literal notranslate"><span class="pre">CoordinateArray</span></code> object to the <code class="docutils literal notranslate"><span class="pre">frequency_response</span></code> method using the
+<p>We can now use the <code class="docutils literal notranslate"><span class="pre">System</span></code> object to interrogate our system. Like the single degree of freedom case, we can still compute frequency response functions, but now we can also pass in coordinate information to only retrieve certain rows and columns of the frequency response function matrix. For example, if we wanted all frequency responses from all responses, but only the first force locations, we can specify a <code class="docutils literal notranslate"><span class="pre">CoordinateArray</span></code> object to the <code class="docutils literal notranslate"><span class="pre">frequency_response</span></code> method using the
 <code class="docutils literal notranslate"><span class="pre">references</span></code> and <code class="docutils literal notranslate"><span class="pre">responses</span></code> optional arguments.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>input_force_location = dofs[0]
-output_response_location = dofs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_force_location</span> <span class="o">=</span> <span class="n">dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">output_response_location</span> <span class="o">=</span> <span class="n">dofs</span>
 
-print(&#39;Getting FRFs from forces at {:} and responses {:}&#39;.format(str(input_force_location),
-                                                                 str(output_response_location)))
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Getting FRFs from forces at </span><span class="si">{:}</span><span class="s1"> and responses </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">input_force_location</span><span class="p">),</span>
+                                                                 <span class="nb">str</span><span class="p">(</span><span class="n">output_response_location</span><span class="p">)))</span>
 
-frequencies = np.linspace(0,10,1000)
-frf = system.frequency_response(frequencies,displacement_derivative = 2,references=input_force_location,
-                               responses = output_response_location)
-frf.plot(one_axis=False);
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">frf</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span><span class="n">references</span><span class="o">=</span><span class="n">input_force_location</span><span class="p">,</span>
+                               <span class="n">responses</span> <span class="o">=</span> <span class="n">output_response_location</span><span class="p">)</span>
+<span class="n">frf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -725,21 +727,21 @@ Getting FRFs from forces at 1Y+ and responses [&#39;1Y+&#39; &#39;2Y+&#39;]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>excitation_frequencies = [2,8.84] # Hz
-dt = 1/100
-num_samples = 2000
-force_signal = sdpy.generator.sine(excitation_frequencies,dt,num_samples)
-# Note: force signal is now a 2 x 3000 signal due to the broadcasting of the frequencies in the sine function.
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">excitation_frequencies</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mf">8.84</span><span class="p">]</span> <span class="c1"># Hz</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">100</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">force_signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">excitation_frequencies</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="c1"># Note: force signal is now a 2 x 3000 signal due to the broadcasting of the frequencies in the sine function.</span>
 
-responses,references = system.time_integrate(force_signal,dt,displacement_derivative=2,
-                                             responses = dofs[0],integration_oversample=10)
+<span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">force_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                             <span class="n">responses</span> <span class="o">=</span> <span class="n">dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-fig,ax = plt.subplots(2,1,num=&#39;Time Integration&#39;,figsize=(10,5),sharex=True)
-responses.extract_elements_by_abscissa(15,np.inf).plot(ax[1])
-references.extract_elements_by_abscissa(15,np.inf).plot(ax[0])
-ax[0].set_ylabel(&#39;Force (N)&#39;)
-ax[1].set_ylabel(&#39;Response (m/s$^2$)&#39;)
-ax[1].set_xlabel(&#39;Time (s)&#39;);
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Time Integration&#39;</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">responses</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">references</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Force (N)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Response (m/s$^2$)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>

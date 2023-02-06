@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_frf.modes2frf &mdash; SDynPy 0.5.1 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_frf.modes2frf &mdash; SDynPy 0.6.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="../index.html" class="icon icon-home"> SDynPy
           </a>
               <div class="version">
-                0.5.1
+                0.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -51,6 +51,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -79,6 +80,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_generator.html">sdynpy.signal_processing.sdynpy_generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_geometry_fitting.html">sdynpy.signal_processing.sdynpy_geometry_fitting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.html">sdynpy.signal_processing.sdynpy_harmonic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_integration.html">sdynpy.signal_processing.sdynpy_integration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_rotation.html">sdynpy.signal_processing.sdynpy_rotation</a></li>
@@ -88,6 +90,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -146,7 +149,7 @@
 <h1>sdynpy.signal_processing.sdynpy_frf.modes2frf<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-frf-modes2frf" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_frf.modes2frf">
-<span class="sig-name descname"><span class="pre">modes2frf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natural_frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_ratios</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_mode_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frf_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'disp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_frf.html#modes2frf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_frf.modes2frf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">modes2frf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natural_frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_ratios</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_mode_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frf_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'disp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_frf.html#modes2frf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_frf.modes2frf" title="Permalink to this definition"></a></dt>
 <dd><p>Compute Frequency Response Functions given modal properties</p>
 <p>This function computes frequency responses given modal parameters.</p>
 <dl class="field-list simple">
@@ -160,15 +163,17 @@ frequency of radians/s.</p></li>
 rather than in angular frequency of radians/s.</p></li>
 <li><p><strong>damping_ratios</strong> (<em>ndarray</em>) – Critical damping ratios of the structure in ratio form rather than
 percentange, e.g. 2% damping would be specified as 0.02 rather than 2.</p></li>
-<li><p><strong>mode_shapes</strong> (<em>ndarray</em>) – A 2D mode shape matrix with shape (no,nm) where no is the number of
+<li><p><strong>mode_shapes</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – A 2D mode shape matrix with shape (no,nm) where no is the number of
 output responses and nm is the number of modes.  If the optional
 argument input_mode_shapes is not specified, this mode shape matrix
-will also be used for the inputs, resulting in a square FRF matrix.</p></li>
-<li><p><strong>input_mode_shapes</strong> (<em>ndarray</em>) – A 2D mode shape matrix with shape (ni,nm) where ni is the number of
+will also be used for the inputs, resulting in a square FRF matrix.
+If mode_shapes is not specified, the values of the modal FRF matrix
+are returned as 2D array.</p></li>
+<li><p><strong>input_mode_shapes</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – A 2D mode shape matrix with shape (ni,nm) where ni is the number of
 input forces and nm is the number of modes.  If the optional argument
 input_mode_shapes is specified, it be used for the inputs, resulting in
 a potentially nonsquare FRF matrix.</p></li>
-<li><p><strong>frf_type</strong> (<em>str</em>) – frf_type should be one of [‘disp’,’vel’,’accel’] or [‘displacement’,
+<li><p><strong>frf_type</strong> (<em>str</em><em>, </em><em>optional</em>) – frf_type should be one of [‘disp’,’vel’,’accel’] or [‘displacement’,
 ‘velocity’,’acceleration’] to specify which “type” of frequency
 response function to compute.  By default it computes a displacement or
 “receptance” FRF.  However, if an acceleration or “Accelerance” FRF is
@@ -178,9 +183,10 @@ angular frequency at a given frequency line.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>H</strong> – A 3D np array with shape (nf,no,ni), where nf is the number of
-frequency lines, no is the number of outputs, and ni is the number of
-inputs.  Values in H are complex.</p>
+<dd class="field-even"><p><strong>H</strong> – A 3D (or 2D) np array depending on whether or not mode_shapes is
+defined with shape (nf,no,ni) or (nf,nm), where nf is the number of
+frequency lines, no is the number of outputs, ni is the number of
+inputs, and nm is the number of modes.  Values in H are complex.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>ndarray</p>
