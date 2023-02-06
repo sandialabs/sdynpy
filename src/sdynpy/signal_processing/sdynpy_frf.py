@@ -93,7 +93,7 @@ def sysmat2frf(frequencies, M, C, K, frf_type='disp'):
     return H
 
 
-def modes2frf(frequencies, natural_frequencies, damping_ratios, mode_shapes,
+def modes2frf(frequencies, natural_frequencies, damping_ratios, mode_shapes=None,
               input_mode_shapes=None, frf_type='disp'):
     '''Compute Frequency Response Functions given modal properties
 
@@ -112,17 +112,19 @@ def modes2frf(frequencies, natural_frequencies, damping_ratios, mode_shapes,
     damping_ratios : ndarray
         Critical damping ratios of the structure in ratio form rather than
         percentange, e.g. 2% damping would be specified as 0.02 rather than 2.
-    mode_shapes : ndarray
+    mode_shapes : ndarray, optional
         A 2D mode shape matrix with shape (no,nm) where no is the number of
         output responses and nm is the number of modes.  If the optional
         argument input_mode_shapes is not specified, this mode shape matrix
         will also be used for the inputs, resulting in a square FRF matrix.
-    input_mode_shapes : ndarray
+        If mode_shapes is not specified, the values of the modal FRF matrix
+        are returned as 2D array.
+    input_mode_shapes : ndarray, optional
         A 2D mode shape matrix with shape (ni,nm) where ni is the number of
         input forces and nm is the number of modes.  If the optional argument 
         input_mode_shapes is specified, it be used for the inputs, resulting in
         a potentially nonsquare FRF matrix.
-    frf_type : str
+    frf_type : str, optional
         frf_type should be one of ['disp','vel','accel'] or ['displacement',
         'velocity','acceleration'] to specify which "type" of frequency
         response function to compute.  By default it computes a displacement or
@@ -134,9 +136,10 @@ def modes2frf(frequencies, natural_frequencies, damping_ratios, mode_shapes,
     Returns
     -------
     H : ndarray
-        A 3D np array with shape (nf,no,ni), where nf is the number of
-        frequency lines, no is the number of outputs, and ni is the number of
-        inputs.  Values in H are complex.
+        A 3D (or 2D) np array depending on whether or not mode_shapes is 
+        defined with shape (nf,no,ni) or (nf,nm), where nf is the number of
+        frequency lines, no is the number of outputs, ni is the number of
+        inputs, and nm is the number of modes.  Values in H are complex.
 
     Notes
     -----
@@ -152,19 +155,25 @@ def modes2frf(frequencies, natural_frequencies, damping_ratios, mode_shapes,
          + 1j * (2 * np.pi * frequencies[:, np.newaxis]) * 2 *
          damping_ratios * (2 * np.pi * natural_frequencies)
          + (2 * np.pi * natural_frequencies)**2)
-
-    if input_mode_shapes is None:
-        input_mode_shapes = mode_shapes
-
-    H = np.einsum('ij,fj,lj->fil', mode_shapes, 1 / Z, input_mode_shapes)
+    if mode_shapes is not None:
+        if input_mode_shapes is None:
+            input_mode_shapes = mode_shapes
+        H = np.einsum('ij,fj,lj->fil', mode_shapes, 1 / Z, input_mode_shapes)
+    else:
+        H = 1/Z
 
     if frf_type in ['vel', 'velocity']:
-        H = 1j * (2 * np.pi * frequencies[:, np.newaxis, np.newaxis]) * H
+        if np.ndim(H) == 3:
+            H = 1j * (2 * np.pi * frequencies[:, np.newaxis, np.newaxis]) * H
+        elif np.ndim(H) == 2:
+            H = 1j * (2 * np.pi * frequencies[:, np.newaxis]) * H
+        # num = [1,0]
     elif frf_type in ['accel', 'acceleration']:
-        H = -(2 * np.pi * frequencies[:, np.newaxis, np.newaxis])**2 * H
-
+        if np.ndim(H) == 3:
+            H = -(2 * np.pi * frequencies[:, np.newaxis, np.newaxis])**2 * H
+        elif np.ndim(H) == 2:
+            H = -(2 * np.pi * frequencies[:, np.newaxis])**2 * H
     return H
-
 
 def timedata2frf(references, responses, dt=1, samples_per_average=None,
                  overlap=0.0, method='H1', window=np.array((1.0,)),

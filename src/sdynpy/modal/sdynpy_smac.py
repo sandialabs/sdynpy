@@ -33,12 +33,11 @@ import matplotlib.cm as cm
 import os
 from enum import Enum
 
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from qtpy import QtWidgets, uic, QtGui
+from qtpy.QtWidgets import QApplication, QMainWindow
 import pyqtgraph
 pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
-
 
 def correlation_coefficient(x, y, axis=-1):
     mx = np.mean(x, axis=axis, keepdims=True)

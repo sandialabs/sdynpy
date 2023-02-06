@@ -25,3 +25,4 @@ from . import sdynpy_complex as complex
 from . import sdynpy_rotation as rotation
 from . import sdynpy_camera as camera
 from . import sdynpy_harmonic as harmonic
+from . import sdynpy_geometry_fitting as geometry_fitting

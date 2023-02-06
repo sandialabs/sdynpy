@@ -84,3 +84,24 @@ def test_geometry_construction(geometry_fixture,request):
             check_coords[:,0]*np.sin(check_coords[:,1]*np.pi/180)*np.sin(check_coords[:,2]*np.pi/180),
             check_coords[:,0]*np.cos(check_coords[:,1]*np.pi/180))
         assert np.allclose(check_coords,straight_coords)
+
+def test_node_indexing(cartesian_geometry):
+    indices = np.array([[0,10],
+                        [40,20]])
+    scalar_index = 5
+    ids = cartesian_geometry.node.id[indices]
+    scalar_id = cartesian_geometry.node.id[scalar_index]
+    # Index via id number
+    nodes = cartesian_geometry.node(ids)
+    scalar_node = cartesian_geometry.node(scalar_id)
+    check_nodes = cartesian_geometry.node[indices]
+    check_scalar_node = cartesian_geometry.node[scalar_index]
+    nodes_by_reduction = cartesian_geometry.node.reduce(ids)
+    scalar_node_by_reduction = cartesian_geometry.node.reduce(scalar_id)
+    assert np.all(nodes == check_nodes)
+    assert np.all(check_scalar_node == scalar_node)
+    assert np.all(nodes_by_reduction == check_nodes)
+    assert np.all(check_scalar_node == scalar_node_by_reduction)
+    with pytest.raises(ValueError):
+        cartesian_geometry.node(1000)
+    

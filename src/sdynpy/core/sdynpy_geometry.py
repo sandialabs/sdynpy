@@ -31,6 +31,10 @@ import pyqtgraph as pg
 import vtk
 from qtpy import uic, QtCore
 from qtpy.QtGui import QKeySequence
+try:
+    from qtpy.QtGui import QAction
+except ImportError:
+    from qtpy.QtWidgets import QAction
 from qtpy.QtWidgets import QApplication, QMainWindow, QSizePolicy, QFileDialog, QMenu
 from .sdynpy_array import SdynpyArray
 from .sdynpy_colors import colormap, coord_colormap
@@ -178,7 +182,6 @@ _vtk_connectivity_reorder = {
 }
 
 MAX_NUMBER_REPR = 100
-
 
 class GeometryPlotter(pvqt.BackgroundPlotter):
     """Class used to plot geometry
@@ -344,7 +347,8 @@ class TransientPlotter(GeometryPlotter):
         self.animation_speed = 1.0
         self.last_time = time.time()
 
-        super(TransientPlotter, self).__init__(show, app, window_size, off_screen,
+        super(TransientPlotter, self).__init__(show, app, None if window_size is None else tuple(window_size),
+                                               off_screen,
                                                allow_quit_keypress, toolbar,
                                                menu_bar, editor, update_app_icon,
                                                **kwargs)
@@ -513,15 +517,30 @@ class TransientPlotter(GeometryPlotter):
         scaling_menu = shape_menu.addMenu('Scaling')
         scaling_menu.addAction('1/4x', self.select_scaling_0p25)
         scaling_menu.addAction('1/2x', self.select_scaling_0p5)
-        scaling_menu.addAction('0.8x', self.select_scaling_0p8, QKeySequence(','))
-        scaling_menu.addAction('Reset', self.select_scaling_1, QKeySequence('/'))
-        scaling_menu.addAction('1.25x', self.select_scaling_1p25, QKeySequence('.'))
+        self.scale_0p8_action = QAction('0.8x')
+        self.scale_0p8_action.triggered.connect(self.select_scaling_0p8)
+        self.scale_0p8_action.setShortcut(QKeySequence(','))
+        scaling_menu.addAction(self.scale_0p8_action)
+        self.scale_reset_action = QAction('Reset')
+        self.scale_reset_action.triggered.connect(self.select_scaling_1)
+        self.scale_reset_action.setShortcut(QKeySequence('/'))
+        scaling_menu.addAction(self.scale_reset_action)
+        self.scale_1p25_action = QAction('1.25x')
+        self.scale_1p25_action.triggered.connect(self.select_scaling_1p25)
+        self.scale_1p25_action.setShortcut(QKeySequence('.'))
+        scaling_menu.addAction(self.scale_1p25_action)
         scaling_menu.addAction('2x', self.select_scaling_2p0)
         scaling_menu.addAction('4x', self.select_scaling_4p0)
         speed_menu = shape_menu.addMenu('Animation Speed')
-        speed_menu.addAction('0.8x', self.select_speed_0p8, QKeySequence(';'))
+        self.speed_0p8_action = QAction('0.8x')
+        self.speed_0p8_action.triggered.connect(self.select_speed_0p8)
+        self.speed_0p8_action.setShortcut(QKeySequence(';'))
+        speed_menu.addAction(self.speed_0p8_action)
         speed_menu.addAction('Reset', self.select_speed_1)
-        speed_menu.addAction('1.25x', self.select_speed_1p25, QKeySequence("'"))
+        self.speed_1p25_action = QAction('1.25x')
+        self.speed_1p25_action.triggered.connect(self.select_speed_1p25)
+        self.speed_1p25_action.setShortcut(QKeySequence("'"))
+        speed_menu.addAction(self.speed_1p25_action)
         shape_menu.addSeparator()
         self.plot_abscissa_action = pvqt.plotting.QAction('Show Abscissa', checkable=True)
         shape_menu.addAction(self.plot_abscissa_action)
@@ -1041,15 +1060,30 @@ class ShapePlotter(GeometryPlotter):
         scaling_menu = shape_menu.addMenu('Scaling')
         scaling_menu.addAction('1/4x', self.select_scaling_0p25)
         scaling_menu.addAction('1/2x', self.select_scaling_0p5)
-        scaling_menu.addAction('0.8x', self.select_scaling_0p8, QKeySequence(','))
-        scaling_menu.addAction('Reset', self.select_scaling_1, QKeySequence('/'))
-        scaling_menu.addAction('1.25x', self.select_scaling_1p25, QKeySequence('.'))
+        self.scale_0p8_action = QAction('0.8x')
+        self.scale_0p8_action.triggered.connect(self.select_scaling_0p8)
+        self.scale_0p8_action.setShortcut(QKeySequence(','))
+        scaling_menu.addAction(self.scale_0p8_action)
+        self.scale_reset_action = QAction('Reset')
+        self.scale_reset_action.triggered.connect(self.select_scaling_1)
+        self.scale_reset_action.setShortcut(QKeySequence('/'))
+        scaling_menu.addAction(self.scale_reset_action)
+        self.scale_1p25_action = QAction('1.25x')
+        self.scale_1p25_action.triggered.connect(self.select_scaling_1p25)
+        self.scale_1p25_action.setShortcut(QKeySequence('.'))
+        scaling_menu.addAction(self.scale_1p25_action)
         scaling_menu.addAction('2x', self.select_scaling_2p0)
         scaling_menu.addAction('4x', self.select_scaling_4p0)
         speed_menu = shape_menu.addMenu('Animation Speed')
-        speed_menu.addAction('0.8x', self.select_speed_0p8, QKeySequence(';'))
+        self.speed_0p8_action = QAction('0.8x')
+        self.speed_0p8_action.triggered.connect(self.select_speed_0p8)
+        self.speed_0p8_action.setShortcut(QKeySequence(';'))
+        speed_menu.addAction(self.speed_0p8_action)
         speed_menu.addAction('Reset', self.select_speed_1)
-        speed_menu.addAction('1.25x', self.select_speed_1p25, QKeySequence("'"))
+        self.speed_1p25_action = QAction('1.25x')
+        self.speed_1p25_action.triggered.connect(self.select_speed_1p25)
+        self.speed_1p25_action.setShortcut(QKeySequence("'"))
+        speed_menu.addAction(self.speed_1p25_action)
         shape_menu.addSeparator()
         self.plot_comments_action = pvqt.plotting.QAction('Show Comments', checkable=True)
         self.plot_comments_action.triggered.connect(self.show_comment)
@@ -1610,11 +1644,11 @@ class CoordinateSystemArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     @staticmethod
@@ -1653,7 +1687,6 @@ class CoordinateSystemArray(SdynpyArray):
             output_arrays = np.concatenate(output_arrays)
         return output_arrays
 
-
 def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concatenate((np.eye(3), np.zeros((1, 3))), axis=0),
                             structured_array=None):
     """
@@ -1681,7 +1714,6 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
         Alternatively to the individual attributes, a single numpy structured
         array can be passed, which should have the same name as the inputs to
         the function listed above.
-
 
     Returns
     -------
@@ -1714,7 +1746,6 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
     coord_sys_array.matrix = matrix
 
     return coord_sys_array
-
 
 class ElementArray(SdynpyArray):
     """Element information array
@@ -1774,11 +1805,11 @@ class ElementArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2051,11 +2082,11 @@ class NodeArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2154,7 +2185,7 @@ class NodeArray(SdynpyArray):
             Points projected to a best-fit plane.
 
         """
-        coords = coordinates.T
+        coords = coordinates.T.copy()
         mean = np.mean(coords, axis=-1, keepdims=True)
         coords -= mean
         U, S, V = np.linalg.svd(coords)
@@ -2297,7 +2328,6 @@ class NodeArray(SdynpyArray):
         candidate_node_ids = np.unique(candidate_nodes.id)
         return candidate_nodes(candidate_node_ids)
 
-
 def node_array(id=1, coordinate=np.array((0, 0, 0)), color=1, def_cs=1, disp_cs=1,
                structured_array=None):
     """
@@ -2417,11 +2447,11 @@ class TracelineArray(SdynpyArray):
         ids = np.array(index_by_id)
         output = np.empty(ids.shape, dtype=self.dtype).view(self.__class__)
         for key, val in np.ndenumerate(ids):
-            index = index_dict[val]
             try:
-                output[key] = self[index]
-            except ValueError:
+                index = index_dict[val]
+            except KeyError:
                 raise ValueError('ID {:} not found in array'.format(val))
+            output[key] = self[index]
         return output
 
     def reduce(self, node_list):
@@ -2547,7 +2577,6 @@ def traceline_array(id=1, description='', color=1,
 
 from ..fem.sdynpy_exodus import Exodus, ExodusInMemory
 from .sdynpy_shape import shape_array
-
 
 class Geometry:
     """Container for nodes, coordinate systems, tracelines, and elements
@@ -3206,7 +3235,7 @@ class Geometry:
                                     faces=None if len(
                                         face_element_connectivity) == 0 else face_element_connectivity,
                                     lines=None if len(line_connectivity) == 0 else line_connectivity)
-            face_mesh.cell_arrays['color'] = line_colors + face_element_colors
+            face_mesh.cell_data['color'] = line_colors + face_element_colors
 
             plotter.add_mesh(face_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
@@ -3219,7 +3248,7 @@ class Geometry:
                                              np.array(solid_element_connectivity),
                                              np.array(solid_element_types, dtype='uint8'),
                                              np.array(global_node_positions))
-            solid_mesh.cell_arrays['color'] = solid_element_colors
+            solid_mesh.cell_data['color'] = solid_element_colors
 
             plotter.add_mesh(solid_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
@@ -3228,7 +3257,7 @@ class Geometry:
 
         if node_size > 0:
             point_mesh = pv.PolyData(global_node_positions)
-            point_mesh.cell_arrays['color'] = node_colors
+            point_mesh.cell_data['color'] = node_colors
             plotter.add_mesh(point_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
                              show_scalar_bar=False, point_size=node_size,
@@ -3314,9 +3343,9 @@ class Geometry:
             global_deflections = global_deflection(coordinate_systems, local_deformations, points)
             # Now add the point array to the mesh
             coord_mesh = pv.PolyData(points)
-            coord_mesh.point_arrays['Coordinates'] = global_deflections
-            coord_mesh.point_arrays['Direction'] = abs(coordinates.direction)
-            coord_mesh.point_arrays['Node ID'] = nodes
+            coord_mesh.point_data['Coordinates'] = global_deflections
+            coord_mesh.point_data['Direction'] = abs(coordinates.direction)
+            coord_mesh.point_data['Node ID'] = nodes
             return coord_mesh, points, global_deflections
 
         coordinates = coordinates.flatten()

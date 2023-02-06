@@ -32,16 +32,20 @@ from ..core.sdynpy_coordinate import CoordinateArray, outer_product
 from ..core.sdynpy_geometry import Geometry
 from ..core.sdynpy_shape import ShapeArray, mac, matrix_plot
 
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QCoreApplication, QRect
-from PyQt5.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
+from qtpy import QtWidgets, uic, QtGui
+from qtpy.QtGui import QIcon, QFont
+from qtpy.QtCore import Qt, QCoreApplication, QRect
+from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
                              QGroupBox, QWidget, QMessageBox, QHBoxLayout,
                              QVBoxLayout, QSizePolicy, QMainWindow,
                              QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
                              QLineEdit,
                              QDockWidget, QGridLayout, QButtonGroup, QDialog,
-                             QCheckBox, QRadioButton, QMenuBar, QMenu, QAction)
+                             QCheckBox, QRadioButton, QMenuBar, QMenu)
+try:
+    from qtpy.QtGui import QAction
+except ImportError:
+    from qtpy.QtWidgets import QAction
 import traceback
 
 
