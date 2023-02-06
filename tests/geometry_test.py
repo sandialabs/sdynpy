@@ -19,8 +19,6 @@ import numpy as np
 def cartesian_geometry():
     coordinates = np.linspace(-1,1,5)
     all_coords = np.array(np.meshgrid(coordinates,coordinates,coordinates,indexing='ij')).reshape(3,-1).T
-    # Scale so they are different lengths
-    all_coords *= np.array((1.1,1.0,0.9))
     node_ids = np.arange(all_coords.shape[0])+1
     rotation = sdpy.rotation.R(2,20,degrees=True)@sdpy.rotation.R(1,-30,degrees=True)@sdpy.rotation.R(0,-45,degrees=True)
     translation = np.array(((0.0,2.0,1.0),))
@@ -98,6 +96,12 @@ def test_node_indexing(cartesian_geometry):
     scalar_node = cartesian_geometry.node(scalar_id)
     check_nodes = cartesian_geometry.node[indices]
     check_scalar_node = cartesian_geometry.node[scalar_index]
+    nodes_by_reduction = cartesian_geometry.node.reduce(ids)
+    scalar_node_by_reduction = cartesian_geometry.node.reduce(scalar_id)
     assert np.all(nodes == check_nodes)
     assert np.all(check_scalar_node == scalar_node)
+    assert np.all(nodes_by_reduction == check_nodes)
+    assert np.all(check_scalar_node == scalar_node_by_reduction)
+    with pytest.raises(ValueError):
+        cartesian_geometry.node(1000)
     
