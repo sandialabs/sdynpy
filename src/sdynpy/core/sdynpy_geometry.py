@@ -31,6 +31,10 @@ import pyqtgraph as pg
 import vtk
 from qtpy import uic, QtCore
 from qtpy.QtGui import QKeySequence
+try:
+    from qtpy.QtGui import QAction
+except ImportError:
+    from qtpy.QtWidgets import QAction
 from qtpy.QtWidgets import QApplication, QMainWindow, QSizePolicy, QFileDialog, QMenu
 from .sdynpy_array import SdynpyArray
 from .sdynpy_colors import colormap, coord_colormap
@@ -343,7 +347,8 @@ class TransientPlotter(GeometryPlotter):
         self.animation_speed = 1.0
         self.last_time = time.time()
 
-        super(TransientPlotter, self).__init__(show, app, window_size, off_screen,
+        super(TransientPlotter, self).__init__(show, app, None if window_size is None else tuple(window_size),
+                                               off_screen,
                                                allow_quit_keypress, toolbar,
                                                menu_bar, editor, update_app_icon,
                                                **kwargs)
@@ -512,15 +517,30 @@ class TransientPlotter(GeometryPlotter):
         scaling_menu = shape_menu.addMenu('Scaling')
         scaling_menu.addAction('1/4x', self.select_scaling_0p25)
         scaling_menu.addAction('1/2x', self.select_scaling_0p5)
-        scaling_menu.addAction('0.8x', self.select_scaling_0p8, QKeySequence(','))
-        scaling_menu.addAction('Reset', self.select_scaling_1, QKeySequence('/'))
-        scaling_menu.addAction('1.25x', self.select_scaling_1p25, QKeySequence('.'))
+        self.scale_0p8_action = QAction('0.8x')
+        self.scale_0p8_action.triggered.connect(self.select_scaling_0p8)
+        self.scale_0p8_action.setShortcut(QKeySequence(','))
+        scaling_menu.addAction(self.scale_0p8_action)
+        self.scale_reset_action = QAction('Reset')
+        self.scale_reset_action.triggered.connect(self.select_scaling_1)
+        self.scale_reset_action.setShortcut(QKeySequence('/'))
+        scaling_menu.addAction(self.scale_reset_action)
+        self.scale_1p25_action = QAction('1.25x')
+        self.scale_1p25_action.triggered.connect(self.select_scaling_1p25)
+        self.scale_1p25_action.setShortcut(QKeySequence('.'))
+        scaling_menu.addAction(self.scale_1p25_action)
         scaling_menu.addAction('2x', self.select_scaling_2p0)
         scaling_menu.addAction('4x', self.select_scaling_4p0)
         speed_menu = shape_menu.addMenu('Animation Speed')
-        speed_menu.addAction('0.8x', self.select_speed_0p8, QKeySequence(';'))
+        self.speed_0p8_action = QAction('0.8x')
+        self.speed_0p8_action.triggered.connect(self.select_speed_0p8)
+        self.speed_0p8_action.setShortcut(QKeySequence(';'))
+        speed_menu.addAction(self.speed_0p8_action)
         speed_menu.addAction('Reset', self.select_speed_1)
-        speed_menu.addAction('1.25x', self.select_speed_1p25, QKeySequence("'"))
+        self.speed_1p25_action = QAction('1.25x')
+        self.speed_1p25_action.triggered.connect(self.select_speed_1p25)
+        self.speed_1p25_action.setShortcut(QKeySequence("'"))
+        speed_menu.addAction(self.speed_1p25_action)
         shape_menu.addSeparator()
         self.plot_abscissa_action = pvqt.plotting.QAction('Show Abscissa', checkable=True)
         shape_menu.addAction(self.plot_abscissa_action)
@@ -1040,15 +1060,30 @@ class ShapePlotter(GeometryPlotter):
         scaling_menu = shape_menu.addMenu('Scaling')
         scaling_menu.addAction('1/4x', self.select_scaling_0p25)
         scaling_menu.addAction('1/2x', self.select_scaling_0p5)
-        scaling_menu.addAction('0.8x', self.select_scaling_0p8, QKeySequence(','))
-        scaling_menu.addAction('Reset', self.select_scaling_1, QKeySequence('/'))
-        scaling_menu.addAction('1.25x', self.select_scaling_1p25, QKeySequence('.'))
+        self.scale_0p8_action = QAction('0.8x')
+        self.scale_0p8_action.triggered.connect(self.select_scaling_0p8)
+        self.scale_0p8_action.setShortcut(QKeySequence(','))
+        scaling_menu.addAction(self.scale_0p8_action)
+        self.scale_reset_action = QAction('Reset')
+        self.scale_reset_action.triggered.connect(self.select_scaling_1)
+        self.scale_reset_action.setShortcut(QKeySequence('/'))
+        scaling_menu.addAction(self.scale_reset_action)
+        self.scale_1p25_action = QAction('1.25x')
+        self.scale_1p25_action.triggered.connect(self.select_scaling_1p25)
+        self.scale_1p25_action.setShortcut(QKeySequence('.'))
+        scaling_menu.addAction(self.scale_1p25_action)
         scaling_menu.addAction('2x', self.select_scaling_2p0)
         scaling_menu.addAction('4x', self.select_scaling_4p0)
         speed_menu = shape_menu.addMenu('Animation Speed')
-        speed_menu.addAction('0.8x', self.select_speed_0p8, QKeySequence(';'))
+        self.speed_0p8_action = QAction('0.8x')
+        self.speed_0p8_action.triggered.connect(self.select_speed_0p8)
+        self.speed_0p8_action.setShortcut(QKeySequence(';'))
+        speed_menu.addAction(self.speed_0p8_action)
         speed_menu.addAction('Reset', self.select_speed_1)
-        speed_menu.addAction('1.25x', self.select_speed_1p25, QKeySequence("'"))
+        self.speed_1p25_action = QAction('1.25x')
+        self.speed_1p25_action.triggered.connect(self.select_speed_1p25)
+        self.speed_1p25_action.setShortcut(QKeySequence("'"))
+        speed_menu.addAction(self.speed_1p25_action)
         shape_menu.addSeparator()
         self.plot_comments_action = pvqt.plotting.QAction('Show Comments', checkable=True)
         self.plot_comments_action.triggered.connect(self.show_comment)
@@ -3200,7 +3235,7 @@ class Geometry:
                                     faces=None if len(
                                         face_element_connectivity) == 0 else face_element_connectivity,
                                     lines=None if len(line_connectivity) == 0 else line_connectivity)
-            face_mesh.cell_arrays['color'] = line_colors + face_element_colors
+            face_mesh.cell_data['color'] = line_colors + face_element_colors
 
             plotter.add_mesh(face_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
@@ -3213,7 +3248,7 @@ class Geometry:
                                              np.array(solid_element_connectivity),
                                              np.array(solid_element_types, dtype='uint8'),
                                              np.array(global_node_positions))
-            solid_mesh.cell_arrays['color'] = solid_element_colors
+            solid_mesh.cell_data['color'] = solid_element_colors
 
             plotter.add_mesh(solid_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
@@ -3222,7 +3257,7 @@ class Geometry:
 
         if node_size > 0:
             point_mesh = pv.PolyData(global_node_positions)
-            point_mesh.cell_arrays['color'] = node_colors
+            point_mesh.cell_data['color'] = node_colors
             plotter.add_mesh(point_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
                              show_scalar_bar=False, point_size=node_size,
@@ -3308,9 +3343,9 @@ class Geometry:
             global_deflections = global_deflection(coordinate_systems, local_deformations, points)
             # Now add the point array to the mesh
             coord_mesh = pv.PolyData(points)
-            coord_mesh.point_arrays['Coordinates'] = global_deflections
-            coord_mesh.point_arrays['Direction'] = abs(coordinates.direction)
-            coord_mesh.point_arrays['Node ID'] = nodes
+            coord_mesh.point_data['Coordinates'] = global_deflections
+            coord_mesh.point_data['Direction'] = abs(coordinates.direction)
+            coord_mesh.point_data['Node ID'] = nodes
             return coord_mesh, points, global_deflections
 
         coordinates = coordinates.flatten()

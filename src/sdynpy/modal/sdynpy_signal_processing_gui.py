@@ -28,16 +28,20 @@ from ..fileio.sdynpy_rattlesnake import read_rattlesnake_output
 from ..core.sdynpy_geometry import Geometry
 from .sdynpy_smac import SMAC_GUI
 from .sdynpy_polypy import PolyPy_GUI
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QCoreApplication, QRect
-from PyQt5.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
+from qtpy import QtWidgets, uic, QtGui
+from qtpy.QtGui import QIcon, QFont
+from qtpy.QtCore import Qt, QCoreApplication, QRect
+from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
                              QGroupBox, QWidget, QMessageBox, QHBoxLayout,
                              QVBoxLayout, QSizePolicy, QMainWindow,
                              QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
                              QLineEdit,
                              QDockWidget, QGridLayout, QButtonGroup, QDialog,
-                             QCheckBox, QRadioButton, QMenuBar, QMenu, QAction)
+                             QCheckBox, QRadioButton, QMenuBar, QMenu)
+try:
+    from qtpy.QtGui import QAction
+except ImportError:
+    from qtpy.QtWidgets import QAction
 import numpy as np
 import pyqtgraph as pqtg
 import matplotlib.cm as cm
@@ -593,7 +597,7 @@ class SignalProcessingGUI(QMainWindow):
     def frequencyLinesChanged(self):
         print('Frequency Lines Changed')
         self.block_sampling_signals(True)
-        frame_size = (self.frequencyLinesSpinBox - 1) * 2
+        frame_size = (self.frequencyLinesSpinBox.value() - 1) * 2
         self.frameSizeSpinBox.setValue(frame_size)
         self.frameTimeDoubleSpinBox.setValue(frame_size / self.sample_rate)
         self.frequencySpacingDoubleSpinBox.setValue(self.sample_rate / frame_size)

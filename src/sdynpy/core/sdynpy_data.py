@@ -47,15 +47,19 @@ from matplotlib.patches import Rectangle
 from matplotlib.gridspec import GridSpec
 from copy import copy, deepcopy
 from datetime import datetime
-from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QCoreApplication, QRect
-from PyQt5.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
+from qtpy import QtWidgets, uic, QtGui
+from qtpy.QtGui import QIcon, QFont
+from qtpy.QtCore import Qt, QCoreApplication, QRect
+from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
                              QGroupBox, QWidget, QMessageBox, QHBoxLayout,
                              QVBoxLayout, QSizePolicy, QMainWindow,
                              QFileDialog, QErrorMessage, QListWidget, QLineEdit,
                              QDockWidget, QGridLayout, QButtonGroup, QDialog,
-                             QCheckBox, QRadioButton, QMenuBar, QMenu, QAction)
+                             QCheckBox, QRadioButton, QMenuBar, QMenu)
+try:
+    from qtpy.QtGui import QAction
+except ImportError:
+    from qtpy.QtWidgets import QAction
 import pyqtgraph
 pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
@@ -2330,6 +2334,30 @@ class PowerSpectralDensityArray(NDDataArray):
                 ax[i,j].set_xticklabels([])
                 ax[i,j].tick_params(axis='x',direction='in')
                 ax[i,j].tick_params(axis='y',direction='in')
+                
+    def to_rattlesnake_specification(self,filename,coordinate_order = None,
+                                     min_frequency = None,
+                                     max_frequency = None):
+        if coordinate_order is not None:
+            coordinate_array = outer_product(coordinate_order)
+            reshaped_data = self[coordinate_array]
+        else:
+            if self.ndim != 2:
+                raise ValueError('CPSD Matrix must be 2D to transform to rattlesnake specification')
+            if self.shape[0] != self.shape[1]:
+                raise ValueError('CPSD Matrix must be square')
+            if not np.all(self.coordinate[...,0] == self.coordinate[...,1].T):
+                raise ValueError('Row and column coordinates of the CPSD matrix are not ordered identically')
+            reshaped_data = self
+        if min_frequency is not None or max_frequency is not None:
+            if min_frequency is None:
+                min_frequency = -np.inf
+            if max_frequency is None:
+                max_frequency = np.inf
+            reshaped_data = reshaped_data.extract_elements_by_abscissa(min_frequency,max_frequency)
+        np.savez(filename,
+                 f = reshaped_data[0,0].abscissa,
+                 cpsd = np.moveaxis(reshaped_data.ordinate,-1,0))
     
 class PowerSpectrumArray(NDDataArray):
     """Data array used to store power spectra arrays"""
@@ -3378,7 +3406,6 @@ class MPLCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-
 class MPLMultiCanvas(FigureCanvas):
     # This is a custom widget that can be used to put plots into a GUI window
     def __init__(self, parent=None, width=5, height=4, dpi=100, subplots=(1, 1), ignore_subplots=[]):
@@ -3397,7 +3424,6 @@ class MPLMultiCanvas(FigureCanvas):
 
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-
 
 class CPSDPlot(QMainWindow):
 

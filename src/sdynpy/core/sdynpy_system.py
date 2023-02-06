@@ -1385,7 +1385,7 @@ class System:
             if num_signals > 1:
                 print(
                     'Warning: Hammer impact generally not recommended for multi-reference excitation, consider multi-hammer instead')
-            pulse_width = 2 / bandwidth
+            pulse_width = 2 / (bandwidth if excitation_max_frequency is None else excitation_max_frequency)
             signal_length = int(frame_length * integration_oversample * num_averages + (num_averages + 1)
                                 * extra_time_between_frames * sample_rate + 2 * pulse_width * sample_rate)
             pulse_times = np.arange(num_averages)[

@@ -32,8 +32,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import traceback
 
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QWidget
+from qtpy import QtWidgets, uic
+from qtpy.QtWidgets import QMainWindow, QTableWidgetItem, QWidget
 import pyqtgraph
 pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
