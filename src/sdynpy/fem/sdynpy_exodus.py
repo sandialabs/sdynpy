@@ -680,7 +680,10 @@ class Exodus:
 
     @property
     def num_elems(self):
-        return self._ncdf_handle.dimensions['num_elem'].size
+        if 'num_elem' in self._ncdf_handle.dimensions:
+            return self._ncdf_handle.dimensions['num_elem'].size
+        else:
+            return 0
 
     def get_elem_num_map(self):
         '''Retrieve the list of local element IDs from the exodus file.
@@ -878,10 +881,11 @@ class Exodus:
         except ValueError:
             raise ExodusError('Invalid Block ID')
         conn_name = 'connect{:d}'.format(block_index)
-        try:
-            return self._ncdf_handle.variables[conn_name][:] - 1
-        except KeyError:
-            raise ExodusError('Element Block {:d} has not been defined yet')
+        if not self.num_elems == 0:
+            try:
+                return self._ncdf_handle.variables[conn_name][:] - 1
+            except KeyError:
+                raise ExodusError('Element Block {:d} has not been defined yet')
 
     def set_elem_connectivity(self, id, connectivity):
         '''Sets the element connectivity matrix for a given block
@@ -2279,8 +2283,9 @@ class ExodusInMemory:
         for index, blk_id in enumerate(block_ids):
             blk_dict = {}
             blk_dict['id'] = blk_id
-            blk_dict['connectivity'] = exo.get_elem_connectivity(blk_id).data
-            blk_dict['elem_type'] = exo.get_elem_type(blk_id)
+            if not exo.num_elems == 0:
+                blk_dict['connectivity'] = exo.get_elem_connectivity(blk_id).data
+                blk_dict['elem_type'] = exo.get_elem_type(blk_id)
             blk_dict['name'] = ''.join(s.decode() for s in exo._ncdf_handle.variables['eb_names']
                                        [index, :] if not isinstance(s, np.ma.core.MaskedConstant))
             blk_dict['status'] = exo._ncdf_handle.variables['eb_status'][:].data[index]
@@ -3440,82 +3445,3 @@ def extract_sharp_edges(exo, edge_threshold=60, **kwargs):
         block.connectivity = node_map[block.connectivity]
     edge_fexo.nodes.node_num_map = surface_fexo.nodes.node_num_map[keep_nodes]
     return edge_fexo
-
-#nc = netCDF4.Dataset(r'Z:\ASRG_GRD_P90_R0_Vel_25_TMat_A36_Steel_HS_Ver_2013_04_17.exo')
-#nc = netCDF4.Dataset(r'Z:\modal\Wind_Turbine\Blade_FE_Model\blade.exo')
-#nc = netCDF4.Dataset(r'Z:\modal\Wind_Turbine\Blade_FE_Model\blade-out_test_copy.exo')
-#nc = netCDF4.Dataset(r'C:\Users\dprohe\Documents\Projects\Other\Barc\IMMAT\FEMs\rcomp_fixture-eig_global.exo')
-
-#exo = exodus(r'Z:\ASRG_GRD_P90_R0_Vel_25_TMat_A36_Steel_HS_Ver_2013_04_17.exo')
-#exo = exodus(r'Z:\modal\Wind_Turbine\Blade_FE_Model\blade-out_test_copy.exo')
-#exo = exodus(r'Z:\modal\Wind_Turbine\Blade_FE_Model\blade.exo')
-#exo = exodus(r'C:\Users\dprohe\Documents\Projects\Other\Barc\IMMAT\FEMs\rcomp_fixture-eig_global.exo')
-#exo = exodus(r'C:\Users\dprohe\Documents\Projects\Test_Problems\salinas_tests\cb_substructure\tuning_fork_block_1.exo')
-# exo.close()
-
-# nodes = np.array([[0,0,0],
-#                  [0,0,1],
-#                  [0,1,1],
-#                  [0,1,0],
-#                  [1,0,0],
-#                  [1,0,1],
-#                  [1,1,1],
-#                  [1,1,0],
-#                  [2,0,0],
-#                  [2,0,1],
-#                  [2,1,1],
-#                  [2,1,0],
-#                  [3,0,0],
-#                  [3,0,1],
-#                  [3,1,1],
-#                  [3,1,0],])
-#exo = exodus('test_exodus_file.exo','w','Test Exodus File',3,nodes.shape[0],4,2,0,0,clobber=True)
-# Set up info records
-#qa_records = (('Hello','My','Name','Is'),('Dan','What ','IS your name we should be friends!','this is a really long string not sure if its 33 characters or not maybe it is but maybe not'))
-# exo.put_qa_records(qa_records)
-# exo.get_qa_records()
-# info_records = ('whats up football football football football football football football football football football',
-#                'my name is dan','hey')
-# exo.put_info_records(info_records)
-# exo.get_info_records()
-# Set up coordinates
-# exo.put_coord_names(('X','Y','Z'))
-# exo.get_coord_names()
-# exo.put_coords(nodes.T)
-# Set time steps
-# exo.set_times(np.arange(10))
-# exo.get_times()
-# Add nodal variables
-# exo.put_node_variable_names(('DispX','DispY','DispZ'))
-# for i,time in enumerate(exo.get_times()):
-#    exo.set_node_variable_values('DispX',i,0.1)
-#    exo.set_node_variable_values('DispZ',i,0.1)
-#    exo.set_node_variable_values('DispY',i,time*0.1)
-#
-# Create element blocks
-# exo.put_elem_blk_ids([2,4])
-# exo.get_elem_blk_ids()
-#
-# Create element block 2
-# exo.put_elem_blk_info(2,'SHELL4',2,4,0)
-# exo.set_elem_connectivity(2,[[0,1,2,3],
-#                             [8,9,10,11]])
-# Create element block 4
-# exo.put_elem_blk_info(4,'SHELL4',2,4,0)
-# exo.set_elem_connectivity(4,[[4,5,6,7],
-#                             [12,13,14,15]])
-#
-# Create element variables
-# exo.put_elem_variable_names(('Block_2_Var','Block_4_Var','BothBlock_Var'),[[1,0,1],[0,1,1]])
-# for i,time in enumerate(exo.get_times()):
-#    exo.set_elem_variable_values(2,'Block_2_Var',i,time*0.15)
-#    exo.set_elem_variable_values(4,'Block_4_Var',i,time-1)
-#    exo.set_elem_variable_values(2,'BothBlock_Var',i,time*0.1)
-#    exo.set_elem_variable_values(4,'BothBlock_Var',i,time*0.2)
-
-
-# print(exo._ncdf_handle)
-# print(sorted(exo._ncdf_handle.dimensions.keys()))
-# print(sorted(exo._ncdf_handle.variables.keys()))
-
-# exo.close()

@@ -26,21 +26,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from . import sdynpy_coordinate
 from .sdynpy_array import SdynpyArray
-from .sdynpy_coordinate import outer_product
-from .sdynpy_matrix import Matrix
+from .sdynpy_coordinate import outer_product, CoordinateArray, coordinate_array
+from .sdynpy_matrix import Matrix, matrix
 from ..signal_processing.sdynpy_correlation import mac
 from ..signal_processing.sdynpy_frf import timedata2frf
 from ..signal_processing.sdynpy_cpsd import (cpsd as sp_cpsd,
                                              cpsd_coherence as sp_coherence,
                                              cpsd_to_time_history,
-                                             cpsd_from_coh_phs)
+                                             cpsd_from_coh_phs, 
+                                             db2scale)
+from ..signal_processing.sdynpy_srs import (srs as sp_srs,
+                                            octspace,
+                                            sum_decayed_sines as sp_sds,
+                                            sum_decayed_sines_reconstruction,
+                                            sum_decayed_sines_displacement_velocity)
+from ..signal_processing.sdynpy_rotation import lstsq_rigid_transform
+from ..signal_processing.sdynpy_generator import (
+    pseudorandom,sine,ramp_envelope, chirp,pulse)
+from ..signal_processing.sdynpy_frf_inverse import (frf_inverse,
+                                                    compute_tikhonov_modified_singular_values)
+
 from ..fem.sdynpy_exodus import Exodus
 from scipy.linalg import eigh
 from enum import Enum
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.colors import ListedColormap
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
@@ -65,6 +77,11 @@ pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
 import os
 import scipy.signal as sig
+import warnings
+import scipy.fft as scipyfft
+from scipy.signal.windows import exponential,get_window
+from scipy.signal import oaconvolve, convolve
+from scipy.interpolate import interp1d
 
 
 class SpecificDataType(Enum):
@@ -184,6 +201,7 @@ class FunctionTypes(Enum):
     MULTIPLE_COHERENCE = 26
     ORDER_FUNCTION = 27
     PHASE_COMPENSATION = 28
+    IMPULSE_RESPONSE_FUNCTION = 29
 
 
 _imat_function_type_map = {'General': FunctionTypes.GENERAL,
@@ -215,10 +233,30 @@ _imat_function_type_map = {'General': FunctionTypes.GENERAL,
                            'Multiple Coherence': FunctionTypes.MULTIPLE_COHERENCE,
                            'Order Function': FunctionTypes.ORDER_FUNCTION,
                            'Phase Compensation': FunctionTypes.PHASE_COMPENSATION,
+                           'Impulse Response Function': FunctionTypes.IMPULSE_RESPONSE_FUNCTION
                            }
 
 _imat_function_type_inverse_map = {val: key for key, val in _imat_function_type_map.items()}
 
+class AbscissaIndexExtractor:
+    def __init__(self,parent):
+        self.parent = parent
+        
+    def __getitem__(self,key):
+        return self.parent.extract_elements(key)
+        
+    def __call__(self,key):
+        return self.parent.extract_elements(key)
+        
+class AbscissaValueExtractor:
+    def __init__(self,parent):
+        self.parent = parent
+        
+    def __getitem__(self,key):
+        return self.parent.extract_elements_by_abscissa(key[0],key[1])
+        
+    def __call__(self,key):
+        return self.parent.extract_elements_by_abscissa(key[0],key[1])
 
 class NDDataArray(SdynpyArray):
     """Generic N-Dimensional data structure
@@ -242,7 +280,7 @@ class NDDataArray(SdynpyArray):
             ('comment3', '<U80'),
             ('comment4', '<U80'),
             ('comment5', '<U80'),
-            ('coordinate', sdynpy_coordinate.CoordinateArray.data_dtype,
+            ('coordinate', CoordinateArray.data_dtype,
              () if data_dimension is None else (data_dimension,))
         ]
         obj = super(NDDataArray, subtype).__new__(subtype, shape,
@@ -296,6 +334,31 @@ class NDDataArray(SdynpyArray):
         """Number of dimensions to the data"""
         return self.dtype['coordinate'].shape[-1]
 
+    @property
+    def idx_by_el(self):
+        """
+        AbscissaIndexExtractor that can be indexed to extract specific elements
+        """
+        return AbscissaIndexExtractor(self)
+    
+    @property
+    def idx_by_ab(self):
+        """
+        AbscissaValueExtractor that can be indexed to extract an abscissa range
+        """
+        return AbscissaValueExtractor(self)
+
+    @property
+    def abscissa_spacing(self):
+        """The spacing of the abscissa in the function.  Returns ValueError if
+        abscissa are not evenly spaced."""
+        # Look at the spacing between abscissa
+        spacing = np.diff(self.abscissa,axis=-1)
+        mean_spacing = np.mean(spacing)
+        if not np.allclose(spacing,mean_spacing):
+            raise ValueError('{:} do not have evenly spaced abscissa'.format(self.__class__.__name__))
+        return mean_spacing
+
     def plot(self, one_axis: bool = True, subplots_kwargs: dict = {},
              plot_kwargs: dict = {}):
         """
@@ -322,19 +385,19 @@ class NDDataArray(SdynpyArray):
         """
         if one_axis is True:
             figure, axis = plt.subplots(**subplots_kwargs)
-            axis.plot(self.flatten().abscissa.T, self.flatten().ordinate.T, **plot_kwargs)
+            axis.plot(self.flatten().abscissa.T, self.flatten().ordinate.T.real, **plot_kwargs)
         elif one_axis is False:
             ncols = int(np.floor(np.sqrt(self.size)))
             nrows = int(np.ceil(self.size / ncols))
             figure, axis = plt.subplots(nrows, ncols, **subplots_kwargs)
             for i, (ax, (index, function)) in enumerate(zip(axis.flatten(), self.ndenumerate())):
-                ax.plot(function.abscissa.T, function.ordinate.T, **plot_kwargs)
+                ax.plot(function.abscissa.T, function.ordinate.T.real, **plot_kwargs)
                 ax.set_ylabel('/'.join([str(v) for i, v in function.coordinate.ndenumerate()]))
             for ax in axis.flatten()[i + 1:]:
                 ax.remove()
         else:
             axis = one_axis
-            axis.plot(self.abscissa.T, self.ordinate.T, **plot_kwargs)
+            axis.plot(self.abscissa.T, self.ordinate.T.real, **plot_kwargs)
         return axis
 
     def reshape_to_matrix(self):
@@ -389,12 +452,60 @@ class NDDataArray(SdynpyArray):
                           self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
 
     def extract_elements_by_abscissa(self, min_abscissa, max_abscissa):
+        """
+        Extracts elements with abscissa values within the specified range
+
+        Parameters
+        ----------
+        min_abscissa : float
+            Minimum abscissa value to keep
+        max_abscissa : float
+            Maximum abscissa value to keep.
+
+        Returns
+        -------
+        NDDataArray
+            Array reduced to specified elements.
+
+        """
         abscissa_indices = (self.abscissa >= min_abscissa) & (self.abscissa <= max_abscissa)
         indices = np.all(abscissa_indices, axis=tuple(np.arange(abscissa_indices.ndim - 1)))
         new_ordinate = self.ordinate[..., indices]
         new_abscissa = self.abscissa[..., indices]
         return data_array(self.function_type, new_abscissa, new_ordinate, self.coordinate,
                           self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
+
+    @classmethod
+    def join(cls,data_arrays,increment_abscissa = True):
+        """
+        Joins several data arrays together by concatenating their ordinates
+
+        Parameters
+        ----------
+        data_arrays : NDDataArray
+            Arrays to concatenate
+        increment_abscissa : bool, optional
+            Determines how the abscissa concatenation is handled.  If False,
+            the abscissa is left as it was in the original functions.  If True,
+            it will be incremented so it is continuous.
+
+        Returns
+        -------
+        NDDataArray subclass
+        """
+        func_type = data_arrays[0].function_type
+        # Verify that coordinates are consistent
+        all_coordinate = np.array([array.coordinate for array in data_arrays]).view(CoordinateArray)
+        if not np.all(all_coordinate[:1] == all_coordinate):
+            raise ValueError('Signals do not have equivalent coordinates')
+        coordinate = data_arrays[0].coordinate
+        ordinate = np.concatenate([array.ordinate for array in data_arrays],axis=-1)
+        if increment_abscissa:
+            delta_abscissa = data_arrays[0].abscissa_spacing
+            abscissa = np.arange(ordinate.shape[-1])*delta_abscissa
+        else:
+            abscissa = np.concatenate([array[coordinate].abscissa for array in data_arrays],axis=-1)
+        return data_array(func_type,abscissa,ordinate,coordinate)
 
     def downsample(self, factor):
         """
@@ -466,34 +577,176 @@ class NDDataArray(SdynpyArray):
                 self.coordinate.node = node_id_map(self.coordinate.node)
             common_nodes = np.intersect1d(np.intersect1d(original_geometry.node.id, new_geometry.node.id),
                                           np.unique(self.coordinate.node))
-            original_coordinate_systems = original_geometry.coordinate_system(
-                original_geometry.node(common_nodes).disp_cs)
-            new_coordinate_systems = new_geometry.coordinate_system(
-                new_geometry.node(common_nodes).disp_cs)
-            coordinates = sdynpy_coordinate.coordinate_array(
+            coordinates = coordinate_array(
                 common_nodes[:, np.newaxis], [1, 2, 3, 4, 5, 6] if rotations else [1, 2, 3])
+            transform_from_original = original_geometry.global_deflection(coordinates)
+            transform_to_new = new_geometry.global_deflection(coordinates)
             new_data_array = self[coordinates[..., np.newaxis]].copy()
             shape_matrix = new_data_array.ordinate
-            transform_from_original = original_coordinate_systems.matrix[..., :3, :3]
-            transform_to_new = new_coordinate_systems.matrix[..., :3, :3]
-            if rotations:
-                # If we are doing rotations, we need to do a block diagonal for translations and rotations
-                transform_from_original = np.concatenate((
-                    np.concatenate((transform_from_original, np.zeros(
-                        transform_from_original.shape)), axis=-1),
-                    np.concatenate((np.zeros(transform_from_original.shape),
-                                   transform_from_original), axis=-1),
-                ), axis=-2)
-                transform_to_new = np.concatenate((
-                    np.concatenate((transform_to_new, np.zeros(transform_to_new.shape)), axis=-1),
-                    np.concatenate((np.zeros(transform_to_new.shape), transform_to_new), axis=-1),
-                ), axis=-2)
             new_shape_matrix = np.einsum('nij,nkj,nkl->nil', transform_to_new,
                                          transform_from_original, shape_matrix)
             new_data_array.ordinate = new_shape_matrix
             return new_data_array.flatten()
         else:
             raise NotImplementedError('2D Data not Implemented Yet')
+
+    def to_shape_array(self, abscissa_values = None):
+        """
+        Converts an NDDataArray to a ShapeArray
+
+        Parameters
+        ----------
+        abscissa_values : ndarray, optional
+            Abscissa values at which the shapes will be created. The default is
+            to create shapes at all abscissa values.  If an entry in
+            abscissa_values does not match a value in abscissa, the closest
+            abscissa value will be selected
+
+        Raises
+        ------
+        ValueError
+            If the data does not have common abscissa across all functions or if
+            duplicate response coordinates occur in the NDDataArray
+
+        Returns
+        -------
+        ShapeArray
+            ShapeArray containing the NDDataArray's ordinate as its shape_matrix
+
+        """
+        flat_self = self.flatten()
+        if not self.validate_common_abscissa():
+            raise ValueError('Data must have common abscissa to transform to `ShapeArray`')
+        if abscissa_values is None:
+            abscissa_indices = slice(None)
+        else:
+            abscissa_indices = np.argmin(abs(flat_self[0].abscissa - np.atleast_1d(abscissa_values)[:,np.newaxis]),axis=-1)
+        # Check if there are repeated responses
+        coordinates = flat_self.response_coordinate
+        if coordinates.size != np.unique(coordinates).size:
+            raise ValueError('Data has duplicate response coordinates.  Please ensure that there is only one of each response coordinate in the data.')
+        # Extract the shape matrix
+        shape_matrix = flat_self.ordinate[:,abscissa_indices].T
+        # Create the new shape
+        from .sdynpy_shape import shape_array
+        return shape_array(coordinates,shape_matrix,flat_self[0].abscissa[abscissa_indices])
+        
+    def zero_pad(self,num_samples = 0, update_abscissa = True,
+                 left=False,right=True,
+                 use_next_fast_len = False):
+        """
+        Add zeros to the beginning or end of a signal
+
+        Parameters
+        ----------
+        num_samples : int, optional
+            Number of zeros to add to the function.  If not specified, no zeros
+            are added unless `use_next_fast_len` is `True`
+        update_abscissa : bool, optional
+            If True, modify the abscissa to keep the same abscissa spacing.  
+            The function must have equally spaced abscissa for this to work.
+            If False, the added abscissa will have a value of zero.  
+            The default is True.
+        left : bool, optional
+            Add zeros to the left side (beginning) of the function. The default
+            is False.  If both `left` and `right` are specified, the zeros will
+            be split half on the left and half on the right.
+        right : bool, optional
+            Add zeros to the right side (end) of the function. The default is
+            True.  If both `left` and `right` are specified, the zeros will be
+            split half on the left and half on the right
+        use_next_fast_len : bool, optional
+            If True, potentially add additional zeros to the value specified by
+            `num_samples` to allow the total length of the final signal to reach
+            fast values for FFT as specified by `scipy.fft.next_fast_len`.
+
+        Returns
+        -------
+        NDDataArray subclass
+            The zero-padded version of the function
+
+        """
+        if use_next_fast_len:
+            total_samples = scipyfft.next_fast_len(self.num_elements + num_samples)
+            num_samples = total_samples - self.num_elements
+        # Create the additional zeros vectors
+        if left and (not right):
+            left_samples = num_samples
+            right_samples = 0
+        elif (not left) and right:
+            right_samples = num_samples
+            left_samples = 0
+        elif left and right:
+            left_samples = num_samples//2
+            right_samples = num_samples - left_samples
+        else:
+            left_samples = 0
+            right_samples = 0
+        added_zeros_left = np.zeros(self.shape+(left_samples,))
+        added_zeros_right = np.zeros(self.shape+(right_samples,))
+            
+        new_ordinate = np.concatenate((added_zeros_left,self.ordinate,added_zeros_right),axis=-1)
+        
+        if update_abscissa:
+            new_abscissa = self.abscissa_spacing*(np.arange(new_ordinate.shape[-1])-added_zeros_left.shape[-1]) + self.abscissa[...,0,np.newaxis]
+        else:
+            new_abscissa = np.concatenate((added_zeros_left,self.abscissa,added_zeros_right),axis=-1)
+        
+        return data_array(self.function_type,new_abscissa,new_ordinate,self.coordinate,self.comment1,self.comment2,self.comment3,self.comment4,self.comment5)
+    
+    def interpolate(self, interpolated_abscissa, kind = 'linear', **kwargs):
+        """
+        Interpolates the NDDataArray using SciPy's interp1d.
+
+        Parameters
+        ----------
+        interpolated_abscissa : ndarray
+            Abscissa values at which to interpolate the function.  If
+            multi-dimensional, it will be flattened.
+        kind : str or int, optional
+            Specifies the kind of interpolation as a string or as an integer
+            specifying the order of the spline interpolator to use. The string
+            has to be one of 'linear', 'nearest', 'nearest-up', 'zero',
+            'slinear', 'quadratic', 'cubic', 'previous', or 'next'. 
+            'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline
+            interpolation of zeroth, first, second or third order; 'previous'
+            and 'next' simply return the previous or next value of the point;
+            'nearest-up' and 'nearest' differ when interpolating half-integers
+            (e.g. 0.5, 1.5) in that 'nearest-up' rounds up and 'nearest' rounds
+            down. Default is 'linear'.
+        **kwargs :
+            Additional arguments to scipy.interpolate.interp1d.
+
+        Returns
+        -------
+        NDDataArray : 
+            Array with interpolated arguments
+        """
+        # Flatten the abscissa
+        interpolated_abscissa = np.reshape(interpolated_abscissa,-1)
+        # Create the output class
+        output = self.__class__(self.shape,interpolated_abscissa.size)
+        output.coordinate = self.coordinate
+        output.comment1 = self.comment1
+        output.comment2 = self.comment2
+        output.comment3 = self.comment3
+        output.comment4 = self.comment4
+        output.comment5 = self.comment5
+        output.abscissa = interpolated_abscissa
+        if self.validate_common_abscissa():
+            x = self.flatten()[0].abscissa
+            y = self.ordinate
+            interp = interp1d(x, y, kind=kind, axis=-1, **kwargs)
+            interpolated_ordinate = interp(interpolated_abscissa)
+            output.ordinate = interpolated_ordinate
+        else:
+            for key,function in self.ndenumerate():
+                x = function.abscissa
+                y = function.ordinate
+                interp = interp1d(x,y,kind=kind, axis=-1, **kwargs)
+                interpolated_ordinate = interp(interpolated_abscissa)
+                output[key].ordinate = interpolated_ordinate
+        return output
 
     def __getitem__(self, key):
         """
@@ -511,7 +764,7 @@ class NDDataArray(SdynpyArray):
         NDDataArray
             Data Array partitioned to the selected arrays.
         """
-        if isinstance(key, sdynpy_coordinate.CoordinateArray):
+        if isinstance(key, CoordinateArray):
             coordinate_dim = self.dtype['coordinate'].ndim
             output_shape = key.shape[:-coordinate_dim]
             flat_self = self.flatten()
@@ -519,21 +772,29 @@ class NDDataArray(SdynpyArray):
             positive_coordinates = abs(flat_self.coordinate)
             for index in np.ndindex(output_shape):
                 positive_key = abs(key[index])
-                index_array[index] = np.where(
-                    np.all(positive_coordinates == positive_key, axis=-1))[0][0]
+                try:
+                    index_array[index] = np.where(
+                        np.all(positive_coordinates == positive_key, axis=-1))[0][0]
+                except IndexError:
+                    raise ValueError('Coordinate {:} not found in data array'.format(str(key[index])))
             return_shape = flat_self[index_array].copy()
             if self.function_type in [FunctionTypes.COHERENCE,FunctionTypes.MULTIPLE_COHERENCE]:
                 ordinate_multiplication_array = np.array(1)
             else:
                 ordinate_multiplication_array = np.prod(
                     np.sign(return_shape.coordinate.direction) * np.sign(key.direction), axis=-1)
+            # Set up for broadcasting
+            ordinate_multiplication_array = ordinate_multiplication_array[..., np.newaxis]
+            # Remove zeros and replace with 1s because we don't flip signs if
+            # there is no direction associated with the coordinate
+            ordinate_multiplication_array[ordinate_multiplication_array==0] = 1
             return_shape.coordinate = key
-            return_shape.ordinate *= ordinate_multiplication_array[..., np.newaxis]
+            return_shape.ordinate *= ordinate_multiplication_array
             return return_shape
         else:
             output = super().__getitem__(key)
-            if key == 'coordinate':
-                return output.view(sdynpy_coordinate.CoordinateArray)
+            if isinstance(key,str) and key == 'coordinate':
+                return output.view(CoordinateArray)
             else:
                 return output
 
@@ -691,9 +952,9 @@ class NDDataArray(SdynpyArray):
 
         """
         if reduction is None:
-            return np.min(self.ordinate)
+            return np.min(self.ordinate,*min_args,**min_kwargs)
         else:
-            return np.min(reduction(self.ordinate))
+            return np.min(reduction(self.ordinate),*min_args,**min_kwargs)
 
     def max(self, reduction=None, *max_args, **max_kwargs):
         """
@@ -1318,8 +1579,8 @@ class NDDataArray(SdynpyArray):
             for function in function_list:
                 abscissa.append(function.abscissa)
                 ordinate.append(function.ordinate)
-                coordinate.append((sdynpy_coordinate.coordinate_array(function.response_node, function.response_direction),
-                                   sdynpy_coordinate.coordinate_array(function.reference_node, function.reference_direction)))
+                coordinate.append((coordinate_array(function.response_node, function.response_direction),
+                                   coordinate_array(function.reference_node, function.reference_direction)))
                 comment1.append(function.idline1)
                 comment2.append(function.idline2)
                 comment3.append(function.idline3)
@@ -1327,7 +1588,7 @@ class NDDataArray(SdynpyArray):
                 comment5.append(function.idline5)
             return_functions.append(
                 data_array(key, np.array(abscissa), np.array(ordinate),
-                           np.array(coordinate).view(sdynpy_coordinate.CoordinateArray),
+                           np.array(coordinate).view(CoordinateArray),
                            comment1,
                            comment2,
                            comment3,
@@ -1339,7 +1600,6 @@ class NDDataArray(SdynpyArray):
         return return_functions
 
     from_uff = from_unv
-
 
 class TimeHistoryArray(NDDataArray):
     """Data array used to store time history data"""
@@ -1390,7 +1650,7 @@ class TimeHistoryArray(NDDataArray):
             abscissa = exo.get_times()
             data = [data_array(FunctionTypes.TIME_RESPONSE, abscissa,
                                exo.get_node_variable_values(variable, timesteps).T,
-                               sdynpy_coordinate.coordinate_array(node_ids, index)[:, np.newaxis]) for index, variable in variables]
+                               coordinate_array(node_ids, index)[:, np.newaxis]) for index, variable in variables]
             return np.concatenate(data)
         else:
             # TODO need to add in rotations
@@ -1404,11 +1664,12 @@ class TimeHistoryArray(NDDataArray):
             )][0].data[slice(timesteps) if timesteps is None else timesteps]
             abscissa = exo.time[slice(timesteps) if timesteps is None else timesteps]
             ordinate = np.concatenate((x_var, y_var, z_var), axis=-1).T
-            coordinates = sdynpy_coordinate.coordinate_array(
+            coordinates = coordinate_array(
                 node_ids, np.array((1, 2, 3))[:, np.newaxis]).flatten()
             return data_array(FunctionTypes.TIME_RESPONSE, abscissa, ordinate, coordinates[:, np.newaxis])
 
-    def fft(self, samples_per_frame=None, scaling=None, rtol=1, atol=1e-8):
+    def fft(self, samples_per_frame=None, norm="backward", rtol=1, atol=1e-8,
+            **scipy_rfft_kwargs):
         """
         Computes the frequency spectra of the time signal
 
@@ -1421,23 +1682,23 @@ class TimeHistoryArray(NDDataArray):
             the effect of zeroing out the spectrum (because the average time
             signal is zero). The default is no averaging, the frame size is the
             length of the signal.
-        scaling : str, optional
-            The type of scaling applied to the output spectra.  This is not
-            implemented yet. The default is None.
+        norm : str, optional
+            The type of normalization applied to the fft computation.
+            The default is "backward".
         rtol : float, optional
             Relative tolerance used in the abcsissa spacing check.
             The default is 1e-5.
         atol : float, optional
             Relative tolerance used in the abscissa spacing check.
             The default is 1e-8.
+        scipy_rfft_kwargs :
+            Additional keywords that will be passed to SciPy's rfft function.
 
         Raises
         ------
         ValueError
             Raised if the time signal passed to this function does not have
             equally spaced abscissa.
-        NotImplementedError
-            Raised if the user specifies scaling.
 
         Returns
         -------
@@ -1455,11 +1716,12 @@ class TimeHistoryArray(NDDataArray):
             ordinate = ordinate[..., frame_indices]
         dt = np.mean(diffs)
         n = ordinate.shape[-1]
-        frequencies = np.fft.rfftfreq(n, dt)
-        ordinate = np.fft.rfft(ordinate, axis=-1)
-        if not scaling is None:
-            raise NotImplementedError('Scaling is not implemented yet.')
-        if not samples_per_frame is None:
+        #frequencies = np.fft.rfftfreq(n, dt)
+        frequencies = scipyfft.rfftfreq(n, dt)
+        #ordinate = np.fft.rfft(ordinate, axis=-1)
+        ordinate = scipyfft.rfft(ordinate, axis=-1, norm=norm, 
+                                 **scipy_rfft_kwargs)
+        if samples_per_frame is not None:
             ordinate = np.mean(ordinate, axis=-2)
         # Create the output signal
         return data_array(FunctionTypes.SPECTRUM, frequencies, ordinate, self.coordinate,
@@ -1516,11 +1778,1372 @@ class TimeHistoryArray(NDDataArray):
                                 np.tile(coords[:, np.newaxis], [1, 2]) if only_asds
                                 else outer_product(coords, coords))
         return cpsd_array
+    
+    def srs(self, min_frequency = None, max_frequency = None, frequencies = None, 
+            damping = 0.03, num_points = None, points_per_octave = 12,
+            srs_type = 'MMAA'):
+        """
+        Compute a shock response spectrum (SRS) from the time history
+
+        Parameters
+        ----------
+        min_frequency : float, optional
+            Minimum frequency to compute the SRS. Either `frequencies` or
+            `min_frequency` and `max_frequency` must be specified.
+        max_frequency : float, optional
+            Maximum frequency to compute the SRS. Either `frequencies` or
+            `min_frequency` and `max_frequency` must be specified.
+        frequencies : np.ndarray, optional
+            Frequency lines at which to compute the SRS. Either `frequencies` or
+            `min_frequency` and `max_frequency` must be specified.
+        damping : float, optional
+            Fraction of critical damping to use in the SRS calculation (e.g. you
+            should specify 0.03 to represent 3%, not 3). The default is 0.03.
+        num_points : int, optional
+            Number of frequency lines to compute from `min_frequency` to 
+            `max_frequency`, log spaced between these two values.  If 
+            `min_frequency` and `max_frequency` are specified, then either 
+            `num_points` or `points_per_octave` must be specified.  If
+            `frequencies` is specified, this argument is ignored.
+        points_per_octave : float, optional
+            Number of frequency lines per octave to compute from `min_frequency`
+            to `max_frequency`.  If `min_frequency` and `max_frequency` are
+            specified, then either `num_points` or `points_per_octave` must be
+            specified.  If `frequencies` is specified, this argument is ignored.
+            The default is 12.
+        srs_type : str, optional
+            A string encoding for the type of SRS to be computed.  See notes for
+            more information.
+
+        Returns
+        -------
+        ShockResponseSpectrumArray
+            SRSs representing the current time histories.  If `srs_type` is
+            `'all'`, then an extra dimension of 9 will be added to the front of
+            the array, and the indices in that dimension will be different SRS
+            types.
+            
+        Notes
+        -----
+        The `srs_type` argument takes a 4 character string that specifies how
+        the SRS is computed.
+        """
+        # Compute default parameters
+        try:
+            srs_type_val = ShockResponseSpectrumArray._srs_type_map[srs_type.lower()]
+        except KeyError:
+            raise ValueError('Invalid `srs_type` specified, should be one of {:} (case insensitive)'.format([k for k in ShockResponseSpectrumArray._srs_type_map]))
+            
+        if frequencies is None:
+            if min_frequency is None or max_frequency is None:
+                raise ValueError('`min_frequency` and `max_frequency` must be provided if `frequencies` is not')
+            if num_points is None:
+                frequencies = octspace(min_frequency,max_frequency,points_per_octave)
+            else:
+                frequencies = np.logspace(np.log10(min_frequency),np.log10(max_frequency),num_points)
+        
+        srss,f = sp_srs(self.ordinate, self.abscissa_spacing, frequencies, damping, srs_type_val)
+        if abs(srs_type_val) == 10:
+            np.moveaxis(srss,-2,0)
+        
+        # Now construct the output object
+        srs = data_array(FunctionTypes.SHOCK_RESPONSE_SPECTRUM,frequencies.copy(),
+                       srss,self.coordinate.copy(),
+                       self.comment1.copy(),self.comment2.copy(),self.comment3.copy(),self.comment4.copy(),
+                       self.comment5.copy())
+        return srs
+        
+    def split_into_frames(self, samples_per_frame = None, frame_length = None,
+                          overlap = None, overlap_samples = None, window = None,
+                          check_cola = False, allow_fractional_frames = False):
+        """
+        Splits a time history into measurement frames with a given overlap and
+        window function applied.
+
+        Parameters
+        ----------
+        samples_per_frame : int, optional
+            Number of samples in each measurement frame. Either this argument
+            or `frame_length` must be specified.  If both or neither are
+            specified, a `ValueError` is raised.
+        frame_length : float, optional
+            Length of each measurement frame in the same units as the `abscissa`
+            field (`samples_per_frame` = `frame_length`/`self.abscissa_spacing`).
+            Either this argument or `samples_per_frame` must be specified.  If
+            both or neither are specified, a `ValueError` is raised.
+        overlap : float, optional
+            Fraction of the measurement frame to overlap (i.e. 0.25 not 25 to
+            overlap a quarter of the frame). Either this argument or
+            `overlap_samples` must be specified.  If both are
+            specified, a `ValueError` is raised.  If neither are specified, no
+            overlap is used.
+        overlap_samples : int, optional
+            Number of samples in the measurement frame to overlap. Either this
+            argument or `overlap_samples` must be specified.  If both
+            are specified, a `ValueError` is raised.  If neither are specified,
+            no overlap is used.
+        window : str or tuple or array_like, optional
+            Desired window to use. If window is a string or tuple, it is passed
+            to `scipy.signal.get_window` to generate the window values, which
+            are DFT-even by default. See `get_window` for a list of windows and
+            required parameters. If window is array_like it will be used
+            directly as the window and its length must be `samples_per_frame`.
+            If not specified, no window will be applied.
+        check_cola : bool, optional
+            If `True`, raise a `ValueError` if the specified overlap and window
+            function are not compatible with COLA. The default is False.
+        allow_fractional_frames : bool, optional
+            If `False` (default), the signal will be split into a number of
+            full frames, and any remaining fractional frame will be discarded.
+            This will not allow COLA to be satisfied.
+            If `True`, fractional frames will be retained and zero padded to
+            create a full frames.
+
+        Returns
+        -------
+        TimeHistoryArray
+            Returns a new TimeHistoryArray with shape [num_frames,...] where
+            ... is the shape of the original array.
+
+        """
+        # Check to see that the arguments were specified correctly
+        if samples_per_frame is None and frame_length is None:
+            raise ValueError('One of `samples_per_frame` or `frame_length` must be specified')
+        elif samples_per_frame is not None and frame_length is not None:
+            raise ValueError('`samples_per_frame` can not be specified along with `frame_length`')
+        if overlap is None and overlap_samples is None:
+            overlap_samples = 0
+        elif overlap is not None and overlap_samples is not None:
+            raise ValueError('`overlap` can not be specified along with `overlap_samples`')
+        # Compute samples_per_frame and overlap_samples
+        if samples_per_frame is None:
+            samples_per_frame = int(np.round(frame_length/self.abscissa_spacing))
+        # Make sure that we have an even number of samples per frame.
+        if samples_per_frame % 2 == 1:
+            raise ValueError('`samples_per_frame` must be an even number')
+        if overlap_samples is None:
+            overlap_samples = int(np.round(samples_per_frame*overlap))
+        
+        # If partial frames, then we will zero pad to make it the right length
+        if allow_fractional_frames:
+            self = self.zero_pad(samples_per_frame*2,left=True,right=True)
+        num_frames = int(np.floor((self.num_elements-overlap_samples)/(samples_per_frame - overlap_samples)))
+        frame_indices = np.arange(samples_per_frame) + np.arange(num_frames)[:,np.newaxis]*(samples_per_frame-overlap_samples)
+        # See if we need to truncate empty frames
+        if allow_fractional_frames:
+            # Get rid of the first frame which is all zeros
+            frame_indices = frame_indices[1:]
+            # See if we need to get rid of the last frame, which could be all
+            # zeros
+            if frame_indices[-1,-1] + 1 == self.num_elements:
+                frame_indices = frame_indices[:-1]
+        
+        # Put the "frame" axis at the front of the new array so all other parameters
+        # can broadcast out across measurement frames
+        new_abscissa = np.moveaxis(self.abscissa[...,frame_indices],-2,0)
+        new_ordinate = np.moveaxis(self.ordinate[...,frame_indices],-2,0)
+        
+        # Now apply the window
+        if window is None:
+            window = 'boxcar'
+        if isinstance(window,str) or isinstance(window,tuple):
+            window = get_window(window, samples_per_frame)
+        try:
+            new_ordinate *= window
+        except ValueError:
+            raise ValueError('Could Not Multiply Window Function (shape {:}) by Ordinate (shape {:})'.format(window.shape,new_ordinate.shape))
+        if check_cola:
+            if not sig.check_COLA(window,samples_per_frame,overlap_samples):
+                raise ValueError('COLA Check Failed')
+                
+        return data_array(FunctionTypes.TIME_RESPONSE,new_abscissa,new_ordinate,
+                          self.coordinate,self.comment1,self.comment2,self.comment3,
+                          self.comment4,self.comment5)
+
+    def mimo_forward(self, transfer_function):
+        """
+        Performs the forward mimo calculation via convolution.
+
+        Parameters
+        ----------
+        transfer_function : TransferFunctionArray or ImpulseResponseFunctionArray
+            This is the FRFs that will be used in the forward problem. A matrix of IRFs 
+            is prefered, but FRFs can also be used, although the FRFs will be immediately 
+            converted to IRFs.
+
+        Raises
+        ------
+        ValueError
+            If the sampling rates for the data and IRFs/FRFs don't match.
+        ValueError
+            If the references in the IRFs/FRFs don't match the supplied input
+            data.  
+
+        Returns
+        -------
+        TimeHistoryArray
+            Response time histories
+            
+        """
+        # Converting FRFs to IRFs, if required
+        if isinstance(transfer_function, TransferFunctionArray):
+            transfer_function = transfer_function.ifft()
+
+        # Some initial organization
+        transfer_function = transfer_function.reshape_to_matrix()
+        reference_dofs = transfer_function.reference_coordinate[0, :]
+        response_dofs = transfer_function.response_coordinate[:, 0]
+        self = self[reference_dofs[..., np.newaxis]]
+        irfs = np.moveaxis(transfer_function.ordinate, -2, 0)
+        num_references,number_responses,model_order = irfs.shape
+        signal_length = self.num_elements
+
+        # Checking to see if the sampling rates are the same for both data sets
+        if not np.isclose(self.abscissa_spacing, transfer_function.abscissa_spacing):
+            raise ValueError('The transfer function sampling rate does not match the time data.')
+
+        # Setting up and doing the convolution
+        convolved_response = np.zeros((number_responses,signal_length), dtype=np.float64)
+        for reference_irfs,inputs in zip(irfs,self.ordinate):
+            convolved_response += oaconvolve(reference_irfs, inputs[np.newaxis,:])[:,:signal_length]
+
+        return data_array(FunctionTypes.TIME_RESPONSE, self.abscissa[0], convolved_response, response_dofs[..., np.newaxis])
+
+    def mimo_inverse(self, transfer_function, 
+                     time_method = 'single_frame', 
+                     cola_frame_length = None,
+                     cola_window = 'hann',
+                     cola_overlap = None,
+                     zero_pad_length = None,
+                     inverse_method = 'standard',
+                     response_weighting_matrix = None,
+                     reference_weighting_matrix = None,
+                     regularization_weighting_matrix = None,
+                     regularization_parameter = None,
+                     cond_num_threshold = None,
+                     num_retained_values = None):
+        """
+        Performs the inverse source estimation for time domain (transient) problems
+        using Fourier deconvolution. The response nodes used in the inverse source
+        estimation are the ones contained in the supplied FRF matrix.
+
+        Parameters
+        ----------
+        transer_function : TransferFunctionArray or ImpulseResponseFunctionArray
+            This is the FRFs that will be used in the inverse source estimation 
+        time_method : str, optional
+            The method to used to handle the time data for the inverse source 
+            estimation. The available options are:
+                - single_frame - this method performs the Fourier deconvolution
+                via an FFT on a single frame that encompases the entire time 
+                signal. 
+                - COLA - this method performs the Fourier deconvolution via a 
+                series of FFTs on relatively small frames of the time signal 
+                using a "constant overlap and add" method. This method may be 
+                faster than the single_frame method.
+        cola_frame_length : float, optional
+            The frame length (in samples) if the COLA method is being used. The
+            default frame length is Fs/df from the transfer function. 
+        cola_window : str, optional
+            The desired window for the COLA procedure, must exist in the scipy
+            window library. The default is a hann window.
+        cola_overlap : int, optional
+            The number of overlapping samples between measurement frames in the
+            COLA procedure.  If not specified, a default value of half the
+            cola_frame_length is used.
+        zero_pad_length : int, optional
+            The number of zeros used to pre and post pad the response data, to 
+            avoid convolution wrap-around error. The default is to use the 
+            "determine_zero_pad_length" function to determine the zero_pad_length.
+        inverse_method : str, optional
+            The method to be used for the FRF matrix inversions. The available 
+            methods are:
+                - standard - basic pseudo-inverse via numpy.linalg.pinv with the
+                  default rcond parameter, this is the default method
+                - threshold - pseudo-inverse via numpy.linalg.pinv with a specified
+                  condition number threshold
+                - tikhonov - pseudo-inverse using the Tikhonov regularization method
+                - truncation - pseudo-inverse where a fixed number of singular values
+                  are retained for the inverse 
+        response_weighting_matrix : sdpy.Matrix or np.ndarray, optional
+            Not currently implemented
+        reference_weighting_matrix : sdpy.Matrix or np.ndarray, optional
+            Not currently implemented
+        regularization_weighting_matrix : sdpy.Matrix, optional
+            Matrix used to weight input degrees of freedom via Tikhonov regularization.
+        regularization_parameter : float or np.ndarray, optional
+            Scaling parameter used on the regularization weighting matrix when the tikhonov
+            method is chosen. A vector of regularization parameters can be provided so the 
+            regularization is different at each frequency line. The vector must match the 
+            length of the FRF abscissa in this case (either be size [num_lines,] or [num_lines, 1]).
+        cond_num_threshold : float or np.ndarray, optional
+            Condition number used for SVD truncation when the threshold method is chosen. 
+            A vector of condition numbers can be provided so it varies as a function of 
+            frequency. The vector must match the length of the FRF abscissa in this case
+            (either be size [num_lines,] or [num_lines, 1]).
+        num_retained_values : float or np.ndarray, optional
+            Number of singular values to retain in the pseudo-inverse when the truncation 
+            method is chosen. A vector of can be provided so the number of retained values 
+            can change as a function of frequency. The vector must match the length of the 
+            FRF abscissa in this case (either be size [num_lines,] or [num_lines, 1]).
+
+        Raises
+        ------
+        NotImplementedError
+            If a response weighting matrix is supplied
+        NotImplementedError
+            If a reference weighting matrix is supplied
+        ValueError
+            If the sampling rates for the data and FRFs don't match.
+        ValueError
+            If the number of responses in the FRFs don't match the supplied response
+            data. 
+
+        Returns
+        -------
+        TimeHistoryArray
+            Time history array of the estimated sources
+
+        Notes
+        -----
+        This function computes the time domain inputs required to match the target time traces
+        using Fourier deconvolution, which is essentially a frequency domain problem. The general 
+        method is to compute the frequency spectrum of the target time traces, then solve the 
+        inverse problem in the time domain using the supplied FRFs (H^+ * X). The inverse of the 
+        FRF matrix is found using the same methods as the mimo_inverse function for the 
+        PowerSpectralDensityArray class. The input spectrum is then converted back to the time
+        domain via a inverse fourier transform.
+        
+        References
+        ----------
+        .. [1] Wikipedia, "Moore-Penrose inverse".
+               https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse
+        .. [2] A.N. Tithe, D.J. Thompson, The quantification of structure-borne transmission pathsby inverse methods. Part 2: Use of regularization techniques,
+               Journal of Sound and Vibration, Volume 264, Issue 2, 2003, Pages 433-451, ISSN 0022-460X, 
+               https://doi.org/10.1016/S0022-460X(02)01203-8.
+        .. [3] Wikipedia, "Ridge regression".
+               https://en.wikipedia.org/wiki/Ridge_regression
+        .. [4] Wikipedia, "Overlap-add Method".
+               https://en.wikipedia.org/wiki/Overlap-add_method
+        """        
+        # Converting IRFs to FRFs, if required
+        if isinstance(transfer_function, ImpulseResponseFunctionArray):
+            transfer_function = transfer_function.fft()
+            
+        # Initial orginization of the data
+        indexed_transfer_function = transfer_function.reshape_to_matrix()
+        irf = indexed_transfer_function.ifft()
+        response_dofs = indexed_transfer_function[:, 0].response_coordinate
+        reference_dofs = indexed_transfer_function[0,:].reference_coordinate
+
+        indexed_response_data = self[response_dofs[..., np.newaxis]]
+
+        number_responses,number_references = indexed_transfer_function.shape
+        model_order = irf.num_elements
+
+        # Checking to see if the sampling rates are the same for both data sets
+        fs_inputs = 1/indexed_response_data.abscissa_spacing
+        fs_frf = 1/irf.abscissa_spacing
+        if not np.isclose(fs_frf, fs_inputs):
+            raise ValueError('The transfer function sampling rate does not match the time data.')
+            
+        # Preparing the response data and FRFs for the source estimation
+        if time_method == 'single_frame':
+            # Zero pad for convolution wrap-around
+            if zero_pad_length is None:
+                padded_response = indexed_response_data.zero_pad(2*model_order, left=True, right = True,
+                                                use_next_fast_len = True)
+            else:
+                padded_response = indexed_response_data.zero_pad(zero_pad_length, left=True, right = True)
+            actual_zero_pad = padded_response.num_elements - indexed_response_data.num_elements
+            # Now make the FRFs the same size
+            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(padded_response.num_elements)
+            padded_frequency_domain_data = padded_response.fft()
+        elif time_method == 'cola':
+            if cola_frame_length is None:
+                cola_frame_length = int(fs_frf/indexed_transfer_function.abscissa_spacing)
+            if cola_overlap is None:
+                cola_overlap = cola_frame_length//2
+            # Split into measurement frames
+            segmented_data = indexed_response_data.split_into_frames(
+                samples_per_frame = cola_frame_length, 
+                overlap_samples = cola_overlap,
+                window = cola_window,
+                check_cola = True,
+                allow_fractional_frames = True)
+            # Zero pad
+            if zero_pad_length is None:
+                zero_padded_data = segmented_data.zero_pad(
+                    2*model_order,left=True,right=True,use_next_fast_len = True)
+            else:
+                zero_padded_data = segmented_data.zero_pad(
+                    zero_pad_length, left=True, right = True)
+            actual_zero_pad = zero_padded_data.num_elements - segmented_data.num_elements
+            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(zero_padded_data.num_elements)
+            padded_frequency_domain_data = zero_padded_data.fft()
+        else:
+            raise NameError('The selected time method is not available')
+            
+        # Need to interpolate the conditioning parameters to match the length of the padded
+        # FRFs
+        if cond_num_threshold is not None:
+            cond_num_threshold = np.asarray(cond_num_threshold, dtype = np.float64)
+            if cond_num_threshold.size > 1:
+                cond_num_threshold = interp1d(
+                    indexed_transfer_function[0,0].abscissa,
+                    cond_num_threshold,
+                    'linear',
+                    bounds_error=False,
+                    fill_value=(cond_num_threshold[0],cond_num_threshold[-1]),
+                    assume_sorted=True)(modified_frfs[0,0].abscissa)
+        if num_retained_values is not None:
+            num_retained_values = np.asarray(num_retained_values, dtype = np.intc)
+            if num_retained_values.size > 1:
+                num_retained_values = interp1d(
+                    indexed_transfer_function[0,0].abscissa,
+                    regularization_parameter,
+                    'previous',
+                    bounds_error=False,
+                    fill_value=(num_retained_values[0],num_retained_values[-1]),
+                    assume_sorted=True)(modified_frfs[0,0].abscissa)
+        if regularization_parameter is not None:
+            regularization_parameter = np.asarray(regularization_parameter, dtype = np.float64)
+            if regularization_parameter.size > 1:
+                regularization_parameter = interp1d(
+                    indexed_transfer_function[0,0].abscissa,
+                    regularization_parameter,
+                    'linear',
+                    bounds_error=False,
+                    fill_value=(regularization_parameter[0],regularization_parameter[-1]),
+                    assume_sorted=True)(modified_frfs[0,0].abscissa)
+
+        # Set up weighting matrices
+        if response_weighting_matrix is not None:
+            raise NotImplementedError('Response weighting has not been implemented yet')
+        if reference_weighting_matrix is not None:
+            raise NotImplementedError('Reference weighting has not been implemented yet')
+        if regularization_weighting_matrix is not None:
+            regularization_weighting_matrix = regularization_weighting_matrix[reference_dofs,reference_dofs].matrix
+
+        # Now solve the inverse problem
+        frf_pinv = frf_inverse(np.moveaxis(modified_frfs.ordinate,-1,0),
+                               method = inverse_method,
+                               response_weighting_matrix = response_weighting_matrix,
+                               reference_weighting_matrix = reference_weighting_matrix,
+                               regularization_weighting_matrix = regularization_weighting_matrix,
+                               regularization_parameter = regularization_parameter,
+                               cond_num_threshold = cond_num_threshold,
+                               num_retained_values = num_retained_values)
+        method_statement_start = 'The FRFs are being inverted using the '
+        method_statement_end = ' method'
+        print(method_statement_start+inverse_method+method_statement_end)
+
+        # Get the first modified frequency line above the original starting point of the FRF
+        inverse_start_index = np.argmax(modified_frfs[0,0].abscissa >= indexed_transfer_function[0,0].abscissa[0])
+
+        # Doing the source estimation
+        padded_frequency_domain_data = np.moveaxis(padded_frequency_domain_data.ordinate,-1,-2)[...,np.newaxis]
+        forces_frequency_domain = frf_pinv@padded_frequency_domain_data
+        forces_frequency_domain[..., :inverse_start_index, :, 0] = 0
+        forces_time_domain_with_padding = scipyfft.irfft(forces_frequency_domain[..., 0], axis = -2, norm = 'backward')
+        # Compute the zero padding used
+        pre_pad_length = actual_zero_pad//2
+        post_pad_length = actual_zero_pad - pre_pad_length
+        if time_method == 'single_frame':
+            forces_time_domain = forces_time_domain_with_padding[pre_pad_length:-post_pad_length, :]
+            return_val = data_array(FunctionTypes.TIME_RESPONSE, indexed_response_data[0].abscissa, np.moveaxis(forces_time_domain, 0, -1), 
+                              reference_dofs[..., np.newaxis])
+        elif time_method == 'cola':
+            forces_time_domain_with_padding = data_array(
+                FunctionTypes.TIME_RESPONSE,
+                zero_padded_data.abscissa[...,:1,:],
+                np.moveaxis(forces_time_domain_with_padding,-1,-2),
+                reference_dofs[:,np.newaxis])
+            
+            # Assemble the COLA
+            forces_time_domain_with_padding = TimeHistoryArray.overlap_and_add(
+                forces_time_domain_with_padding,
+                overlap_samples = actual_zero_pad + cola_overlap)
+            start_index = cola_frame_length - cola_overlap + pre_pad_length
+            end_index = start_index + indexed_response_data.num_elements
+            return_val = forces_time_domain_with_padding.idx_by_el[start_index:end_index]
+            
+            # Compute COLA weighting
+            window_fn = get_window(cola_window, cola_frame_length)
+            step = cola_frame_length - cola_overlap
+            weighting = np.median(sum(window_fn[ii*step:(ii+1)*step] for ii in range(cola_frame_length//step)))
+            return_val = return_val / weighting
+        
+        return return_val
 
     def rms(self):
         return np.sqrt(np.mean(self.ordinate**2, axis=-1))
 
+    def to_rattlesnake_specification(self,filename,coordinate_order = None,
+                                     min_time = None,
+                                     max_time = None):
+        if coordinate_order is not None:
+            if coordinate_order.ndim == 1:
+                coordinate_order = coordinate_order[:,np.newaxis]
+            reshaped_data = self[coordinate_order]
+        else:
+            reshaped_data = self
+        if min_time is not None or max_time is not None:
+            if min_time is None:
+                min_time = -np.inf
+            if max_time is None:
+                max_time = np.inf
+            reshaped_data = reshaped_data.extract_elements_by_abscissa(min_time,max_time)
+        np.savez(filename,
+                 t = reshaped_data[0].abscissa - reshaped_data[0].abscissa[0],
+                 signal = reshaped_data.ordinate)
 
+    def find_signal_shift(self,other_signal, 
+                          compute_subsample_shift = True,
+                          good_line_threshold = 0.01):
+        """
+        Computes the shift between two sets of time signals
+        
+        This is the amount that `other_signal` leads `self`.  If the time shift
+        is positive, it means that features in `other_signal` occur earlier in
+        time compared to `self`.  If the time shift is negative, it means that
+        features in `other_signal` occur later in time compared to `self`.
+        
+        To align two signals, you can take the time shift from this function and
+        pass it into the `shift_signal` method of `other_signal`.
+
+        Parameters
+        ----------
+        other_signal : TimeHistoryArray
+            The signal against which this signal should be compared in time.
+            It should have the same coordinate ordering and the same number of
+            abscissa as this signal.
+        compute_subsample_shift : bool, optional
+            If False, this function will simply align to the nearest sample.
+            If True, this function will attempt to use FFT phases to compute a
+            subsample shift between the signals.  Default is True.
+        good_line_threshold : float, optional
+            Threshold to use to compute "good" frequency lines.  This function
+            uses phase to compute subsample shifts.  If there are frequency
+            lines without content, they should be ignored.  Frequency lines less
+            than `good_line_threshold` times the maximum of the spectra are
+            ignored. The default is 0.01.
+
+        Returns
+        -------
+        time_shift : float
+            The time difference between the two signals.
+
+        """
+        this_fft = self.fft()
+
+        this_ordinate = this_fft.ordinate
+        other_ordinate = other_signal.fft().ordinate
+
+        correlation = np.fft.irfft(this_ordinate*other_ordinate.conj())
+        time_shift_indices = int(np.mean(np.argmax(correlation,axis=-1)))
+
+        # Roll the arrays to get them to align
+        shifted_signal = other_signal.copy()
+        shifted_signal.ordinate = np.roll(other_signal.ordinate,time_shift_indices,axis=-1)
+
+        dt = np.mean(np.diff(self.abscissa,axis=-1))
+        time_shift = dt*time_shift_indices
+
+        if compute_subsample_shift:
+            # Now compute the subsample shift
+            shifted_ordinate = shifted_signal.fft().ordinate
+    
+            # Only compute at frequency lines where there's signal
+            good_lines = np.abs(shifted_ordinate)/np.max(np.abs(shifted_ordinate),axis=-1,keepdims=True) > good_line_threshold
+            good_lines[...,0] = False
+    
+            phase_difference = np.angle(this_ordinate/shifted_ordinate)
+    
+            phase_slope = np.median(phase_difference[good_lines]/this_fft.abscissa[good_lines])
+    
+            time_shift -= phase_slope/(2*np.pi)
+        
+        # Wrap so it's negative if that's the smaller distance
+        if time_shift > dt*self.num_elements/2:
+            time_shift -= dt*self.num_elements
+        
+        return time_shift
+    
+    def shift_signal(self,time_shift):
+        """
+        Shift a signal in time by a specified amount.
+        
+        Utilizes the FFT shift theorem to move a signal in time.
+
+        Parameters
+        ----------
+        time_shift : float
+            The time shift to apply to the signal.  A negative value will cause
+            features to occur earlier in time.  A positive value will cause
+            features to occur later in time.
+
+        Returns
+        -------
+        shifted_signal : TimeHistoryArray
+            A shifted version of the original signal.
+
+        """
+        phase_shift_slope = -time_shift*2*np.pi
+        signal_fft = self.fft()
+
+        signal_fft.ordinate *= np.exp(1j*phase_shift_slope*signal_fft.flatten()[0].abscissa)
+
+        shifted_signal = signal_fft.ifft()
+        
+        return shifted_signal
+
+    @staticmethod
+    def overlap_and_add(functions_to_overlap, overlap_samples):
+        """
+        Creates a time history by overlapping and adding other time histories.
+
+        Parameters
+        ----------
+        functions_to_overlap : TimeHistoryArray or list of TimeHistoryArray
+            A set of TimeHistoryArrays to overlap and add together.  If a single
+            TimeHistoryArray is specified, then the first dimension will be used
+            to split the signal into segments.  All TimeHistoryArrays must have
+            the same shape and metadata, but need not have the same number of 
+            elements.
+        overlap_samples : int
+            Number of samples to overlap the segments as they are added together
+            
+
+        Returns
+        -------
+        TimeHistoryArray
+            A TimeHistoryArray consisting of the signals overlapped and added
+            together.
+            
+        Notes
+        -----
+        All metadata is taken from the first signal.  No checks are performed to
+        make sure that the subsequent functions have common coordinates or
+        abscissa spacing.
+        """
+        # First compute the final length of the signal
+        num_samples = functions_to_overlap[0].num_elements
+        for signal in functions_to_overlap[1:]:
+            num_samples += signal.num_elements-overlap_samples
+        # Set up the ordinate
+        ordinate = np.zeros(functions_to_overlap[0].shape+(num_samples,))
+        # Go through each frame and add it to the function
+        starting_index = 0
+        for signal in functions_to_overlap:
+            ordinate[...,starting_index:starting_index+signal.num_elements] += signal.ordinate
+            starting_index += signal.num_elements - overlap_samples
+        # Now set up the rest of the metadata
+        abscissa = functions_to_overlap[0].abscissa_spacing*np.arange(num_samples) + functions_to_overlap[0].abscissa.min()
+        return data_array(FunctionTypes.TIME_RESPONSE,abscissa,ordinate,
+                          functions_to_overlap[0].coordinate)
+
+    def remove_rigid_body_motion(self,geometry):
+        """
+        Removes rigid body displacements from time data.
+        
+        This function assumes the current TimeHistoryArray is a displacement
+        signal and adds it to the geometry to create node positions over time,
+        then it fits a rigid coordinate transformation to each time step and
+        subtracts off that portion of the motion from the displacement signal.
+
+        Parameters
+        ----------
+        geometry : Geometry
+            Geometry with which the node positions are computed
+
+        Returns
+        -------
+        TimeHistoryArray
+            A TimeHistoryArray with the rigid body component of motion removed
+
+        """
+        nodes = np.unique(self.coordinate.node)
+        dofs = coordinate_array(nodes[:,np.newaxis],[1,2,3])
+        sorted_self = self[dofs[...,np.newaxis]]
+        displacements = sorted_self.ordinate
+        abscissa = sorted_self.abscissa
+        starting_positions = geometry.node(nodes).coordinate[...,np.newaxis]
+        positions_over_time = displacements + starting_positions
+        # Rearrange indices to match the rigid transformation code
+        y = np.transpose(positions_over_time,[2,1,0])
+        x = np.transpose(starting_positions,[2,1,0])
+        R,t = lstsq_rigid_transform(x, y)
+        y_rigid = R@x+t
+        nonrigid_displacements = data_array(
+            FunctionTypes.TIME_RESPONSE,
+            abscissa,
+            np.transpose(y - y_rigid,[2,1,0]),
+            dofs[...,np.newaxis],
+            sorted_self.comment1,
+            sorted_self.comment2,
+            sorted_self.comment3,
+            sorted_self.comment4,
+            sorted_self.comment5)
+        return nonrigid_displacements[self.coordinate]
+    
+    def stft(self, samples_per_frame = None, frame_length = None,
+             overlap = None, overlap_samples = None, window = None,
+             check_cola = False, allow_fractional_frames = False,
+             norm = 'backward'):
+        """
+        Computes a Short-Time Fourier Transform (STFT)
+        
+        The time history is split up into frames with specified length and
+        computes the spectra for each frame.
+
+        Parameters
+        ----------
+        samples_per_frame : int, optional
+            Number of samples in each measurement frame. Either this argument
+            or `frame_length` must be specified.  If both or neither are
+            specified, a `ValueError` is raised.
+        frame_length : float, optional
+            Length of each measurement frame in the same units as the `abscissa`
+            field (`samples_per_frame` = `frame_length`/`self.abscissa_spacing`).
+            Either this argument or `samples_per_frame` must be specified.  If
+            both or neither are specified, a `ValueError` is raised.
+        overlap : float, optional
+            Fraction of the measurement frame to overlap (i.e. 0.25 not 25 to
+            overlap a quarter of the frame). Either this argument or
+            `overlap_samples` must be specified.  If both are
+            specified, a `ValueError` is raised.  If neither are specified, no
+            overlap is used.
+        overlap_samples : int, optional
+            Number of samples in the measurement frame to overlap. Either this
+            argument or `overlap_samples` must be specified.  If both
+            are specified, a `ValueError` is raised.  If neither are specified,
+            no overlap is used.
+        window : str or tuple or array_like, optional
+            Desired window to use. If window is a string or tuple, it is passed
+            to `scipy.signal.get_window` to generate the window values, which
+            are DFT-even by default. See `get_window` for a list of windows and
+            required parameters. If window is array_like it will be used
+            directly as the window and its length must be `samples_per_frame`.
+            If not specified, no window will be applied.
+        check_cola : bool, optional
+            If `True`, raise a `ValueError` if the specified overlap and window
+            function are not compatible with COLA. The default is False.
+        allow_fractional_frames : bool, optional
+            If `False` (default), the signal will be split into a number of
+            full frames, and any remaining fractional frame will be discarded.
+            This will not allow COLA to be satisfied.
+            If `True`, fractional frames will be retained and zero padded to
+            create a full frames.
+
+        Returns
+        -------
+        frame_abscissa : np.ndarray
+             The abscissa values at the center of each of the STFT frames
+        stft : SpectrumArray
+            A spectrum array with the first axis corresponding to the time
+            values in `frame_abscissa`.
+        """
+        split_frames = self.split_into_frames(
+            samples_per_frame, frame_length,
+             overlap, overlap_samples, window,
+             check_cola, allow_fractional_frames)
+        frame_abscissa = np.median(split_frames.abscissa,axis=-1)
+        stft = split_frames.fft(norm=norm)
+        return frame_abscissa,stft
+
+    @classmethod
+    def pseudorandom_signal(cls, dt, signal_length, coordinates,
+                            min_frequency = None, max_frequency = None,
+                            signal_rms = 1, frames = 1, frequency_shape = None,
+                            different_realizations = False,
+                            comment1 = '', comment2 = '', comment3 = '',
+                            comment4 = '', comment5 = ''):
+        """
+        Generates a pseudorandom signal at the specified coordinates
+
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        min_frequency : float, optional
+            Minimum frequency content in the signal. The default is the lowest
+            nonzero frequency line.
+        max_frequency : float, optional
+            Maximum frequency content in the signal. The default is the highest
+            frequency content in the signal, e.g. the Nyquist frequency.
+        signal_rms : float or np.ndarray, optional
+            RMS value for the generated signals. The default is 1.  The shape of
+            this value should be broadcastable with the size of the
+            generated TimeHistoryArray if different RMS values are desired for
+            each signal.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        frequency_shape : function, optional
+            An optional function that should accept a frequency value and return
+            an amplitude at that frequency. The default is constant scaling
+            across all frequency lines.
+        different_realizations : bool
+            An optional argument that specifies whether or not different
+            functions should have different realizations of the pseudorandom
+            signal, or if they should all be identical.
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+            
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified pseudorandom signal
+
+        """
+        # Compute signal processing parameters
+        total_frame_length = dt*signal_length
+        df = 1/total_frame_length
+        f_nyquist = 1/(2*dt)
+        fft_lines = f_nyquist/df
+        if frequency_shape is None:
+            frequency_shape = lambda freq: 1
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        ordinate = np.empty(coordinates.shape[:-1]+(signal_length*frames,))
+        if different_realizations:
+            for index in np.ndindex(coordinates.shape[:-1]):
+                ordinate[index] = pseudorandom(fft_lines,f_nyquist,
+                                               min_freq = min_frequency,
+                                               max_freq = max_frequency,
+                                               averages = frames,
+                                               shape_function = frequency_shape)[1]
+        else:
+            ordinate[...] = pseudorandom(fft_lines,f_nyquist,
+                                         min_freq = min_frequency,
+                                         max_freq = max_frequency,
+                                         averages = frames,
+                                         shape_function = frequency_shape)[1]
+        # Apply the RMS
+        current_rms = np.sqrt(np.mean(ordinate**2,axis=-1))
+        ordinate *= np.array(signal_rms)[...,np.newaxis]/current_rms[...,np.newaxis]
+        # Now create the object
+        abscissa = dt * np.arange(signal_length*frames)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+        
+    
+    @classmethod
+    def random_signal(cls, dt, signal_length, coordinates,
+                      min_frequency = None, max_frequency = None,
+                      signal_rms = 1, frames = 1, frequency_shape = None,
+                      comment1 = '', comment2 = '', comment3 = '',
+                      comment4 = '', comment5 = ''):
+        """
+        Generates a random signal with the specified parameters
+        
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        min_frequency : float, optional
+            Minimum frequency content in the signal. The default is the lowest
+            nonzero frequency line.
+        max_frequency : float, optional
+            Maximum frequency content in the signal. The default is the highest
+            frequency content in the signal, e.g. the Nyquist frequency.
+        signal_rms : float or np.ndarray, optional
+            RMS value for the generated signals. The default is 1.  The shape of
+            this value should be broadcastable with the size of the
+            generated TimeHistoryArray if different RMS values are desired for
+            each signal.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        frequency_shape : function, optional
+            An optional function that should accept a frequency value and return
+            an amplitude at that frequency. The default is constant scaling
+            across all frequency lines.
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified random signal
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        ordinate = np.random.randn(*coordinates.shape[:-1],signal_length*frames)
+        if (min_frequency is not None or max_frequency is not None or frequency_shape is not None):
+            if frequency_shape is None:
+                frequency_shape = lambda freq: 1
+            frequencies = np.fft.rfftfreq(signal_length*frames, dt)
+            fft = np.fft.rfft(ordinate,axis=-1)
+            for index,frequency in enumerate(frequencies):
+                if min_frequency is not None and frequency < min_frequency:
+                    fft[...,index] = 0
+                elif max_frequency is not None and frequency > max_frequency:
+                    fft[...,index] = 0
+                else:
+                    fft[...,index] *= frequency_shape(frequency)
+            ordinate = np.fft.irfft(fft,axis=-1)
+        # Now set RMS
+        current_rms = np.sqrt(np.mean(ordinate**2,axis=-1))
+        ordinate *= np.array(signal_rms)[...,np.newaxis]/current_rms[...,np.newaxis]
+        # Now create the object
+        abscissa = dt * np.arange(signal_length*frames)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
+    @classmethod
+    def sine_signal(cls, dt, signal_length, coordinates,
+                    frequency, amplitude = 1, phase = 0,
+                    comment1 = '', comment2 = '', comment3 = '',
+                    comment4 = '', comment5 = ''):
+        """
+        Creates a sinusoidal signal with the specified parameters
+
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        frequency : float or np.ndarray
+            Frequency of signal that will be generated.  If multiple frequencies
+            are specified, they must broadcast with the final size of the
+            TimeHistoryArray.
+        amplitude : TYPE, optional
+            Amplitude of signal that will be generated.  If multiple amplitudes
+            are specified, they must broadcast with the final size of the
+            TimeHistoryArray. The default is 1.
+        phase : TYPE, optional
+            Phase of signal that will be generated.  If multiple phases
+            are specified, they must broadcast with the final size of the
+            TimeHistoryArray.. The default is 0.
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified sine signal
+
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        ordinate = np.empty(coordinates.shape[:-1]+(signal_length,))
+        ordinate[...] = sine(frequency,dt,signal_length,amplitude,phase)
+        # Now create the object
+        abscissa = dt * np.arange(signal_length)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
+    @classmethod
+    def burst_random_signal(cls, dt, signal_length, coordinates,
+                            min_frequency = None, max_frequency = None,
+                            signal_rms = 1, frames = 1, frequency_shape = None,
+                            on_fraction = 0.5, delay_fraction = 0.0, 
+                            ramp_fraction = 0.05,
+                            comment1 = '', comment2 = '', comment3 = '',
+                            comment4 = '', comment5 = ''):
+        """
+        Generates a burst random signal with the specified parameters
+        
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        min_frequency : float, optional
+            Minimum frequency content in the signal. The default is the lowest
+            nonzero frequency line.
+        max_frequency : float, optional
+            Maximum frequency content in the signal. The default is the highest
+            frequency content in the signal, e.g. the Nyquist frequency.
+        signal_rms : float or np.ndarray, optional
+            RMS value for the generated signals. The default is 1.  The shape of
+            this value should be broadcastable with the size of the
+            generated TimeHistoryArray if different RMS values are desired for
+            each signal.  Note that the RMS will be computed for the "burst"
+            part of the signal and not include the zero portion of the signal.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        frequency_shape : function, optional
+            An optional function that should accept a frequency value and return
+            an amplitude at that frequency. The default is constant scaling
+            across all frequency lines.
+        on_fraction : float, optional
+            The fraction of the frame that the signal is active, default is 0.5.
+            This portion includes the ramp_fraction, so an on_fraction of 0.5 with
+            a ramp_fraction of 0.05 will be at full level for 0.5-2*0.05 = 0.4
+            fraction of the full measurement frame.
+        delay_fraction : float, optional
+            The fraction of the frame that is empty before the signal starts,
+            default is 0.0
+        ramp_fraction : float, optional
+            The fraction of the frame that is used to ramp between the off
+            and active signal
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified burst random signal
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        ordinate = np.random.randn(*coordinates.shape[:-1],signal_length*frames)
+        if (min_frequency is not None or max_frequency is not None or frequency_shape is not None):
+            if frequency_shape is None:
+                frequency_shape = lambda freq: 1
+            frequencies = np.fft.rfftfreq(signal_length*frames, dt)
+            fft = np.fft.rfft(ordinate,axis=-1)
+            for index,frequency in enumerate(frequencies):
+                if min_frequency is not None and frequency < min_frequency:
+                    fft[...,index] = 0
+                elif max_frequency is not None and frequency > max_frequency:
+                    fft[...,index] = 0
+                else:
+                    fft[...,index] *= frequency_shape(frequency)
+            ordinate = np.fft.irfft(fft,axis=-1)
+        # Now set RMS
+        current_rms = np.sqrt(np.mean(ordinate**2,axis=-1))
+        ordinate *= np.array(signal_rms)[...,np.newaxis]/current_rms[...,np.newaxis]
+        # Apply the window
+        delay_samples = int(delay_fraction * signal_length)
+        ramp_samples = int(ramp_fraction * signal_length)
+        on_samples = int(on_fraction * signal_length)
+        burst_window = np.zeros(coordinates.shape[:-1]+(signal_length,))
+        burst_window[..., delay_samples:delay_samples +
+                     on_samples] = ramp_envelope(on_samples, ramp_samples)
+        burst_window = np.tile(burst_window,frames)
+        ordinate *= burst_window
+        # Now create the object
+        abscissa = dt * np.arange(signal_length*frames)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
+    @classmethod
+    def chirp_signal(cls, dt, signal_length, coordinates,
+                     start_frequency = None, end_frequency = None,
+                     frames = 1, amplitude_function = None,
+                     force_integer_cycles = True,
+                     comment1 = '', comment2 = '', comment3 = '',
+                     comment4 = '', comment5 = ''):
+        """
+        Creates a chirp (sine sweep) signal with the specified parameters
+
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        start_frequency : TYPE, optional
+            Starting frequency content in the signal. The default is the lowest
+            nonzero frequency line.
+        end_frequency : TYPE, optional
+            Stopping frequency content in the signal. The default is the highest
+            non-nyquist frequency line.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        amplitude_function : function, optional
+            An optional function that should accept a frequency value and return
+            an amplitude at that frequency. The default is constant scaling
+            across all frequencies.  Multiple amplitudes can be returned as long
+            as they broadcast with the shape of the final TimeHistoryArray.
+        force_integer_cycles : bool, optional
+            If True, it will force an integer number of cycles, which will
+            adjust the maximum frequency of the signal.  This will ensure the
+            signal is continuous if repeated.  If False, the 
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified chirp signal
+
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        # Create the chirp
+        signal_length_in_time = dt*signal_length
+        df = 1/signal_length_in_time
+        if start_frequency is None:
+            start_frequency = df
+        if end_frequency is None:
+            end_frequency = 1/dt/2-df
+        ordinate = np.empty(coordinates.shape[:-1]+(signal_length,))
+        ordinate[...] = chirp(start_frequency,end_frequency,signal_length_in_time,
+                              dt,force_integer_cycles)
+        if amplitude_function is not None:
+            if force_integer_cycles:
+                n_cycles = np.ceil(end_frequency * signal_length_in_time)
+                end_frequency = n_cycles / signal_length_in_time
+            frequency_slope = (end_frequency - start_frequency) / signal_length
+            frequency_over_time = start_frequency + frequency_slope*np.arange(signal_length)
+            amplitude_over_time = np.array([amplitude_function(f) for f in frequency_over_time])
+            ordinate *= amplitude_over_time
+        # Create the measurement frames
+        ordinate = np.tile(ordinate,frames)
+        # Now create the object
+        abscissa = dt * np.arange(signal_length*frames)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
+    @classmethod
+    def pulse_signal(cls, dt, signal_length, coordinates,
+                     pulse_width = None, pulse_time = None, pulse_peak = 1,
+                     sine_exponent = 1, frames = 1,
+                     comment1 = '', comment2 = '', comment3 = '',
+                     comment4 = '', comment5 = ''):
+        """
+        Creates a pulse using a cosine function raised to a specified exponent
+
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        pulse_width : float, optional
+            With of the pulse in the same units as `dt`. The default is 5*dt.
+        pulse_time : float, optional
+            The time of the pulse's occurance in the same units as `dt`.
+            The default is 5*dt.
+        pulse_peak : float, optional
+            The peak amplitude of the pulse. The default is 1.
+        sine_exponent : float, optional
+            The exponent that the cosine function is raised to. The default is 1.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified pulse signal
+
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        ordinate = np.empty(coordinates.shape[:-1]+(signal_length,))
+        if pulse_time is None:
+            pulse_time = dt*5
+        if pulse_width is None:
+            pulse_width = dt*5
+        ordinate[...] = pulse(signal_length,pulse_time,pulse_width,pulse_peak,
+                              dt,sine_exponent)
+        # Create the measurement frames
+        ordinate = np.tile(ordinate,frames)
+        # Now create the object
+        abscissa = dt * np.arange(signal_length*frames)
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
+    @classmethod
+    def haversine_signal(cls, dt, signal_length, coordinates,
+                     pulse_width = None, pulse_time = None, pulse_peak = 1,
+                     frames = 1,
+                     comment1 = '', comment2 = '', comment3 = '',
+                     comment4 = '', comment5 = ''):
+        """
+        Creates a haversine pulse with the specified parameters
+
+        Parameters
+        ----------
+        dt : float
+            Abscissa spacing in the final signal.
+        signal_length : int
+            Number of samples in the signal
+        coordinates : CoordinateArray, optional
+            Coordinate array used to generate the signal.  If the last dimension
+            of coordinates is not shape 1, then a new axis will be added to make
+            it shape 1.  The shape of the resulting TimeHistoryArray will be
+            determined by the shape of the input coordinates.
+        pulse_width : float, optional
+            With of the pulse in the same units as `dt`. The default is 5*dt.
+        pulse_time : float, optional
+            The time of the pulse's peak occurance in the same units as `dt`.
+            The default is 5*dt.
+        pulse_peak : float, optional
+            The peak amplitude of the pulse. The default is 1.
+        frames : int, optional
+            Number of frames to generate.  These will essentially be repeats of
+            the first frame for the number of frames specified. The default is 1.
+        comment1 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment2 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment3 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment4 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+        comment5 : np.ndarray, optional
+            Comment used to describe the data in the data array. The default is ''.
+
+        Returns
+        -------
+        TimeHistoryArray :
+            A time history containing the specified haversine pulse signal
+
+        """
+        if np.array(coordinates).dtype.type is np.str_:
+            coordinates = coordinate_array(string_array=coordinates)
+        # Get coordinate size
+        if coordinates.ndim == 0 or coordinates.shape[-1] != 1:
+            coordinates = coordinates[...,np.newaxis]
+        abscissa_frame = np.arange(signal_length) * dt
+        ordinate = np.zeros(coordinates.shape[:-1]+(signal_length,))
+        if pulse_time is None:
+            pulse_time = dt*5
+        if pulse_width is None:
+            pulse_width = dt*5
+        pulse_time, pulse_width, pulse_peak = np.broadcast_arrays(pulse_time, pulse_width, pulse_peak)
+        for time, width, peak in zip(pulse_time.flatten(), pulse_width.flatten(), pulse_peak.flatten()):
+            period = width
+            argument = 2 * np.pi / period * (abscissa_frame - time)
+            ordinate += peak/2 * (1+np.cos(argument)) * (np.abs(argument) <= (np.pi))
+        # Create the measurement frames
+        ordinate = np.tile(ordinate,frames)
+        abscissa = dt * np.arange(signal_length*frames)
+        # Now create the object
+        time_history = data_array(FunctionTypes.TIME_RESPONSE,
+                                  abscissa,
+                                  ordinate,
+                                  coordinates,
+                                  comment1,comment2,comment3,comment4,comment5)
+        return time_history
+    
 # def time_history_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
 #     pass
 
@@ -1538,21 +3161,23 @@ class SpectrumArray(NDDataArray):
         """
         return FunctionTypes.SPECTRUM
 
-    def ifft(self, scaling=None, rtol=1, atol=1e-8):
+    def ifft(self, norm="backward", rtol=1, atol=1e-8, **scipy_irfft_kwargs):
         """
         Computes a time signal from the frequency spectrum
 
         Parameters
         ----------
-        scaling : str, optional
-            The type of scaling applied to the output spectra.  This is not
-            implemented yet. The default is None.
+        norm : str, optional
+            The type of normalization applied to the fft computation.
+            The default is "backward".
         rtol : float, optional
             Relative tolerance used in the abcsissa spacing check.
             The default is 1e-5.
         atol : float, optional
             Relative tolerance used in the abscissa spacing check.
             The default is 1e-8.
+        scipy_irfft_kwargs :
+            Additional keywords that will be passed to SciPy's irfft function.
 
         Raises
         ------
@@ -1572,13 +3197,51 @@ class SpectrumArray(NDDataArray):
         if not np.allclose(diffs, diffs[0], rtol, atol):
             raise ValueError('Abscissa must have identical spacing to perform the FFT')
         ordinate = self.ordinate
-        if not scaling is None:
-            raise NotImplementedError('Scaling is not implemented yet.')
-        ordinate = np.fft.irfft(ordinate, axis=-1)
+        ordinate = np.fft.irfft(ordinate, axis=-1, norm=norm, **scipy_irfft_kwargs)
         dt = 1 / (self.abscissa.max() * 2)
         abscissa = np.arange(ordinate.shape[-1]) * dt
         return data_array(FunctionTypes.TIME_RESPONSE, abscissa, ordinate, self.coordinate,
                           self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
+
+    def interpolate_by_zero_pad(self, time_response_padded_length,
+                                return_time_response = False):
+        """
+        Interpolates a spectrum by zero padding or truncating its
+        time response
+
+        Parameters
+        ----------
+        time_response_padded_length : int
+            Length of the final zero-padded time response
+        return_time_response : bool, optional
+            If True, the zero-padded impulse response function will be returned.
+            If False, it will be transformed back to a transfer function prior
+            to being returned.
+
+        Returns
+        -------
+        SpectrumArray or TimeHistoryArray:
+            Spectrum array with appropriately spaced abscissa
+            
+        Notes
+        -----
+        This function will automatically set the last frequency line of the
+        SpectrumArray to zero because it won't be accurate anyway.
+        If `time_response_padded_length` is less than the current function's
+        `num_elements`, then it will be truncated instead of zero-padded.
+        """
+        time_response = self.ifft()
+        if time_response_padded_length < time_response.num_elements:
+            time_response = time_response.idx_by_el[:time_response_padded_length]
+        else:
+            time_response = time_response.zero_pad(
+                time_response_padded_length - time_response.num_elements)
+        if return_time_response:
+            return time_response
+        else:
+            spectrum = time_response.fft()
+            spectrum.ordinate[...,-1] = 0
+            return spectrum
 
     def plot(self, one_axis=True, subplots_kwargs={}, plot_kwargs={}):
         """
@@ -1626,6 +3289,49 @@ class SpectrumArray(NDDataArray):
             axis = one_axis
             axis.plot(self.flatten().abscissa.T, np.abs(self.flatten().ordinate.T), **plot_kwargs)
         return axis
+    
+    def plot_spectrogram(self, abscissa = None, axis = None,
+                         subplots_kwargs = {},
+                         pcolormesh_kwargs = {'shading':'auto'},
+                         log_scale = True):
+        """
+        Plots a spectrogram 
+
+        Parameters
+        ----------
+        abscissa : np.ndarray
+            Optional argument to specify as the abscissa values.  If not 
+            specified, this will be the index of the flattened SpectrumArray.
+        axis : matplotlib.axis, optional
+            An optional argument that specifies the axis to plot the spectrogram
+            on
+        subplots_kwargs : dict, optional
+            Optional keywords to specify to the subplots function that creates
+            a new figure if `axis` is not specified.
+        pcolormesh_kwargs : dict, optional
+            Optional arguments to pass to the pcolormesh function
+        log_scale : bool
+            If True, the colormap will be applied logarithmically
+
+        Returns
+        -------
+        ax : matplotlib.axis
+            The axis on which the spectrogram was plotted
+        """
+        # Make sure the abscissa are common
+        self.validate_common_abscissa()
+        flat_self = self.flatten()
+        data = abs(self.ordinate)
+        if log_scale:
+            data = np.log(data)
+        y_coords = flat_self[0].abscissa
+        if abscissa is None:
+            abscissa = np.arange(self.size)
+        if axis is None:
+            fig,axis = plt.subplots(**subplots_kwargs)
+        axis.pcolormesh(abscissa,y_coords,data.T, **pcolormesh_kwargs)
+        return axis
+        
 
 # def spectrum_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
 #     pass
@@ -1752,10 +3458,14 @@ class PowerSpectralDensityArray(NDDataArray):
                           abscissa, np.moveaxis(output_matrix, 0, -1), output_dofs)
     
     def mimo_inverse(self, transfer_function,
+                     method = 'standard',
                      response_weighting_matrix = None,
-                     excitation_weighting_matrix = None,
+                     reference_weighting_matrix = None,
+                     regularization_weighting_matrix = None,
                      regularization_parameter = None,
-                     svd_regularization = None):
+                     cond_num_threshold = None,
+                     num_retained_values = None):
+        
         """
         Computes input estimation for MIMO random vibration problems
 
@@ -1764,16 +3474,53 @@ class PowerSpectralDensityArray(NDDataArray):
         transfer_function : TransferFunctionArray
             System transfer functions used to estimate the input from the given
             response matrix
-        response_weighting_matrix : sdpy.Matrix or np.ndarray, optional
-            Matrix used to weight response degrees of freedom.
-        excitation_weighting_matrix : sdpy.Matrix or np.ndarray, optional
-            Matrix used to weight input degrees of freedom
+        method : str, optional
+            The method to be used for the FRF matrix inversions. The available 
+            methods are:
+                - standard - basic pseudo-inverse via numpy.linalg.pinv with the
+                  default rcond parameter, this is the default method
+                - threshold - pseudo-inverse via numpy.linalg.pinv with a specified
+                  condition number threshold
+                - tikhonov - pseudo-inverse using the Tikhonov regularization method
+                - truncation - pseudo-inverse where a fixed number of singular values
+                  are retained for the inverse 
+        response_weighting_matrix : sdpy.Matrix, optional
+            Diagonal matrix used to weight response degrees of freedom (to solve the 
+            problem as a weight least squares) by multiplying the rows of the FRF 
+            matrix by a scalar weights. This matrix can also be a 3D matrix such that 
+            the the weights are different for each frequency line. The matrix should 
+            be sized [number of lines, number of references, number of references], 
+            where the number of lines either be one (the same weights at all frequencies) 
+            or the length of the abscissa (for the case where a 3D matrix is supplied).
+        reference_weighting_matrix : sdpy.Matrix, optional
+            Diagonal matrix used to weight reference degrees of freedom (generally for 
+            normalization) by multiplying the columns of the FRF matrix by a scalar weights. 
+            This matrix can also be a 3D matrix such that the the weights are different
+            for each frequency line. The matrix should be sized 
+            [number of lines, number of references, number of references], where the number 
+            of lines either be one (the same weights at all frequencies) or the length
+            of the abscissa (for the case where a 3D matrix is supplied).
+        regularization_weighting_matrix : sdpy.Matrix, optional
+            Matrix used to weight input degrees of freedom via Tikhonov regularization. 
+            This matrix can also be a 3D matrix such that the the weights are different
+            for each frequency line. The matrix should be sized 
+            [number of lines, number of references, number of references], where the number 
+            of lines either be one (the same weights at all frequencies) or the length
+            of the abscissa (for the case where a 3D matrix is supplied).
         regularization_parameter : float or np.ndarray, optional
-            Scaling parameter used on the excitation weighting matrix
-        svd_regularization : float, optional
-            Condition number used for SVD truncation.  Can be used alternatively
-            to the weighting matrices
-
+            Scaling parameter used on the regularization weighting matrix when the tikhonov
+            method is chosen. A vector of regularization parameters can be provided so the 
+            regularization is different at each frequency line. The vector must match the 
+            length of the abscissa in this case (either be size [num_lines,] or [num_lines, 1]).
+        cond_num_threshold : float or np.ndarray, optional
+            Condition number used for SVD truncation when the threshold method is chosen. 
+            A vector of condition numbers can be provided so it varies as a function of 
+            frequency. The vector must match the length of the abscissa in this case.
+        num_retained_values : float or np.ndarray, optional
+            Number of singular values to retain in the pseudo-inverse when the truncation 
+            method is chosen. A vector of can be provided so the number of retained values 
+            can change as a function of frequency. The vector must match the length of the 
+            abscissa in this case.
 
         Raises
         ------
@@ -1787,14 +3534,18 @@ class PowerSpectralDensityArray(NDDataArray):
             
         Notes
         -----
-        This function solves the MIMO problem Gxx = Hxv@Gvv@Hxv^* using the
-        pseudoinverse.  Gvv = Hxv^+@Gxx@Hxv^+^*.  We compute the pseudoinverse
-        Hxv^+ = (Hxv^T@W^T@W@Hxv + l*Z)^-1@Hxv^T@W^T
-        where W is the response_weighting_matrix, Z is the excitation_weighting_matrix,
-        and l is the regularization_parameter.  If these are not specified,
-        the SVD regularization is used, where the svd_regularization parameter
-        is passed as the rcond argument to np.linalg.pinv.
+        This function solves the MIMO problem Gxx = Hxv@Gvv@Hxv^* using the pseudoinverse.  
+        Gvv = Hxv^+@Gxx@Hxv^+^*, where Gvv is the source.
 
+        References
+        ----------
+        .. [1] Wikipedia, "Moore-Penrose inverse".
+               https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse
+        .. [2] A.N. Tithe, D.J. Thompson, The quantification of structure-borne transmission pathsby inverse methods. Part 2: Use of regularization techniques,
+               Journal of Sound and Vibration, Volume 264, Issue 2, 2003, Pages 433-451, ISSN 0022-460X, 
+               https://doi.org/10.1016/S0022-460X(02)01203-8.
+        .. [3] Wikipedia, "Ridge regression".
+               https://en.wikipedia.org/wiki/Ridge_regression
         """
         # Check consistent abscissa
         abscissa = self.flatten()[0].abscissa
@@ -1812,25 +3563,29 @@ class PowerSpectralDensityArray(NDDataArray):
         frf_matrix = np.moveaxis(transfer_function.ordinate,-1,0)
         cpsd_matrix = np.moveaxis(self[cpsd_dofs].ordinate.copy(),-1,0)
         # Perform the generalized inversion
-        if (response_weighting_matrix is None and
-            excitation_weighting_matrix is None and
-            regularization_parameter is None):
-            frf_pinv = np.linalg.pinv(frf_matrix,rcond=1e-15 if svd_regularization is None else svd_regularization)
-        else:
-            if response_weighting_matrix is not None:
-                if isinstance(response_weighting_matrix,Matrix):
-                    response_weighting_matrix = response_weighting_matrix[response_dofs,response_dofs]
-                frf_matrix = response_weighting_matrix@frf_matrix
-                cpsd_matrix = response_weighting_matrix @ cpsd_matrix @ np.moveaxis(response_weighting_matrix.conj(),-1,-2)
-            if regularization_parameter is None:
-                regularization_parameter = 0
-            if excitation_weighting_matrix is None:
-                excitation_weighting_matrix = 0
-            elif isinstance(excitation_weighting_matrix,Matrix):
-                excitation_weighting_matrix = excitation_weighting_matrix[reference_dofs,reference_dofs]
-            frf_matrix_H = np.moveaxis(frf_matrix.conj(),-1,-2)
-            frf_pinv = np.linalg.solve((frf_matrix_H@frf_matrix+regularization_parameter*excitation_weighting_matrix),frf_matrix_H)
+        if response_weighting_matrix is not None:
+            if isinstance(response_weighting_matrix,Matrix):
+                response_weighting_matrix = response_weighting_matrix[response_dofs,response_dofs]
+            cpsd_matrix = response_weighting_matrix @ cpsd_matrix @ np.moveaxis(response_weighting_matrix.conj(),-1,-2)
+        if reference_weighting_matrix is not None:
+            if isinstance(reference_weighting_matrix,Matrix):
+                reference_weighting_matrix = reference_weighting_matrix[reference_dofs,reference_dofs]
+        if isinstance(regularization_weighting_matrix,Matrix):
+            regularization_weighting_matrix = regularization_weighting_matrix[reference_dofs,reference_dofs]
+        frf_pinv = frf_inverse(frf_matrix,
+                               method = method,
+                               response_weighting_matrix = response_weighting_matrix,
+                               reference_weighting_matrix = reference_weighting_matrix,
+                               regularization_weighting_matrix = regularization_weighting_matrix,
+                               regularization_parameter = regularization_parameter,
+                               cond_num_threshold = cond_num_threshold,
+                               num_retained_values = num_retained_values)
+        method_statement_start = 'The inputs are being computed using the '
+        method_statement_end = ' method'
+        print(method_statement_start+method+method_statement_end)
         output_matrix = frf_pinv @ cpsd_matrix @ np.moveaxis(frf_pinv.conj(),-1,-2)
+        if reference_weighting_matrix is not None:
+            output_matrix = reference_weighting_matrix@output_matrix@reference_weighting_matrix
         return data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
                           abscissa, np.moveaxis(output_matrix, 0, -1), output_dofs)
     
@@ -1952,6 +3707,51 @@ class PowerSpectralDensityArray(NDDataArray):
             ax.set_ylabel('RMS dB Error')
         fig.tight_layout()
         return return_data
+    
+    def svd(self, full_matrices = True, compute_uv= True, as_matrix = True):
+        """
+        Compute the SVD of the provided FRF matrix
+
+        Parameters
+        ----------
+        full_matrices : bool, optional
+            This is an optional input for np.linalg.svd
+        compute_uv : bool, optional
+            This is an optional input for np.linalg.svd
+        as_matrix : bool, optional
+            If True, matrices are returned as a SDynPy Matrix class with named
+            rows and columns.  Otherwise, a simple numpy array is returned
+
+        Returns
+        -------
+        u : ndarray
+            Left hand singular vectors, sized [..., num_responses, num_responses]. 
+            Only returned when compute_uv is True.
+        s : ndarray
+            Singular values, sized [..., num_references]
+        vh : ndarray
+            Right hand singular vectors, sized [..., num_references, num_references].
+            Only returned when compute_uv is True.
+        """
+        cpsd = self.reshape_to_matrix()
+        cpsdOrd = np.moveaxis(cpsd.ordinate, -1, 0)
+        if compute_uv == True:
+            u, s, vh = np.linalg.svd(cpsdOrd, full_matrices, compute_uv)
+            if as_matrix:
+                u = matrix(u,cpsd[:,0].response_coordinate,
+                           coordinate_array(np.arange(u.shape[-1])+1,0))
+                s = matrix(s[:,np.newaxis]*np.eye(s.shape[-1]),coordinate_array(np.arange(s.shape[-1])+1,0),
+                           coordinate_array(np.arange(s.shape[-1])+1,0))
+                vh = matrix(vh,coordinate_array(np.arange(vh.shape[-2])+1,0),
+                            cpsd[0,:].reference_coordinate,
+                           )
+            return u, s, vh
+        elif compute_uv == False:
+            s = np.linalg.svd(cpsdOrd, full_matrices, compute_uv)
+            if as_matrix:
+                 s = matrix(s[:,np.newaxis]*np.eye(s.shape[-1]),coordinate_array(np.arange(s.shape[-1])+1,0),
+                            coordinate_array(np.arange(s.shape[-1])+1,0))
+            return s
 
     def get_asd(self):
         """
@@ -1977,10 +3777,24 @@ class PowerSpectralDensityArray(NDDataArray):
 
         """
         asd = self.get_asd()
-        return np.sqrt(np.sum(asd.ordinate.real,axis=-1)*np.mean(np.diff(asd.abscissa,axis=-1),axis=-1))
+        abscissa_spacing = self.abscissa_spacing
+        return np.sqrt(np.sum(asd.ordinate.real,axis=-1)*abscissa_spacing)
+
+    def plot_asds(self, figure_kwargs = {}, linewidth = 1):
+        asds = self.get_asd()
+        try:
+            rms = asds.rms()
+        except ValueError:
+            rms = None
+        ax = asds.plot(one_axis=False,subplots_kwargs=figure_kwargs, plot_kwargs={'linewidth':linewidth})
+        for i,a in enumerate(ax.flatten()):
+            if rms is not None:
+                a.set_ylabel(a.get_ylabel()+'\nRMS: {:0.4f}'.format(rms[i]))
+            a.set_yscale('log')
+        return ax
 
     @staticmethod
-    def plot_asds(figure_kwargs={}, linewidth=1,**cpsd_matrices):
+    def compare_asds(figure_kwargs={}, linewidth=1,**cpsd_matrices):
         """
         Plot the diagonals of the CPSD matrix, as well as the level
 
@@ -2007,7 +3821,7 @@ class PowerSpectralDensityArray(NDDataArray):
         """
         asds = {legend:cpsd.get_asd() for legend,cpsd in cpsd_matrices.items()}
         for i,(legend,asd) in enumerate(asds.items()):
-            this_dofs = np.unique(asd.coordinate)
+            this_dofs = np.unique(abs(asd.coordinate))
             this_abscissa = asd.abscissa
             if i == 0:
                 dofs = this_dofs
@@ -2015,7 +3829,7 @@ class PowerSpectralDensityArray(NDDataArray):
                 raise ValueError('CPSDs must have identical dofs')
         # Sort the dofs correctly
         asds = {legend:asd[np.tile(dofs[:,np.newaxis],2)] for legend,asd in asds.items()}
-        num_channels = len(this_dofs)
+        num_channels = len(dofs)
         ncols = int(np.floor(np.sqrt(num_channels)))
         nrows = int(np.ceil(num_channels / ncols))
         total_rows = nrows + 1
@@ -2071,6 +3885,38 @@ class PowerSpectralDensityArray(NDDataArray):
         ax_position = ax.get_position()
         ax_position.x1 -= figure_fraction
         ax.set_position(ax_position)
+
+    def plot_singular_values(self, rcond = None, min_freqency = None, max_frequency = None):
+        """
+        Plot the singular values of an FRF matrix with a visualization of the rcond tolerance
+
+        Parameters
+        ----------
+        rcond : value of float, optional
+            Cutoff for small singular values. Implemented such that the cutoff is rcond*
+            largest_singular_value (the same as np.linalg.pinv). This is to visualize the 
+            effect of rcond and is used for display purposes only.
+        min_frequency : float, optional
+            Minimum frequency to plot
+        max_frequency : float, optional
+            Maximum frequency to plot
+
+        """
+        freq = self.flatten().abscissa[0, :]
+        s_cpsd = self.svd(compute_uv=False, as_matrix = False)
+        plt.figure()
+        plt.semilogy(freq, s_cpsd)
+        if rcond != None:
+            cutoff = s_cpsd[:, 0] * rcond
+            plt.semilogy(freq, cutoff, color = 'k', linestyle = 'dashed', linewidth = 3)
+        plt.grid()
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Singular Values')
+        plt.title('Singular Values of CPSD Matrix')    
+        if min_freqency != None:
+            plt.xlim(left = min_freqency)
+        if max_frequency != None:
+            plt.xlim(right = max_frequency)
         
     def coherence(self):
         """
@@ -2139,7 +3985,7 @@ class PowerSpectralDensityArray(NDDataArray):
         cpsd_matrix = cpsd_from_coh_phs(asd_matrix,coherence_matrix,phase_matrix)
         output = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
                             asds[0].abscissa,np.moveaxis(cpsd_matrix,0,-1),
-                            dofs)[self.coordinate]
+                            dofs)[dofs]
         return output
 
     @classmethod
@@ -2335,9 +4181,18 @@ class PowerSpectralDensityArray(NDDataArray):
                 ax[i,j].tick_params(axis='x',direction='in')
                 ax[i,j].tick_params(axis='y',direction='in')
                 
-    def to_rattlesnake_specification(self,filename,coordinate_order = None,
+    def to_rattlesnake_specification(self,filename = None,
+                                     coordinate_order = None,
                                      min_frequency = None,
-                                     max_frequency = None):
+                                     max_frequency = None,
+                                     upper_warning_db = None,
+                                     lower_warning_db = None,
+                                     upper_abort_db = None,
+                                     lower_abort_db = None,
+                                     upper_warning_psd = None,
+                                     lower_warning_psd = None,
+                                     upper_abort_psd = None,
+                                     lower_abort_psd = None):
         if coordinate_order is not None:
             coordinate_array = outer_product(coordinate_order)
             reshaped_data = self[coordinate_array]
@@ -2349,15 +4204,59 @@ class PowerSpectralDensityArray(NDDataArray):
             if not np.all(self.coordinate[...,0] == self.coordinate[...,1].T):
                 raise ValueError('Row and column coordinates of the CPSD matrix are not ordered identically')
             reshaped_data = self
+            coordinate_array = reshaped_data.coordinate
         if min_frequency is not None or max_frequency is not None:
             if min_frequency is None:
                 min_frequency = -np.inf
             if max_frequency is None:
                 max_frequency = np.inf
             reshaped_data = reshaped_data.extract_elements_by_abscissa(min_frequency,max_frequency)
-        np.savez(filename,
-                 f = reshaped_data[0,0].abscissa,
-                 cpsd = np.moveaxis(reshaped_data.ordinate,-1,0))
+        out_dict = dict(
+            f = reshaped_data[0,0].abscissa,
+            cpsd = np.moveaxis(reshaped_data.ordinate,-1,0))
+        if upper_warning_db is not None:
+            out_dict['warning_upper'] = np.einsum('ijj->ij',out_dict['cpsd']*db2scale(upper_warning_db)**2).real
+        if lower_warning_db is not None:
+            out_dict['warning_lower'] = np.einsum('ijj->ij',out_dict['cpsd']*db2scale(lower_warning_db)**2).real
+        if upper_abort_db is not None:
+            out_dict['abort_upper'] = np.einsum('ijj->ij',out_dict['cpsd']*db2scale(upper_abort_db)**2).real
+        if lower_abort_db is not None:
+            out_dict['abort_lower'] = np.einsum('ijj->ij',out_dict['cpsd']*db2scale(lower_abort_db)**2).real
+        if upper_warning_psd is not None:
+            signal = upper_warning_psd
+            reshaped_signal = signal[np.einsum('iij->ij',coordinate_array)]
+            if min_frequency is not None or max_frequency is not None:
+                reshaped_signal = reshaped_signal.extract_elements_by_abscissa(min_frequency,max_frequency)
+            if np.any(np.einsum('jji->ji',reshaped_data.abscissa) != reshaped_signal.abscissa):
+                raise ValueError('Abscissa specified by upper warning signal is not equal to the specification signal')
+            out_dict['warning_upper'] = np.moveaxis(reshaped_signal.ordinate,-1,0).real
+        if lower_warning_psd is not None:
+            signal = lower_warning_psd
+            reshaped_signal = signal[np.einsum('iij->ij',coordinate_array)]
+            if min_frequency is not None or max_frequency is not None:
+                reshaped_signal = reshaped_signal.extract_elements_by_abscissa(min_frequency,max_frequency)
+            if np.any(np.einsum('jji->ji',reshaped_data.abscissa) != reshaped_signal.abscissa):
+                raise ValueError('Abscissa specified by lower warning signal is not equal to the specification signal')
+            out_dict['warning_lower'] = np.moveaxis(reshaped_signal.ordinate,-1,0).real
+        if upper_abort_psd is not None:
+            signal = upper_abort_psd
+            reshaped_signal = signal[np.einsum('iij->ij',coordinate_array)]
+            if min_frequency is not None or max_frequency is not None:
+                reshaped_signal = reshaped_signal.extract_elements_by_abscissa(min_frequency,max_frequency)
+            if np.any(np.einsum('jji->ji',reshaped_data.abscissa) != reshaped_signal.abscissa):
+                raise ValueError('Abscissa specified by upper abort signal is not equal to the specification signal')
+            out_dict['abort_upper'] = np.moveaxis(reshaped_signal.ordinate,-1,0).real
+        if lower_abort_psd is not None:
+            signal = lower_abort_psd
+            reshaped_signal = signal[np.einsum('iij->ij',coordinate_array)]
+            if min_frequency is not None or max_frequency is not None:
+                reshaped_signal = reshaped_signal.extract_elements_by_abscissa(min_frequency,max_frequency)
+            if np.any(np.einsum('jji->ji',reshaped_data.abscissa) != reshaped_signal.abscissa):
+                raise ValueError('Abscissa specified by lower abort signal is not equal to the specification signal')
+            out_dict['abort_lower'] = np.moveaxis(reshaped_signal.ordinate,-1,0).real
+        if filename is not None:
+            np.savez(filename,**out_dict)
+        return out_dict
     
 class PowerSpectrumArray(NDDataArray):
     """Data array used to store power spectra arrays"""
@@ -2444,6 +4343,191 @@ class TransferFunctionArray(NDDataArray):
                                    ref_data.coordinate.flatten())
         return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                           freq, np.moveaxis(frf, 0, -1), coordinate)
+
+    def ifft(self, norm = "backward", **scipy_irfft_kwargs):
+        """
+        Converts frequency response functions to impulse response functions via an
+        inverse fourier transform.
+        
+        Paramters
+        ---------
+        norm : str, optional
+            The type of normalization applied to the fft computation.
+        scipy_irfft_kwargs :
+            Additional keywords that will be passed to SciPy's irfft function.
+
+        Raises
+        ------
+        Warning
+            Raised if the transfer function array does not have evenly spaced 
+            frequency data in the 0-maximum frequency range, but appears to have been 
+            high pass filtered.
+        ValueError
+            Raised if the transfer function array does not have evenly spaced 
+            frequency data in the 0-maximum frequency range and it does not appear 
+            to have been high pass filtered. 
+
+        Returns
+        -------
+        ImpulseResponseFunctionArray
+            The impulse response function array computed from the transfer function
+            array.
+        """
+        
+        frfs = self.reshape_to_matrix()
+        
+        # Getting some initial sampling parameters for the transform
+        number_spectral_lines = len(frfs[0, 0].ordinate) - 1
+        df = frfs[0, 0].abscissa[1] - frfs[0, 0].abscissa[0]
+        number_samples = int(2 * (frfs[0, 0].abscissa[-1]/df))
+        number_lines = int(number_samples / 2 + 1)
+        start_freq = frfs[0, 0].abscissa[0]
+        dt = 1/(2 * frfs[0, 0].abscissa[-1])
+      
+        # Determining if the data needs to be zero padded at low frequencies
+        if number_spectral_lines*2 != number_samples and start_freq != 0:
+            warnings.warn('The FRFs are missing some frequency data and it is assumed that this is due to some high pass cut-off. The data is being zero padded at low frequencies.')
+            start_index = int(start_freq/df) # need to check that this indexing makes sense
+        elif number_spectral_lines*2 != number_samples and start_freq == 0:
+            raise ValueError('The FRFs are missing some frequency data and it cannot be determined what is missing. The frequency data should be in the 0-Fs/2 range.')
+        else:
+            start_index = 0
+
+        # Organizing the FRFs for the ifft, this handles the zero padding if low frequency 
+        # data is missing
+        frfs_ordinate = np.moveaxis(frfs.ordinate, -1, 0)
+        frf_ordinate_for_transform = np.zeros((number_lines, frfs_ordinate.shape[1], frfs_ordinate.shape[2]), dtype=np.complex128)
+        frf_ordinate_for_transform[start_index:, :, :] = frfs_ordinate 
+
+        irfs = scipyfft.irfft(frf_ordinate_for_transform, axis = 0, n = number_samples, norm = norm, **scipy_irfft_kwargs)
+
+        # Building the time vectors
+        time_vector = (dt * np.arange(number_samples)) + dt
+        abscissa = np.broadcast_to(time_vector[..., np.newaxis, np.newaxis], irfs.shape)
+
+        return data_array(FunctionTypes.IMPULSE_RESPONSE_FUNCTION, np.moveaxis(abscissa,0,-1), np.moveaxis(np.real(irfs), 0, -1), frfs.coordinate)
+    
+    def enforce_causality(self, method = 'exponential_taper',
+                          window_parameter = None, 
+                          end_of_ringdown = None):
+        """
+        Enforces causality on the frequency response function via a conversion 
+        to a impulse response function, applying a cutoff window, then converting 
+        back to a frequency response function. 
+
+        Parameters
+        ----------
+        method : str
+            The window type that is applied to the data to enforce causality. 
+            Note that these options are not necessarily traditional windows 
+            (used for data processing). The current options are:
+                - exponential_taper (default) - this applies a exponential taper 
+                to the end of a boxcar window on the IRF. 
+                - boxcar - this applies a boxcar (uniform) window to the IRF
+                with the cuttoff at a specified sample. 
+                - exponential - this applies an exponential window to the IRF 
+                with the 40 dB down point (of the window) at a specified sample.
+                Care should be taken when using this window type, since it can 
+                lead to erratic behavior.
+        window_parameter : int, optional
+            This is a parameter that defines the window for the causality 
+            enforcement. Methods exist to define this parameter automatically
+            if it isn't provided. The behaviors for the options are:
+                - boxcar - the window_paramter is the sample after which the 
+                IRF is set to zero. It is the same as the end_of_ringdown
+                parameter for this window type.
+                - exponential - the window_parameter is where the 40 dB down
+                point is for the window. It is the same as the end_of_ringdown
+                parameter for this window type. 
+                - exponential_taper - the window_parameter is where the end point 
+                of the window (where the amplitude is 0.001), as defined by the 
+                number of samples after the uniform section of the window.
+        end_of_ringdown : int, optional
+            This is a parameter that defines the end of the uniform section of 
+            the exponetional_taper window. It is not used for either the boxcar
+            or exponential window. Methods exist to define this parameter 
+            automatically if it isn't provided. 
+            
+        Returns
+        -------
+        TransferFunctionArray
+            The FRF with causality enforced.
+
+        Notes
+        -----
+        This is a wrapper around the method in the impulse response function class 
+        and it may be wiser to use that function instead. 
+
+        Although optional, it is best practice for the user to supply a parameter
+        for the end_of_ringdown variable if the "exponential_taper" method is 
+        being used or a window_parameter if the "exponential" or "boxcar" methods 
+        are being used. The code will attempt to find the end of the ring-down in 
+        the IRF and use use that as the end_of_ringdown parameter for the 
+        "exponential_taper" window or the window_parameter for the exponential and 
+        boxcar windows.
+
+        It is not suggested that the user provide a window_paramter if the 
+        "exponential_taper" method is being used, since the default is likely the 
+        most logical choice.
+
+        References
+        ----------
+        .. [1] Zvonkin, M. (2015). Methods for checking and enforcing physical quality of linear electrical network models
+               [Masters Theses, Missouri University of Science and Technology], Missouri S&T Scholars' Mine, https://scholarsmine.mst.edu/masters_theses/7490/ 
+
+        """
+        irfs = self.ifft()
+        causal_irfs = irfs.enforce_causality(method = method,
+                                             window_parameter = window_parameter, 
+                                             end_of_ringdown = end_of_ringdown)
+        return causal_irfs.fft()
+
+    def svd(self, full_matrices = True, compute_uv= True, as_matrix = True):
+        """
+        Compute the SVD of the provided FRF matrix
+
+        Parameters
+        ----------
+        full_matrices : bool, optional
+            This is an optional input for np.linalg.svd, the default for this 
+            function is true (which differs from  the np.linalg.svd function).
+        compute_uv : bool, optional
+            This is an optional input for np.linalg.svd, the default for this 
+            function is true (which differs from the np.linalg.svd function).
+        as_matrix : bool, optional
+            If True, matrices are returned as a SDynPy Matrix class with named
+            rows and columns.  Otherwise, a simple numpy array is returned
+
+        Returns
+        -------
+        u : ndarray or Matrix
+            Left hand singular vectors, sized [..., num_responses, num_responses]. 
+            Only returned when compute_uv is True.
+        s : ndarray or Matrix
+            Singular values, sized [..., num_references]
+        vh : ndarray or Matrix
+            Right hand singular vectors, sized [..., num_references, num_references].
+            Only returned when compute_uv is True.
+        """
+        frf = self.reshape_to_matrix()
+        frfOrd = np.moveaxis(frf.ordinate, -1, 0)
+        if compute_uv == True:
+            u, s, vh = np.linalg.svd(frfOrd, full_matrices, compute_uv)
+            if as_matrix:
+                u = matrix(u,frf[:,0].response_coordinate,
+                           coordinate_array(np.arange(u.shape[-1])+1,0))
+                s = matrix(s[:,np.newaxis]*np.eye(s.shape[-1]),coordinate_array(np.arange(s.shape[-1])+1,0),
+                           coordinate_array(np.arange(s.shape[-1])+1,0))
+                vh = matrix(vh,coordinate_array(np.arange(vh.shape[-2])+1,0),
+                            frf[0,:].reference_coordinate,
+                           )
+            return u, s, vh
+        elif compute_uv == False:
+            s = np.linalg.svd(frfOrd, full_matrices, compute_uv)
+            if as_matrix:
+                 s = matrix(s[:,np.newaxis]*np.eye(s.shape[-1]),coordinate_array(np.arange(s.shape[-1])+1,0),
+                            coordinate_array(np.arange(s.shape[-1])+1,0))
+            return s
 
     def compute_mif(self, mif_type, *mif_args, **mif_kwargs):
         """
@@ -2539,7 +4623,7 @@ class TransferFunctionArray(NDDataArray):
             v = v_unshuffled
             s = s_unshuffled
         output_array = ModeIndicatorFunctionArray((s.shape[1],), s.shape[0])
-        output_array.response_coordinate = sdynpy_coordinate.coordinate_array(
+        output_array.response_coordinate = coordinate_array(
             np.arange(s.shape[1]) + 1, 0)
         output_array.ordinate = s.T
         output_array.abscissa = self.abscissa[(
@@ -2581,7 +4665,7 @@ class TransferFunctionArray(NDDataArray):
         output_array.abscissa = self.abscissa[(
             0,) * (self.abscissa.ndim - 1) + (slice(None, None, None),)]
         output_array.ordinate = nmif
-        output_array.response_coordinate = sdynpy_coordinate.coordinate_array(1, 0)
+        output_array.response_coordinate = coordinate_array(1, 0)
         return output_array
 
     def compute_mmif(self, part='real', mass_matrix=None):
@@ -2631,9 +4715,130 @@ class TransferFunctionArray(NDDataArray):
         output_array.abscissa = self.abscissa[(
             0,) * (self.abscissa.ndim - 1) + (slice(None, None, None),)]
         output_array.ordinate = mif_ordinate.T
-        output_array.response_coordinate = sdynpy_coordinate.coordinate_array(
+        output_array.response_coordinate = coordinate_array(
             np.arange(mif_ordinate.shape[1]) + 1, 0)
         return output_array
+
+    def plot_cond_num(self, number_retained_values = None, min_frequency = None, max_frequency = None):
+        """
+        Plots the condition number of the FRF matrix
+
+        Parameters
+        ----------
+        min_freqency : float, optional
+            Minimum frequency to plot. The default is None.
+        max_frequency : float, optional
+            Maximum frequency to plot. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        freq = self.flatten().abscissa[0, :]
+        s_frf = self.svd(full_matrices=False, compute_uv=False, as_matrix = False)
+        cond_num = s_frf[..., 0]/s_frf[..., -1]
+        figure, axis = plt.subplots(1, 1)
+        axis.plot(freq, cond_num, label = 'Unmodified Condition Number')
+        if number_retained_values is not None:
+            cutoff = np.zeros_like(s_frf[:, 1])
+            number_retained_values = np.asarray(number_retained_values, dtype = np.intc)
+            if number_retained_values.size == 1:
+                cutoff = s_frf[:, number_retained_values-1]
+            else:
+                for ii in range(len(number_retained_values)):
+                    cutoff[ii] = s_frf[ii, number_retained_values[ii]-1] 
+            axis.plot(freq, s_frf[..., 0]/cutoff, label = 'Modified Condition Number')
+            axis.legend()
+        axis.grid()
+        axis.set_xlabel('Frequency (Hz)')
+        axis.set_ylabel('Condition Number')
+        axis.set_title('Condition Number of FRF Matrix')
+        if min_frequency != None:
+            axis.set_xlim(left = min_frequency)
+            cond_num = cond_num[np.argmin(np.abs(freq-min_frequency)):]
+        if max_frequency != None:
+            axis.set_xlim(right = max_frequency)
+            cond_num = cond_num[:np.argmin(np.abs(freq-max_frequency))]
+        axis.set_ylim(bottom = 0, top = cond_num.max()*1.01)
+
+        return figure, axis
+
+    def plot_singular_values(self, rcond = None, 
+                             condition_number = None, 
+                             number_retained_values = None, 
+                             regularization_parameter = None, 
+                             min_frequency = None, 
+                             max_frequency = None):
+        """
+        Plot the singular values of an FRF matrix with a visualization of the rcond tolerance
+
+        Parameters
+        ----------
+        rcond : float or ndarray, optional
+            Cutoff for small singular values. Implemented such that the cutoff is rcond*
+            largest_singular_value (the same as np.linalg.pinv). This is to visualize the 
+            effect of rcond and is used for display purposes only. 
+        condition_number : float or ndarray, optional
+            Condition number threshold for small singular values. The condition number
+            is the reciprocal of rcond. This is to visualize the effect of condition 
+            number threshold and is used for display purposes only. 
+        number_retained_values : float or ndarray, optional 
+            Cutoff for small singular values a an integer value of number of values 
+            to retain. This is to visualize the effect of singular value truncation 
+            and is used for display purposes only. 
+        regularization_parameter: float or ndarray, optional
+            Regularization parameter to compute the modified singular values. This is
+            to visualize the effect of Tikhonov regularization and is used for display
+            purposes only. 
+        min_frequency : float, optional
+            Minimum frequency to plot
+        max_frequency : float, optional
+            Maximum frequency to plot
+        """
+        freq = self.flatten().abscissa[0, :]
+        s_frf = self.svd(compute_uv=False, as_matrix = False)
+        figure, axis = plt.subplots(1, 1)
+        axis.semilogy(freq, s_frf)
+        if rcond is not None:
+            cutoff = s_frf[:, 0] * rcond
+            axis.semilogy(freq, cutoff, color = 'k', linestyle = 'dashed', linewidth = 3)
+        if condition_number is not None:
+            threshold = s_frf[:, 0] / condition_number
+            cutoff = np.zeros_like(s_frf)
+            for ii in range(threshold.size):
+                number_values_above_cutoff = (s_frf[ii, :] > threshold[ii]).sum()
+                cutoff[ii, number_values_above_cutoff:] = s_frf[ii, number_values_above_cutoff:] 
+            cutoff[cutoff == 0] = np.nan
+            axis.semilogy(freq, cutoff, color = 'k', linestyle = 'dashed', linewidth = 3)
+        if number_retained_values is not None:
+            cutoff = np.zeros_like(s_frf[:, 1])
+            number_retained_values = np.asarray(number_retained_values, dtype = np.intc)
+            if number_retained_values.size == 1:
+                cutoff = s_frf[:, number_retained_values:]
+            else:
+                cutoff = np.zeros_like(s_frf)
+                for ii in range(len(number_retained_values)):
+                    cutoff[ii, number_retained_values[ii]:] = s_frf[ii, number_retained_values[ii]:] 
+            cutoff[cutoff == 0] = np.nan
+            axis.semilogy(freq, cutoff, color = 'k', linestyle = 'dashed', linewidth = 3)
+        if regularization_parameter is not None:
+            s_modified = compute_tikhonov_modified_singular_values(s_frf, regularization_parameter)
+            figure.gca().set_prop_cycle(None)
+            axis.semilogy(freq, s_modified, linestyle = 'dotted', linewidth = 4)
+        axis.grid()
+        axis.set_xlabel('Frequency (Hz)')
+        axis.set_ylabel('Singular Values')
+        axis.set_title('Singular Values of FRF Matrix')
+        if min_frequency != None:
+            axis.set_xlim(left = min_frequency)
+            s_frf = s_frf[np.argmin(np.abs(freq-min_frequency)):, :]
+        if max_frequency != None:
+            axis.set_xlim(right = max_frequency)
+            s_frf = s_frf[:np.argmin(np.abs(freq-max_frequency)), :]
+        axis.set_ylim(bottom = s_frf.min()*0.9, top = s_frf.max()*1.1)
+
+        return figure, axis
 
     def plot(self, one_axis=True, subplots_kwargs={}, plot_kwargs={}):
         """
@@ -2710,6 +4915,45 @@ class TransferFunctionArray(NDDataArray):
         Returns the function type of the data array
         """
         return FunctionTypes.FREQUENCY_RESPONSE_FUNCTION
+
+
+    def interpolate_by_zero_pad(self, irf_padded_length, return_irf = False):
+        """
+        Interpolates a transfer function by zero padding or truncating its
+        impulse response
+
+        Parameters
+        ----------
+        irf_padded_length : int
+            Length of the final zero-padded impulse response function
+        return_irf : bool, optional
+            If True, the zero-padded impulse response function will be returned.
+            If False, it will be transformed back to a transfer function prior
+            to being returned.
+
+        Returns
+        -------
+        TransferFunctionArray or ImpulseResponseFunctionArray:
+            Transfer function array with appropriately spaced abscissa
+            
+        Notes
+        -----
+        This function will automatically set the last frequency line of the
+        TransferFunctionArray to zero because it won't be accurate anyway.
+        If `irf_padded_length` is less than the current function's `num_elements`,
+        then it will be truncated instead of zero-padded.
+        """
+        irf = self.ifft()
+        if irf_padded_length < irf.num_elements:
+            irf = irf.idx_by_el[:irf_padded_length]
+        else:
+            irf = irf.zero_pad(irf_padded_length - irf.num_elements)
+        if return_irf:
+            return irf
+        else:
+            frf = irf.fft()
+            frf.ordinate[...,-1] = 0
+            return frf
 
     def substructure_by_constraint_matrix(self, dofs, constraint_matrix):
         """
@@ -2803,12 +5047,204 @@ class TransferFunctionArray(NDDataArray):
         for row, column, value in constraint_matrix_values:
             constraint_matrix[row, column] = value
         # Apply Constraints
-        dof_list = np.array(dof_list).view(sdynpy_coordinate.CoordinateArray)
+        dof_list = np.array(dof_list).view(CoordinateArray)
         return self.substructure_by_constraint_matrix(dof_list, constraint_matrix)
 
 # def transfer_function_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
 #     pass
 
+
+class ImpulseResponseFunctionArray(NDDataArray):
+    """Data array used to store impulse response functions"""
+    def __new__(subtype, shape, nelements, buffer=None, offset=0,
+                strides=None, order=None):
+        obj = super().__new__(subtype, shape, nelements, 2, 'float64', buffer, offset, strides, order)
+        return obj
+    
+    @property
+    def function_type(self):
+        """
+        Returns the function type of the data array
+        """
+        return FunctionTypes.IMPULSE_RESPONSE_FUNCTION
+
+    def fft(self, norm = 'backward', **scipy_rfft_kwargs):
+        """
+        Converts the impulse response function to a frequency response function 
+        using the fft function.
+        
+        Paramters
+        ---------
+        norm : str, optional
+            The type of normalization applied to the fft computation.
+        scipy_rfft_kwargs :
+            Additional keywords that will be passed to SciPy's rfft function.
+
+        Returns
+        -------
+        TransferFunctionArray
+            The transfer function array computed from the impusle response function
+            array.
+        """
+        # Some initial organization
+        irfs = self.reshape_to_matrix()
+        irf_ordinate = np.moveaxis(irfs.ordinate, -1, 0)
+
+        # Getting sampling parameters for the fft
+        number_samples = irf_ordinate.shape[0]
+        dt = irfs[0,0].abscissa[1] - irfs[0,0].abscissa[0]
+
+        # Doing the fft
+        frf_ordinate = scipyfft.rfft(irf_ordinate, axis = 0, norm = norm, **scipy_rfft_kwargs)
+        freq_vector = scipyfft.rfftfreq(number_samples, dt) 
+
+        # Broadcasting the frequency vector to the correct size
+        abscissa = np.broadcast_to(freq_vector[..., np.newaxis, np.newaxis], frf_ordinate.shape)
+
+        return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION, np.moveaxis(abscissa,0,-1), 
+                          np.moveaxis(frf_ordinate, 0, -1), irfs.coordinate)
+
+    def find_end_of_ringdown(self):
+        """
+        Finds the end of the ringdown in a impulse response function (IRF).
+        
+        It does this by smoothing the IRF via a moving average filter, then finding 
+        the index of the minimum of the smoothed IRF (for each response/reference 
+        pair). The "end of ringdown" is defined as the median of the possible 
+        indices.
+
+        Returns
+        -------
+        end_of_ringdow : int
+            Index that represents the end of the ringdown for the supplied IRFs.  
+        """
+        irf_ordinate = np.moveaxis(self.ordinate, -1, 0)
+
+        # Start off by performing a moving average on the IRF to make
+                # it easier to find the end of the ring down
+        moving_average_kernel_length = int(irf_ordinate.shape[0]/5)
+        moving_average_kernel = np.broadcast_to(np.ones(moving_average_kernel_length)[..., np.newaxis, np.newaxis], (moving_average_kernel_length, irf_ordinate.shape[1], irf_ordinate.shape[2]))
+        irf_moving_average = convolve(np.absolute(irf_ordinate), moving_average_kernel, mode = 'same')
+                
+        # Find where the smoothed version of the IRF is at a minimum and
+        # then using the median index (by channel) as the window_parameter
+        min_index = np.argmin(irf_moving_average, axis = 0)
+        end_of_ringdown = int(np.median(min_index))
+
+        return end_of_ringdown
+
+    def enforce_causality(self, method = 'exponential_taper',
+                          window_parameter = None, 
+                          end_of_ringdown = None):
+        """
+        Enforces causality on the impulse response function via a cutoff
+        of some sort. 
+
+        Parameters
+        ----------
+        method : str
+            The window type that is applied to the data to enforce causality. 
+            Note that these options are not necessarily traditional windows 
+            (used for data processing). The current options are:
+                - exponential_taper (default) - this applies a exponential taper 
+                to the end of a boxcar window on the IRF. 
+                - boxcar - this applies a boxcar (uniform) window to the IRF
+                with the cuttoff at a specified sample. 
+                - exponential - this applies an exponential window to the IRF 
+                with the 40 dB down point (of the window) at a specified sample.
+                Care should be taken when using this window type, since it can 
+                lead to erratic behavior.
+        window_parameter : int, optional
+            This is a parameter that defines the window for the causality 
+            enforcement. Methods exist to define this parameter automatically
+            if it isn't provided. The behaviors for the options are:
+                - boxcar - the window_paramter is the sample after which the 
+                IRF is set to zero. It is the same as the end_of_ringdown
+                parameter for this window type.
+                - exponential - the window_parameter is where the 40 dB down
+                point is for the window. It is the same as the end_of_ringdown
+                parameter for this window type. 
+                - exponential_taper - the window_parameter is where the end point 
+                of the window (where the amplitude is 0.001), as defined by the 
+                number of samples after the uniform section of the window.
+        end_of_ringdown : int, optional
+            This is a parameter that defines the end of the uniform section of 
+            the exponetional_taper window. It is not used for either the boxcar
+            or exponential window. Methods exist to define this parameter 
+            automatically if it isn't provided. 
+
+        Returns
+        -------
+        ImpulseResponseFunctionArray
+            The IRF with causality enforced.
+
+        Notes
+        -----
+        Although optional, it is best practice for the user to supply a parameter
+        for the end_of_ringdown variable if the "exponential_taper" method is 
+        being used or a window_parameter if the "exponential" or "boxcar" methods 
+        are being used. The code will attempt to find the end of the ring-down in 
+        the IRF and use use that as the end_of_ringdown parameter for the 
+        "exponential_taper" window or the window_parameter for the exponential and 
+        boxcar windows.
+
+        It is not suggested that the user provide a window_paramter if the 
+        "exponential_taper" method is being used, since the default is likely the 
+        most logical choice.
+
+        References
+        ----------
+        .. [1] Zvonkin, M. (2015). Methods for checking and enforcing physical quality of linear electrical network models
+               [Masters Theses, Missouri University of Science and Technology], Missouri S&T Scholars' Mine, https://scholarsmine.mst.edu/masters_theses/7490/ 
+        """
+        # Organizing the IRFs and pulling the ordinate out
+        irfs = self.reshape_to_matrix()
+        irf_ord = np.moveaxis(irfs.ordinate, -1, 0)
+        
+        if method == 'exponential_taper' and end_of_ringdown is None:
+            end_of_ringdown = self.find_end_of_ringdown()
+
+        if method == 'boxcar' and window_parameter is not None and window_parameter >= irf_ord.shape[0]:
+            raise ValueError('window parameter is greater than the IRF block size and creates an illogical window for the data')
+
+        if method in ['exponential', 'boxcar'] and window_parameter is None:
+            window_parameter = self.find_end_of_ringdown()
+
+        # Generating the desired window, based on the seleted method
+        if method == 'exponential_taper':
+            window = np.ones(irf_ord.shape[0])
+            window[end_of_ringdown:] = np.zeros(irf_ord.shape[0] - end_of_ringdown)
+            window_length = irf_ord.shape[0] - end_of_ringdown
+            if window_parameter is None:
+                window_parameter = window_length
+            window_tau = -(window_parameter-1)/np.log(0.001)
+            window[end_of_ringdown+np.arange(window_length)] = exponential(window_length, center = 0, tau = window_tau, sym = False)
+        elif method == 'exponential':
+            end_of_ringdown = window_parameter
+            window_tau = window_parameter*8.69/20
+            window = exponential(irf_ord.shape[0], center = 0, tau = window_tau, sym = False)
+        elif method == 'boxcar':
+            end_of_ringdown = window_parameter
+            window = np.ones(irf_ord.shape[0])
+            window[window_parameter:] = 0
+
+        # Setting up the time reversal window so the non-causal portion of the IRF can be added back to the IRFs
+        time_reversal_window = np.ones(irf_ord.shape[0]) - window
+        #time_reversal_window[:window_parameter] = 0, might need this if using an exponential window
+
+        method_statement_start = 'Causality is being enforced using '
+        method_statement_middle = ' method with a end_of_ringdown of '
+        print(method_statement_start+method+method_statement_middle+str(end_of_ringdown))
+
+        # Applying the window to the data for the causality enforcement
+        irf_causal_ord = irf_ord * window[..., np.newaxis, np.newaxis]
+        irf_noncausal_ord = irf_ord * time_reversal_window[..., np.newaxis, np.newaxis]
+
+        # Generating the new impulse response function array
+        irfs_causal = irfs
+        irfs_causal.ordinate = np.moveaxis(irf_causal_ord+np.flip(irf_noncausal_ord, 0), 0, -1)
+
+        return irfs_causal
 
 class TransmissibilityArray(NDDataArray):
     """Data array used to store transmissibility data"""
@@ -2887,6 +5323,338 @@ class ModeIndicatorFunctionArray(NDDataArray):
         """
         return FunctionTypes.MODE_INDICATOR_FUNCTION
 
+class ShockResponseSpectrumArray(NDDataArray):
+    
+    _srs_type_map = {'ppaa':1,
+                     'pnaa':2,
+                     'pmaa':3,
+                     'rpaa':4,
+                     'rnaa':5,
+                     'rmaa':6,
+                     'mpaa':7,
+                     'mnaa':8,
+                     'mmaa':9,
+                     'alaa':10,
+                     'pprd':-1,
+                     'pnrd':-2,
+                     'pmrd':-3,
+                     'rprd':-4,
+                     'rnrd':-5,
+                     'rmrd':-6,
+                     'mprd':-7,
+                     'mnrd':-8,
+                     'mmrd':-9,
+                     'alrd':-10}
+    
+    """Shock Response Spectrum (SRS)"""
+    def __new__(subtype, shape, nelements, buffer=None, offset=0,
+                strides=None, order=None):
+        obj = super().__new__(subtype, shape, nelements, 1, 'float64', buffer, offset, strides, order)
+        return obj
+
+    @property
+    def function_type(self):
+        """
+        Returns the function type of the data array
+        """
+        return FunctionTypes.SHOCK_RESPONSE_SPECTRUM
+
+    def sum_decayed_sines(self, sample_rate, block_size,
+                          sine_frequencies = None, sine_tone_range = None, sine_tone_per_octave = None,
+                          sine_amplitudes = None, sine_decays = None, sine_delays = None,
+                          srs_damping = 0.03, srs_type = "MMAA",
+                          compensation_frequency = None, compensation_decay = 0.95,
+                          # Paramters for the iteration
+                          number_of_iterations = 3, convergence = 0.8, 
+                          error_tolerance = 0.05,
+                          tau = None, num_time_constants = None, decay_resolution = None,
+                          scale_factor = 1.02, 
+                          acceleration_factor = 1.0,
+                          plot_results = False, srs_frequencies = None,
+                          return_velocity = False, return_displacement = False,
+                          return_srs = False, return_sine_table = False,
+                          verbose = False):
+        """Generate a Sum of Decayed Sines signal given an SRS.
+        
+        Note that there are many approaches to do this, with many optional arguments
+        so please read the documentation carefully to understand which arguments
+        must be passed to the function.
+
+        Parameters
+        ----------
+        sample_rate : float
+            The sample rate of the generated signal.
+        block_size : int
+            The number of samples in the generated signal.
+        sine_frequencies : np.ndarray, optional
+            The frequencies of the sine tones.  If this argument is not specified
+            and the `sine_tone_range` argument is not specified, then the 
+            `sine_tone_range` will be set to the maximum and minimum abscissa
+            value for this `ShockResponseSpectrumArray`.
+        sine_tone_range : np.ndarray, optional
+            A length-2 array containing the minimum and maximum sine tone to
+            generate.  If this argument is not specified
+            and the `sine_frequencies` argument is not specified, then the 
+            `sine_tone_range` will be set to the maximum and minimum abscissa
+            value for this `ShockResponseSpectrumArray`.
+        sine_tone_per_octave : int, optional
+            The number of sine tones per octave. If not specified along with
+            `sine_tone_range`, then a default value of 4 will be used if the 
+            `srs_damping` is >= 0.05.  Otherwise, the formula of
+            `sine_tone_per_octave = 9 - srs_damping*100` will be used.
+        sine_amplitudes : np.ndarray, optional
+            The initial amplitude of the sine tones used in the optimization.  If
+            not specified, they will be set to the value of the SRS at each frequency
+            divided by the quality factor of the SRS.
+        sine_decays : np.ndarray, optional
+            An array of decay value time constants (often represented by variable
+            tau).  Tau is the time for the amplitude of motion to decay 63% defined
+            by the equation `1/(2*np.pi*freq*zeta)` where `freq` is the frequency
+            of the sine tone and `zeta` is the fraction of critical damping.  
+            If not specified, then either the `tau` or `num_time_constants`
+            arguments must be specified instead.
+        sine_delays : np.ndarray, optional
+            An array of delay values for the sine components. If not specified,
+            all tones will have zero delay.
+        srs_damping : float, optional
+            Fraction of critical damping to use in the SRS calculation (e.g. you
+            should specify 0.03 to represent 3%, not 3). If not defined, a
+            default of 0.03 will be used.
+        srs_type : int or str
+            The type of spectrum desired: This can be an integer or a string.
+            If `srs_type` is an integer:
+            if `srs_type` > 0 (pos) then the SRS will be a base
+            acceleration-absolute acceleration model
+            If `srs_type` < 0 (neg) then the SRS will be a base acceleration-relative
+            displacement model (expressed in equivalent static acceleration units).
+            If abs(`srs_type`) is:
+                1--positive primary,  2--negative primary,  3--absolute maximum primary
+                4--positive residual, 5--negative residual, 6--absolute maximum residual
+                7--largest of 1&4, maximum positive, 8--largest of 2&5, maximum negative
+                9 -- maximax, the largest absolute value of 1-8
+               10 -- returns a matrix s(9,length(fn)) with all the types 1-9.
+        compensation_frequency : float
+            The frequency of the compensation pulse.  If not specified, it will be
+            set to 1/3 of the lowest sine tone
+        compensation_decay : float
+            The decay value for the compensation pulse.  If not specified, it will
+            be set to 0.95.
+        number_of_iterations : int, optional
+            The number of iterations to perform. At least two iterations should be
+            performed.  3 iterations is preferred, and will be used if this argument
+            is not specified.
+        convergence : float, optional
+            The fraction of the error corrected each iteration. The default is 0.8.
+        error_tolerance : float, optional
+            Allowable relative error in the SRS. The default is 0.05.
+        tau : float, optional
+            If a floating point number is passed, then this will be used for the
+            `sine_decay` values.  Alternatively, a dictionary can be passed with 
+            the keys containing a length-2 tuple specifying the minimum and maximum
+            frequency range, and the value specifying the value of `tau` within that
+            frequency range.  If this latter approach is used, all `sine_frequencies`
+            must be contained within a frequency range. If this argument is not
+            specified, then either `sine_decays` or `num_time_constants` must be
+            specified instead.
+        num_time_constants : int, optional
+            If an integer is passed, then this will be used to set the `sine_decay`
+            values by ensuring the specified number of time constants occur in the
+            `block_size`.  Alternatively, a dictionary can be passed with the keys
+            containing a length-2 tuple specifying the minimum and maximum
+            frequency range, and the value specifying the value of
+            `num_time_constants` over that frequency range. If this latter approach
+            is used, all `sine_frequencies` must be contained within a frequency
+            range. If this argument is not specified, then either `sine_decays` or
+            `tau` must be specified instead.
+        decay_resolution : float, optional
+            A scalar identifying the resolution of the fractional decay rate
+            (often known by the variable `zeta`).  The decay parameters will be
+            rounded to this value.  The default is to not round.
+        scale_factor : float, optional
+            A scaling applied to the sine tone amplitudes so the achieved SRS better
+            fits the specified SRS, rather than just touching it. The default is 1.02.
+        acceleration_factor : float, optional
+            Optional scale factor to convert acceleration into velocity and
+            displacement.  For example, if sine amplitudes are in G and displacement
+            is desired in inches, the acceleration factor should be set to 386.089.
+            If sine amplitudes are in G and displacement is desired in meters, the
+            acceleration factor should be set to 9.80665.  The default is 1, which
+            assumes consistent units (e.g. acceleration in m/s^2, velocity in m/s,
+            displacement in m).
+        plot_results : bool, optional
+            If True, a figure will be plotted showing the acceleration, velocity,
+            and displacement signals, as well as the desired and achieved SRS.
+        srs_frequencies : np.ndarray, optional
+            If specified, these frequencies will be used to compute the SRS that
+            will be plotted when the `plot_results` value is `True`.
+        return_velocity : bool, optional
+            If specified, a velocity signal will also be returned.  Default is
+            False
+        return_displacement : bool, optional
+            If True, a displacement signal will also be returned.  Default is
+            False
+        return_srs : bool, optional
+            If True, the SRS of the generated signal will also be returned
+        return_sine_table : bool, optional
+            If True, a sine table will also be returned
+        verbose : True, optional
+            If True, additional diagnostics will be printed to the console.
+            
+        Returns
+        -------
+        acceleration : TimeHistoryArray
+            A TimeHistoryArray object containing an acceleration response that
+            satisfies the SRS
+        velocity : TimeHistoryArray
+            A TimeHistoryArray object containing the velocity corresponding to
+            `acceleration`.  Only returned if `return_velocity` is True.
+        displacement : TimeHistoryArray
+            A TimeHistoryArray object containing the displacement corresponding
+            to `acceleration`.  Only returned if `return_displacement` is True.
+        srs : TimeHistoryArray
+            A `ShockResponseSpectrumArray` containing the SRS of `acceleration`.
+            This can be used to check against the original signal to identify
+            how good the match is.  Only returned if `return_srs` is True.
+        sine_table : DecayedSineTable
+            A `DecayedSineTable` object containing the frequency, amplitude,
+            delay, and decay parameters that are used to generate `acceleration`.
+        """
+        try: 
+            if isinstance(srs_type,str):
+                srs_type = ShockResponseSpectrumArray._srs_type_map[srs_type.lower()]
+        except KeyError:
+            raise ValueError('Invalid `srs_type` specified, should be one of {:} (case insensitive)'.format([k for k in ShockResponseSpectrumArray._srs_type_map]))
+        
+        acceleration = np.empty(self.shape+(block_size,))
+        if return_displacement:
+            displacement = np.empty(self.shape+(block_size,))
+        if return_velocity:
+            velocity = np.empty(self.shape+(block_size,))
+        if return_srs:
+            srs = None
+        if return_sine_table:
+            sine_table = None
+        
+        for index,srs_fn in self.ndenumerate():
+        
+            if sine_frequencies is None and sine_tone_range is None:
+                this_sine_tone_range = [srs_fn.abscissa.min(),srs_fn.abscissa.max()]
+            else:
+                this_sine_tone_range = sine_tone_range
+            
+            srs_breakpoints = np.array((srs_fn.abscissa,srs_fn.ordinate)).T
+            
+            (acceleration_signal, velocity_signal, displacement_signal,
+             all_frequencies, all_amplitudes, all_decays, all_delays,
+             *plot_stuff) = sp_sds(
+                 sample_rate, block_size, sine_frequencies,
+                 this_sine_tone_range, sine_tone_per_octave, sine_amplitudes,
+                 sine_decays, sine_delays, None, srs_breakpoints,
+                 srs_damping, srs_type, compensation_frequency,
+                 compensation_decay, number_of_iterations, convergence,
+                 error_tolerance, tau, num_time_constants, decay_resolution,
+                 scale_factor, acceleration_factor, plot_results, 
+                 srs_frequencies, verbose)
+                
+            acceleration[index] = acceleration_signal
+            if return_displacement:
+                displacement[index] = displacement_signal
+            if return_velocity:
+                velocity[index] = velocity_signal
+            if return_srs:
+                # Compute the SRS
+                if srs_frequencies is None:
+                    this_srs_frequencies = all_frequencies[:-1]
+                else:
+                    this_srs_frequencies = srs_frequencies
+                this_srs,freq = sp_srs(acceleration_signal, 1/sample_rate, 
+                                       this_srs_frequencies, srs_damping, srs_type)
+                if srs is None:
+                    srs = np.empty(self.shape+(this_srs.size,))
+                srs[index] = this_srs
+            if return_sine_table:
+                if sine_table is None:
+                    sine_table = DecayedSineTable(self.shape,all_frequencies.size)
+                sine_table[index] = decayed_sine_table(all_frequencies, all_amplitudes, all_decays, all_delays, srs_fn.coordinate)
+            
+        # Now convert to objects
+        times = np.arange(block_size)/sample_rate
+        acceleration = data_array(FunctionTypes.TIME_RESPONSE,
+                                  times, acceleration, self.coordinate,
+                                  self.comment1, self.comment2, self.comment3,
+                                  self.comment4, self.comment5)
+        return_values = (acceleration,)
+        if return_velocity:
+            velocity = data_array(FunctionTypes.TIME_RESPONSE,
+                                  times, displacement, self.coordinate,
+                                  self.comment1, self.comment2, self.comment3,
+                                  self.comment4, self.comment5)
+            return_values += (velocity,)
+        if return_displacement:
+            displacement = data_array(FunctionTypes.TIME_RESPONSE,
+                                      times, displacement, self.coordinate,
+                                      self.comment1, self.comment2, self.comment3,
+                                      self.comment4, self.comment5)
+            return_values += (displacement,)
+        if return_srs:
+            srs = data_array(FunctionTypes.SHOCK_RESPONSE_SPECTRUM,
+                             this_srs_frequencies, srs, self.coordinate,
+                             self.comment1, self.comment2, self.comment3,
+                             self.comment4, self.comment5)
+            return_values += (srs,)
+        if return_sine_table:
+            return_values += (sine_table,)
+            
+        if len(return_values) == 1:
+            return_values = return_values[0]
+            
+        return return_values
+    
+    def plot(self, one_axis: bool = True, subplots_kwargs: dict = {},
+             plot_kwargs: dict = {}):
+        """
+        Plot the shock response spectrum
+
+        Parameters
+        ----------
+        one_axis : bool, optional
+            Set to True to plot all data on one axis.  Set to False to plot
+            data on multiple subplots.  one_axis can also be set to a 
+            matplotlib axis to plot data on an existing axis.  The default is
+            True.
+        subplots_kwargs : dict, optional
+            Keywords passed to the matplotlib subplots function to create the
+            figure and axes. The default is {}.
+        plot_kwargs : dict, optional
+            Keywords passed to the matplotlib plot function. The default is {}.
+
+        Returns
+        -------
+        axis : matplotlib axis or array of axes
+             On which the data were plotted
+
+        """
+        if one_axis is True:
+            figure, axis = plt.subplots(**subplots_kwargs)
+            axis.plot(self.flatten().abscissa.T, self.flatten().ordinate.T, **plot_kwargs)
+            axis.set_yscale('log')
+            axis.set_xscale('log')
+        elif one_axis is False:
+            ncols = int(np.floor(np.sqrt(self.size)))
+            nrows = int(np.ceil(self.size / ncols))
+            figure, axis = plt.subplots(nrows, ncols, **subplots_kwargs)
+            for i, (ax, (index, function)) in enumerate(zip(axis.flatten(), self.ndenumerate())):
+                ax.plot(function.abscissa.T, function.ordinate.T, **plot_kwargs)
+                ax.set_ylabel('/'.join([str(v) for i, v in function.coordinate.ndenumerate()]))
+                ax.set_yscale('log')
+                ax.set_xscale('log')
+            for ax in axis.flatten()[i + 1:]:
+                ax.remove()
+        else:
+            axis = one_axis
+            axis.plot(self.abscissa.T, self.ordinate.T, **plot_kwargs)
+        return axis
+
 # def mode_indicator_function_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
 #     pass
 
@@ -2915,11 +5683,12 @@ _function_type_class_map = {FunctionTypes.GENERAL: NDDataArray,
                             # FunctionTypes.PARTIAL_COHERENCE, : ,
                             # FunctionTypes.EIGENVALUE, : ,
                             # FunctionTypes.EIGENVECTOR, : ,
-                            # FunctionTypes.SHOCK_RESPONSE_SPECTRUM, : ,
+                            FunctionTypes.SHOCK_RESPONSE_SPECTRUM : ShockResponseSpectrumArray,
                             # FunctionTypes.FINITE_IMPULSE_RESPONSE_FILTER, : ,
                             FunctionTypes.MULTIPLE_COHERENCE: MultipleCoherenceArray,
                             # FunctionTypes.ORDER_FUNCTION, : ,
                             # FunctionTypes.PHASE_COMPENSATION,  : ,
+                            FunctionTypes.IMPULSE_RESPONSE_FUNCTION: ImpulseResponseFunctionArray,
                             }
 
 
@@ -3056,7 +5825,7 @@ def from_imat_struct(imat_fn_struct, squeeze=True):
     else:
         comment_4 = np.zeros(comment_4.shape[:-1], dtype='<U1').flatten()
     comment_5 = np.zeros(comment_4.shape, dtype='<U1')
-    all_coords = sdynpy_coordinate.coordinate_array(string_array=np.concatenate(
+    all_coords = coordinate_array(string_array=np.concatenate(
         (response_coords[:, np.newaxis], reference_coords[:, np.newaxis]), axis=-1))
     for fn_type, indices in function_type_dict.items():
         return_functions.append(
@@ -3067,6 +5836,130 @@ def from_imat_struct(imat_fn_struct, squeeze=True):
     if len(return_functions) == 1 and squeeze:
         return_functions = return_functions[0]
     return return_functions
+
+class DecayedSineTable(SdynpyArray):
+    """Structure for storing sum-of-decayed-sines information
+        """
+
+    def __new__(subtype, shape, num_elements, buffer=None, offset=0, strides=None, order=None):
+        # Create the ndarray instance of our type, given the usual
+        # ndarray input arguments.  This will call the standard
+        # ndarray constructor, but return an object of our type.
+        # It also triggers a call to __array_finalize__
+        data_dtype = [
+            ('frequency', 'float64', num_elements),
+            ('amplitude', 'float64', num_elements),
+            ('decay','float64', num_elements),
+            ('delay','float64', num_elements),
+            ('comment1', '<U80'),
+            ('comment2', '<U80'),
+            ('comment3', '<U80'),
+            ('comment4', '<U80'),
+            ('comment5', '<U80'),
+            ('coordinate', CoordinateArray.data_dtype, (1,)),
+        ]
+        obj = super(SdynpyArray, subtype).__new__(subtype, shape,
+                                                  data_dtype, buffer, offset, strides, order)
+        # Finally, we must return the newly created object:
+        return obj
+    
+    def __getitem__(self,key):
+        output = super().__getitem__(key)
+        if isinstance(key,str) and key == 'coordinate':
+            return output.view(CoordinateArray)
+        else:
+            return output
+        
+    def construct_signal(self, sample_rate, block_size):
+        output_abscissa = np.arange(block_size)/sample_rate
+        output_ordinate = np.empty(self.shape+(block_size,))
+        for index, table in self.ndenumerate():
+            signal = sum_decayed_sines_reconstruction(
+                table.frequency, table.amplitude, table.decay, table.delay,
+                sample_rate, block_size)
+            output_ordinate[index] = signal
+        return data_array(FunctionTypes.TIME_RESPONSE, output_abscissa,
+                          output_ordinate, self.coordinate, self.comment1,
+                          self.comment2, self.comment3, self.comment4,
+                          self.comment5)
+    
+    def construct_velocity(self, sample_rate, block_size, acceleration_factor = 1):
+        output_abscissa = np.arange(block_size)/sample_rate
+        output_ordinate = np.empty(self.shape+(block_size,))
+        for index, table in self.ndenumerate():
+            signal = sum_decayed_sines_displacement_velocity(
+                table.frequency, table.amplitude, table.decay, table.delay,
+                sample_rate, block_size, acceleration_factor)[0]
+            output_ordinate[index] = signal
+        return data_array(FunctionTypes.TIME_RESPONSE, output_abscissa,
+                          output_ordinate, self.coordinate, self.comment1,
+                          self.comment2, self.comment3, self.comment4,
+                          self.comment5)
+    
+    def construct_displacement(self, sample_rate, block_size, acceleration_factor = 1):
+        output_abscissa = np.arange(block_size)/sample_rate
+        output_ordinate = np.empty(self.shape+(block_size,))
+        for index, table in self.ndenumerate():
+            signal = sum_decayed_sines_displacement_velocity(
+                table.frequency, table.amplitude, table.decay, table.delay,
+                sample_rate, block_size, acceleration_factor)[1]
+            output_ordinate[index] = signal
+        return data_array(FunctionTypes.TIME_RESPONSE, output_abscissa,
+                          output_ordinate, self.coordinate, self.comment1,
+                          self.comment2, self.comment3, self.comment4,
+                          self.comment5)
+
+def decayed_sine_table(frequency, amplitude, decay, delay, coordinate, comment1='', comment2='', comment3='', comment4='', comment5=''):
+    """
+    Helper function to create a DecayedSineTable object.
+
+    Parameters
+    ----------
+    frequency : np.ndarray
+        Frequencies of the decaying sine waves
+    amplitude : np.ndarray
+        Amplitudes of the decaying sine waves.
+    decay : np.ndarray
+        Damping values of the decaying sine waves.
+    delay : np.ndarray
+        Delay values of the decaying sine waves.
+    coordinate : np.ndarray
+        Coordinate information for each of the decaying sine waves.  Must match
+        the coordinate shape of a TimeHistoryArray, which means it must have
+        shape (...,1)
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    SineTable : 
+        A SineTable object containing the specified information
+
+    """
+    coordinate = np.atleast_1d(coordinate)
+    if coordinate.shape[-1] != 1:
+        raise ValueError('`coordinate` must have shape (...,1)')
+    *shape, num_elements = frequency.shape
+    st = DecayedSineTable(shape, num_elements)
+    st.frequency = frequency
+    st.amplitude = amplitude
+    st.decay = decay
+    st.delay = delay
+    st.coordinate = coordinate
+    st.comment1 = comment1
+    st.comment2 = comment2
+    st.comment3 = comment3
+    st.comment4 = comment4
+    st.comment5 = comment5
+    return st
 
 class ComplexType(Enum):
     """Enumeration containing the various ways to plot complex data"""
@@ -3080,30 +5973,59 @@ class ComplexType(Enum):
 class GUIPlot(QMainWindow):
     """An iteractive plot window allowing users to visualize data"""
 
-    def __init__(self, data_array: NDDataArray, compare_data=None):
+    def __init__(self, *data_to_plot, **labeled_data_to_plot):
         """
         Create a GUIPlot window to visualize data.
 
-        Two datasets can be overlaid by providing a second identically sized
-        dataset as the `compare_data` argument.
+        Multiple datasets can be overlaid by providing additional datasets as
+        arguments.  Position arguments will be labelled generically in the
+        legend.  Keyword arguments will be labelled with their keywords with
+        `_` replaced by ` `.
+        
+        Note that all datasets will be reshaped so that the coordinates match
+        the first dataset.  If not all coordinates exist in subsequent datasets
+        an error will be thrown.
 
         Parameters
         ----------
-        data_array : NDDataArray
-            Data to visualize
-        compare_data : NDDataArray, optional
-            Data to compare.  Default is None, which results in no comparison
-            data plotted.
+        *data_to_plot : NDDataArray
+            Data to visualize.  Data passed by positional argument will be
+            labeled generically in the legend
+        **labeled_data_to_plot : NDDataArray
+            Data to visualize.  Data passed by keyword argument will be
+            labeled with its keyword
 
         Returns
         -------
         None.
 
         """
+        # Parse the dataset arguments
+        self.number_of_datasets = len(data_to_plot) + len(labeled_data_to_plot)
+        if self.number_of_datasets == 0:
+            raise ValueError('At least one dataset must be provided!')
+        self.data_dictionary = {}
+        for i,dataset in enumerate(data_to_plot):
+            if i == 0 and self.number_of_datasets == 1:
+                self.data_dictionary[''] = dataset
+            else:
+                self.data_dictionary['Dataset {:}'.format(i+1)] = dataset
+        for key,dataset in labeled_data_to_plot.items():
+            self.data_dictionary[key.replace('_',' ')] = dataset
+        # Now go through and reshape the data so it's all the same size
+        first_data = [v for v in self.data_dictionary.values()][0]
+        self.data_original_shape = first_data.shape
+        self.coordinates = first_data.coordinate
+        function_type = first_data.function_type
+        for key in self.data_dictionary:
+            if not np.all(self.coordinates.flatten() == self.data_dictionary[key].coordinate.flatten()):
+                print('Warning: Coordinates not consistent for dataset {:}'.format(key))
+            self.data_dictionary[key] = self.data_dictionary[key].flatten()
         super(GUIPlot, self).__init__()
         uic.loadUi(os.path.join(os.path.abspath(os.path.dirname(
             os.path.abspath(__file__))), 'GUIPlot.ui'), self)
-        for index, fn in data_array.ndenumerate():
+        # Set up the table
+        for index, fn in first_data.ndenumerate():
             this_row = self.tableWidget.rowCount()
             self.tableWidget.insertRow(this_row)
             try:
@@ -3130,33 +6052,46 @@ class GUIPlot(QMainWindow):
                     str(_imat_function_type_inverse_map[fn.function_type]))
                 self.tableWidget.setItem(this_row, 3, item)
         self.tableWidget.resizeColumnsToContents()
-        # Adjust the default plotting
-        self.data = data_array.flatten()
-        self.data_original_shape = data_array.shape
-        if compare_data is None:
-            self.compare_data = None
-            self.cm = cm.Dark2
-            self.cm_mod = 8
+        # Set up color map
+        if self.number_of_datasets == 2:
+            self.cm = cm.tab20
+            self.cm_mod = 20
+        elif self.number_of_datasets == 3:
+            # Combine tab20b and tab20c
+            tab_b = cm.get_cmap('tab20b',15)(np.linspace(0,1,15))
+            tab_c = cm.get_cmap('tab20c',15)(np.linspace(0,1,15))
+            self.cm = ListedColormap(np.concatenate((tab_c,tab_b),axis=0))
+            self.cm_mod = 30
+        elif self.number_of_datasets == 4:
+            # Combine tab20b and tab20c
+            tab_b = cm.get_cmap('tab20b',20)(np.linspace(0,1,20))
+            tab_c = cm.get_cmap('tab20c',20)(np.linspace(0,1,20))
+            self.cm = ListedColormap(np.concatenate((tab_c,tab_b),axis=0))
+            self.cm_mod = 40
         else:
-            self.compare_data = compare_data.flatten()
-            self.cm = cm.Paired
-            self.cm_mod = 12
-        if self.data[0].function_type in [FunctionTypes.GENERAL, FunctionTypes.TIME_RESPONSE,
+            self.cm = cm.tab10
+            self.cm_mod = 10
+        # Adjust the default plotting
+        if function_type in [FunctionTypes.GENERAL, FunctionTypes.TIME_RESPONSE,
                                           FunctionTypes.COHERENCE, FunctionTypes.AUTOCORRELATION,
                                           FunctionTypes.CROSSCORRELATION, FunctionTypes.MODE_INDICATOR_FUNCTION,
                                           FunctionTypes.MULTIPLE_COHERENCE]:
             complex_type = ComplexType.REAL
             self.abscissa_log = False
             self.ordinate_log = False
-        elif self.data[0].function_type in [FunctionTypes.AUTOSPECTRUM, FunctionTypes.POWER_SPECTRAL_DENSITY,
-                                            FunctionTypes.SHOCK_RESPONSE_SPECTRUM, FunctionTypes.ENERGY_SPECTRAL_DENSITY]:
+        elif function_type in [FunctionTypes.AUTOSPECTRUM, FunctionTypes.POWER_SPECTRAL_DENSITY,
+                                            FunctionTypes.ENERGY_SPECTRAL_DENSITY]:
             complex_type = ComplexType.MAGNITUDE
             self.abscissa_log = False
             self.ordinate_log = True
-        elif self.data[0].function_type in [FunctionTypes.CROSSSPECTRUM, FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
+        elif function_type in [FunctionTypes.CROSSSPECTRUM, FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                                             FunctionTypes.TRANSMISIBILITY, FunctionTypes.SPECTRUM]:
             complex_type = ComplexType.MAGPHASE
             self.abscissa_log = False
+            self.ordinate_log = True
+        elif function_type in [FunctionTypes.SHOCK_RESPONSE_SPECTRUM]:
+            complex_type = ComplexType.MAGNITUDE
+            self.abscissa_log = True
             self.ordinate_log = True
         else:
             # print('Unknown Function Type {:}'.format(self.data[0].function_type))
@@ -3185,7 +6120,7 @@ class GUIPlot(QMainWindow):
         self.actionAbscissa_Log.setChecked(self.abscissa_log)
         self.actionOrdinate_Log.setChecked(self.ordinate_log)
         self.menuShare_Axes.setEnabled(False)
-        self.pushButton.setEnabled(False)
+        self.update_button.setEnabled(False)
         self.actionOverlay.setEnabled(False)  # TODO Remove when you implement non-overlapping plots
         self.connect_callbacks()
         # Set the first plot
@@ -3203,7 +6138,7 @@ class GUIPlot(QMainWindow):
 
         """
         self.tableWidget.itemSelectionChanged.connect(self.selection_changed)
-        self.pushButton.clicked.connect(self.update)
+        self.update_button.clicked.connect(self.update)
         self.actionImaginary.triggered.connect(self.set_imaginary)
         self.actionMagnitude.triggered.connect(self.set_magnitude)
         self.actionMagnitude_Phase.triggered.connect(self.set_magnitude_phase)
@@ -3212,7 +6147,8 @@ class GUIPlot(QMainWindow):
         self.actionReal_Imag.triggered.connect(self.set_real_imag)
         self.actionOrdinate_Log.triggered.connect(self.update_ordinate_log)
         self.actionAbscissa_Log.triggered.connect(self.update_abscissa_log)
-        self.checkBox.clicked.connect(self.update_checkbox)
+        self.autoupdate_checkbox.clicked.connect(self.update_checkbox)
+        self.linewidth_selector.valueChanged.connect(self.update)
 
     def update(self):
         """
@@ -3250,36 +6186,51 @@ class GUIPlot(QMainWindow):
                 else:
                     plot.addLegend()
                 for j, index in enumerate(row_indices):
-                    data_entry = self.data[index]
                     original_index = np.unravel_index(index, self.data_original_shape)
-                    legend_entry = '{:} {:}'.format(
-                        original_index, data_entry.coordinate).replace("'", '')
-                    pen = pyqtgraph.mkPen(
-                        color=[int(255 * v) for v in self.cm(j * (1 if self.compare_data is None else 2) % self.cm_mod)])
-                    plot.plot(x=data_entry.abscissa, y=complex_fn(data_entry.ordinate) *
-                              (180 / np.pi if complex_fn is np.angle else 1), name=legend_entry, pen=pen)
-                    if not self.compare_data is None:
-                        compare_data_entry = self.compare_data[index]
-                        pen = pyqtgraph.mkPen(color=[int(255 * v)
-                                              for v in self.cm((2 * j + 1) % self.cm_mod)])
-                        plot.plot(x=compare_data_entry.abscissa, y=complex_fn(compare_data_entry.ordinate) * (
-                            180 / np.pi if complex_fn is np.angle else 1), name=legend_entry + ' Comparison', pen=pen)
+                    for k,(label,dataset) in enumerate(self.data_dictionary.items()):
+                        data_entry = dataset[index]
+                        legend_entry = '{:} {:} {:}'.format(
+                            original_index, data_entry.coordinate, label).replace("'", '')
+                        pen = pyqtgraph.mkPen(
+                            color=[int(255 * v) for v in self.cm((j * (self.number_of_datasets) + k) % self.cm_mod)],
+                            width = self.linewidth_selector.value())
+                        plot.plot(x=data_entry.abscissa, y=complex_fn(data_entry.ordinate) *
+                                  (180 / np.pi if complex_fn is np.angle else 1), name=legend_entry, pen=pen)
                 plot.setLogMode(self.abscissa_log,
                                 False if complex_fn is np.angle else self.ordinate_log)
                 if not xrange is None:
                     plot.setXRange(*xrange, padding=0.0)
                 plots.append(plot)
 
-    def update_data(self, new_data, new_compare_data=None):
-        original_coordinate = self.data.coordinate.reshape(*self.data_original_shape, -1)
-        new_coordinate = new_data.coordinate
-        if ((original_coordinate.shape != new_coordinate.shape) or
-                (np.any(original_coordinate != new_coordinate))):
+    def update_data(self, *data_to_plot, **labeled_data_to_plot):
+        # Parse the dataset arguments
+        self.number_of_datasets = len(data_to_plot) + len(labeled_data_to_plot)
+        if self.number_of_datasets == 0:
+            raise ValueError('At least one dataset must be provided!')
+        self.data_dictionary = {}
+        for i,dataset in enumerate(data_to_plot):
+            if i == 0 and self.number_of_datasets == 1:
+                self.data_dictionary[''] = dataset
+            else:
+                self.data_dictionary['Dataset {:}'.format(i+1)] = dataset
+        for key,dataset in labeled_data_to_plot.items():
+            self.data_dictionary[key.replace('_',' ')] = dataset
+        # Now go through and reshape the data so it's all the same size
+        first_data = [v for v in self.data_dictionary.values()][0]
+        self.data_original_shape = first_data.shape
+        self.coordinates = first_data.coordinate
+        for key in self.data_dictionary:
+            if not np.all(self.coordinates.flatten() == self.data_dictionary[key].coordinate.flatten()):
+                print('Warning: Coordinates not consistent for dataset {:}'.format(key))
+            self.data_dictionary[key] = self.data_dictionary[key].flatten()
+        new_coordinate = first_data.coordinate
+        if ((self.coordinates.shape != new_coordinate.shape) or
+                (np.any(self.coordinates != new_coordinate))):
             # Redo the table
             self.tableWidget.blockSignals(True)
             self.tableWidget.clear()
             self.tableWidget.setRowCount(0)
-            for index, fn in new_data.ndenumerate():
+            for index, fn in first_data.ndenumerate():
                 this_row = self.tableWidget.rowCount()
                 self.tableWidget.insertRow(this_row)
                 try:
@@ -3308,23 +6259,31 @@ class GUIPlot(QMainWindow):
             self.tableWidget.resizeColumnsToContents()
             self.tableWidget.blockSignals(False)
 
-        self.data = new_data.flatten()
-        self.data_original_shape = new_data.shape
-
-        if new_compare_data is None:
-            self.compare_data = None
-            self.cm = cm.Dark2
-            self.cm_mod = 8
+        # Set up color map
+        if self.number_of_datasets == 2:
+            self.cm = cm.tab20
+            self.cm_mod = 20
+        elif self.number_of_datasets == 3:
+            # Combine tab20b and tab20c
+            tab_b = cm.get_cmap('tab20b',15)(np.linspace(0,1,15))
+            tab_c = cm.get_cmap('tab20c',15)(np.linspace(0,1,15))
+            self.cm = ListedColormap(np.concatenate((tab_c,tab_b),axis=0))
+            self.cm_mod = 30
+        elif self.number_of_datsets == 4:
+            # Combine tab20b and tab20c
+            tab_b = cm.get_cmap('tab20b',20)(np.linspace(0,1,20))
+            tab_c = cm.get_cmap('tab20c',20)(np.linspace(0,1,20))
+            self.cm = ListedColormap(np.concatenate((tab_c,tab_b),axis=0))
+            self.cm_mod = 40
         else:
-            self.compare_data = new_compare_data.flatten()
-            self.cm = cm.Paired
-            self.cm_mod = 12
+            self.cm = cm.tab10
+            self.cm_mod = 10
 
         self.update()
 
     def selection_changed(self):
         """Called when the selected functions is changed"""
-        if self.checkBox.isChecked():
+        if self.autoupdate_checkbox.isChecked():
             self.update()
 
     def deselect_all_complex_types_except(self, complex_type):
@@ -3350,7 +6309,7 @@ class GUIPlot(QMainWindow):
             else:
                 action.setChecked(False)
             action.blockSignals(False)
-        if self.checkBox.isChecked():
+        if self.autoupdate_checkbox.isChecked():
             self.update()
 
     def set_imaginary(self):
@@ -3380,18 +6339,18 @@ class GUIPlot(QMainWindow):
     def update_abscissa_log(self):
         """Updates whether the abscissa should be plotted as log scale"""
         self.abscissa_log = self.actionAbscissa_Log.isChecked()
-        if self.checkBox.isChecked():
+        if self.autoupdate_checkbox.isChecked():
             self.update()
 
     def update_ordinate_log(self):
         """Updates whether the ordinate should be plotted as log scale"""
         self.ordinate_log = self.actionOrdinate_Log.isChecked()
-        if self.checkBox.isChecked():
+        if self.autoupdate_checkbox.isChecked():
             self.update()
 
     def update_checkbox(self):
         """Disables the update button if set to auto-update"""
-        self.pushButton.setEnabled(not self.checkBox.isChecked())
+        self.pushButton.setEnabled(not self.autoupdate_checkbox.isChecked())
 
 
 class MPLCanvas(FigureCanvas):
@@ -3969,3 +6928,4 @@ class CPSDPlot(QMainWindow):
 
 
 frf_from_time_data = TransferFunctionArray.from_time_data
+join = NDDataArray.join

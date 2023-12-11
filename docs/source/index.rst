@@ -3,6 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: /images/logo_horizontal.svg
+  :width: 550
+  :alt: SDynPy Logo
+  :align: center
+
+|
+
 Welcome to SDynPy's documentation!
 ==================================
 

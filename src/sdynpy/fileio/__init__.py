@@ -21,3 +21,4 @@ unv = uff
 
 from . import sdynpy_rattlesnake as rattlesnake
 from . import sdynpy_vic as vic
+from . import sdynpy_tshaker as tshaker

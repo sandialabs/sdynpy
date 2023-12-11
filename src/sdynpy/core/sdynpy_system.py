@@ -29,7 +29,7 @@ import numpy as np
 from scipy.linalg import eigh
 from .sdynpy_coordinate import CoordinateArray, from_nodelist, outer_product, coordinate_array
 from ..fem.sdynpy_beam import beamkm, rect_beam_props
-from ..fem.sdynpy_exodus import Exodus, ExodusInMemory
+from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces
 from ..signal_processing import frf as spfrf
 from ..signal_processing import generator
 from scipy.linalg import eigh, block_diag, null_space
@@ -107,7 +107,7 @@ class System:
         # Check symmetry
         if not np.allclose(mass, mass.T):
             raise ValueError('mass matrix must be symmetric')
-        if not np.allclose(stiffness, stiffness.T):
+        if not np.allclose(stiffness, stiffness.T,atol=1e-6*stiffness.max()):
             raise ValueError('stiffness matrix must be symmetric')
         if not np.allclose(damping, damping.T):
             raise ValueError('damping matrix must be symmetric')
@@ -297,6 +297,10 @@ class System:
         C = self.C
         if response_coordinates is None:
             phi_response = self.transformation
+        elif isinstance(response_coordinates,str) and response_coordinates == 'state':
+            # If you want the state variables back, the transformation is the
+            # identity matrix.
+            phi_response = np.eye(self.transformation.shape[-1])
         else:
             phi_response = self.transformation_matrix_at_coordinates(response_coordinates)
         if input_coordinates is None:
@@ -353,7 +357,7 @@ class System:
         D_state = D_state[output_indices]
         return A_state, B_state, C_state, D_state
 
-    def time_integrate(self, forces, dt, responses=None, references=None,
+    def time_integrate(self, forces, dt = None, responses=None, references=None,
                        displacement_derivative=2, initial_state=None,
                        integration_oversample=1):
         """
@@ -361,18 +365,23 @@ class System:
 
         Parameters
         ----------
-        forces : np.ndarray
+        forces : np.ndarray or TimeHistoryArray
             The forces applied to the system, which should be a signal with
-            time-step `dt`
-        dt : float
-            The timestep used for the integration.
+            time-step `dt`.  If a `TimeHistoryArray` is passed, then `dt` and
+            `references` will be taken from the `TimeHistoryArray`, and the
+            arguments will be ignored.
+        dt : float, optional
+            The timestep used for the integration.  Must be specified if `forces`
+            is a ndarray.  If `forces` is a TimeHistoryArray, then this argument
+            is ignored.
         responses : CoordinateArray, optional
             Coordinates at which responses are desired. The default is all
             responses.
         references : CoordinateArray, optional
             Coordinates at which responses are input. The default is all
             references.  Must be the same size as the number of rows in the
-            `forces` array.
+            `forces` array.  If `forces` is a `TimeHistoryArray`, then this
+            argument is ignored.
         displacement_derivative : int, optional
             The derivative of the displacement that the output will be
             represented as.  A derivative of 0 means displacements will be
@@ -394,36 +403,24 @@ class System:
             The forces applied to the system as a TimeHistoryArray
 
         """
-        from .sdynpy_data import data_array, FunctionTypes
+        from .sdynpy_data import data_array, FunctionTypes, TimeHistoryArray
+        if isinstance(forces, TimeHistoryArray):
+            dt = forces.abscissa_spacing
+            references = forces.coordinate[...,0]
+            forces = forces.ordinate
+        else:
+            if dt is None:
+                raise ValueError('`dt` must be specified if `forces` is not a `TimeHistoryArray`')
+        if responses is not None and not isinstance(responses,str):
+            responses = np.atleast_1d(responses)
+        if references is not None:
+            references = np.atleast_1d(references)
         A, B, C, D = self.to_state_space(displacement_derivative == 0,
                                          displacement_derivative == 1,
                                          displacement_derivative == 2,
-                                         False)
-        # Partition references into shape matrix
-        if references is None:
-            reference_indices = np.arange(self.coordinate.size)
-            reference_signs = np.ones(self.coordinate.size, 'int8')
-        else:
-            reference_indices = np.array([np.where(abs(self.coordinate) == abs(coord))[
-                                         0][0] for coord in np.atleast_1d(references)])
-            reference_signs = np.sign(
-                self.coordinate[reference_indices].direction) * np.sign(np.atleast_1d(references).direction)
-            reference_signs[reference_signs == 0] = 1
-        if responses is None:
-            response_indices = np.arange(self.coordinate.size)
-            response_signs = np.ones(self.coordinate.size, 'int8')
-        else:
-            response_indices = np.array([np.where(abs(self.coordinate) == abs(coord))[
-                                        0][0] for coord in np.atleast_1d(responses)])
-            response_signs = np.sign(
-                self.coordinate[response_indices].direction) * np.sign(np.atleast_1d(responses).direction)
-            response_signs[response_signs == 0] = 1
-        C = C[response_indices, :]
-        C = response_signs[:, np.newaxis] * C
-        D = D[response_indices[:, np.newaxis], reference_indices[np.newaxis, :]]
-        D = response_signs[:, np.newaxis] * reference_signs[np.newaxis, :] * D
-        B = B[:, reference_indices]
-        B = reference_signs[np.newaxis, :] * B
+                                         False,
+                                         responses,references
+                                         )
         forces = np.atleast_2d(forces)
         times = np.arange(forces.shape[-1]) * dt
         linear_system = StateSpace(A, B, C, D)
@@ -432,13 +429,16 @@ class System:
         times_out, time_response, x_out = lsim(linear_system, forces.T, times, initial_state)
         if time_response.ndim == 1:
             time_response = time_response[:, np.newaxis]
-        response_coordinate = self.coordinate[response_indices].copy()
-        response_coordinate.direction *= response_signs
+        if responses is None:
+            response_coordinate = self.coordinate.copy()
+        elif isinstance(responses,str) and responses == 'state':
+            response_coordinate = coordinate_array(np.arange(self.ndof),0)
+        else:
+            response_coordinate = responses
         response_array = data_array(FunctionTypes.TIME_RESPONSE,
                                     times, time_response.T,
                                     response_coordinate[:, np.newaxis])
-        reference_coordinate = self.coordinate[reference_indices].copy()
-        reference_coordinate.direction *= reference_signs
+        reference_coordinate = self.coordinate.copy() if references is None else references
         reference_array = data_array(FunctionTypes.TIME_RESPONSE,
                                      times, np.atleast_2d(forces),
                                      reference_coordinate[:, np.newaxis])
@@ -506,6 +506,14 @@ class System:
                 return System(self.coordinate, np.eye(freq.size), np.diag((2 * np.pi * freq)**2), np.diag(2 * (2 * np.pi * freq) * damping), phi)
         else:
             raise NotImplementedError('Complex Modes are not implemented yet!')
+
+    def transformation_shapes(self,shape_indices=None):
+        from .sdynpy_shape import shape_array
+        if shape_indices is None:
+            shape_indices = slice(None)
+        shape_matrix = self.transformation[:,shape_indices]
+        return shape_array(self.coordinate,shape_matrix.T,
+                           frequency=0,damping=0)
 
     def frequency_response(self, frequencies, responses=None, references=None,
                            displacement_derivative=0):
@@ -628,7 +636,7 @@ class System:
     def __neg__(self):
         new_system = copy.deepcopy(self)
         new_system.mass *= -1
-        new_system.stiffness * - -1
+        new_system.stiffness *= -1
         new_system.damping *= -1
         return new_system
 
@@ -1206,7 +1214,8 @@ class System:
     @classmethod
     def from_exodus_superelement(cls, superelement_nc4, transformation_exodus_file=None,
                                  x_disp='DispX', y_disp='DispY', z_disp='DispZ',
-                                 x_rot=None, y_rot=None, z_rot=None):
+                                 x_rot=None, y_rot=None, z_rot=None,
+                                 reduce_to_external_surfaces = False):
         """
         Creates a system from a superelement from Sierra/SD
 
@@ -1236,6 +1245,8 @@ class System:
         z_rot : str, optional
             Variable name to read for z-rotations in the transformation
             Exodus file. The default is to not read rotations.
+        reduce_to_external_surfaces : bool, optional
+            If True, exodus results will be reduced to external surfaces
 
         Raises
         ------
@@ -1285,6 +1296,8 @@ class System:
                 exo = transformation_exodus_file
             else:
                 raise ValueError('transformation_exodus_file must be a string or a sdpy.Exodus')
+            if reduce_to_external_surfaces:
+                exo = reduce_exodus_to_surfaces(exo,variables_to_transform=[var for var in [x_disp,y_disp,z_disp,x_rot,y_rot,z_rot] if var is not None])
             from .sdynpy_shape import ShapeArray
             shapes = ShapeArray.from_exodus(exo, x_disp, y_disp, z_disp, x_rot, y_rot, z_rot)
             transformation = shapes.shape_matrix.T
@@ -1428,6 +1441,18 @@ class System:
                 signals[-1].append(np.zeros(int(extra_time_between_frames * sample_rate)))
                 signals[-1] = np.concatenate(signals[-1], axis=-1)
             signals = np.array(signals)
+        elif excitation.lower() == 'sine':
+            if num_signals > 1:
+                print(
+                    'Warning: Sine signal generally not recommended for multi-reference excitation')
+            frequencies = excitation_max_frequency if excitation_min_frequency is None else excitation_min_frequency
+            num_samples = frame_length * integration_oversample * num_averages + int(steady_state_time * sample_rate)
+            kwargs = {'frequencies':frequencies,
+                      'dt':dt,
+                      'num_samples':num_samples,
+                      'amplitudes':excitation_level}
+            kwargs.update(generator_kwargs)
+            signals = np.tile(generator.sine(**kwargs),(num_signals,1))
         # Set up the integration
         responses, references = self.time_integrate(
             signals, dt, responses, references, displacement_derivative)

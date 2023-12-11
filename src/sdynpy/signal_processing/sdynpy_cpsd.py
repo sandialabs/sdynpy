@@ -118,6 +118,22 @@ def cpsd(signals: np.ndarray, sample_rate: int,
 
 def dB_pow(x): return 10 * np.log10(x)
 
+def db2scale(dB):
+    """ Converts a decibel value to a scale factor
+
+    Parameters
+    ----------
+    dB : float :
+        Value in decibels
+        
+
+    Returns
+    -------
+    scale : float :
+        Value in linear
+    
+    """
+    return 10**(dB/20)
 
 def rms(x, axis=None):
     return np.sqrt(np.mean(x**2, axis=axis))

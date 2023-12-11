@@ -46,9 +46,9 @@ setup(
         "numpy",
         "scipy",
         "matplotlib",
+        "npTDMS",
         "qtpy",
-        "PyQt6; sys_platform=='darwin'",
-        "PyQt5; sys_platform!='darwin'",
+        "PyQt5",
         "pyqtgraph",
         "netCDF4",
         "pandas",
@@ -56,6 +56,7 @@ setup(
         "Pillow",
         "pyvista",
         "pyvistaqt",
+        "openpyxl",
         "vtk"
     ],
     python_requires='>=3.8',
@@ -76,6 +77,7 @@ setup(
                  'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
                  'Framework :: Pytest',
                  'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
                  ]

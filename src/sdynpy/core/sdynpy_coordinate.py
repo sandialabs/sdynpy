@@ -135,6 +135,17 @@ class CoordinateArray(SdynpyArray):
         """
         return create_coordinate_string_array(self.node, self.direction)
 
+    def direction_string_array(self):
+        """
+        Returns a string array representation of the direction
+        
+        Returns
+        -------
+        np.ndarray
+            ndarray of direction strings representing the CoordinateArray
+        """
+        return _map_direction_string_array(self.direction)
+
     def __repr__(self):
         return 'coordinate_array(string_array=\n' + repr(self.string_array()) + ')'
 
