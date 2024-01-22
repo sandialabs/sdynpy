@@ -149,32 +149,32 @@ def lstsq_rigid_transform(x, y, w=None):
             R,t  = [(3,3),(3,1)] transformation parameters such that 
             y = Rx + t
     """
-    import numpy as np
-
     if w is None:
-        w = np.ones((x.shape[1], 1)).T
+        w = np.ones((x.shape[-1], 1)).T
         # default weighting is uniform w=1
 
     W = np.diag(w[0])
 
     # Find the weighted centroids (for w=1, this is the mean)
-    xbar = np.sum(w * x, axis=1) / np.sum(w, axis=1)
-    ybar = np.sum(w * y, axis=1) / np.sum(w, axis=1)
+    xbar = np.sum(w * x, axis=-1) / np.sum(w, axis=1)
+    ybar = np.sum(w * y, axis=-1) / np.sum(w, axis=1)
 
     # Center the points
-    X = x - xbar[:, np.newaxis]
-    Y = y - ybar[:, np.newaxis]
+    X = x - xbar[..., np.newaxis]
+    Y = y - ybar[..., np.newaxis]
 
     # Calculate the Covariance
-    Cov = X @ W @ Y.T
+    Cov = X @ W @ np.moveaxis(Y,-1,-2)
 
     # Take the SVD of the Covariance matrix
     U, S, VH = np.linalg.svd(Cov)
-    V = VH.T  # numpy's SVD gives you back V', not V like Matlab
-    D = np.diag([1.0, 1.0, np.linalg.det(V @ U.T)])
+    V = np.moveaxis(VH,-1,-2)  # numpy's SVD gives you back V', not V like Matlab
+    det = np.linalg.det(V @ np.moveaxis(U,-1,-2))
+    D = np.broadcast_to(np.eye(3),det.shape+(3,3)).copy()
+    D[...,-1,-1] = det
 
-    R = V @ D @ U.T
-    t = ybar[:, np.newaxis] - R @ xbar[:, np.newaxis]
+    R = V @ D @ np.moveaxis(U,-1,-2)
+    t = ybar[..., np.newaxis] - R @ xbar[..., np.newaxis]
 
     return R, t
 

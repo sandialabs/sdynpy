@@ -31,11 +31,9 @@ class Matrix(SdynpyArray):
 
     Use the matrix helper function to create the object.
     """
-
-    data_dtype = [('node', 'uint64'), ('direction', 'int8')]
     
     @staticmethod
-    def data_dtype(rows,columns):
+    def data_dtype(rows,columns, is_complex=False):
         """
         Data type of the underlying numpy structured array for real shapes
 
@@ -54,21 +52,21 @@ class Matrix(SdynpyArray):
 
         """
         return [
-            ('matrix', 'float64', (rows,columns)),
+            ('matrix', 'complex128' if is_complex else 'float64', (rows,columns)),
             ('row_coordinate', CoordinateArray.data_dtype, (rows,)),
             ('column_coordinate', CoordinateArray.data_dtype, (columns,)),
         ]
     
     """Datatype for the underlying numpy structured array"""
 
-    def __new__(subtype, shape, nrows, ncols, buffer=None, offset=0,
+    def __new__(subtype, shape, nrows, ncols, is_complex = False, buffer=None, offset=0,
                 strides=None, order=None):
         # Create the ndarray instance of our type, given the usual
         # ndarray input arguments.  This will call the standard
         # ndarray constructor, but return an object of our type.
         # It also triggers a call to InfoArray.__array_finalize__
         obj = super(Matrix, subtype).__new__(subtype, shape,
-                                             Matrix.data_dtype(nrows,ncols),
+                                             Matrix.data_dtype(nrows,ncols, is_complex),
                                              buffer, offset, strides,
                                              order)
         # Finally, we must return the newly created object:
@@ -242,7 +240,7 @@ class Matrix(SdynpyArray):
             return return_value
         else:
             output = super().__getitem__(key)
-            if key in ['row_coordinate','column_coordinate']:
+            if isinstance(key,str) and key in ['row_coordinate','column_coordinate']:
                 return output.view(CoordinateArray)
             else:
                 return output
@@ -383,7 +381,7 @@ def matrix(matrix,row_coordinate,column_coordinate, buffer=None, offset=0,
     """
     shape = matrix.shape[:-2]
     nrow,ncol = matrix.shape[-2:]
-    m = Matrix(shape,nrow,ncol,
+    m = Matrix(shape,nrow,ncol,np.iscomplexobj(matrix),
                buffer=buffer, offset=offset,
                strides=strides, order=order)
     m.row_coordinate = row_coordinate

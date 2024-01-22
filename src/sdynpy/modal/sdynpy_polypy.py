@@ -27,7 +27,7 @@ from ..core.sdynpy_data import TransferFunctionArray, GUIPlot
 from ..signal_processing.sdynpy_complex import collapse_complex_to_real
 from ..core.sdynpy_geometry import Geometry
 from ..core.sdynpy_shape import ShapeArray
-from .sdynpy_modeshape import compute_residues as modeshape_compute_residues, compute_shapes as modeshape_compute_shapes, ShapeSelection
+from .sdynpy_modeshape import compute_shapes_multireference
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import traceback
@@ -87,9 +87,8 @@ class PolyPy:
         self.damping_stability_threshold = damping_stability_threshold
         self.modal_participation_threshold = modal_participation_threshold
 
-        pole_dtype = np.dtype([('omega', float), ('zeta', float), ('Lr_real', float, num_input),
-                               ('Lr_complex', complex, num_input), ('freq_stable',
-                                                                    bool), ('damp_stable', bool),
+        pole_dtype = np.dtype([('omega', float), ('zeta', float), ('Lr_real', float, (num_input,)),
+                               ('Lr_complex', complex, (num_input,)), ('freq_stable',bool), ('damp_stable', bool),
                                ('part_stable', bool)])
 
         self.pole_list = []
@@ -154,12 +153,8 @@ class PolyPy:
             pole_list_i = np.zeros(omgr.size, pole_dtype)
             pole_list_i['omega'] = omgr
             pole_list_i['zeta'] = zetar
-            if np.shape(Lr)[0] == 1:
-                pole_list_i['Lr_complex'] = Lr.flatten()
-                pole_list_i['Lr_real'] = Lr_real.flatten()
-            else:
-                pole_list_i['Lr_complex'] = (Lr.T)
-                pole_list_i['Lr_real'] = (Lr_real.T)
+            pole_list_i['Lr_complex'] = (Lr.T)
+            pole_list_i['Lr_real'] = (Lr_real.T)
 
             self.pole_list.append(pole_list_i)
 
@@ -285,24 +280,23 @@ class PolyPy:
         for a, title in zip(ax, ['Angular Frequency', 'Damping', 'Participation Factor (real)', 'Participation Factor (complex)']):
             a.set_title(title)
 
-    def compute_residues(self, poles,
-                         residuals=True, real_modes=False, weighting='magnitude'):
+    def compute_shapes(self, poles,
+                         residuals=True, real_modes=False,
+                         frequency_lines_at_resonance: int = None,
+                         frequency_lines_for_residuals: int = None 
+                         ):
         self.natural_frequencies = poles['omega'] / (2 * np.pi)
         self.damping_ratios = poles['zeta']
         self.participation_factors = poles['Lr_complex']
-        self.residues, self.frfs_synth_residue, self.frfs_synth_residual = (
-            modeshape_compute_residues(
-                self.frfs, self.natural_frequencies, self.damping_ratios,
-                real_modes, residuals, self.min_frequency, self.max_frequency,
-                weighting, self.displacement_derivative))
-
-    def compute_shapes(self, selection_criteria=ShapeSelection.DRIVE_POINT_COEFFICIENT):
-        self.shapes, negative_drive_points = modeshape_compute_shapes(
-            self.natural_frequencies, self.damping_ratios,
-            self.frfs.coordinate, self.residues, selection_criteria,
-            self.participation_factors)
-        self.negative_drive_points = negative_drive_points
-
+        self.shapes, self.frfs_synth, self.frfs_synth = (
+            compute_shapes_multireference(
+                self.frfs, self.natural_frequencies, self.damping_ratios, 
+                self.participation_factors, real_modes, residuals,
+                self.min_frequency, self.max_frequency,
+                self.displacement_derivative,
+                frequency_lines_at_resonance,
+                frequency_lines_for_residuals))
+            
     @property
     def frequencies(self):
         return self.frfs[0, 0].abscissa
@@ -547,7 +541,6 @@ class PolyPy_GUI(QMainWindow):
         self.resynthesized_frfs.ordinate = 0
         self.frfs_synth_residual = self.resynthesized_frfs.copy()
         self.shapes = ShapeArray((0,), self.frfs.shape[0])
-        self.negative_drive_points = np.zeros((0,), dtype=int)
         self.first_stability = True
 
         # Set up colormaps
@@ -587,6 +580,7 @@ class PolyPy_GUI(QMainWindow):
         self.geometry = None
         self.shapes = None
         self.setWindowTitle('PolyPy -- Multi-reference Polynomial Curve Fitter')
+        self.show_line_selectors()
         self.show()
 
     @property
@@ -638,7 +632,6 @@ class PolyPy_GUI(QMainWindow):
         self.create_nmif_window_button.clicked.connect(self.create_nmif_window)
         self.complex_modes_checkbox.stateChanged.connect(self.pole_selection_changed)
         self.autoresynthesize_checkbox.stateChanged.connect(self.pole_selection_changed)
-        self.weighting_selector.currentIndexChanged.connect(self.pole_selection_changed)
         self.all_frequency_lines_checkbox.stateChanged.connect(self.pole_selection_changed)
         self.lines_at_resonance_spinbox.valueChanged.connect(self.pole_selection_changed)
         self.lines_at_residuals_spinbox.valueChanged.connect(self.pole_selection_changed)
@@ -707,31 +700,37 @@ class PolyPy_GUI(QMainWindow):
 
     def create_frf_window(self):
         self.resynthesis_plots.append(
-            ('frf', GUIPlot(self.frfs, self.resynthesized_frfs)))
+            ('frf', GUIPlot(Data = self.frfs, Fit = self.resynthesized_frfs)))
         self.update_resynthesis()
 
     def create_cmif_window(self):
         self.resynthesis_plots.append(
-            ('cmif', GUIPlot(self.frfs.compute_cmif(), self.resynthesized_frfs.compute_cmif())))
+            ('cmif', GUIPlot(Data = self.frfs.compute_cmif(), Fit = self.resynthesized_frfs.compute_cmif())))
         self.resynthesis_plots[-1][-1].ordinate_log = True
         self.resynthesis_plots[-1][-1].actionOrdinate_Log.setChecked(True)
         self.update_resynthesis()
 
     def create_qmif_window(self):
         self.resynthesis_plots.append(
-            ('qmif', GUIPlot(self.frfs.compute_cmif(part='real' if self.datatype_selector.currentIndex() == 1 else 'imag'), self.resynthesized_frfs.compute_cmif(part='imag'))))
+            ('qmif', GUIPlot(Data = self.frfs.compute_cmif(part='real' if self.datatype_selector.currentIndex() == 1 else 'imag'), Fit = self.resynthesized_frfs.compute_cmif(part='imag'))))
         self.resynthesis_plots[-1][-1].ordinate_log = True
         self.resynthesis_plots[-1][-1].actionOrdinate_Log.setChecked(True)
         self.update_resynthesis()
 
     def create_mmif_window(self):
+        test_mmif = self.frfs.compute_mmif()
+        try:
+            mmif = self.resynthesized_frfs.compute_mmif()
+        except np.linalg.LinAlgError:
+            mmif = test_mmif.copy()
+            mmif.ordinate = 1
         self.resynthesis_plots.append(
-            ('mmif', GUIPlot(self.frfs.compute_mmif(), self.resynthesized_frfs.compute_mmif())))
+            ('mmif', GUIPlot(Data = test_mmif, Fit = mmif)))
         self.update_resynthesis()
 
     def create_nmif_window(self):
         self.resynthesis_plots.append(
-            ('nmif', GUIPlot(self.frfs.compute_nmif(), self.resynthesized_frfs.compute_nmif())))
+            ('nmif', GUIPlot(Data = self.frfs.compute_nmif(), Fit = self.resynthesized_frfs.compute_nmif())))
         self.update_resynthesis()
 
     def update_resynthesis(self):
@@ -748,10 +747,15 @@ class PolyPy_GUI(QMainWindow):
                     data_computed[function_type] = self.resynthesized_frfs.compute_cmif(
                         part='real' if self.datatype_selector.currentIndex() == 1 else 'imag').flatten()
                 elif function_type == 'mmif':
-                    data_computed[function_type] = self.resynthesized_frfs.compute_mmif().flatten()
+                    try:
+                        data_computed[function_type] = self.resynthesized_frfs.compute_mmif().flatten()
+                    except np.linalg.LinAlgError:
+                        test_mmif = self.frfs.compute_mmif().copy()
+                        test_mmif.ordinate = 1
+                        data_computed[function_type] = test_mmif
                 elif function_type == 'nmif':
                     data_computed[function_type] = self.resynthesized_frfs.compute_nmif().flatten()
-            window.compare_data = data_computed[function_type]
+            window.data_dictionary['Fit'] = data_computed[function_type]
             window.update()
 
     def compute_shapes(self):
@@ -774,26 +778,17 @@ class PolyPy_GUI(QMainWindow):
             participation_factors = poles['Lr_complex']
             H = self.frfs.ordinate[..., self.frequency_slice]
             num_outputs, num_inputs, num_elements = H.shape
-            residues, frfs_synth_residue, self.frfs_synth_residual = (
-                modeshape_compute_residues(
+            self.shapes, self.resynthesized_frfs, self.frfs_synth_residual = (
+                compute_shapes_multireference(
                     self.frfs, natural_frequencies, damping_ratios,
-                    not self.complex_modes_checkbox.isChecked(
-                    ), self.use_residuals_checkbox.isChecked(), self.min_frequency, self.max_frequency,
-                    'magnitude' if self.weighting_selector.currentIndex() == 0 else 'uniform',
+                    participation_factors, 
+                    not self.complex_modes_checkbox.isChecked(),
+                    self.use_residuals_checkbox.isChecked(),
+                    self.min_frequency, self.max_frequency,
                     self.datatype_selector.currentIndex(),
                     None if self.all_frequency_lines_checkbox.isChecked() else self.lines_at_resonance_spinbox.value(),
-                    self.lines_at_residuals_spinbox.value()))
-            self.shapes, self.negative_drive_points = modeshape_compute_shapes(
-                natural_frequencies, damping_ratios,
-                self.frfs.coordinate, residues, ShapeSelection.DRIVE_POINT_COEFFICIENT,
-                participation_factors)
-            self.resynthesized_frfs = (self.shapes.compute_frf(self.frfs[0, 0].abscissa[self.frequency_slice],
-                                                               np.unique(
-                                                                   self.frfs.response_coordinate),
-                                                               np.unique(
-                                                                   self.frfs.reference_coordinate),
-                                                               self.datatype_selector.currentIndex())
-                                       + self.frfs_synth_residual)
+                    self.lines_at_residuals_spinbox.value())
+                )
             self.update_resynthesis()
         except Exception:
             print(traceback.format_exc())

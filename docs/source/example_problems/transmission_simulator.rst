@@ -85,7 +85,6 @@ will start by importing the required modules and setting up plotting options.
     import numpy as np # For numerics
     import matplotlib.pyplot as plt # For plotting
     from scipy.spatial import QhullError # For creating elements for visualization
-    QhullError = qhull.QhullError # To check if element creation has failed
     
     # Set up options to use for plotting
     plot_options = {'node_size':0,'line_width':1,'show_edges':False,

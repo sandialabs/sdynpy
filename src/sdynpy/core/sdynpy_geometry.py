@@ -756,7 +756,9 @@ class TransientPlotter(GeometryPlotter):
                     'P', palette=Image.ADAPTIVE, colors=256) for img in imgs]
                 imgs[0].save(fp=filename, format='GIF', append_images=imgs[1:],
                              save_all=True, duration=int(1 / frame_rate * 1000), loop=0)
-
+    def _close(self):
+        self.stop_animation()
+        super(TransientPlotter, self)._close()
 
 class ShapePlotter(GeometryPlotter):
     """Class used to plot animated shapes"""
@@ -885,8 +887,9 @@ class ShapePlotter(GeometryPlotter):
         # Compute maximum displacement
         if compute_scale:
             max_displacement = np.max(np.linalg.norm(self.node_displacements, axis=-1))
+            global_coords = self.geometry.global_node_coordinate()
             bbox_diagonal = np.linalg.norm(
-                np.max(self.geometry.node.coordinate, axis=0) - np.min(self.geometry.node.coordinate, axis=0))
+                np.max(global_coords, axis=0) - np.min(global_coords, axis=0))
             self.displacement_scale = 0.05 * bbox_diagonal / \
                 max_displacement  # Set to 5% of bounding box dimension
 
@@ -1297,6 +1300,9 @@ class ShapePlotter(GeometryPlotter):
         else:
             self.text.SetText(2, '')
 
+    def _close(self):
+        self.stop_animation()
+        super(ShapePlotter, self)._close()
 
 class DeflectionShapePlotter(ShapePlotter):
     """Class used to plot animated deflection shapes from spectra"""
@@ -1469,18 +1475,18 @@ def global_coord(coordinate_system, local_coord):
     # First convert to cartesian if necessary
     cylindrical_css = coordinate_system.cs_type == 1
     cyl_coord = local_coord[cylindrical_css]
-    cyl_coord[:, 0], cyl_coord[:, 1] = (cyl_coord[:, 0] * np.cos(cyl_coord[:, 1] * np.pi / 180),
-                                        cyl_coord[:, 0] * np.sin(cyl_coord[:, 1] * np.pi / 180))
+    cyl_coord[..., 0], cyl_coord[..., 1] = (cyl_coord[..., 0] * np.cos(cyl_coord[..., 1] * np.pi / 180),
+                                            cyl_coord[..., 0] * np.sin(cyl_coord[..., 1] * np.pi / 180))
     local_coord[cylindrical_css] = cyl_coord
 
     spherical_css = coordinate_system.cs_type == 2
     sph_coord = local_coord[spherical_css]
-    sph_coord[:, 0], sph_coord[:, 1], sph_coord[:, 2] = (
-        sph_coord[:, 0] * np.sin(sph_coord[:, 1] * np.pi / 180) *
-        np.cos(sph_coord[:, 2] * np.pi / 180),
-        sph_coord[:, 0] * np.sin(sph_coord[:, 1] * np.pi / 180) *
-        np.sin(sph_coord[:, 2] * np.pi / 180),
-        sph_coord[:, 0] * np.cos(sph_coord[:, 1] * np.pi / 180))
+    sph_coord[..., 0], sph_coord[..., 1], sph_coord[..., 2] = (
+        sph_coord[..., 0] * np.sin(sph_coord[..., 1] * np.pi / 180) *
+        np.cos(sph_coord[..., 2] * np.pi / 180),
+        sph_coord[..., 0] * np.sin(sph_coord[..., 1] * np.pi / 180) *
+        np.sin(sph_coord[..., 2] * np.pi / 180),
+        sph_coord[..., 0] * np.cos(sph_coord[..., 1] * np.pi / 180))
     local_coord[spherical_css] = sph_coord
     # Convert to global cartesian from local cartesian
     return np.einsum('...ij,...i->...j', coordinate_system.matrix[..., :3, :], local_coord) + coordinate_system.matrix[..., 3, :]
@@ -1515,18 +1521,18 @@ def local_coord(coordinate_system, global_coord):
     # Convert to cylindrical or spherical if necessary.
     cylindrical_css = coordinate_system.cs_type == 1
     cyl_coord = local_coordinate[cylindrical_css]
-    cyl_coord[:, 0], cyl_coord[:, 1] = (np.sqrt(cyl_coord[:, 0]**2 + cyl_coord[:, 1]**2),
-                                        np.arctan2(cyl_coord[:, 1], cyl_coord[:, 0]) * 180 / np.pi)
+    cyl_coord[..., 0], cyl_coord[..., 1] = (np.sqrt(cyl_coord[..., 0]**2 + cyl_coord[..., 1]**2),
+                                        np.arctan2(cyl_coord[..., 1], cyl_coord[..., 0]) * 180 / np.pi)
     local_coordinate[cylindrical_css] = cyl_coord
 
     spherical_css = coordinate_system.cs_type == 2
     sph_coord = local_coordinate[spherical_css]
-    sph_coord[:, 0], sph_coord[:, 1] = (
-        np.sqrt(sph_coord[:, 0]**2 + sph_coord[:, 1]**2 + sph_coord[:, 2]**2),
-        np.arctan2(sph_coord[:, 1], sph_coord[:, 0]) * 180 / np.pi)
+    sph_coord[..., 0], sph_coord[..., 1] = (
+        np.sqrt(sph_coord[..., 0]**2 + sph_coord[..., 1]**2 + sph_coord[..., 2]**2),
+        np.arctan2(sph_coord[..., 1], sph_coord[..., 0]) * 180 / np.pi)
     # At this point local_coordinate[2,:] is still z and local_coordinate[0,:] is
     # now r instead of x
-    sph_coord[:, 2] = np.arccos(sph_coord[:, 2] / sph_coord[:, 0]) * 180 / np.pi
+    sph_coord[..., 2] = np.arccos(sph_coord[..., 2] / sph_coord[..., 0]) * 180 / np.pi
     # Flip the 1 and 2 rows to be consistent with IMAT
     sph_coord = sph_coord[..., [0, 2, 1]]
     local_coordinate[spherical_css] = sph_coord
@@ -2000,7 +2006,7 @@ def element_array(id=1, type=None, color=1,
             connectivity = structured_array['connectivity']
         except (ValueError, TypeError):
             raise ValueError(
-                'structured_array must be numpy.ndarray with dtype names "id", "type", "color", "physical_prop_table_num", "material_prop_table_num", "beam_props", and "connectivity"')
+                'structured_array must be numpy.ndarray with dtype names "id", "type", "color", and "connectivity"')
     else:
         id = np.array(id)
         type = np.array(type)
@@ -2016,11 +2022,11 @@ def element_array(id=1, type=None, color=1,
     earray.color = color
     if earray.ndim == 0:
         # This is gross, but it works!
-        np.ndarray.__getitem__(earray, 'connectivity')[()] = np.array(connectivity)
+        np.ndarray.__getitem__(earray, 'connectivity')[()] = np.array(connectivity,dtype='uint32')
     else:
         connectivity = np.array(connectivity, dtype=object)
         for key, val in np.ndenumerate(id):
-            earray.connectivity[key] = np.array(connectivity[key])
+            earray.connectivity[key] = np.array(connectivity[key],dtype='uint32')
     return earray
 
 
@@ -2278,17 +2284,23 @@ class NodeArray(SdynpyArray):
         grid_spacing : float
             Approximate grid spacing between selected nodes
         x_min : float, optional
-            DESCRIPTION. The default is the minimum node x-coordinate.
+            Minimum X-value of the grid.
+            The default is the minimum node x-coordinate.
         y_min : float, optional
-            DESCRIPTION. The default is the minimum node y-coordinate.
+            Minimun Y-value of the grid.
+            The default is the minimum node y-coordinate.
         z_min : float, optional
-            DESCRIPTION. The default is the minimum node z-coordinate.
+            Minimum Z-value of the grid.
+            The default is the minimum node z-coordinate.
         x_max : float, optional
-            DESCRIPTION. The default is the maximum node x-coordinate.
+            Maximum X-value of the grid.
+            The default is the maximum node x-coordinate.
         y_max : float, optional
-            DESCRIPTION. The default is the maximum node y-coordinate.
+            Maximum Y-value of the grid.
+            The default is the maximum node y-coordinate.
         z_max : float, optional
-            DESCRIPTION. The default is the maximum node z-coordinate.
+            Maximum Z-value of the grid.
+            The default is the maximum node z-coordinate.
 
         Returns
         -------
@@ -2551,7 +2563,7 @@ def traceline_array(id=1, description='', color=1,
             connectivity = structured_array['connectivity']
         except (ValueError, TypeError):
             raise ValueError(
-                'structured_array must be numpy.ndarray with dtype names "id", "type", "color", "physical_prop_table_num", "material_prop_table_num", "beam_props", and "connectivity"')
+                'structured_array must be numpy.ndarray with dtype names "id", "color", "description", and "connectivity"')
     else:
         id = np.array(id)
         description = np.array(description)
@@ -2566,11 +2578,11 @@ def traceline_array(id=1, description='', color=1,
     tlarray.description = description
     tlarray.color = color
     if tlarray.ndim == 0:
-        np.ndarray.__getitem__(tlarray, 'connectivity')[()] = np.array(connectivity)
+        np.ndarray.__getitem__(tlarray, 'connectivity')[()] = np.array(connectivity,dtype='uint32')
     else:
         connectivity = np.array(connectivity, dtype=object)
         for key, val in np.ndenumerate(id):
-            tlarray.connectivity[key] = np.array(connectivity[key])
+            tlarray.connectivity[key] = np.array(connectivity[key],dtype='uint32')
 
     return tlarray
 
@@ -2682,6 +2694,15 @@ class Geometry:
                                         [np.array(connectivity)])
         self.traceline = np.concatenate((self.traceline, new_traceline), axis=0)
 
+    def add_element(self, elem_type, connectivity, id = None, color=1):
+        if id is None:
+            if self.element.size > 0:
+                id = np.max(self.element.id) + 1
+            else:
+                id = 1
+        new_element = element_array((id,),elem_type,color,[np.array(connectivity)])
+        self.element = np.concatenate((self.element,new_element))
+
     @classmethod
     def from_unv(cls, unv_dict):
         """
@@ -2733,7 +2754,10 @@ class Geometry:
     from_uff = from_unv
 
     @classmethod
-    def from_exodus(cls, exo: Exodus, blocks=None, local=False, preferred_local_orientation=np.array((0.0, 0.0, 1.0)), secondary_preferred_local_orientation=np.array((1.0, 0.0, 0.0))):
+    def from_exodus(cls, exo: Exodus, blocks=None, local=False,
+                    preferred_local_orientation=np.array((0.0, 0.0, 1.0)),
+                    secondary_preferred_local_orientation=np.array((1.0, 0.0, 0.0)),
+                    local_nodes = None):
         """
         Generate a geometry from exodus file data
 
@@ -2763,6 +2787,9 @@ class Geometry:
             direction is parallel to the primary preferred_local_orientation. 
             The default is np.array((1.0,0.0,0.0)), which points the local
             coordinate system along the local Z+ axis.
+        local_nodes : np.ndarray, optional
+            If specified, only create local coordinate systems at the specified
+            nodes.
 
         Returns
         -------
@@ -2804,11 +2831,17 @@ class Geometry:
         elems = element_array(np.arange(len(elem_connectivity)) + 1,
                               elem_types, elem_color, elem_connectivity)
         if local:
+            if local_nodes is not None:
+                node_map_dict = {val:index for index,val in enumerate(node_map)}
+                local_node_indices = np.array([node_map_dict[node] for node in local_nodes])
+                local_node_index_map = {node_index:index for index,node_index in enumerate(local_node_indices)}
             preferred_local_orientation /= np.linalg.norm(preferred_local_orientation)
             secondary_preferred_local_orientation /= np.linalg.norm(
                 secondary_preferred_local_orientation)
             # Go through each node, find the block that it's in, get its elements
-            normal_sum = np.zeros((coordinates.shape[0], 3))
+            normal_sum = np.zeros(
+                (coordinates.shape[0]  if local_nodes is None else len(local_nodes),
+                 3))
             for block in blocks:
                 if block.connectivity.shape[-1] <= 1:
                     # Skip conmasses
@@ -2818,10 +2851,15 @@ class Geometry:
                                           full_block_node_positions[:, 1, :] - full_block_node_positions[:, 0, :])
                 normal_vectors /= np.linalg.norm(normal_vectors, axis=-1, keepdims=True)
                 block_nodes = np.unique(block.connectivity)
+                if local_nodes is not None:
+                    block_nodes = local_node_indices[np.in1d(local_node_indices,block_nodes)]
                 for index in block_nodes:
                     node_elements = np.any(block.connectivity == index, axis=-1)
                     node_normals = normal_vectors[node_elements]
-                    normal_sum[index] += np.sum(node_normals, axis=0)
+                    if local_nodes is None:
+                        normal_sum[index] += np.sum(node_normals, axis=0)
+                    else:
+                        normal_sum[local_node_index_map[index]] += np.sum(node_normals,axis=0)
             # Put small nodes to reasonable values to avoid divide by zero
             normal_sum[np.linalg.norm(normal_sum, axis=-1) < 1e-14] = preferred_local_orientation
             node_rotations = np.zeros((3,) + normal_sum.shape)
@@ -2843,11 +2881,19 @@ class Geometry:
                 (node_rotations.shape[0], 1, node_rotations.shape[-1]))), axis=1)
             # Put a global coordinate system at the end
             cs_matrix = np.concatenate((cs_matrix, np.eye(4, 3)[np.newaxis]), axis=0)
-            cs_ids = np.concatenate((node_map, (node_map.max() + 1,)), axis=0)
-            cs_descriptions = ['Node {:} Disp'.format(id) for id in node_map] + ['Global']
-            css = coordinate_system_array(cs_ids, cs_descriptions, 1, 0, cs_matrix)
-            nodes.def_cs = cs_ids[-1]
-            nodes.disp_cs = cs_ids[:-1]
+            if local_nodes is None:
+                cs_ids = np.concatenate((node_map, (node_map.max() + 1,)), axis=0)
+                cs_descriptions = ['Node {:} Disp'.format(id) for id in node_map] + ['Global']
+                css = coordinate_system_array(cs_ids, cs_descriptions, 1, 0, cs_matrix)
+                nodes.def_cs = cs_ids[-1]
+                nodes.disp_cs = cs_ids[:-1]
+            else:
+                cs_ids = np.concatenate((local_nodes, (node_map.max() + 1,)), axis=0)
+                cs_descriptions = ['Node {:} Disp'.format(id) for id in local_nodes] + ['Global']
+                css = coordinate_system_array(cs_ids, cs_descriptions, 1, 0, cs_matrix)
+                nodes.def_cs = cs_ids[-1]
+                nodes.disp_cs = cs_ids[-1]
+                nodes.disp_cs[local_node_indices] = cs_ids[:-1]
         else:
             css = coordinate_system_array((1,))
         return Geometry(nodes, css, tls, elems)
@@ -2920,6 +2966,80 @@ class Geometry:
             geometry.add_traceline(np.array([0, 4]) + 10 * (i + 1), color=this_color)
         return geometry
 
+    def compress_ids(self,compress_nodes=True,compress_elements=True,
+                     compress_tracelines=True,compress_cs=True,
+                     return_maps = False):
+        """
+        Compresses ID numbers to make node, element, etc. contiguous
+
+        Parameters
+        ----------
+        compress_nodes : bool, optional
+            If True, compress the node ids.  The default is True.
+        compress_elements : bool, optional
+            If True, compress the element ids. The default is True.
+        compress_tracelines : bool, optional
+            If True, compress the traceline ids. The default is True.
+        compress_cs : bool, optional
+            If True, compress the coordinate system ids. The default is True.
+        return_maps : bool, optional
+            If True, return id maps for nodes, elements, tracelines, and
+            coordinate systems.  Maps will be equal to `None` if no compression
+            was done on that field. The default is False.
+
+        Returns
+        -------
+        mapped_geometry : Geometry
+            Geometry with contiguous id numbers for the selected fields.
+        node_map : id_map or `None`
+            Mapping from the old set of nodes to the new set of nodes, only
+            returned if `return_maps` is True.  If `compress_nodes` is False,
+            this will be `None`.
+        traceline_map : id_map or `None`
+            Mapping from the old set of tracelines to the new set of tracelines, only
+            returned if `return_maps` is True.  If `compress_tracelines` is False,
+            this will be `None`.
+        element_map : id_map or `None`
+            Mapping from the old set of elements to the new set of elements, only
+            returned if `return_maps` is True.  If `compress_elements` is False,
+            this will be `None`.
+        cs_map : id_map or `None`
+            Mapping from the old set of coordinate systems to the new set of
+            coordinate systems, only
+            returned if `return_maps` is True.  If `compress_cs` is False,
+            this will be `None`.
+
+        """
+        if compress_nodes:
+            to_nodes = np.arange(self.node.size)+1
+            from_nodes = self.node.id.flatten()
+            node_map = id_map(from_nodes,to_nodes)
+        else:
+            node_map = None
+        if compress_cs:
+            to_cs = np.arange(self.coordinate_system.size)+1
+            from_cs = self.coordinate_system.id.flatten()
+            cs_map = id_map(from_cs,to_cs)
+        else:
+            cs_map = None
+        if compress_elements:
+            to_elements = np.arange(self.element.size)+1
+            from_elements = self.coordinate_system.id.flatten()
+            element_map = id_map(from_elements,to_elements)
+        else:
+            element_map = None
+        if compress_tracelines:
+            to_tls = np.arange(self.traceline.size)+1
+            from_tls = self.coordinate_system.id.flatten()
+            traceline_map = id_map(from_tls,to_tls)
+        else:
+            traceline_map = None
+        mapped_geometry = self.map_ids(node_map,traceline_map,element_map,cs_map)
+        if return_maps:
+            return mapped_geometry,node_map,traceline_map,element_map,cs_map
+        else:
+            return mapped_geometry
+
     @classmethod
     def from_imat_struct(cls, imat_fem_struct):
         """
@@ -2974,11 +3094,18 @@ class Geometry:
                               connectivity=[val.flatten() for val in tl_struct['conn'][0, 0].flatten()])
         return cls(nodes, css, tls, elems)
 
-    def global_node_coordinate(self):
+    def global_node_coordinate(self, node_ids = None):
         """
         Position of the Geometry's nodes in the global coordinate system
-
-
+        
+        Parameters
+        ----------
+        node_ids : np.ndarray
+            An array of node id numbers to keep in the output coordinate.  If
+            not specified, all nodes will be returned in the order they are in
+            the model.
+        
+            
         Returns
         -------
         np.ndarray
@@ -2987,8 +3114,36 @@ class Geometry:
             global coordinate system.
 
         """
-        cs_array = self.coordinate_system(self.node.def_cs)
-        return self.node.global_coordinate(cs_array)
+        if node_ids is None:
+            node = self.node
+        else:
+            node = self.node(node_ids)
+        cs_array = self.coordinate_system(node.def_cs)
+        return node.global_coordinate(cs_array)
+
+    def node_by_global_position(self,global_position_array):
+        """
+        Select node by closest position
+
+        Parameters
+        ----------
+        global_position_array : np.ndarray
+            A (...,3) shape array containing positions of nodes to keep
+
+        Returns
+        -------
+        NodeArray
+            NodArray containing nodes that were closest to the positions in
+            position_array.
+
+        """
+        node_differences = np.linalg.norm(
+            self.global_node_coordinate() - global_position_array[(Ellipsis,) + (np.newaxis,) * self.node.ndim + (slice(None),)], axis=-1)
+        node_differences = node_differences.reshape(*global_position_array.shape[:-1], -1)
+        node_indices = np.argmin(
+            node_differences,
+            axis=-1)
+        return self.node.flatten()[node_indices]
 
     def global_deflection(self, coordinate_array):
         """
@@ -3351,8 +3506,9 @@ class Geometry:
         coordinates = coordinates.flatten()
 
         if arrow_scale_type == 'bbox':
+            node_coords = self.global_node_coordinate()
             bbox_diagonal = np.linalg.norm(
-                np.max(self.node.coordinate, axis=0) - np.min(self.node.coordinate, axis=0))
+                np.max(node_coords, axis=0) - np.min(node_coords, axis=0))
             arrow_factor = bbox_diagonal * arrow_scale
         else:
             arrow_factor = arrow_scale
@@ -3671,6 +3827,11 @@ class Geometry:
         geom_out.node.disp_cs += coordinate_system_change
         geom_out.traceline.connectivity += node_change
         geom_out.element.connectivity += node_change
+        # Set values of tracelines back to zero if they just equal node_change,
+        # because that means they were zero and should represent picking up the
+        # pen
+        for connectivity_array in geom_out.traceline.connectivity:
+            connectivity_array[connectivity_array == node_change] = 0
         return geom_out
 
     def map_ids(self, node_id_map=None, traceline_id_map=None, element_id_map=None, coordinate_system_id_map=None):
@@ -4017,7 +4178,7 @@ class id_map:
         """
         self.from_ids = from_ids
         self.to_ids = to_ids
-        self.mapper = np.vectorize({f: t for f, t in zip(from_ids, to_ids)}.__getitem__)
+        self.mapper = np.vectorize({f: t for f, t in zip(from_ids, to_ids)}.__getitem__,otypes=['uint64'])
 
     def __call__(self, val):
         """

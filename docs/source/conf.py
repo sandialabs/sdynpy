@@ -30,10 +30,8 @@ def get_version():
 
 
 project = 'SDynPy'
+copyright = '2022, Sandia National Laboratories'
 author = 'Daniel P. Rohe'
-copyright = '2022 National Technology & Engineering Solutions of Sandia, \
-    LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, \
-    the U.S. Government retains certain rights in this software'
 
 # The full version, including alpha/beta/rc tags
 release = get_version()
@@ -45,7 +43,10 @@ templates_path = ['_templates']
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 html_theme = 'sphinx_rtd_theme'
-html_theme_options = {'navigation_depth': 8}
+html_theme_options = {'navigation_depth': 8,
+                      'logo_only': True,
+                      'display_version':False}
+html_logo = 'images/logo_horizontal_light.svg'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',

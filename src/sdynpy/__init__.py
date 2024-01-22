@@ -18,16 +18,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod
-from .fileio import unv, uff, rattlesnake, vic
+from .fileio import unv, uff, rattlesnake, vic, tshaker
 from .fem.sdynpy_exodus import Exodus, ExodusInMemory
 from .fem import sdynpy_beam as beam
 from .fem import sdynpy_shaker as shaker
 from .fem import sdynpy_dof as dof
-from .signal_processing import frf, cpsd, integration, correlation, complex, rotation, generator, camera, harmonic, geometry_fitting
+from .signal_processing import (frf, cpsd, integration, correlation, complex,
+                                rotation, generator, camera, harmonic, 
+                                geometry_fitting, srs)
 from .modal import PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues, compute_shapes, SignalProcessingGUI, ColoredCMIF
 from . import doc
 
-__version__ = "0.6.0"
+__version__ = "0.11.0"
 
 # Pull things in for easier access
 SdynpyArray = array.SdynpyArray

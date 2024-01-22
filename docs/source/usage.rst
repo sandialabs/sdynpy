@@ -164,3 +164,8 @@ SDynPy has several general purpose signal processing tools as well.  These inclu
 * :py:mod:`sdpy.complex<sdynpy.signal_processing.sdynpy_complex>` - Functions for working with complex numbers
 * :py:mod:`sdpy.rotation<sdynpy.signal_processing.sdynpy_rotation>` - Functions for computing and working with rotation matrices
 * :py:mod:`sdpy.generator<sdynpy.signal_processing.sdynpy_generator>` - Functions for generating standard signal types such as sine or pseudorandom
+* :py:mod:`sdpy.camera<sdynpy.signal_processing.sdynpy_camera>` - Functions for working with camera projections and projections
+* :py:mod:`sdpy.harmonic<sdynpy.signal_processing.sdynpy_harmonic>` - Functions for working with harmonic signals
+* :py:mod:`sdpy.geometry_fitting<sdynpy.signal_processing.sdynpy_geometry_fitting>` - Functions for fitting geometry to data
+* :py:mod:`sdpy.frf_inverse<sdynpy.signal_processing.sdynpy_frf_inverse>` - Functions for inverting frequency response functions for inverse problems
+* :py:mod:`sdpy.srs<sdynpy.signal_processing.sdynpy_srs>` - Functions for computing shock response spectra and generating sum-decayed-sines signals

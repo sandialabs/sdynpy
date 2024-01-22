@@ -24,11 +24,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def collapse_complex_to_real(vector, axis=-1, preserve_magnitude=False, plot=False):
+def collapse_complex_to_real(vector, axis=-1, preserve_magnitude=False, plot=False,
+                             force_angle = None):
     x = np.real(vector)
     y = np.imag(vector)
     slope = np.sum(x * y, axis=axis, keepdims=True) / np.sum(x * x, axis=axis, keepdims=True)
     angle = np.arctan(slope)
+    if force_angle is not None:
+        angle[...] = force_angle
     rotated_vector = vector * np.exp(-1j * angle)
     if plot:
         plt.figure('Complex Rotation')

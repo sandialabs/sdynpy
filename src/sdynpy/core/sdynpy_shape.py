@@ -36,6 +36,7 @@ from ..signal_processing.sdynpy_correlation import mac as mac_corr, matrix_plot
 from ..signal_processing.sdynpy_complex import collapse_complex_to_real
 from ..signal_processing.sdynpy_rotation import unit_magnitude_constraint, quaternion_to_rotation_matrix
 from ..fem.sdynpy_exodus import Exodus
+from ..fem.sdynpy_dof import by_condition_number, by_effective_independence
 from copy import deepcopy
 import pandas as pd
 
@@ -202,7 +203,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             return return_value
         else:
             output = super().__getitem__(key)
-            if key == 'coordinate':
+            if isinstance(key,str) and key == 'coordinate':
                 return output.view(sdynpy_coordinate.CoordinateArray)
             else:
                 return output
@@ -489,30 +490,36 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             responses = all_coords[index]
         if references is None:
             references = responses
-        response_shape_matrix = flat_self[responses]
-        reference_shape_matrix = flat_self[references]
-        w_bc = 2 * np.pi * frequencies[np.newaxis, :,
-                                       np.newaxis, np.newaxis]  # frequencies along axis 1
-        wn_bc = 2 * np.pi * flat_self.frequency[:, np.newaxis,
-                                                np.newaxis, np.newaxis]  # Each mode along axis 0
-        zn_bc = flat_self.damping[:, np.newaxis, np.newaxis, np.newaxis]
-        mu = flat_self.modal_mass[:, np.newaxis, np.newaxis, np.newaxis]
-        output_shapes = response_shape_matrix[:, np.newaxis, :,
-                                              np.newaxis]  # Put mode in axis 0 and dof in axis 2
-        input_shapes = reference_shape_matrix[:, np.newaxis,
-                                              np.newaxis, :]  # Put mode in axis 0 and dof in axis 3
+        damping_ratios = flat_self.damping
+        angular_natural_frequencies = flat_self.frequency*2*np.pi
+        angular_frequencies = frequencies*2*np.pi
+        response_shape_matrix = flat_self[responses] # nm x no
+        reference_shape_matrix = flat_self[references] # nm x ni
+        modal_mass = flat_self.modal_mass
+        if self.is_complex():
+            poles = -damping_ratios*angular_natural_frequencies + 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
+            denominator = 1/(modal_mass*(1j*angular_frequencies[:,np.newaxis] - poles)) # nf x nm
+            denominator_conj = 1/(modal_mass*(1j*angular_frequencies[:,np.newaxis] - poles.conjugate())) # nf x nm
+            frf_ordinate = (np.einsum('mo,mi,fm->oif',response_shape_matrix,reference_shape_matrix,denominator) + 
+                            np.einsum('mo,mi,fm->oif',response_shape_matrix.conjugate(), reference_shape_matrix.conjugate(), denominator_conj))
+        else:
+            denominator = 1/(modal_mass*
+                             (-angular_frequencies[:,np.newaxis]**2
+                              + angular_natural_frequencies**2
+                              + 2j*damping_ratios*angular_frequencies[:,np.newaxis]*angular_natural_frequencies))
 
-        # Simply use the FRF Accelerance equation
-        H_4D = ((1j * w_bc)**displacement_derivative) * output_shapes * \
-            input_shapes / (mu * (wn_bc**2 - w_bc**2 + 2j * zn_bc * w_bc * wn_bc))
-
-        # Now sum over all modes (axis 0)
-        H = np.sum(H_4D, axis=0)
-
+            frf_ordinate = np.einsum('mo,mi,fm->oif',
+                                     response_shape_matrix,
+                                     reference_shape_matrix,
+                                     denominator,
+                                     )
+        # Modify for data type
+        if displacement_derivative > 0:
+            frf_ordinate *= (1j*angular_frequencies)**displacement_derivative
         # Now package into a sdynpy array
         output_data = sdynpy_data.data_array(sdynpy_data.FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
-                                             frequencies, H.transpose(1, 2, 0),
-                                             np.array(np.broadcast_arrays(responses[:, np.newaxis], references)).view(sdynpy_coordinate.CoordinateArray).transpose(1, 2, 0))
+                                             frequencies, frf_ordinate,
+                                             sdynpy_coordinate.outer_product(responses,references))
 
         return output_data
 
@@ -625,7 +632,8 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         else:
             return expanded_shapes
 
-    def transform_coordinate_system(self, original_geometry, new_geometry, node_id_map=None, rotations=False):
+    def transform_coordinate_system(self, original_geometry, new_geometry, node_id_map=None, rotations=False,
+                                    missing_dofs_are_zero = False):
         """
         Performs coordinate system transformations on the shape
 
@@ -643,6 +651,11 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         rotations : bool, optional
             If True, also transform rotational degrees of freedom. The default
             is False.
+        missing_dofs_are_zero : bool, optional
+            If False, any degree of freedom required for the transformation that
+            is not provided will result in a ValueError.  If True, these missing
+            degrees of freedom will simply be appended to the original shape
+            matrix as zeros.  Default is False.
 
         Returns
         -------
@@ -657,31 +670,35 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             self.coordinate.node = node_id_map(self.coordinate.node)
         common_nodes = np.intersect1d(np.intersect1d(original_geometry.node.id, new_geometry.node.id),
                                       np.unique(self.coordinate.node))
-        original_coordinate_systems = original_geometry.coordinate_system(
-            original_geometry.node(common_nodes).disp_cs)
-        new_coordinate_systems = new_geometry.coordinate_system(
-            new_geometry.node(common_nodes).disp_cs)
         coordinates = sdynpy_coordinate.coordinate_array(
             common_nodes[:, np.newaxis], [1, 2, 3, 4, 5, 6] if rotations else [1, 2, 3])
+        transform_from_original = original_geometry.global_deflection(coordinates)
+        transform_to_new = new_geometry.global_deflection(coordinates)
+        if missing_dofs_are_zero:
+            # Find any coordinates that are not in shapes
+            shape_coords = np.unique(abs(self.coordinate))
+            coords_not_in_shape = coordinates[~np.isin(abs(coordinates),shape_coords)]
+            # Create a new shape array and set the coefficients to zero
+            append_shape_matrix = np.zeros(self.shape+(coords_not_in_shape.size,),
+                                           dtype=self.shape_matrix.dtype)
+            # Create a shape
+            append_shape = shape_array(coords_not_in_shape,append_shape_matrix)
+            # Append it
+            self = ShapeArray.concatenate_dofs((self,append_shape))
         shape_matrix = self[coordinates].reshape(*self.shape, *coordinates.shape)
-        transform_from_original = original_coordinate_systems.matrix[..., :3, :3]
-        transform_to_new = new_coordinate_systems.matrix[..., :3, :3]
-        if rotations:
-            # If we are doing rotations, we need to do a block diagonal for translations and rotations
-            transform_from_original = np.concatenate((
-                np.concatenate((transform_from_original, np.zeros(
-                    transform_from_original.shape)), axis=-1),
-                np.concatenate((np.zeros(transform_from_original.shape),
-                               transform_from_original), axis=-1),
-            ), axis=-2)
-            transform_to_new = np.concatenate((
-                np.concatenate((transform_to_new, np.zeros(transform_to_new.shape)), axis=-1),
-                np.concatenate((np.zeros(transform_to_new.shape), transform_to_new), axis=-1),
-            ), axis=-2)
         new_shape_matrix = np.einsum('nij,nkj,...nk->...ni', transform_to_new,
                                      transform_from_original, shape_matrix)
         return shape_array(coordinates.flatten(), new_shape_matrix.reshape(*self.shape, -1), self.frequency, self.damping, self.modal_mass,
                            self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
+
+    def reduce_for_comparison(self,comparison_shape, node_id_map = None):
+        if not node_id_map is None:
+            self = self.reduce(node_id_map.from_ids)
+            self.coordinate.node = node_id_map(self.coordinate.node)
+        common_dofs = np.intersect1d(abs(self.coordinate),abs(comparison_shape.coordinate))
+        reduced_self = self.reduce(common_dofs)
+        reduced_comparison = comparison_shape.reduce(common_dofs)
+        return reduced_self, reduced_comparison
 
     def plot_frequency(self, interp_abscissa, interp_ordinate, ax=None, plot_kwargs={'color': 'k', 'marker': 'x', 'linestyle': "None"}):
         """
@@ -714,14 +731,16 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         ax.plot(self.frequency.flatten(), ys.flatten(), **plot_kwargs)
         return ax
 
-    def to_real(self, *args, **kwargs):
+    def to_real(self, force_angle = -np.pi/4, **kwargs):
         """
         Creates real shapes from complex shapes by collapsing the complexity
 
         Parameters
         ----------
-        *args : various
-            Extra arguments to pass to collapse_complex_to_real
+        force_angle : float
+            Angle to force the complex collapsing to real, by default it is
+            -pi/4 (-45 degrees).  To allow other angles, use None for this
+            argument.
         **kwargs : various
             Extra arguments to pass to collapse_complex_to_real
 
@@ -731,7 +750,13 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             Real shapes created from the original complex shapes
 
         """
-        matrix = collapse_complex_to_real(self.shape_matrix, *args, **kwargs)
+        if not self.is_complex():
+            return self.copy()
+        matrix = collapse_complex_to_real(self.shape_matrix, 
+                                          force_angle = force_angle,
+                                          **kwargs)
+        damped_natural_frequency = (self.frequency*2*np.pi*np.sqrt(1-self.damping**2)).real[...,np.newaxis]
+        matrix *= np.sqrt(2*damped_natural_frequency)
         return shape_array(self.coordinate, matrix.real, self.frequency, self.damping.real,
                            self.modal_mass.real, self.comment1, self.comment2, self.comment3,
                            self.comment4, self.comment5)
@@ -949,6 +974,46 @@ class ShapeArray(sdynpy_array.SdynpyArray):
                                                      times, forces.reshape(-1, forces.shape[-1]),
                                                      sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis] if references is None else np.atleast_1d(references)[:, np.newaxis])
             return response_array, reference_array
+
+    def optimize_degrees_of_freedom(self, sensors_to_keep,
+                                    group_by_node = False, method = 'ei'):
+        """
+        Creates a reduced set of shapes using optimal degrees of freedom
+
+        Parameters
+        ----------
+        sensors_to_keep : int
+            Number of sensors to keep
+        group_by_node : bool, optional
+            If True, group shape degrees of freedom a the same node as one
+            sensor, like a triaxial accelerometer. The default is False.
+        method : str, optional
+            'ei' for effective independence or 'cond' for condition number.
+            The default is 'ei'.
+
+        Returns
+        -------
+        ShapeArray
+            The set of shapes with a reduced set of degrees of freedom that are
+            optimally chosen.
+
+        """
+        if group_by_node:
+            nodes = np.unique(self.coordinate.node)
+            directions = np.unique(abs(self.coordinate).direction)
+            coordinate_array = sdynpy_coordinate.coordinate_array(nodes[:,np.newaxis],directions)
+        else:
+            coordinate_array = np.unique(abs(self.coordinate))
+        shape_matrix = self[coordinate_array]
+        shape_matrix = np.moveaxis(shape_matrix,0,-1)
+        if method == 'ei':
+            indices = by_effective_independence(sensors_to_keep, shape_matrix)
+        elif method == 'cond':
+            indices = by_condition_number(sensors_to_keep, shape_matrix)
+        else:
+            raise ValueError('Invalid `method`, must be one of "ei" or "cond"')
+        coordinate_array = coordinate_array[indices]
+        return self.reduce(coordinate_array)
 
     def system(self):
         """

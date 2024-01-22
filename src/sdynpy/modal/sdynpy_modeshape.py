@@ -25,13 +25,13 @@ import numpy as np
 from ..core.sdynpy_data import TransferFunctionArray
 from ..core.sdynpy_shape import shape_array
 from ..core.sdynpy_coordinate import CoordinateArray
+from ..signal_processing.sdynpy_complex import collapse_complex_to_real
 
 
 class ShapeSelection(Enum):
     ALL = 0
     DRIVE_POINT_COEFFICIENT = 1
     PARTICIPATION_FACTOR = 2
-
 
 def compute_residues(experimental_frf: TransferFunctionArray,
                      natural_frequencies: np.ndarray,
@@ -54,7 +54,7 @@ def compute_residues(experimental_frf: TransferFunctionArray,
     natural_frequencies : np.ndarray
         Natural Frequencies (in Hz) at which modes will be fit
     damping_ratios : np.ndarray
-        Damping Ratios (in Hz) at which modes will be fit
+        Damping Ratios at which modes will be fit
     real_modes : bool, optional
         If true, fit residues will be real-valued.  False allows complex modes.
         The default is False.
@@ -279,3 +279,255 @@ def compute_shapes(natural_frequencies: np.ndarray,
                          frequency=natural_frequencies, damping=damping_ratios,
                          comment1=coordinates[0, :, -1].string_array()[shape_selection_indices])
     return shapes, negative_drive_points
+
+def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
+                                  natural_frequencies: np.ndarray,
+                                  damping_ratios: np.ndarray,
+                                  participation_factors: np.ndarray,
+                                  real_modes: bool = False,
+                                  residuals: bool = True,
+                                  min_frequency: float = None,
+                                  max_frequency: float = None,
+                                  displacement_derivative: int = 0,
+                                  frequency_lines_at_resonance: int = None,
+                                  frequency_lines_for_residuals: int = None):
+    """
+    Computes mode shapes from multireference datasets.
+    
+    Uses the modal participation factor as a constraint on the mode shapes to
+    solve for the shapes in one pass, rather than solving for residues and
+    subsequently solving for shapes.
+
+    Parameters
+    ----------
+    experimental_frf : TransferFunctionArray
+        Experimental FRF data to which modes will be fit
+    natural_frequencies : np.ndarray
+        Natural Frequencies (in Hz) at which modes will be fit
+    damping_ratios : np.ndarray
+        Damping Ratios at which modes will be fit
+    participation_factors : np.ndarray
+        Mode participation factors from which the shapes can be computed.
+        Should have shape (n_modes x n_inputs)
+    real_modes : bool, optional
+        Specifies whether to solve for real modes or complex modes (default).
+    residuals : bool, optional
+        Use residuals in the FRF fit. The default is True.
+    min_frequency : float, optional
+        Minimum frequency to use in the shape fit. The default is the lowest
+        frequency in the experimental FRF.
+    max_frequency : float, optional
+        Maximum frequency to use in the shape fit. The default is the highest
+        frequency in the experimental FRF.
+    displacement_derivative : int, optional
+        Defines the type of data in the FRF based on the number of derivatives
+        from displacement (0 - displacement, 1 - velocity, 2 - acceleration).
+        The default is 0 (displacement).
+    frequency_lines_at_resonance : int, optional
+        Defines the number of frequency lines to look at around the specified
+        natural frequencies for computing residues.  If not specified, all
+        frequency lines are used for computing shapes.
+    frequency_lines_for_residuals : int, optional
+        Defines the number of frequency lines at the low and high frequency to
+        use in computing shapes.  Only used if frequency_lines_at_resonance is
+        specified.  If not specified, the lower 10% and upper 10% of frequency
+        lines will be kept for computing residuals.
+
+    Raises
+    ------
+    ValueError
+        If the FRF is not 2-dimensional with references on the columns and
+        responses on the rows.
+
+    Returns
+    -------
+    output_shape : ShapeArray
+        ShapeArray containing the mode shapes of the system
+    frfs_resynthesized : TransferFunctionArray
+        FRFs resynthesized from the fit shapes and residuals
+    residual_frfs : TransferFunctionArray
+        FRFs resynthesized only from the residuals used in the calculation
+    """
+    original_coordinates = experimental_frf.coordinate
+    if not experimental_frf.ndim == 2:
+        raise ValueError('FRF must be shaped n_outputs x n_inputs')
+    abs_coordinate = abs(original_coordinates)
+    experimental_frf = experimental_frf[abs_coordinate]
+    # Also need to adjust the participation factors
+    participation_factors = participation_factors*np.sign(original_coordinates[0,:,1].direction)
+    frequencies = experimental_frf[0,0].abscissa.copy()
+    if min_frequency is None:
+        min_frequency = np.min(frequencies)
+    if max_frequency is None:
+        max_frequency = np.max(frequencies)
+    abscissa_indices = np.ones(frequencies.shape, dtype=bool)
+    abscissa_indices &= (frequencies >= min_frequency)
+    abscissa_indices &= (frequencies <= max_frequency)
+    frequencies = frequencies[abscissa_indices]
+    frf_matrix = experimental_frf.ordinate[..., abscissa_indices].copy()
+    angular_frequencies = 2 * np.pi * frequencies
+    angular_natural_frequencies = 2 * np.pi * np.array(natural_frequencies).flatten()
+    damping_ratios = np.array(damping_ratios).flatten()
+    
+    # Reduce to the kept frequency lines
+    if frequency_lines_at_resonance is not None:
+        solve_indices = np.argmin(np.abs(angular_natural_frequencies - angular_frequencies[:,np.newaxis]), axis=0)
+        # print(solve_indices)
+        solve_indices = np.unique(
+            solve_indices[:, np.newaxis] + np.arange(frequency_lines_at_resonance) - frequency_lines_at_resonance // 2)
+        solve_indices = solve_indices[(solve_indices >= 0) & (
+            solve_indices < angular_frequencies.size)]
+        # Add the residual indices
+        if residuals:
+            if frequency_lines_for_residuals is None:
+                low_freq_indices = np.arange(angular_frequencies.size // 10)
+                high_freq_indices = angular_frequencies.size - \
+                    np.arange(angular_frequencies.size // 10) - 1
+            else:
+                low_freq_indices = np.arange(frequency_lines_for_residuals)
+                high_freq_indices = angular_frequencies.size - \
+                    np.arange(frequency_lines_for_residuals) - 1
+            solve_indices = np.unique(np.concatenate(
+                (solve_indices, low_freq_indices, high_freq_indices)))
+        frf_matrix = frf_matrix[...,solve_indices]
+        angular_frequencies = angular_frequencies[solve_indices]
+    
+    if real_modes:
+        denominator = angular_natural_frequencies**2 - angular_frequencies[:,np.newaxis]**2 + 2j*damping_ratios*angular_natural_frequencies*angular_frequencies[:,np.newaxis]
+        l = collapse_complex_to_real(participation_factors).T
+        gamma = 1/denominator[:,np.newaxis]*np.eye(l.shape[-1])
+        coef = (l@gamma).reshape(-1,gamma.shape[-1])
+        
+        kernel = np.concatenate((coef.real,coef.imag),axis=0)
+        
+    else:
+        # Now set up the kernel
+        poles = -damping_ratios*angular_natural_frequencies + 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
+        poles_conj = -damping_ratios*angular_natural_frequencies - 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
+        
+        gamma = (1/(1j*angular_frequencies[:,np.newaxis] - poles))[...,np.newaxis,:]*np.eye(poles.size)
+        gamma_conj = (1/(1j*angular_frequencies[:,np.newaxis] - poles_conj))[...,np.newaxis,:]*np.eye(poles.size)
+        
+        l = participation_factors.T
+        l_conj = l.conj()
+        
+        coef = (l@gamma).reshape(-1,gamma.shape[-1])
+        coef_conj = (l_conj@gamma_conj).reshape(-1,gamma.shape[-1])
+    
+        kernel = np.block([
+            [coef.real + coef_conj.real, coef_conj.imag - coef.imag],
+            [coef.imag + coef_conj.imag, coef.real - coef_conj.real],
+            ])
+        
+    if residuals:
+        lr = (-np.eye(l.shape[0])/angular_frequencies[:,np.newaxis,np.newaxis]**2).reshape(-1,l.shape[0])
+        ur = (np.eye(l.shape[0])*np.ones((angular_frequencies.size,1,1))).reshape(-1,l.shape[0])
+        zeros = np.zeros(lr.shape)
+
+        residual_block = np.block([[lr,zeros,ur,zeros],
+                                   [zeros,lr,zeros,ur]])
+
+        kernel = np.concatenate((kernel,residual_block),axis=-1)
+        
+    # Convert to accelerations to do the solve
+    omega_scale_factor = np.tile(np.repeat(-angular_frequencies**2,l.shape[0]),2)
+    kernel *= omega_scale_factor[:,np.newaxis]
+    frf_matrix *= (1j * angular_frequencies)**(2 - displacement_derivative)
+    
+    # TODO: See about putting weighting in here
+    
+    # Now assemble the FRF matrix to fit.
+    frf_to_fit = frf_matrix.transpose().reshape(-1,experimental_frf.shape[0])
+    frf_to_fit = np.concatenate((frf_to_fit.real,frf_to_fit.imag),axis=0)
+    
+    # Solve the least squares problem
+    shape_coefficients,*metrics = np.linalg.lstsq(kernel,frf_to_fit)
+    
+    # Extract the shapes and residues
+    if real_modes:
+        shapes = (shape_coefficients[:l.shape[1]]).T
+    else:
+        shapes = (shape_coefficients[:l.shape[1]] + 1j*shape_coefficients[l.shape[1]:2*l.shape[1]]).T
+    
+    reconstruction_angular_frequencies = frequencies*2*np.pi
+    residual_frfs = experimental_frf.copy().extract_elements(abscissa_indices)
+    if residuals:
+        lr = (-np.eye(l.shape[0])/reconstruction_angular_frequencies[:,np.newaxis,np.newaxis]**2).reshape(-1,l.shape[0])
+        ur = (np.eye(l.shape[0])*np.ones((reconstruction_angular_frequencies.size,1,1))).reshape(-1,l.shape[0])
+        zeros = np.zeros(lr.shape)
+
+        residual_reconstruction_block = np.block([[lr,zeros,ur,zeros],
+                                                  [zeros,lr,zeros,ur]])
+    
+        residual_reconstruction = (residual_reconstruction_block @ shape_coefficients[-4*l.shape[0]:])
+        residual_reconstruction = (residual_reconstruction[:residual_reconstruction.shape[0]//2] 
+                                   + 1j*residual_reconstruction[residual_reconstruction.shape[0]//2:]).reshape(reconstruction_angular_frequencies.size,l.shape[0],-1)
+        residual_frfs.ordinate = residual_reconstruction.transpose() * (1j*reconstruction_angular_frequencies)**displacement_derivative
+    else:
+        residual_frfs.ordinate = 0
+    
+    # Now we have to go in and find the scale factor to scale the shapes correctly
+    drive_points = np.where(experimental_frf.response_coordinate == experimental_frf.reference_coordinate)
+    if drive_points[0].size == 0:
+        print('Warning, Drive Points Not Found in Dataset, Shapes are Unscaled.')
+        output_shape = shape_array(abs_coordinate[:,0,0], shapes.T,
+                                   angular_natural_frequencies/(2*np.pi),
+                                   damping_ratios,
+                                   1)
+        if real_modes:
+            denominator = angular_natural_frequencies**2 - reconstruction_angular_frequencies[:,np.newaxis]**2 + 2j*damping_ratios*angular_natural_frequencies*reconstruction_angular_frequencies[:,np.newaxis]
+            l = collapse_complex_to_real(participation_factors).T
+            gamma = 1/denominator[:,np.newaxis]*np.eye(l.shape[-1])
+            coef = (l@gamma).reshape(-1,gamma.shape[-1])
+            
+            full_kernel = np.concatenate((coef.real,coef.imag),axis=0)
+        else:
+            gamma = (1/(1j*reconstruction_angular_frequencies[:,np.newaxis] - poles))[...,np.newaxis,:]*np.eye(poles.size)
+            gamma_conj = (1/(1j*reconstruction_angular_frequencies[:,np.newaxis] - poles_conj))[...,np.newaxis,:]*np.eye(poles.size)
+            
+            l = participation_factors.T
+            l_conj = l.conj()
+            
+            coef = (l@gamma).reshape(-1,gamma.shape[-1])
+            coef_conj = (l_conj@gamma_conj).reshape(-1,gamma.shape[-1])
+    
+            full_kernel = np.block([
+                [coef.real + coef_conj.real, coef_conj.imag - coef.imag],
+                [coef.imag + coef_conj.imag, coef.real - coef_conj.real],
+                ])
+        reconstruction = full_kernel@shape_coefficients[:-4*l.shape[0]:]
+        reconstruction = reconstruction[:reconstruction.shape[0]//2] + 1j*reconstruction[reconstruction.shape[0]//2:]
+        
+        frfs_resynthesized = residual_frfs.copy()
+        frfs_resynthesized.ordinate += (reconstruction.reshape(frequencies.size,-1,reconstruction.shape[-1])).transpose()
+    else:
+        residues = l[drive_points[1]]*shapes[drive_points[0]]
+        max_residue = np.argmax(residues if real_modes else abs(residues),axis=0)
+        scale_pre_sqrt = l[drive_points[1]]/shapes[drive_points[0]]
+        scale_pre_sqrt = scale_pre_sqrt[max_residue,np.arange(max_residue.size)]
+        if real_modes:
+            negative_drive_points = np.where(scale_pre_sqrt < 0)[0]
+            if len(negative_drive_points) > 0:
+                print('Negative Drive Point for Modes {:}'.format(negative_drive_points+1))
+                print('These shapes will not be scaled correctly!')
+            scale_pre_sqrt[negative_drive_points] *= -1
+        shape_scaling = np.sqrt(scale_pre_sqrt)
+        shape_scaling = shape_scaling
+        shapes *= shape_scaling
+        
+        output_shape = shape_array(abs_coordinate[:,0,0], shapes.T,
+                                   angular_natural_frequencies/(2*np.pi),
+                                   damping_ratios,
+                                   1)
+        
+        frfs_resynthesized = (output_shape.compute_frf(
+            frequencies,
+            responses = experimental_frf.response_coordinate[:,0],
+            references = experimental_frf.reference_coordinate[0,:],
+            displacement_derivative = displacement_derivative)
+            + residual_frfs)
+
+    frfs_resynthesized = frfs_resynthesized[original_coordinates]
+    residual_frfs = residual_frfs[original_coordinates]
+    
+    return output_shape,frfs_resynthesized,residual_frfs
