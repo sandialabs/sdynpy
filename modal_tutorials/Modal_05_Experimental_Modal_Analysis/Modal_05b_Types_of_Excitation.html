@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <title>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -37,14 +40,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +106,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
           <li class="breadcrumb-item"><a href="Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
       <li class="breadcrumb-item active">Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis</li>
@@ -114,286 +119,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="Modal-Tutorial-05-Part-B:-Types-of-Excitation-for-Experimental-Modal-Analysis">
+  <section id="Modal-Tutorial-05-Part-B:-Types-of-Excitation-for-Experimental-Modal-Analysis">
 <h1>Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis<a class="headerlink" href="#Modal-Tutorial-05-Part-B:-Types-of-Excitation-for-Experimental-Modal-Analysis" title="Permalink to this heading"></a></h1>
 <p>When performing experimental modal analysis, the type of excitation applied to a structure matters a great deal. Traditionally, modal excitation has come in two flavors: impact testing and shaker testing. However, there are various new techniques that blur the lines between the two types of tests. This tutorial will discuss some of the requirements for the excitation (and the responses therefrom) used in modal testing.</p>
 <section id="Requirements-for-the-FFT">
@@ -427,7 +153,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
@@ -466,7 +192,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
@@ -509,7 +235,7 @@ a 10 Hz sine wave.</p>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
@@ -546,7 +272,7 @@ a 10 Hz sine wave.</p>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">frequency</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="n">frequency</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -611,7 +337,7 @@ of this if we try to repeat the signal indefinitely, as the FFT assumes we do.</
 <img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_9_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05b_Types_of_Excitation_9_0.png" />
 </div>
 </div>
-<p>We see that when we repeat ths signal, we introduce a discontinuity in the signal. This discontinuity is not in the real signal, only in our sampling of it; however, the FFT has no knowledge of our real signal. The FFT believes that the signal supplied to the excitation must repeat, so it assumes that the real signal is something that it isn’t. The FFT believes that instead of being a 5.25 Hz sine wave, it is instead a sum of many sine waves that add up to the signal shown.</p>
+<p>We see that when we repeat this signal, we introduce a discontinuity in the signal. This discontinuity is not in the real signal, only in our sampling of it; however, the FFT has no knowledge of our real signal. The FFT believes that the signal supplied to the excitation must repeat, so it assumes that the real signal is something that it isn’t. The FFT believes that instead of being a 5.25 Hz sine wave, it is instead a sum of many sine waves that add up to the signal shown.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -663,7 +389,7 @@ exactly 1 frequency bin with non-zero amplitude, but the 5.25 Hz frequency bin c
     <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Sine Signal: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Frequency: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">frequency</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="n">frequency</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -723,7 +449,7 @@ exactly 1 frequency bin with non-zero amplitude, but the 5.25 Hz frequency bin c
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal (-)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frequency_lines</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (s)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Signal FFT| (-)&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
@@ -802,7 +528,7 @@ shaker. Considering the H1 technique</p>
 </pre></div>
 </div>
 </div>
-<p>Due to the random nature of the signal, it will not necessarily satisfy the periodicity requirement. We can see this by plotting the first and last portion of the first average to see that it does not start and end at the same value.</p>
+<p>Due to the random nature of the signal, it will not generally satisfy the periodicity requirement. We can see this by plotting the first and last portion of the first average to see that it does not start and end at the same value.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -835,7 +561,7 @@ shaker. Considering the H1 technique</p>
 </div>
 <p>Because the signal is not periodic, we will need to apply a window function in order to force periodicity. Note that this does distort the signal; however, the distortion is not as bad as the leakage that would occur without the window function.</p>
 <p>We can compute frequency response functions using the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code>.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
@@ -843,6 +569,20 @@ shaker. Considering the H1 technique</p>
 <span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
 </div>
 <p><img alt="random_spgui.png" src="../../_images/random_spgui.png" /></p>
 <p>From the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> we can see the effect of the window function.</p>
@@ -859,7 +599,7 @@ forces artificially attenuated by the window. For this reason, it is expected to
 </section>
 <section id="Pseudorandom-Excitation">
 <h3>Pseudorandom Excitation<a class="headerlink" href="#Pseudorandom-Excitation" title="Permalink to this heading"></a></h3>
-<p>With the main disadvantage of a random signal being its non-periodicity, we can imagine a signal that is random-like but is also periodic within the measurement frame. For example, if we take a set of sine waves that are periodic within the measurement frame (e.g. no leakage) and randomize their phases, we will have a random-looking signal that is also periodic within the measurement frame. Because this is a deterministic signal, we will generally not require a significant number of averages to
+<p>With the main disadvantage of a random signal being its non-periodicity, we can imagine a signal that is random-like but is also periodic within the measurement frame. For example, if we take a set of sine waves that are periodic within the measurement frame (e.g. no leakage) and randomize their phases, we will have a random-looking signal that is also periodic within the measurement frame. Because this is a deterministic signal, we will generally not require a significant number of averages to
 obtain a clean signal.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -889,7 +629,7 @@ Warning: Pseudorandom generally not recommended for multi-reference excitation.
 <div class="math notranslate nohighlight">
 \[\mathbf{H}_1 = \mathbf{P}_{XF} {\mathbf{P}_{FF}}^{-1}\]</div>
 <p>we will be trying to invert the rank deficient <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix. We can see this if we try to compute frequency response functions from the previous pseudorandom dataset. We will again compute frequency response functions with the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code>.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
@@ -897,6 +637,20 @@ Warning: Pseudorandom generally not recommended for multi-reference excitation.
 <span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
 </div>
 <p>We can set up our signal processing GUI to compute frequency response functions, recognizing for this case we do not need a window function applied to the data due to it being periodic. We also set frame acceptance to <code class="docutils literal notranslate"><span class="pre">Select</span></code> and reject the first measurement frame as the response have not yet achieved steady state responses.</p>
 <p><img alt="mimo_pr_spgui.png" src="../../_images/mimo_pr_spgui.png" /></p>
@@ -908,7 +662,7 @@ Warning: Pseudorandom generally not recommended for multi-reference excitation.
 function.</p>
 <p>We could play some games to get multiple-input testing to work with pseudorandom excitation. For example, by re-randomizing the phases of the signals for each measurement frame we could add independent components to the <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> matrix allowing it to be inverted. However, we must ensure we allow the system to come to steady state prior to taking the response measurement (otherwise we are back to the non-periodic random case where a window is required) This increases test time as
 well as the chance for making errors. Typically pseudorandom excitation is used only for cases where a single excitation is required.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
@@ -926,6 +680,20 @@ well as the chance for making errors. Typically pseudorandom excitation is used 
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
+</div>
 <p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> similarly</p>
 <p><img alt="simo_pr_spgui.png" src="../../_images/simo_pr_spgui.png" /></p>
 <p>and get significantly improved estimation of the frequency response function.</p>
@@ -936,7 +704,7 @@ well as the chance for making errors. Typically pseudorandom excitation is used 
 <section id="Chirp-Excitation">
 <h3>Chirp Excitation<a class="headerlink" href="#Chirp-Excitation" title="Permalink to this heading"></a></h3>
 <p>One could imagine instead of producing a random-like signal using a sum of sine waves with randomized phases to cover multiple frequencies in a broadband excitation, one could instead simply produce a single sine wave with a frequency that ramps between two values. This signal would then cover all frequencies between these two values. This is called a chirp excitation.</p>
-<p>Chirp excitation generally shares similar properties to the burst random signal. They are both deterministic signals, so few averages are required. They also do not require window functions if they are played repeatedly, allowing the system to come to steady state. Finally, they are both generally better suited to single-input testing.</p>
+<p>Chirp excitation generally shares similar properties to the pseudorandom signal. They are both deterministic signals, so few averages are required. They also do not require window functions if they are played repeatedly, allowing the system to come to steady state. Finally, they are both generally better suited to single-input testing.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -989,7 +757,7 @@ well as the chance for making errors. Typically pseudorandom excitation is used 
 </div>
 </div>
 <p>We can then compute the frequency response function identically to the pseudorandom signal.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
@@ -997,6 +765,20 @@ well as the chance for making errors. Typically pseudorandom excitation is used 
 <span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
 </div>
 <p><img alt="simo_chirp_spgui.png" src="../../_images/simo_chirp_spgui.png" /></p>
 <p>We get good frequency response functions and coherence.</p>
@@ -1014,7 +796,7 @@ start and end of the frame, so the excitation must be stopped with enough time l
 <p>There are a few disadvantages of the Burst Random signal. Because it is a random signal, any given frame may not have significant excitation at a given frequency line, so a larger number of averages is generally required. Additionally, because the signal is only active for a portion of the measurement frame, the signal-to-noise ratio of the Burst Random excitation may be lower than that of a Random excitation. Finally, due to its transient nature, we are unable to overlap frames in a Burst
 Random test like we can with a Random test and the frames may need to be made longer in order to allow the response to decay to zero within a measurement frame. All of these generally contribute to a longer-running test than some of the other signals investigated. However, given it can take hours or even days to set up a single test, the addition of a few extra minutes of test time is generally a very small price to pay in order to be able to acquire all excitation locations simultaneously and
 without any distortion.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
@@ -1032,6 +814,20 @@ without any distortion.</p>
 <span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
 </div>
 <p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> similarly to the Random case, except we will set no overlap nor window function in this case.</p>
 <p><img alt="mimo_br_spgui.png" src="../../_images/mimo_br_spgui.png" /></p>
@@ -1101,7 +897,7 @@ already acquired data, as there is no anti-aliasing filter in this case.</p>
 the autospectrum of the excitation must not drop by more than 2 orders of magnitude (100x) over the frequency band of interest). However, with the advent of low-noise, 24-bit data acquisition systems, these rules have become more flexible.</p>
 <p>When computing frequency response functions, we will generally want the impact to occur near the start of the measurement frame. For this reason, we often implement triggering of the data acquisition system based on the detection of the impulse. A pre-trigger (a small portion of the measurement frame kept before the trigger) is often added to ensure the entire impulse is capture. Most modern data acquisition systems can be triggered using the impulse. However, if triggering of the data
 acquisition system is not available, we can simply record the time data and then split the measurement up into measurement frames after the fact. While this second approach is more effort, it is also more flexible, as it gives the user the opportunity to change the measurement frame length and other signal processing parameters without re-running the test. We will assume we have the latter case here, and the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> can be used to set up the triggering.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
@@ -1109,6 +905,20 @@ acquisition system is not available, we can simply record the time data and then
 <span class="n">spgui</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="n">all_signals</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Type Changed
+Overlap Changed
+References Changed
+Responses Changed
+Frame Size Changed
+Overlap Changed
+Overlap Samples Changed
+</pre></div></div>
 </div>
 <p>We can set up the <code class="docutils literal notranslate"><span class="pre">SignalProcessingGUI</span></code> to use Triggering and set the trigger channel to the force and set the levels appropriately. We ensure the measurement frame is long enough to capture the signal. Here we zoom into a single measurement frame rather than showing all frames.</p>
 <p><img alt="impact_spgui.png" src="../../_images/impact_spgui.png" /></p>
@@ -1138,7 +948,9 @@ acquisition system is not available, we can simply record the time data and then
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99ee576590>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

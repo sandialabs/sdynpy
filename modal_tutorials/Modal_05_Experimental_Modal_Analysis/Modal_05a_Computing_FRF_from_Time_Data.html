@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 05 Part A: Computing Frequency Response from Time Data &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <title>Modal Tutorial 05 Part A: Computing Frequency Response from Time Data &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -37,14 +40,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -116,7 +121,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
           <li class="breadcrumb-item"><a href="Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
       <li class="breadcrumb-item active">Modal Tutorial 05 Part A: Computing Frequency Response from Time Data</li>
@@ -129,286 +134,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="Modal-Tutorial-05-Part-A:-Computing-Frequency-Response-from-Time-Data">
+  <section id="Modal-Tutorial-05-Part-A:-Computing-Frequency-Response-from-Time-Data">
 <h1>Modal Tutorial 05 Part A: Computing Frequency Response from Time Data<a class="headerlink" href="#Modal-Tutorial-05-Part-A:-Computing-Frequency-Response-from-Time-Data" title="Permalink to this heading"></a></h1>
 <p>In the previous tutorials, we learned how we could compute frequency response functions from system matrices (mass, stiffness, and damping) as well as from modal parameters (natural frequency, mode shape, and damping ratio). However, for real systems, there is no mass, stiffness, or damping matrices from which the frequency response functions or mode shapes could be computed. Instead we need to develop these parameters from the response of a system due to some excitation applied to it.</p>
 <p>The first step in this process is to compute frequency response functions from the time data, to which modal parameters can be fit.</p>
@@ -786,8 +512,8 @@ scaling of the FFT in this case.</p>
 <p>Note again that when computing frequency response function matrices, we will be computing ratios of power spectra, so the number of averages <span class="math notranslate nohighlight">\(n\)</span> will cancel out. Therefore, a small (probably insignificant) amount of computation can be saved by simply summing the averages rather than taking the mean in this case.</p>
 <p>Let’s briefly attempt to add some intuition to the formula for the power spectra matrix. Note that the FFT spectra <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span> will be complex numbers. From complex number theory, we know that multiplying two complex numbers results in multiplying the magnitude of the complex numbers and adding the phases. We also know that taking the conjugate of a complex number flips the sign on the imaginary part of the complex number, which also flips the sign on the phase of
 the number. For example, the complex number <span class="math notranslate nohighlight">\(1+i\)</span> has a phase of 45 degrees or <span class="math notranslate nohighlight">\(\pi/4\)</span> radians. If we take the complex conjugate of the complex number, it becomes <span class="math notranslate nohighlight">\(1-i\)</span>, which has a phase of -45 degrees of <span class="math notranslate nohighlight">\(-\pi/4\)</span> radians.</p>
-<p>So now let us think about what is happening in the formula <span class="math notranslate nohighlight">\(\mathbf{X} \mathbf{Y}^*\)</span>: we are multiplying the magnitude of the complex numbers <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span> and adding the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> to the negative phase of <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span>. In other words, we are subtracting the phase of <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span> from the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>. If we are computing the auto-power spectra matrix, where <span class="math notranslate nohighlight">\(\mathbf{Y}=\mathbf{X}\)</span>,
-i.e. <span class="math notranslate nohighlight">\(\mathbf{X} \mathbf{X}^*\)</span>, we will effectively be computing the magnitude squared of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>, which will be real, because we will be subtracting the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> from itself, which will result in a phase equal to zero.</p>
+<p>So now let us think about what is happening in the formula <span class="math notranslate nohighlight">\(\mathbf{X} \mathbf{Y}^*\)</span>: we are multiplying the magnitude of the complex numbers <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span> and adding the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> to the negative phase of <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span>. In other words, we are subtracting the phase of <span class="math notranslate nohighlight">\(\mathbf{Y}\)</span> from the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>. If we are computing the auto-power spectra matrix, where <span class="math notranslate nohighlight">\(\mathbf{Y}=\mathbf{X}\)</span>, i.e.
+<span class="math notranslate nohighlight">\(\mathbf{X} \mathbf{X}^*\)</span>, we will effectively be computing the magnitude squared of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>, which will be real, because we will be subtracting the phase of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> from itself, which will result in a phase equal to zero.</p>
 <p>Note that this <em>subtraction of phases</em> is relevant when we compute frequency response functions, because the phase of the frequency response function matrix represents the difference in phase between the response and the excitation. However, if we compute the quantity <span class="math notranslate nohighlight">\(\mathbf{X}\mathbf{F}^*\)</span>, and call it the frequency response function, we will have the correct phase, but not the correct magnitude. The magnitude of the frequency response function should be the ratio between the magnitude
 of the response and the magnitude of the excitation, not the product between the two. However, if we were to, for example, divide the product <span class="math notranslate nohighlight">\(\mathbf{X}\mathbf{F}^*\)</span> by the product <span class="math notranslate nohighlight">\(\mathbf{F}\mathbf{F}^*\)</span>, we would see that we have a matrix with a magnitude that is equal to the magnitude of the response times the magnitude of the excitation divided by the magnitude of the excitation squared, which will result in a magnitude of the response magnitude over the force magnitude. The
 phase of <span class="math notranslate nohighlight">\(\mathbf{X}\mathbf{F}^*\)</span> will be the phase between the response and the excitation, and the phase of <span class="math notranslate nohighlight">\(\mathbf{F}\mathbf{F}^*\)</span> is equal to zero, so the phase of the matrix will also be the desired phase difference between response and excitation. Therefore, for the basic frequency response function computation schemes, we will generally be computing the ratio of some auto-power term <span class="math notranslate nohighlight">\(\mathbf{P}_{XX}\)</span> or <span class="math notranslate nohighlight">\(\mathbf{P}_{FF}\)</span> and some cross-power term
@@ -796,7 +522,7 @@ phase of <span class="math notranslate nohighlight">\(\mathbf{X}\mathbf{F}^*\)</
 </section>
 <section id="The-H1-Technique">
 <h4>The H1 Technique<a class="headerlink" href="#The-H1-Technique" title="Permalink to this heading"></a></h4>
-<p>Perhaps the most common frequency response function computation technique is the <strong>H1 Technique</strong>. This technique assumes there is no noise on the input to the system (e.g. the excitation force signal) and minimizes the error on the output (e.g. responses such as acceleration). This technique is particularly useful because the test practitioner typically has some amount of control over the force going into the system. For example the user can specify the voltage going into a shaker to excite a
+<p>Perhaps the most common frequency response function computation technique is the <strong>H1 Technique</strong>. This technique assumes there is no noise on the input to the system (e.g. the excitation force signal) and minimizes the error on the output (e.g. responses such as acceleration). This technique is particularly useful because the test practitioner typically has some amount of control over the force going into the system. For example the user can specify the voltage going into a shaker to excite a
 structure, or hit the part harder with an impact hammer. This means the excitation signal should rarely be “in the noise floor” of the measurement. This can be juxtaposed against the response signal, which is determined heavily by the dynamic characteristics of the part. For example, there may be antiresonances at certain locations and certain frequencies, where regardless of how much force is applied, the response will still be very small, and perhaps in the noise floor of the measurement.
 Also, if optical techniques such as digital image correlation or laser vibrometery are used to measure the response, these will generally have a much higher noise floor than the force transducers used to measure the force into the part. Disadvantages of the H1 technique include underestimating the frequency response function at resonances and therefore overestimating the the damping.</p>
 <p>The estimate of the frequency response function matrix using the H1 technique is computed by</p>
@@ -859,7 +585,7 @@ excitation signals is 1 (in which case, each response can be treated independent
 </section>
 <section id="Coherence">
 <h3>Coherence<a class="headerlink" href="#Coherence" title="Permalink to this heading"></a></h3>
-<p>When constructing frequency response functions, we are computing the relationship between the outputs of our system (i.e. the responses) due to the inputs applied to the system (i.e. the forces). The <strong>coherence</strong> is an important metric that shows us how much of the response can be attributed to the forces being applied. The coherence can take a value between 0 and 1, where a value of 1 means that all of the responses are due to the inputs, and a value of 0 means that the responses are not
+<p>When constructing frequency response functions, we are computing the relationship between the outputs of our system (i.e. the responses) due to the inputs applied to the system (i.e. the forces). The <strong>coherence</strong> is an important metric that shows us how much of the response can be attributed to the forces being applied. The coherence can take a value between 0 and 1, where a value of 1 means that all of the responses are due to the inputs, and a value of 0 means that the responses are not
 related to the inputs at all.</p>
 <p>There are many reasons poor coherence may occur in a test, and a few common reasons. If the excitation level is very low, noise in the measurement may contribute significantly to the response, and this noise will not be related to the input applied. For this reason, we often see coherence drops at anti-resonances in the frequency response function: the response is very small, so noise in the measurement can be signficant.</p>
 <p>If the forces into the system are not measured entirely, the coherence can also suffer; for example if the force is measured using a uniaxial force sensor, but there is also some side loading or bending moment applied to the structure, these unmeasured forces and moments will still contribute to measurable responses of the system, and these responses may not correlate to the measured input. Finally if a force is applied to a system and the entire response is not measured, for example if we
@@ -1130,7 +856,9 @@ favorably.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99f0487940>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

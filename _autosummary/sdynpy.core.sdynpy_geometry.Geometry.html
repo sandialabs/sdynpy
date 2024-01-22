@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry.Geometry &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <title>sdynpy.core.sdynpy_geometry.Geometry &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -35,14 +37,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -81,8 +85,10 @@
 <li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_geometry.Geometry</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry"><code class="docutils literal notranslate"><span class="pre">Geometry</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.__init__"><code class="docutils literal notranslate"><span class="pre">Geometry.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.add_element"><code class="docutils literal notranslate"><span class="pre">Geometry.add_element()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.add_traceline"><code class="docutils literal notranslate"><span class="pre">Geometry.add_traceline()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.camera_visualization"><code class="docutils literal notranslate"><span class="pre">Geometry.camera_visualization()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.compress_ids"><code class="docutils literal notranslate"><span class="pre">Geometry.compress_ids()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.copy"><code class="docutils literal notranslate"><span class="pre">Geometry.copy()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_exodus"><code class="docutils literal notranslate"><span class="pre">Geometry.from_exodus()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct"><code class="docutils literal notranslate"><span class="pre">Geometry.from_imat_struct()</span></code></a></li>
@@ -93,6 +99,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.load"><code class="docutils literal notranslate"><span class="pre">Geometry.load()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.map_ids"><code class="docutils literal notranslate"><span class="pre">Geometry.map_ids()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.modify_ids"><code class="docutils literal notranslate"><span class="pre">Geometry.modify_ids()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position"><code class="docutils literal notranslate"><span class="pre">Geometry.node_by_global_position()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries"><code class="docutils literal notranslate"><span class="pre">Geometry.overlay_geometries()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot"><code class="docutils literal notranslate"><span class="pre">Geometry.plot()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate"><code class="docutils literal notranslate"><span class="pre">Geometry.plot_coordinate()</span></code></a></li>
@@ -146,7 +153,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
           <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
           <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
@@ -161,31 +168,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="sdynpy-core-sdynpy-geometry-geometry">
+  <section id="sdynpy-core-sdynpy-geometry-geometry">
 <h1>sdynpy.core.sdynpy_geometry.Geometry<a class="headerlink" href="#sdynpy-core-sdynpy-geometry-geometry" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry">
@@ -231,11 +214,17 @@ ElementArray((0,)), an empty element array.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.__init__" title="sdynpy.core.sdynpy_geometry.Geometry.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([node, coordinate_system, ...])</p></td>
 <td><p>Initialize a geometry object with nodes, coordinate systems, tracelines, and elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.add_traceline" title="sdynpy.core.sdynpy_geometry.Geometry.add_traceline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_traceline</span></code></a>(connectivity[, id, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.add_element" title="sdynpy.core.sdynpy_geometry.Geometry.add_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_element</span></code></a>(elem_type, connectivity[, id, color])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.add_traceline" title="sdynpy.core.sdynpy_geometry.Geometry.add_traceline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_traceline</span></code></a>(connectivity[, id, ...])</p></td>
 <td><p>Adds a traceline to the geometry</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.camera_visualization" title="sdynpy.core.sdynpy_geometry.Geometry.camera_visualization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_visualization</span></code></a>(K, RT, image_size[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.camera_visualization" title="sdynpy.core.sdynpy_geometry.Geometry.camera_visualization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_visualization</span></code></a>(K, RT, image_size[, ...])</p></td>
 <td><p>Create a geometry used to visualize a camera specified with K and RT</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.compress_ids" title="sdynpy.core.sdynpy_geometry.Geometry.compress_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compress_ids</span></code></a>([compress_nodes, ...])</p></td>
+<td><p>Compresses ID numbers to make node, element, etc.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.copy" title="sdynpy.core.sdynpy_geometry.Geometry.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
 <td><p>Return's a copy of the current Geometry</p></td>
@@ -255,7 +244,7 @@ ElementArray((0,)), an empty element array.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_deflection" title="sdynpy.core.sdynpy_geometry.Geometry.global_deflection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_deflection</span></code></a>(coordinate_array)</p></td>
 <td><p>Direction of local deflection in the global coordinate system</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_node_coordinate</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_node_coordinate</span></code></a>([node_ids])</p></td>
 <td><p>Position of the Geometry's nodes in the global coordinate system</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.load" title="sdynpy.core.sdynpy_geometry.Geometry.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
@@ -267,38 +256,46 @@ ElementArray((0,)), an empty element array.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.modify_ids" title="sdynpy.core.sdynpy_geometry.Geometry.modify_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modify_ids</span></code></a>([node_change, traceline_change, ...])</p></td>
 <td><p>Shifts the id numbers in the geometry</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries" title="sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_geometries</span></code></a>(geometries[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position" title="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_by_global_position</span></code></a>(global_position_array)</p></td>
+<td><p>Select node by closest position</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries" title="sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_geometries</span></code></a>(geometries[, ...])</p></td>
 <td><p>Combines several geometries, offsetting the id numbers to avoid conflicts</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot" title="sdynpy.core.sdynpy_geometry.Geometry.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([node_size, line_width, opacity, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot" title="sdynpy.core.sdynpy_geometry.Geometry.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([node_size, line_width, opacity, ...])</p></td>
 <td><p>Plots the geometry in an interactive 3D window.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_coordinate</span></code></a>([coordinates, arrow_scale, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_coordinate</span></code></a>([coordinates, arrow_scale, ...])</p></td>
 <td><p>Plots coordinate arrows on the geometry</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_deflection_shape</span></code></a>(deflection_shape_data)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_deflection_shape</span></code></a>(deflection_shape_data)</p></td>
 <td><p>Plot deflection shapes shapes on the geometry</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_shape</span></code></a>(shape[, plot_kwargs, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_shape</span></code></a>(shape[, plot_kwargs, ...])</p></td>
 <td><p>Plot mode shapes on the geometry</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_transient" title="sdynpy.core.sdynpy_geometry.Geometry.plot_transient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transient</span></code></a>(displacement_data[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_transient" title="sdynpy.core.sdynpy_geometry.Geometry.plot_transient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transient</span></code></a>(displacement_data[, ...])</p></td>
 <td><p>Create a TransientPlotter object to plot displacements over time</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.reduce" title="sdynpy.core.sdynpy_geometry.Geometry.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(node_list)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.reduce" title="sdynpy.core.sdynpy_geometry.Geometry.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(node_list)</p></td>
 <td><p>Reduce the geometry to only contain nodes in <cite>node_list</cite></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes" title="sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_shapes</span></code></a>(coordinates[, mass, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes" title="sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_shapes</span></code></a>(coordinates[, mass, ...])</p></td>
 <td><p>Creates a set of shapes corresponding to the rigid body motions</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.save" title="sdynpy.core.sdynpy_geometry.Geometry.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.save" title="sdynpy.core.sdynpy_geometry.Geometry.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
 <td><p>Saves the geometry to a numpy .npz file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.write_to_unv" title="sdynpy.core.sdynpy_geometry.Geometry.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, write_nodes, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.write_to_unv" title="sdynpy.core.sdynpy_geometry.Geometry.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, write_nodes, ...])</p></td>
 <td><p>Write the geometry to a unversal file format file</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.add_element">
+<span class="sig-name descname"><span class="pre">add_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.add_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.add_element" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.add_traceline">
 <span class="sig-name descname"><span class="pre">add_traceline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connectivity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.add_traceline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.add_traceline" title="Permalink to this definition"></a></dt>
@@ -345,6 +342,44 @@ The default is 1.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.compress_ids">
+<span class="sig-name descname"><span class="pre">compress_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compress_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_tracelines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_cs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_maps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.compress_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.compress_ids" title="Permalink to this definition"></a></dt>
+<dd><p>Compresses ID numbers to make node, element, etc. contiguous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compress_nodes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, compress the node ids.  The default is True.</p></li>
+<li><p><strong>compress_elements</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, compress the element ids. The default is True.</p></li>
+<li><p><strong>compress_tracelines</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, compress the traceline ids. The default is True.</p></li>
+<li><p><strong>compress_cs</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, compress the coordinate system ids. The default is True.</p></li>
+<li><p><strong>return_maps</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return id maps for nodes, elements, tracelines, and
+coordinate systems.  Maps will be equal to <cite>None</cite> if no compression
+was done on that field. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mapped_geometry</strong> (<em>Geometry</em>) – Geometry with contiguous id numbers for the selected fields.</p></li>
+<li><p><strong>node_map</strong> (id_map or <cite>None</cite>) – Mapping from the old set of nodes to the new set of nodes, only
+returned if <cite>return_maps</cite> is True.  If <cite>compress_nodes</cite> is False,
+this will be <cite>None</cite>.</p></li>
+<li><p><strong>traceline_map</strong> (id_map or <cite>None</cite>) – Mapping from the old set of tracelines to the new set of tracelines, only
+returned if <cite>return_maps</cite> is True.  If <cite>compress_tracelines</cite> is False,
+this will be <cite>None</cite>.</p></li>
+<li><p><strong>element_map</strong> (id_map or <cite>None</cite>) – Mapping from the old set of elements to the new set of elements, only
+returned if <cite>return_maps</cite> is True.  If <cite>compress_elements</cite> is False,
+this will be <cite>None</cite>.</p></li>
+<li><p><strong>cs_map</strong> (id_map or <cite>None</cite>) – Mapping from the old set of coordinate systems to the new set of
+coordinate systems, only
+returned if <cite>return_maps</cite> is True.  If <cite>compress_cs</cite> is False,
+this will be <cite>None</cite>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.copy" title="Permalink to this definition"></a></dt>
 <dd><p>Return’s a copy of the current Geometry</p>
@@ -361,7 +396,7 @@ The default is 1.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.from_exodus">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_exodus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><span class="pre">Exodus</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preferred_local_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_preferred_local_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.from_exodus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.from_exodus" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_exodus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><span class="pre">Exodus</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preferred_local_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_preferred_local_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.from_exodus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.from_exodus" title="Permalink to this definition"></a></dt>
 <dd><p>Generate a geometry from exodus file data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -385,6 +420,8 @@ along the global Z+ axis.</p></li>
 direction is parallel to the primary preferred_local_orientation.
 The default is np.array((1.0,0.0,0.0)), which points the local
 coordinate system along the local Z+ axis.</p></li>
+<li><p><strong>local_nodes</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – If specified, only create local coordinate systems at the specified
+nodes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -474,16 +511,21 @@ system.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate">
-<span class="sig-name descname"><span class="pre">global_node_coordinate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.global_node_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">global_node_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.global_node_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="Permalink to this definition"></a></dt>
 <dd><p>Position of the Geometry’s nodes in the global coordinate system</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>numpy array with shape (n,3) where n is the number of nodes in the
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_ids</strong> (<em>np.ndarray</em>) – An array of node id numbers to keep in the output coordinate.  If
+not specified, all nodes will be returned in the order they are in
+the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array with shape (n,3) where n is the number of nodes in the
 geometry.  This array contains the 3d position of each node in the
 global coordinate system.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,6 +603,24 @@ The default is None, which results in the ids being unchanged</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry">Geometry</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position">
+<span class="sig-name descname"><span class="pre">node_by_global_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_position_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.node_by_global_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position" title="Permalink to this definition"></a></dt>
+<dd><p>Select node by closest position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>global_position_array</strong> (<em>np.ndarray</em>) – A (…,3) shape array containing positions of nodes to keep</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NodArray containing nodes that were closest to the positions in
+position_array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray">NodeArray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -906,7 +966,9 @@ readunv.  Only returned if filename is None.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99ed23d660>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

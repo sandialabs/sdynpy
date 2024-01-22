@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov" href="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov.html" />
+    <link rel="prev" title="sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values" href="sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_camera.html">sdynpy.signal_processing.sdynpy_camera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_complex.html">sdynpy.signal_processing.sdynpy_complex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_correlation.html">sdynpy.signal_processing.sdynpy_correlation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_cpsd.html">sdynpy.signal_processing.sdynpy_cpsd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf.html">sdynpy.signal_processing.sdynpy_frf</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf_inverse.html">sdynpy.signal_processing.sdynpy_frf_inverse</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values.html">sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse"><code class="docutils literal notranslate"><span class="pre">frf_inverse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov.html">sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_truncation.html">sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_truncation</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_generator.html">sdynpy.signal_processing.sdynpy_generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_geometry_fitting.html">sdynpy.signal_processing.sdynpy_geometry_fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.html">sdynpy.signal_processing.sdynpy_harmonic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_integration.html">sdynpy.signal_processing.sdynpy_integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_rotation.html">sdynpy.signal_processing.sdynpy_rotation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_srs.html">sdynpy.signal_processing.sdynpy_srs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.signal_processing.sdynpy_frf_inverse.html">sdynpy.signal_processing.sdynpy_frf_inverse</a></li>
+      <li class="breadcrumb-item active">sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sdynpy-signal-processing-sdynpy-frf-inverse-frf-inverse">
+<h1>sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-frf-inverse-frf-inverse" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse">
+<span class="sig-name descname"><span class="pre">frf_inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frf_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'standard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_weighting_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_weighting_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_weighting_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularization_parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_num_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_retained_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_frf_inverse.html#frf_inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_frf_inverse.frf_inverse" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the inverse of an FRF matrix for source estimation problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frf_matrix</strong> (<em>NDArray</em>) – Transfer function as an np.ndarray, should be organized such that the
+size is [number of lines, number of responses, number of references]</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>The method to be used for the FRF matrix inversions. The available</dt><dd><dl class="simple">
+<dt>methods are:</dt><dd><ul>
+<li><p>standard - basic pseudo-inverse via numpy.linalg.pinv with the
+default rcond parameter, this is the default method</p></li>
+<li><p>threshold - pseudo-inverse via numpy.linalg.pinv with a specified
+condition number threshold</p></li>
+<li><p>tikhonov - pseudo-inverse using the Tikhonov regularization method</p></li>
+<li><p>truncation - pseudo-inverse where a fixed number of singular values
+are retained for the inverse</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>response_weighting_matrix<span class="classifier">sdpy.Matrix or np.ndarray, optional</span></dt><dd><p>Diagonal matrix used to weight response degrees of freedom (to solve the
+problem as a weight least squares) by multiplying the rows of the FRF
+matrix by a scalar weights. This matrix can also be a 3D matrix such that
+the the weights are different for each frequency line. The matrix should
+be sized [number of lines, number of references, number of references],
+where the number of lines either be one (the same weights at all frequencies)
+or the length of the abscissa (for the case where a 3D matrix is supplied).</p>
+</dd>
+<dt>reference_weighting_matrix<span class="classifier">sdpy.Matrix or np.ndarray, optional</span></dt><dd><p>Diagonal matrix used to weight reference degrees of freedom (generally for
+normalization) by multiplying the columns of the FRF matrix by a scalar weights.
+This matrix can also be a 3D matrix such that the the weights are different
+for each frequency line. The matrix should be sized
+[number of lines, number of references, number of references], where the number
+of lines either be one (the same weights at all frequencies) or the length
+of the abscissa (for the case where a 3D matrix is supplied).</p>
+</dd>
+<dt>regularization_weighting_matrix<span class="classifier">sdpy.Matrix or np.ndarray, optional</span></dt><dd><p>Matrix used to weight input degrees of freedom via Tikhonov regularization.
+This matrix can also be a 3D matrix such that the the weights are different
+for each frequency line. The matrix should be sized
+[number of lines, number of references, number of references], where the number
+of lines either be one (the same weights at all frequencies) or the length
+of the abscissa (for the case where a 3D matrix is supplied).</p>
+</dd>
+<dt>regularization_parameter<span class="classifier">float or np.ndarray, optional</span></dt><dd><p>Scaling parameter used on the regularization weighting matrix when the tikhonov
+method is chosen. A vector of regularization parameters can be provided so the
+regularization is different at each frequency line. The vector must match the
+length of the abscissa in this case (either be size [num_lines,] or [num_lines, 1]).</p>
+</dd>
+<dt>cond_num_threshold<span class="classifier">float or np.ndarray, optional</span></dt><dd><p>Condition number used for SVD truncation when the threshold method is chosen.
+A vector of condition numbers can be provided so it varies as a function of
+frequency. The vector must match the length of the abscissa in this case.</p>
+</dd>
+<dt>num_retained_values<span class="classifier">float or np.ndarray, optional</span></dt><dd><p>Number of singular values to retain in the pseudo-inverse when the truncation
+method is chosen. A vector of can be provided so the number of retained values
+can change as a function of frequency. The vector must match the length of the
+abscissa in this case.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Inverse of the supplied FRF matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Warning</strong> – If regularization_weighting_matrix is supplied without selecting the tikhonov method</p></li>
+<li><p><strong>Exception</strong> – If the threshold method is chosen but a condition number threshold isn’t supplied</p></li>
+<li><p><strong>Exception</strong> – If the declared method is not one of the available options</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function solves the inverse problem for the supplied FRF matrix. All of the inverse
+methods use the SVD (or modified SVD) to compute the pseudo-inverse.</p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p>Wikipedia, “Moore-Penrose inverse”.
+<a class="reference external" href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse</a></p>
+</dd>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p>A.N. Tithe, D.J. Thompson, The quantification of structure-borne transmission pathsby inverse methods. Part 2: Use of regularization techniques,
+Journal of Sound and Vibration, Volume 264, Issue 2, 2003, Pages 433-451, ISSN 0022-460X,
+<a class="reference external" href="https://doi.org/10.1016/S0022-460X(02)01203-8">https://doi.org/10.1016/S0022-460X(02)01203-8</a>.</p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">3</span></dt>
+<dd><p>Wikipedia, “Ridge regression”.
+<a class="reference external" href="https://en.wikipedia.org/wiki/Ridge_regression">https://en.wikipedia.org/wiki/Ridge_regression</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values.html" class="btn btn-neutral float-left" title="sdynpy.signal_processing.sdynpy_frf_inverse.compute_tikhonov_modified_singular_values" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov.html" class="btn btn-neutral float-right" title="sdynpy.signal_processing.sdynpy_frf_inverse.pinv_by_tikhonov" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f99ecd32920>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -32,14 +34,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -68,7 +72,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">sdynpy.modal.sdynpy_modeshape</li>
       <li class="wy-breadcrumbs-aside">
@@ -107,13 +111,13 @@
 <span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">TransferFunctionArray</span>
 <span class="kn">from</span> <span class="nn">..core.sdynpy_shape</span> <span class="kn">import</span> <span class="n">shape_array</span>
 <span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">CoordinateArray</span>
+<span class="kn">from</span> <span class="nn">..signal_processing.sdynpy_complex</span> <span class="kn">import</span> <span class="n">collapse_complex_to_real</span>
 
 
 <div class="viewcode-block" id="ShapeSelection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.ShapeSelection.html#sdynpy.modal.sdynpy_modeshape.ShapeSelection">[docs]</a><span class="k">class</span> <span class="nc">ShapeSelection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">ALL</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">DRIVE_POINT_COEFFICIENT</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">PARTICIPATION_FACTOR</span> <span class="o">=</span> <span class="mi">2</span></div>
-
 
 <div class="viewcode-block" id="compute_residues"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_residues.html#sdynpy.modal.sdynpy_modeshape.compute_residues">[docs]</a><span class="k">def</span> <span class="nf">compute_residues</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
                      <span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -136,7 +140,7 @@
 <span class="sd">    natural_frequencies : np.ndarray</span>
 <span class="sd">        Natural Frequencies (in Hz) at which modes will be fit</span>
 <span class="sd">    damping_ratios : np.ndarray</span>
-<span class="sd">        Damping Ratios (in Hz) at which modes will be fit</span>
+<span class="sd">        Damping Ratios at which modes will be fit</span>
 <span class="sd">    real_modes : bool, optional</span>
 <span class="sd">        If true, fit residues will be real-valued.  False allows complex modes.</span>
 <span class="sd">        The default is False.</span>
@@ -361,6 +365,258 @@
                          <span class="n">frequency</span><span class="o">=</span><span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="n">damping_ratios</span><span class="p">,</span>
                          <span class="n">comment1</span><span class="o">=</span><span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">string_array</span><span class="p">()[</span><span class="n">shape_selection_indices</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">negative_drive_points</span></div>
+
+<div class="viewcode-block" id="compute_shapes_multireference"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference.html#sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference">[docs]</a><span class="k">def</span> <span class="nf">compute_shapes_multireference</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
+                                  <span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                  <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                  <span class="n">participation_factors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                  <span class="n">real_modes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">residuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">min_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                  <span class="n">max_frequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                  <span class="n">displacement_derivative</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                  <span class="n">frequency_lines_at_resonance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                  <span class="n">frequency_lines_for_residuals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes mode shapes from multireference datasets.</span>
+<span class="sd">    </span>
+<span class="sd">    Uses the modal participation factor as a constraint on the mode shapes to</span>
+<span class="sd">    solve for the shapes in one pass, rather than solving for residues and</span>
+<span class="sd">    subsequently solving for shapes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experimental_frf : TransferFunctionArray</span>
+<span class="sd">        Experimental FRF data to which modes will be fit</span>
+<span class="sd">    natural_frequencies : np.ndarray</span>
+<span class="sd">        Natural Frequencies (in Hz) at which modes will be fit</span>
+<span class="sd">    damping_ratios : np.ndarray</span>
+<span class="sd">        Damping Ratios at which modes will be fit</span>
+<span class="sd">    participation_factors : np.ndarray</span>
+<span class="sd">        Mode participation factors from which the shapes can be computed.</span>
+<span class="sd">        Should have shape (n_modes x n_inputs)</span>
+<span class="sd">    real_modes : bool, optional</span>
+<span class="sd">        Specifies whether to solve for real modes or complex modes (default).</span>
+<span class="sd">    residuals : bool, optional</span>
+<span class="sd">        Use residuals in the FRF fit. The default is True.</span>
+<span class="sd">    min_frequency : float, optional</span>
+<span class="sd">        Minimum frequency to use in the shape fit. The default is the lowest</span>
+<span class="sd">        frequency in the experimental FRF.</span>
+<span class="sd">    max_frequency : float, optional</span>
+<span class="sd">        Maximum frequency to use in the shape fit. The default is the highest</span>
+<span class="sd">        frequency in the experimental FRF.</span>
+<span class="sd">    displacement_derivative : int, optional</span>
+<span class="sd">        Defines the type of data in the FRF based on the number of derivatives</span>
+<span class="sd">        from displacement (0 - displacement, 1 - velocity, 2 - acceleration).</span>
+<span class="sd">        The default is 0 (displacement).</span>
+<span class="sd">    frequency_lines_at_resonance : int, optional</span>
+<span class="sd">        Defines the number of frequency lines to look at around the specified</span>
+<span class="sd">        natural frequencies for computing residues.  If not specified, all</span>
+<span class="sd">        frequency lines are used for computing shapes.</span>
+<span class="sd">    frequency_lines_for_residuals : int, optional</span>
+<span class="sd">        Defines the number of frequency lines at the low and high frequency to</span>
+<span class="sd">        use in computing shapes.  Only used if frequency_lines_at_resonance is</span>
+<span class="sd">        specified.  If not specified, the lower 10% and upper 10% of frequency</span>
+<span class="sd">        lines will be kept for computing residuals.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the FRF is not 2-dimensional with references on the columns and</span>
+<span class="sd">        responses on the rows.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output_shape : ShapeArray</span>
+<span class="sd">        ShapeArray containing the mode shapes of the system</span>
+<span class="sd">    frfs_resynthesized : TransferFunctionArray</span>
+<span class="sd">        FRFs resynthesized from the fit shapes and residuals</span>
+<span class="sd">    residual_frfs : TransferFunctionArray</span>
+<span class="sd">        FRFs resynthesized only from the residuals used in the calculation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">original_coordinates</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">coordinate</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRF must be shaped n_outputs x n_inputs&#39;</span><span class="p">)</span>
+    <span class="n">abs_coordinate</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">original_coordinates</span><span class="p">)</span>
+    <span class="n">experimental_frf</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="p">[</span><span class="n">abs_coordinate</span><span class="p">]</span>
+    <span class="c1"># Also need to adjust the participation factors</span>
+    <span class="n">participation_factors</span> <span class="o">=</span> <span class="n">participation_factors</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">original_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">min_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">frequencies</span> <span class="o">&gt;=</span> <span class="n">min_frequency</span><span class="p">)</span>
+    <span class="n">abscissa_indices</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">frequencies</span> <span class="o">&lt;=</span> <span class="n">max_frequency</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">abscissa_indices</span><span class="p">]</span>
+    <span class="n">frf_matrix</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">abscissa_indices</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span>
+    <span class="n">angular_natural_frequencies</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">damping_ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">damping_ratios</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    
+    <span class="c1"># Reduce to the kept frequency lines</span>
+    <span class="k">if</span> <span class="n">frequency_lines_at_resonance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">angular_natural_frequencies</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># print(solve_indices)</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">solve_indices</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_at_resonance</span><span class="p">)</span> <span class="o">-</span> <span class="n">frequency_lines_at_resonance</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">solve_indices</span><span class="p">[(</span><span class="n">solve_indices</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">solve_indices</span> <span class="o">&lt;</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+        <span class="c1"># Add the residual indices</span>
+        <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">frequency_lines_for_residuals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span>
+                <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">solve_indices</span><span class="p">,</span> <span class="n">low_freq_indices</span><span class="p">,</span> <span class="n">high_freq_indices</span><span class="p">)))</span>
+        <span class="n">frf_matrix</span> <span class="o">=</span> <span class="n">frf_matrix</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">solve_indices</span><span class="p">]</span>
+        <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="p">[</span><span class="n">solve_indices</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_natural_frequencies</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">collapse_complex_to_real</span><span class="p">(</span><span class="n">participation_factors</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">denominator</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="nd">@gamma</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">coef</span><span class="o">.</span><span class="n">real</span><span class="p">,</span><span class="n">coef</span><span class="o">.</span><span class="n">imag</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Now set up the kernel</span>
+        <span class="n">poles</span> <span class="o">=</span> <span class="o">-</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_natural_frequencies</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">damping_ratios</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">angular_natural_frequencies</span>
+        <span class="n">poles_conj</span> <span class="o">=</span> <span class="o">-</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_natural_frequencies</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">damping_ratios</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">angular_natural_frequencies</span>
+        
+        <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">poles</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">gamma_conj</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles_conj</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">poles</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        
+        <span class="n">l</span> <span class="o">=</span> <span class="n">participation_factors</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">l_conj</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+        
+        <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="nd">@gamma</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">coef_conj</span> <span class="o">=</span> <span class="p">(</span><span class="n">l_conj</span><span class="nd">@gamma_conj</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">coef</span><span class="o">.</span><span class="n">real</span> <span class="o">+</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">imag</span> <span class="o">-</span> <span class="n">coef</span><span class="o">.</span><span class="n">imag</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">coef</span><span class="o">.</span><span class="n">imag</span> <span class="o">+</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">coef</span><span class="o">.</span><span class="n">real</span> <span class="o">-</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">real</span><span class="p">],</span>
+            <span class="p">])</span>
+        
+    <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ur</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="n">residual_block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">lr</span><span class="p">,</span><span class="n">zeros</span><span class="p">,</span><span class="n">ur</span><span class="p">,</span><span class="n">zeros</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="n">zeros</span><span class="p">,</span><span class="n">lr</span><span class="p">,</span><span class="n">zeros</span><span class="p">,</span><span class="n">ur</span><span class="p">]])</span>
+
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">kernel</span><span class="p">,</span><span class="n">residual_block</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        
+    <span class="c1"># Convert to accelerations to do the solve</span>
+    <span class="n">omega_scale_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="o">-</span><span class="n">angular_frequencies</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">*=</span> <span class="n">omega_scale_factor</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">frf_matrix</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">angular_frequencies</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">displacement_derivative</span><span class="p">)</span>
+    
+    <span class="c1"># TODO: See about putting weighting in here</span>
+    
+    <span class="c1"># Now assemble the FRF matrix to fit.</span>
+    <span class="n">frf_to_fit</span> <span class="o">=</span> <span class="n">frf_matrix</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">experimental_frf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">frf_to_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">frf_to_fit</span><span class="o">.</span><span class="n">real</span><span class="p">,</span><span class="n">frf_to_fit</span><span class="o">.</span><span class="n">imag</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># Solve the least squares problem</span>
+    <span class="n">shape_coefficients</span><span class="p">,</span><span class="o">*</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span><span class="n">frf_to_fit</span><span class="p">)</span>
+    
+    <span class="c1"># Extract the shapes and residues</span>
+    <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape_coefficients</span><span class="p">[:</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape_coefficients</span><span class="p">[:</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">shape_coefficients</span><span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">2</span><span class="o">*</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="n">reconstruction_angular_frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">residual_frfs</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="n">abscissa_indices</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">reconstruction_angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ur</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">reconstruction_angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="n">residual_reconstruction_block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">lr</span><span class="p">,</span><span class="n">zeros</span><span class="p">,</span><span class="n">ur</span><span class="p">,</span><span class="n">zeros</span><span class="p">],</span>
+                                                  <span class="p">[</span><span class="n">zeros</span><span class="p">,</span><span class="n">lr</span><span class="p">,</span><span class="n">zeros</span><span class="p">,</span><span class="n">ur</span><span class="p">]])</span>
+    
+        <span class="n">residual_reconstruction</span> <span class="o">=</span> <span class="p">(</span><span class="n">residual_reconstruction_block</span> <span class="o">@</span> <span class="n">shape_coefficients</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:])</span>
+        <span class="n">residual_reconstruction</span> <span class="o">=</span> <span class="p">(</span><span class="n">residual_reconstruction</span><span class="p">[:</span><span class="n">residual_reconstruction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span> 
+                                   <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">residual_reconstruction</span><span class="p">[</span><span class="n">residual_reconstruction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">reconstruction_angular_frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">residual_frfs</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">residual_reconstruction</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">reconstruction_angular_frequencies</span><span class="p">)</span><span class="o">**</span><span class="n">displacement_derivative</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">residual_frfs</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Now we have to go in and find the scale factor to scale the shapes correctly</span>
+    <span class="n">drive_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">experimental_frf</span><span class="o">.</span><span class="n">response_coordinate</span> <span class="o">==</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drive_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning, Drive Points Not Found in Dataset, Shapes are Unscaled.&#39;</span><span class="p">)</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">abs_coordinate</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">shapes</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                   <span class="n">angular_natural_frequencies</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+                                   <span class="n">damping_ratios</span><span class="p">,</span>
+                                   <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">reconstruction_angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_natural_frequencies</span><span class="o">*</span><span class="n">reconstruction_angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">collapse_complex_to_real</span><span class="p">(</span><span class="n">participation_factors</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">denominator</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="nd">@gamma</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            
+            <span class="n">full_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">coef</span><span class="o">.</span><span class="n">real</span><span class="p">,</span><span class="n">coef</span><span class="o">.</span><span class="n">imag</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">reconstruction_angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">poles</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">gamma_conj</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">reconstruction_angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles_conj</span><span class="p">))[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">poles</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            
+            <span class="n">l</span> <span class="o">=</span> <span class="n">participation_factors</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">l_conj</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span>
+            
+            <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="nd">@gamma</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">coef_conj</span> <span class="o">=</span> <span class="p">(</span><span class="n">l_conj</span><span class="nd">@gamma_conj</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+            <span class="n">full_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+                <span class="p">[</span><span class="n">coef</span><span class="o">.</span><span class="n">real</span> <span class="o">+</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">imag</span> <span class="o">-</span> <span class="n">coef</span><span class="o">.</span><span class="n">imag</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">coef</span><span class="o">.</span><span class="n">imag</span> <span class="o">+</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">coef</span><span class="o">.</span><span class="n">real</span> <span class="o">-</span> <span class="n">coef_conj</span><span class="o">.</span><span class="n">real</span><span class="p">],</span>
+                <span class="p">])</span>
+        <span class="n">reconstruction</span> <span class="o">=</span> <span class="n">full_kernel</span><span class="nd">@shape_coefficients</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span>
+        <span class="n">reconstruction</span> <span class="o">=</span> <span class="n">reconstruction</span><span class="p">[:</span><span class="n">reconstruction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">reconstruction</span><span class="p">[</span><span class="n">reconstruction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+        
+        <span class="n">frfs_resynthesized</span> <span class="o">=</span> <span class="n">residual_frfs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">frfs_resynthesized</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">+=</span> <span class="p">(</span><span class="n">reconstruction</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">reconstruction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">residues</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="n">drive_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">*</span><span class="n">shapes</span><span class="p">[</span><span class="n">drive_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">max_residue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">residues</span> <span class="k">if</span> <span class="n">real_modes</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">residues</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">scale_pre_sqrt</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="n">drive_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">/</span><span class="n">shapes</span><span class="p">[</span><span class="n">drive_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">scale_pre_sqrt</span> <span class="o">=</span> <span class="n">scale_pre_sqrt</span><span class="p">[</span><span class="n">max_residue</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">max_residue</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">real_modes</span><span class="p">:</span>
+            <span class="n">negative_drive_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">scale_pre_sqrt</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">negative_drive_points</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Negative Drive Point for Modes </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">negative_drive_points</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;These shapes will not be scaled correctly!&#39;</span><span class="p">)</span>
+            <span class="n">scale_pre_sqrt</span><span class="p">[</span><span class="n">negative_drive_points</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">shape_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">scale_pre_sqrt</span><span class="p">)</span>
+        <span class="n">shape_scaling</span> <span class="o">=</span> <span class="n">shape_scaling</span>
+        <span class="n">shapes</span> <span class="o">*=</span> <span class="n">shape_scaling</span>
+        
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">abs_coordinate</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">shapes</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                   <span class="n">angular_natural_frequencies</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+                                   <span class="n">damping_ratios</span><span class="p">,</span>
+                                   <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">frfs_resynthesized</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_shape</span><span class="o">.</span><span class="n">compute_frf</span><span class="p">(</span>
+            <span class="n">frequencies</span><span class="p">,</span>
+            <span class="n">responses</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">response_coordinate</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">references</span> <span class="o">=</span> <span class="n">experimental_frf</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span>
+            <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="n">displacement_derivative</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">residual_frfs</span><span class="p">)</span>
+
+    <span class="n">frfs_resynthesized</span> <span class="o">=</span> <span class="n">frfs_resynthesized</span><span class="p">[</span><span class="n">original_coordinates</span><span class="p">]</span>
+    <span class="n">residual_frfs</span> <span class="o">=</span> <span class="n">residual_frfs</span><span class="p">[</span><span class="n">original_coordinates</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">output_shape</span><span class="p">,</span><span class="n">frfs_resynthesized</span><span class="p">,</span><span class="n">residual_frfs</span></div>
 </pre></div>
 
            </div>
@@ -370,7 +626,9 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99eb9d16c0>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

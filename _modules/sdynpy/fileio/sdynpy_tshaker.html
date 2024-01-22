@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_tshaker &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_tshaker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_tshaker</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module handles reading data from output files of T-shaker, which is a</span>
+<span class="sd">Labview-based Vibration software in use at Sandia National Laboratories.</span>
+
+<span class="sd">T-shaker writes TDMS files natively, but can also output .mat files as well.</span>
+<span class="sd">There are .mat file formats for shaker shock, random vibration, and time</span>
+<span class="sd">histories.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">nptdms</span> <span class="k">as</span> <span class="nn">tdms</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="p">(</span><span class="n">coordinate_array</span><span class="p">,</span><span class="n">outer_product</span><span class="p">,</span>
+                                      <span class="n">CoordinateArray</span><span class="p">,</span><span class="n">_string_map</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
+
+<div class="viewcode-block" id="read_tdms"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_tshaker.read_tdms.html#sdynpy.fileio.sdynpy_tshaker.read_tdms">[docs]</a><span class="k">def</span> <span class="nf">read_tdms</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">coordinate_property</span> <span class="o">=</span> <span class="s2">&quot;Ch_Location&quot;</span><span class="p">,</span>
+              <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">invalid_coordinate_value</span> <span class="o">=</span> <span class="s1">&#39;999999&#39;</span><span class="p">,</span>
+              <span class="n">min_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">channel_indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Read in the file if we&#39;ve passed a string.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">tdms</span><span class="o">.</span><span class="n">TdmsFile</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">tdms</span><span class="o">.</span><span class="n">TdmsFile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    
+    <span class="c1"># Set up the coordinate_string_map if necessary</span>
+    <span class="k">if</span> <span class="n">coordinate_string_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># Go through and get the metadata</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">file</span><span class="p">[</span><span class="s1">&#39;TH Data Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Sample Rate&#39;</span><span class="p">]</span>
+    <span class="n">run_number</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;Test Run Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Run Number&#39;</span><span class="p">]</span>
+    <span class="n">run_description</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;Test Run Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Run Description&#39;</span><span class="p">]</span>
+    <span class="n">test_axis</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;Test Run Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Test Axis&#39;</span><span class="p">]</span>
+    <span class="n">test_type</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;Test Run Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Test Type&#39;</span><span class="p">]</span>
+    <span class="n">test_title</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;Test Series Info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Test Series Title&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># Set up abscissa limits</span>
+    <span class="k">if</span> <span class="n">min_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">max_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_index</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">max_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">abscissa_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">min_index</span><span class="p">,</span><span class="n">max_index</span><span class="p">)</span>
+    
+    <span class="c1"># Now let&#39;s go through the channels</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="s1">&#39;TH Data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">channels</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">channel_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">channel_indices</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">dsa_device</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;DSA_Device&#39;</span><span class="p">]</span>
+        <span class="n">dsa_sn</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;DSA_S/N&#39;</span><span class="p">]</span>
+        <span class="n">dsa_channel</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;DSA_Channel&#39;</span><span class="p">]</span>
+        <span class="n">trans_type</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Trans_Type&#39;</span><span class="p">]</span>
+        <span class="n">ch_eu</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Ch_EU&#39;</span><span class="p">]</span>
+        <span class="n">trans_model</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Trans_Model&#39;</span><span class="p">]</span>
+        <span class="n">trans_axis</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Trans_Axis&#39;</span><span class="p">]</span>
+        <span class="n">trans_sn</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;Trans_S/N&#39;</span><span class="p">]</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinate_string_map</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_string_map</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">invalid_coordinate_value</span><span class="p">)</span>
+        <span class="n">time_data</span> <span class="o">=</span> <span class="n">channel</span><span class="p">[</span><span class="n">abscissa_slice</span><span class="p">]</span>
+        <span class="n">num_elements</span> <span class="o">=</span> <span class="n">time_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_elements</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span> <span class="o">+</span> <span class="n">min_index</span><span class="o">*</span><span class="n">dt</span>
+        <span class="c1"># Comment 1 will be Trans_Type :: Ch_EU</span>
+        <span class="c1"># Comment 2 will be DSA_Device DSA_S/N :: DSA_Channel</span>
+        <span class="c1"># Comment 3 will be Test Series Title :: Run Number :: Run Description, Test Axis :: Test Type</span>
+        <span class="c1"># Comment 5 will be the coordinate value as a string, just in case we can&#39;t convert it to a coordinate</span>
+        <span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">; Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)</span>
+        <span class="n">comment2</span> <span class="o">=</span> <span class="s1">&#39;Device: </span><span class="si">{:}</span><span class="s1">; S/N: </span><span class="si">{:}</span><span class="s1">; Ch: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dsa_device</span><span class="p">,</span> <span class="n">dsa_sn</span><span class="p">,</span> <span class="n">dsa_channel</span><span class="p">)</span>
+        <span class="n">comment3</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:}</span><span class="s1"> Run </span><span class="si">{:}</span><span class="s1">: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_title</span><span class="p">,</span><span class="n">run_number</span><span class="p">,</span> <span class="n">run_description</span><span class="p">,</span> <span class="n">test_axis</span><span class="p">,</span> <span class="n">test_type</span><span class="p">)</span>
+        <span class="n">comment4</span> <span class="o">=</span> <span class="s1">&#39;Sensor: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trans_model</span><span class="p">,</span><span class="n">trans_sn</span><span class="p">,</span><span class="n">trans_axis</span><span class="p">)</span>
+        <span class="n">comment5</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">])</span>
+        <span class="c1"># Now create the data object</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">abscissa</span><span class="p">,</span> <span class="n">time_data</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span>
+                    <span class="n">comment1</span><span class="p">,</span> <span class="n">comment2</span><span class="p">,</span> <span class="n">comment3</span><span class="p">,</span> <span class="n">comment4</span><span class="p">,</span> <span class="n">comment5</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="read_mat_time_history"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_tshaker.read_mat_time_history.html#sdynpy.fileio.sdynpy_tshaker.read_mat_time_history">[docs]</a><span class="k">def</span> <span class="nf">read_mat_time_history</span><span class="p">(</span><span class="n">data_directory</span><span class="p">,</span><span class="n">coordinate_property</span> <span class="o">=</span> <span class="s2">&quot;Ch_ID&quot;</span><span class="p">,</span>
+              <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">invalid_coordinate_value</span> <span class="o">=</span> <span class="s1">&#39;999999&#39;</span><span class="p">,</span>
+              <span class="n">min_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">file_pattern</span> <span class="o">=</span> <span class="s1">&#39;Ch*_THData.mat&#39;</span><span class="p">,</span>
+              <span class="n">file_sort_key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Ch&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">))):</span>
+    <span class="c1"># Set up the coordinate_string_map if necessary</span>
+    <span class="k">if</span> <span class="n">coordinate_string_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="p">{}</span>
+        
+    <span class="c1"># Find files in the directory</span>
+    <span class="n">mat_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_directory</span><span class="p">,</span><span class="n">file_pattern</span><span class="p">))</span>
+    <span class="c1"># Sort the files by number</span>
+    <span class="n">mat_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mat_files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">file_sort_key</span><span class="p">)</span>
+    <span class="n">data_arrays</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">data_file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mat_files</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading File </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_file</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="c1"># Get sample rate</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="c1"># Set up abscissa limits</span>
+        <span class="k">if</span> <span class="n">min_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">min_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">min_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">max_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">max_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">max_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">abscissa_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">min_index</span><span class="p">,</span><span class="n">max_index</span><span class="p">)</span>
+        <span class="c1"># Get metadata</span>
+        <span class="n">run_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_RunNum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">run_description</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">test_axis</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Axis&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">dsa_channel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Daq_Ch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">trans_type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Data_Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">ch_eu</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Ch_Unit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">trans_model</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Trans_Model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">trans_sn</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Trans_SN&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinate_string_map</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_string_map</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">invalid_coordinate_value</span><span class="p">)</span>
+        <span class="c1"># Get the data</span>
+        <span class="n">time_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;THData&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()[</span><span class="n">abscissa_slice</span><span class="p">]</span>
+        <span class="n">num_elements</span> <span class="o">=</span> <span class="n">time_data</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_elements</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span> <span class="o">+</span> <span class="n">min_index</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">comment1</span> <span class="o">=</span> <span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">; Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)</span>
+        <span class="n">comment2</span> <span class="o">=</span> <span class="s1">&#39;Channel: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dsa_channel</span><span class="p">)</span>
+        <span class="n">comment3</span> <span class="o">=</span> <span class="s1">&#39;Run </span><span class="si">{:}</span><span class="s1">: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_number</span><span class="p">,</span> <span class="n">run_description</span><span class="p">,</span> <span class="n">test_axis</span><span class="p">)</span>
+        <span class="n">comment4</span> <span class="o">=</span> <span class="s1">&#39;Sensor: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trans_model</span><span class="p">,</span><span class="n">trans_sn</span><span class="p">)</span>
+        <span class="n">comment5</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()))</span>
+        <span class="c1"># Now create the data object</span>
+        <span class="n">data_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">abscissa</span><span class="p">,</span> <span class="n">time_data</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span>
+                                      <span class="n">comment1</span><span class="p">,</span> <span class="n">comment2</span><span class="p">,</span> <span class="n">comment3</span><span class="p">,</span> <span class="n">comment4</span><span class="p">,</span> <span class="n">comment5</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">data_arrays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_arrays</span></div>
+
+<div class="viewcode-block" id="read_mat_shock"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_tshaker.read_mat_shock.html#sdynpy.fileio.sdynpy_tshaker.read_mat_shock">[docs]</a><span class="k">def</span> <span class="nf">read_mat_shock</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span><span class="n">coordinate_property</span> <span class="o">=</span> <span class="s2">&quot;Ch_Info&quot;</span><span class="p">,</span>
+              <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">invalid_coordinate_value</span> <span class="o">=</span> <span class="s1">&#39;999999&#39;</span><span class="p">,</span>
+              <span class="n">min_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">read_filtered_time_data</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="c1"># Set up the coordinate_string_map if necessary</span>
+    <span class="k">if</span> <span class="n">coordinate_string_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="c1"># Get sample rate</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="c1"># Set up abscissa limits</span>
+    <span class="k">if</span> <span class="n">min_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">min_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">max_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_index</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">max_time</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">abscissa_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">min_index</span><span class="p">,</span><span class="n">max_index</span><span class="p">)</span>
+    <span class="c1"># Get metadata</span>
+    <span class="n">run_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_RunNum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">run_description</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">test_axis</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Axis&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">dsa_channel</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Daq_Ch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="n">trans_type</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Data_Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="n">ch_eu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Ch_Unit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="n">coordinates_raw</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinates_raw</span><span class="p">:</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinate_string_map</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_string_map</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">invalid_coordinate_value</span><span class="p">)</span>
+        <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">time_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;shk&#39;</span> <span class="k">if</span> <span class="n">read_filtered_time_data</span> <span class="k">else</span> <span class="s1">&#39;unfilshk&#39;</span><span class="p">][</span><span class="n">abscissa_slice</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">num_elements</span> <span class="o">=</span> <span class="n">time_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_elements</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span> <span class="o">+</span> <span class="n">min_index</span><span class="o">*</span><span class="n">dt</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">ch_eu</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">; Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)]</span>
+    <span class="n">comment2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Channel: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">dsa_channel</span><span class="p">]</span>
+    <span class="n">comment3</span> <span class="o">=</span> <span class="s1">&#39;Run </span><span class="si">{:}</span><span class="s1">: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_number</span><span class="p">,</span> <span class="n">run_description</span><span class="p">,</span> <span class="n">test_axis</span><span class="p">)</span>
+    <span class="n">comment5</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span>
+    <span class="n">time_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span><span class="n">abscissa</span><span class="p">,</span><span class="n">time_data</span><span class="p">,</span>
+                           <span class="n">coordinates</span><span class="p">,</span><span class="n">comment1</span><span class="p">,</span><span class="n">comment2</span><span class="p">,</span><span class="n">comment3</span><span class="p">,</span>
+                           <span class="n">comment5</span><span class="o">=</span><span class="n">comment5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">time_data</span></div>
+
+<div class="viewcode-block" id="read_mat_random"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_tshaker.read_mat_random.html#sdynpy.fileio.sdynpy_tshaker.read_mat_random">[docs]</a><span class="k">def</span> <span class="nf">read_mat_random</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span><span class="n">coordinate_property</span> <span class="o">=</span> <span class="s2">&quot;Ch_Info&quot;</span><span class="p">,</span>
+                    <span class="n">reference_coordinate_property</span> <span class="o">=</span> <span class="s2">&quot;FRF_RefID&quot;</span><span class="p">,</span>
+              <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">invalid_coordinate_value</span> <span class="o">=</span> <span class="s1">&#39;999999&#39;</span><span class="p">):</span>
+    <span class="c1"># Set up the coordinate_string_map if necessary</span>
+    <span class="k">if</span> <span class="n">coordinate_string_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coordinate_string_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="n">abscissa</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Freq&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="n">coherence</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Coh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">frf</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;FRF&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">psd</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;PSD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">coordinates_raw</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinates_raw</span><span class="p">:</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinate_string_map</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_string_map</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">invalid_coordinate_value</span><span class="p">)</span>
+        <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">reference_coordinates_raw</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">reference_coordinate_property</span><span class="p">]</span>
+    <span class="n">reference_coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">reference_coordinates_raw</span><span class="p">:</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">in</span> <span class="n">coordinate_string_map</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_string_map</span><span class="p">[</span><span class="n">coordinate</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">invalid_coordinate_value</span><span class="p">)</span>
+        <span class="n">reference_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">reference_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">reference_coordinates</span><span class="p">)</span>
+    <span class="c1"># Get metadata</span>
+    <span class="n">run_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_RunNum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">run_description</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">test_axis</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Test_Axis&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+    <span class="n">dsa_channel</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Daq_Ch&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="n">trans_type</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Ch_Type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="n">ch_eu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Ch_Unit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">psd_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unit: </span><span class="si">{:}</span><span class="s1">^2/Hz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">ch_eu</span><span class="p">]</span>
+        <span class="n">coh_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">ch_eu</span><span class="p">]</span>
+        <span class="n">frf_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">ch_eu</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">psd_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">; Unit: </span><span class="si">{:}</span><span class="s1">^2/Hz&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)]</span>
+        <span class="n">coh_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)]</span>
+        <span class="n">frf_comment1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Type: </span><span class="si">{:}</span><span class="s1">; Unit: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span><span class="n">ch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trans_type</span><span class="p">,</span><span class="n">ch_eu</span><span class="p">)]</span>
+    <span class="n">comment2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Channel: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">dsa_channel</span><span class="p">]</span>
+    <span class="n">comment3</span> <span class="o">=</span> <span class="s1">&#39;Run </span><span class="si">{:}</span><span class="s1">: </span><span class="si">{:}</span><span class="s1"> </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_number</span><span class="p">,</span> <span class="n">run_description</span><span class="p">,</span> <span class="n">test_axis</span><span class="p">)</span>
+    <span class="n">comment5</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_property</span><span class="p">]</span>
+    <span class="n">psd_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">,</span>
+                          <span class="n">abscissa</span><span class="p">,</span><span class="n">psd</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">coordinates</span><span class="p">,</span><span class="n">coordinates</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                          <span class="n">psd_comment1</span><span class="p">,</span><span class="n">comment2</span><span class="p">,</span><span class="n">comment3</span><span class="p">,</span><span class="n">comment5</span><span class="o">=</span><span class="n">comment5</span><span class="p">)</span>
+    <span class="n">coh_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">COHERENCE</span><span class="p">,</span>
+                          <span class="n">abscissa</span><span class="p">,</span><span class="n">coherence</span><span class="p">,</span><span class="n">outer_product</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">reference_coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                          <span class="n">coh_comment1</span><span class="p">,</span><span class="n">comment2</span><span class="p">,</span><span class="n">comment3</span><span class="p">,</span><span class="n">comment5</span><span class="o">=</span><span class="n">comment5</span><span class="p">)</span>
+    <span class="n">frf_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">,</span>
+                          <span class="n">abscissa</span><span class="p">,</span><span class="n">frf</span><span class="p">,</span><span class="n">outer_product</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">reference_coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[:,</span><span class="mi">0</span><span class="p">,:],</span>
+                          <span class="n">frf_comment1</span><span class="p">,</span><span class="n">comment2</span><span class="p">,</span><span class="n">comment3</span><span class="p">,</span><span class="n">comment5</span><span class="o">=</span><span class="n">comment5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">psd_data</span><span class="p">,</span><span class="n">coh_data</span><span class="p">,</span><span class="n">frf_data</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f99eba6c040>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

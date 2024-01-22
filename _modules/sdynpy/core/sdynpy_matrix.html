@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -32,14 +34,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -68,7 +72,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">sdynpy.core.sdynpy_matrix</li>
       <li class="wy-breadcrumbs-aside">
@@ -113,11 +117,9 @@
 
 <span class="sd">    Use the matrix helper function to create the object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">data_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;uint64&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">,</span> <span class="s1">&#39;int8&#39;</span><span class="p">)]</span>
     
 <div class="viewcode-block" id="Matrix.data_dtype"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.data_dtype">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">data_dtype</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">data_dtype</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">,</span> <span class="n">is_complex</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Data type of the underlying numpy structured array for real shapes</span>
 
@@ -136,21 +138,21 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s1">&#39;matrix&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;matrix&#39;</span><span class="p">,</span> <span class="s1">&#39;complex128&#39;</span> <span class="k">if</span> <span class="n">is_complex</span> <span class="k">else</span> <span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;row_coordinate&#39;</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,)),</span>
             <span class="p">(</span><span class="s1">&#39;column_coordinate&#39;</span><span class="p">,</span> <span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span> <span class="p">(</span><span class="n">columns</span><span class="p">,)),</span>
         <span class="p">]</span></div>
 <span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Datatype for the underlying numpy structured array&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">is_complex</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">strides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># Create the ndarray instance of our type, given the usual</span>
         <span class="c1"># ndarray input arguments.  This will call the standard</span>
         <span class="c1"># ndarray constructor, but return an object of our type.</span>
         <span class="c1"># It also triggers a call to InfoArray.__array_finalize__</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Matrix</span><span class="p">,</span> <span class="n">subtype</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span>
-                                             <span class="n">Matrix</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">),</span>
+                                             <span class="n">Matrix</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span> <span class="n">is_complex</span><span class="p">),</span>
                                              <span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span>
                                              <span class="n">order</span><span class="p">)</span>
         <span class="c1"># Finally, we must return the newly created object:</span>
@@ -324,7 +326,7 @@
             <span class="k">return</span> <span class="n">return_value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;row_coordinate&#39;</span><span class="p">,</span><span class="s1">&#39;column_coordinate&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;row_coordinate&#39;</span><span class="p">,</span><span class="s1">&#39;column_coordinate&#39;</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">output</span>
@@ -465,7 +467,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">nrow</span><span class="p">,</span><span class="n">ncol</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">nrow</span><span class="p">,</span><span class="n">ncol</span><span class="p">,</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">nrow</span><span class="p">,</span><span class="n">ncol</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span>
                <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
                <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
     <span class="n">m</span><span class="o">.</span><span class="n">row_coordinate</span> <span class="o">=</span> <span class="n">row_coordinate</span>
@@ -481,7 +483,9 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99ebb77580>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

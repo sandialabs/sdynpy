@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom &mdash; SDynPy 0.6.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <title>Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom &mdash; SDynPy 0.11.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -37,14 +40,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> SDynPy
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.6.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -64,7 +69,13 @@
 <li class="toctree-l3"><a class="reference internal" href="Modal_05a_Computing_FRF_from_Time_Data.html">Modal Tutorial 05 Part A: Computing Frequency Response from Time Data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05b_Types_of_Excitation.html">Modal Tutorial 05 Part B: Types of Excitation for Experimental Modal Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05b_Types_of_Excitation.html#Homework-Problems">Homework Problems</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Optimal-Excitation-Theory">Optimal Excitation Theory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Computing-Optimal-Excitation-Locations">Computing Optimal Excitation Locations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Optimal-Response-Theory">Optimal Response Theory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Computing-Optimal-Responses">Computing Optimal Responses</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05d_Data_Quality_Checks.html">Modal Tutorial 05 Part D: Data Quality Checks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05e_Fitting_Modes_to_FRF.html">Modal Tutorial 05 Part E: Fitting Modes to Data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Modal_05f_Comparing_Test_and_Analysis.html">Modal Tutorial 05 Part F: Comparing Test and Analysis</a></li>
@@ -89,7 +100,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../modal_tutorials.html">Modal Tutorials</a></li>
           <li class="breadcrumb-item"><a href="Modal_05_Experimental_Modal_Analysis.html">Modal Tutorial 05: Experimental Modal Analysis</a></li>
       <li class="breadcrumb-item active">Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom</li>
@@ -102,295 +113,340 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="Modal-Tutorial-05-Part-C:-Selecting-Excitation-and-Response-Degrees-of-Freedom">
+  <section id="Modal-Tutorial-05-Part-C:-Selecting-Excitation-and-Response-Degrees-of-Freedom">
 <h1>Modal Tutorial 05 Part C: Selecting Excitation and Response Degrees of Freedom<a class="headerlink" href="#Modal-Tutorial-05-Part-C:-Selecting-Excitation-and-Response-Degrees-of-Freedom" title="Permalink to this heading"></a></h1>
+<p>We have discussed how to excite the structure and how to extract data from the structure. However, how does one know <em>where</em> to excite the structure and <em>where</em> to measure the structure?</p>
+<section id="Optimal-Excitation-Theory">
+<h2>Optimal Excitation Theory<a class="headerlink" href="#Optimal-Excitation-Theory" title="Permalink to this heading"></a></h2>
+<p>In order to fit modes using experimental modal analysis, those modes must first be excited. If there is no response of a given mode, then there is no way to fit an analytical model to that response. So the idea is to excite the structure at locations that excite the modes of interest.</p>
+<p>To find the locations that best excite the modes, we revisit the modal equations of motion from the previous tutorials.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{Q} = \left(-\omega^2+i\omega\left[^\ddots2\zeta_n\omega_n{}_\ddots\right]+\left[^\ddots\omega_n^2{}_\ddots\right]\right)^{-1}\Phi^T\mathbf{F}\]</div>
+<p>Here the modal response <span class="math notranslate nohighlight">\(\mathbf{Q}\)</span> is determined by force <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> times the mode shape matrix transposed <span class="math notranslate nohighlight">\(\Phi^T\)</span>. Note that it is also scaled by the dynamics of the part <span class="math notranslate nohighlight">\(\left(-\omega^2+i\omega\left[^\ddots2\zeta_n\omega_n{}_\ddots\right]+\left[^\ddots\omega_n^2{}_\ddots\right]\right)^{-1}\)</span>; however, we have no ability to modify this quantity as it is inherent to the structure of interest.</p>
+<p>We previously called the quantity</p>
+<div class="math notranslate nohighlight">
+\[\tilde{\mathbf{f}} = \Phi^T \mathbf{f}\]</div>
+<p>the <em>modal force</em> as it defines how much of the excitation gets transmitted to each mode of the structure. We see that the mode shape matrix transposed <span class="math notranslate nohighlight">\(\Phi^T\)</span> determines precisely how a physical force <span class="math notranslate nohighlight">\(\mathbf{f}\)</span> turns into a modal force <span class="math notranslate nohighlight">\(\tilde{\mathbf{f}}\)</span>. For example, if the location of a physical force were at a location where the modeshape has a coefficient of zero, then there would be no excitation of that mode by that force. Rather if the physical force were at a
+location where the mode shape is large, then we would see that the mode would be excited very well by that force.</p>
+<p>Let’s look at an example of a 2D beam in SDynPy.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import modules we will use</span>
+<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="c1"># Create a beam</span>
+<span class="n">system</span><span class="p">,</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="o">.</span><span class="n">beam</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                                   <span class="n">width</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+                                   <span class="n">height</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+                                   <span class="n">num_nodes</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span>
+                                   <span class="n">material</span><span class="o">=</span><span class="s1">&#39;steel&#39;</span><span class="p">)</span>
+<span class="c1"># Now let&#39;s reduce down to 2D.  Keep y-direction motion and rotation about z</span>
+<span class="n">coordinate_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="mi">6</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">coordinate</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="n">coordinate_indices</span><span class="p">],</span>
+                     <span class="n">mass</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">coordinate_indices</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">coordinate_indices</span><span class="p">],</span>
+                     <span class="n">stiffness</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">stiffness</span><span class="p">[</span><span class="n">coordinate_indices</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">coordinate_indices</span><span class="p">],</span>
+                     <span class="n">damping</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">damping</span><span class="p">[</span><span class="n">coordinate_indices</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">coordinate_indices</span><span class="p">],</span>
+                    <span class="p">)</span>
+<span class="c1"># Add some damping for realism</span>
+<span class="n">system</span><span class="o">.</span><span class="n">assign_modal_damping</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<p>Now let’s look at the modes of the system.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modes</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">(</span><span class="n">maximum_frequency</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+   Index,  Frequency,    Damping,     # DoFs
+    (0,),     0.0000,    0.0000%,        102
+    (1,),     0.0076,    0.0864%,        102
+    (2,),   103.7694,    1.0000%,        102
+    (3,),   286.0446,    1.0000%,        102
+    (4,),   560.7624,    1.0000%,        102
+    (5,),   926.9713,    1.0000%,        102
+</pre></div></div>
+</div>
+<p>Since our modal test will measure only on the elastic modes, we will focus on them.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+   Index,  Frequency,    Damping,     # DoFs
+    (0,),   103.7694,    1.0000%,        102
+    (1,),   286.0446,    1.0000%,        102
+    (2,),   560.7624,    1.0000%,        102
+    (3,),   926.9713,    1.0000%,        102
+</pre></div></div>
+</div>
+<p>Let’s look just at the translational degrees of freedom and discard the rotations.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">response_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">modes</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="n">modes</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[</span><span class="n">response_dofs</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s look now at the shapes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Mode Shapes&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">,</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_11_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_11_0.png" />
+</div>
+</div>
+<p>Let’s look at what happens if we put an excitation at the tip of the beam.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frf_tip</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+                                   <span class="n">references</span><span class="o">=</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+                                   <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span><span class="p">,</span>
+                                   <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frf_tip</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([&lt;AxesSubplot: ylabel=&#39;Phase&#39;&gt;, &lt;AxesSubplot: ylabel=&#39;Amplitude&#39;&gt;],
+      dtype=object)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_14_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_14_1.png" />
+</div>
+</div>
+<p>We can see we have 4 nice distinct peaks in the FRFs. This would be considered a good excitation point, as it excites all the modes of interest.</p>
+<p>Let’s look now what happens if we excite at a location close to where the second mode has a zero in the mode shape. For a symmetric mode, this should be just about in the middle of the beam.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">min_dof_location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span>
+<span class="n">min_dof</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">min_dof_location</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frf_middle</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+                                   <span class="n">references</span><span class="o">=</span><span class="n">min_dof</span><span class="p">,</span>
+                                   <span class="n">responses</span> <span class="o">=</span> <span class="n">response_dofs</span><span class="p">,</span>
+                                   <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">frf_middle</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([&lt;AxesSubplot: ylabel=&#39;Phase&#39;&gt;, &lt;AxesSubplot: ylabel=&#39;Amplitude&#39;&gt;],
+      dtype=object)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_17_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_17_1.png" />
+</div>
+</div>
+<p>We can see we lost not only the second mode, but also the fourth mode. This is because both of these modes are zero at the midpoint of the beam, so exciting at this location does not excite these two modes at all.</p>
+</section>
+<section id="Computing-Optimal-Excitation-Locations">
+<h2>Computing Optimal Excitation Locations<a class="headerlink" href="#Computing-Optimal-Excitation-Locations" title="Permalink to this heading"></a></h2>
+<p>For a 2D beam, it is not too difficult to find an optimal drive location. However, for more complex structures it can be challenging to find an optimal location intuitively. Various algorithms have been proposed to select excitation locations based on the structures mode shapes.</p>
+<p>A simple solution is simply to multiply the absolute value of the shape coefficients for all shapes in the frequency range of interest at each degree of freedom, and then select the degree of freedom with the largest product. This is known as the <em>optimum drive point</em> algorithm.</p>
+<div class="math notranslate nohighlight">
+\[ODP_i = \prod_{j=1}^{n_{modes}} \left|\phi_{ij}\right|\]</div>
+<p>This product will be large where all the shape coefficients are large. The product will collapse to zero if any of the shapes have a zero coefficient. Let’s look at what this <span class="math notranslate nohighlight">\(ODP\)</span> value looks like for our beam.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">odp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">odp</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Optimum Drive Point&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Excitation Location Along the Beam&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 0, &#39;Excitation Location Along the Beam&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_21_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_21_1.png" />
+</div>
+</div>
+<p>We see that indeed the beam is best excited at its tips, as these are the location with the largest amplitude of motion while never having any nodal lines where a mode may be missed.</p>
+</section>
+<section id="Optimal-Response-Theory">
+<h2>Optimal Response Theory<a class="headerlink" href="#Optimal-Response-Theory" title="Permalink to this heading"></a></h2>
+<p>Similarly to the excitation location, where the mode shape determines how strongly each mode is excited from a given physical excitation, the mode shape matrix also determines how a modal response translates into a physical response that can be measured. The modal transformation is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x} = \Phi\mathbf{q}\]</div>
+<p>Obviously, if we can’t measure the responses <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> corresponding to a given mode, we won’t be able to fit that mode to the data. We therefore want to place sensors where the response of the mode will be large so we are better able to measure it above the noise floor of our test.</p>
+<p>Another consideration is the ability to distinguish modes from one another. For example, if we just measured the beam tips and the midspan, the modes we would measure would look like</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Mode Shapes&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">50</span><span class="p">]],</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_24_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_24_0.png" />
+</div>
+</div>
+<p>Here modes 1 and 3 (left two plots) look the same (recall that mode shapes can be arbitrarily scaled by a scalar and still be valid). Similarly, modes 2 and 4 (right plots) look basically the same. With a poor instrumenation set, we have trouble distinguishing between modes and can lose physical insight into the structure’s response.</p>
+<p>Therefore an optimal response measurement set should contain both responses that are large in each mode shape, but also responses that produce linearly independent shapes.</p>
+</section>
+<section id="Computing-Optimal-Responses">
+<h2>Computing Optimal Responses<a class="headerlink" href="#Computing-Optimal-Responses" title="Permalink to this heading"></a></h2>
+<p>A popular approach to computing optimal instrumentation utilizes a technique called Effective Independence, where a Fisher Information Matrix</p>
+<div class="math notranslate nohighlight">
+\[FIM = \Phi^T\Phi\]</div>
+<p>We can use the determinant of this metric to define how good the sensor set is. The determinant will be larger for larger coefficients of the mode shape matrix. The determinant also considers linear independence of the sensor set because it will go to zero for linearly dependent mode shapes.</p>
+<p>Many sensor optimizations work by discarding degrees of freedom one-by-one (or for triaxial sensors, three-by-three) from some initial sensor set. The discarded degree(s) of freedom are the ones that contribute the minimum amount to the effective independence.</p>
+<p>We can compute the effective independence of a sensor set using SDynPy.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sensors_to_keep</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">kept_indices</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">dof</span><span class="o">.</span><span class="n">by_effective_independence</span><span class="p">(</span><span class="n">sensors_to_keep</span><span class="p">,</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">,</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">[:,</span><span class="n">kept_indices</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kept_indices</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_26_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_26_0.png" />
+</div>
+</div>
+<p>One drawback of effective independence is that once independence is achieved, it tends to cluster sensors at high-responding locations, as these are the locations that maximize the determinant.</p>
+<p>A second approach is to maximize based on condition number of the mode shape matrix. This directly focuses on the linear independence aspect of the problem with less emphasis on how large the responses are.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sensors_to_keep</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">kept_indices</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">dof</span><span class="o">.</span><span class="n">by_condition_number</span><span class="p">(</span><span class="n">sensors_to_keep</span><span class="p">,</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">,</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">shape</span><span class="p">,</span><span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">[:,</span><span class="n">kept_indices</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kept_indices</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_28_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05c_Selecting_Response_and_Measurement_DoFs_28_0.png" />
+</div>
+</div>
+</section>
 </section>
 
 
@@ -404,7 +460,9 @@ div.rendered_html tbody tr:hover {
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,     LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS,     the U.S. Government retains certain rights in this software.</p>
+<jinja2.runtime.BlockReference object at 0x7f99eec83e80>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
