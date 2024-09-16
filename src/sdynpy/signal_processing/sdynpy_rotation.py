@@ -130,23 +130,23 @@ unit_magnitude_constraint = NonlinearConstraint(np.linalg.norm, 1, 1)
 
 
 def lstsq_rigid_transform(x, y, w=None):
-    """ Computes the Transform between two point sets such that 
+    """ Computes the Transform between two point sets such that
         y = Rx + t
 
-        This is a least squares methods as descibed in 
+        This is a least squares methods as descibed in
         "Least-Squares Rigid Motion Using SVD", O. Sorkine-Hornung, M.
         Rabinovich, Department of Computer Science, ETH Zurich, Jan 16, 2017
         Note found online at https://igl.ethz.ch/projects/ARAP/svd_rot.pdf
 
-        INPUT 
+        INPUT
             x,y = the two point sets as [x,y,z] column vectors
                   sizes are (3,n) for n points
             w = weighting vector for each point, wi>0
                 default is uniform weighting of wi=1
                 size is (1,n) for n points
 
-        OUTPUT 
-            R,t  = [(3,3),(3,1)] transformation parameters such that 
+        OUTPUT
+            R,t  = [(3,3),(3,1)] transformation parameters such that
             y = Rx + t
     """
     if w is None:
@@ -164,16 +164,16 @@ def lstsq_rigid_transform(x, y, w=None):
     Y = y - ybar[..., np.newaxis]
 
     # Calculate the Covariance
-    Cov = X @ W @ np.moveaxis(Y,-1,-2)
+    Cov = X @ W @ np.moveaxis(Y, -1, -2)
 
     # Take the SVD of the Covariance matrix
     U, S, VH = np.linalg.svd(Cov)
-    V = np.moveaxis(VH,-1,-2)  # numpy's SVD gives you back V', not V like Matlab
-    det = np.linalg.det(V @ np.moveaxis(U,-1,-2))
-    D = np.broadcast_to(np.eye(3),det.shape+(3,3)).copy()
-    D[...,-1,-1] = det
+    V = np.moveaxis(VH, -1, -2)  # numpy's SVD gives you back V', not V like Matlab
+    det = np.linalg.det(V @ np.moveaxis(U, -1, -2))
+    D = np.broadcast_to(np.eye(3), det.shape+(3, 3)).copy()
+    D[..., -1, -1] = det
 
-    R = V @ D @ np.moveaxis(U,-1,-2)
+    R = V @ D @ np.moveaxis(U, -1, -2)
     t = ybar[..., np.newaxis] - R @ xbar[..., np.newaxis]
 
     return R, t

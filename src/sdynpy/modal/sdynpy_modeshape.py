@@ -26,12 +26,14 @@ from ..core.sdynpy_data import TransferFunctionArray
 from ..core.sdynpy_shape import shape_array
 from ..core.sdynpy_coordinate import CoordinateArray
 from ..signal_processing.sdynpy_complex import collapse_complex_to_real
+import warnings
 
 
 class ShapeSelection(Enum):
     ALL = 0
     DRIVE_POINT_COEFFICIENT = 1
     PARTICIPATION_FACTOR = 2
+
 
 def compute_residues(experimental_frf: TransferFunctionArray,
                      natural_frequencies: np.ndarray,
@@ -280,12 +282,14 @@ def compute_shapes(natural_frequencies: np.ndarray,
                          comment1=coordinates[0, :, -1].string_array()[shape_selection_indices])
     return shapes, negative_drive_points
 
+
 def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
                                   natural_frequencies: np.ndarray,
                                   damping_ratios: np.ndarray,
                                   participation_factors: np.ndarray,
                                   real_modes: bool = False,
-                                  residuals: bool = True,
+                                  lower_residuals: bool = True,
+                                  upper_residuals: bool = True,
                                   min_frequency: float = None,
                                   max_frequency: float = None,
                                   displacement_derivative: int = 0,
@@ -293,7 +297,7 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
                                   frequency_lines_for_residuals: int = None):
     """
     Computes mode shapes from multireference datasets.
-    
+
     Uses the modal participation factor as a constraint on the mode shapes to
     solve for the shapes in one pass, rather than solving for residues and
     subsequently solving for shapes.
@@ -311,8 +315,10 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
         Should have shape (n_modes x n_inputs)
     real_modes : bool, optional
         Specifies whether to solve for real modes or complex modes (default).
-    residuals : bool, optional
-        Use residuals in the FRF fit. The default is True.
+    lower_residuals : bool, optional
+        Use lower residuals in the FRF fit. The default is True.
+    upper_residuals : bool, optional
+        Use upper residuals in the FRF fit. The default is True.
     min_frequency : float, optional
         Minimum frequency to use in the shape fit. The default is the lowest
         frequency in the experimental FRF.
@@ -347,6 +353,9 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
         FRFs resynthesized from the fit shapes and residuals
     residual_frfs : TransferFunctionArray
         FRFs resynthesized only from the residuals used in the calculation
+    kernel_frfs: TransferFunctionArray
+        FRFs synthesized by the kernel solution without taking into account
+        construction of mode shapes and reciprocity with participation factors
     """
     original_coordinates = experimental_frf.coordinate
     if not experimental_frf.ndim == 2:
@@ -354,8 +363,10 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
     abs_coordinate = abs(original_coordinates)
     experimental_frf = experimental_frf[abs_coordinate]
     # Also need to adjust the participation factors
-    participation_factors = participation_factors*np.sign(original_coordinates[0,:,1].direction)
-    frequencies = experimental_frf[0,0].abscissa.copy()
+    participation_factors = participation_factors*np.sign(original_coordinates[0, :, 1].direction)
+    if real_modes:
+        participation_factors = collapse_complex_to_real(participation_factors)
+    frequencies = experimental_frf[0, 0].abscissa.copy()
     if min_frequency is None:
         min_frequency = np.min(frequencies)
     if max_frequency is None:
@@ -366,168 +377,467 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
     frequencies = frequencies[abscissa_indices]
     frf_matrix = experimental_frf.ordinate[..., abscissa_indices].copy()
     angular_frequencies = 2 * np.pi * frequencies
+    reconstruction_angular_frequencies = frequencies*2*np.pi
     angular_natural_frequencies = 2 * np.pi * np.array(natural_frequencies).flatten()
     damping_ratios = np.array(damping_ratios).flatten()
-    
+
     # Reduce to the kept frequency lines
     if frequency_lines_at_resonance is not None:
-        solve_indices = np.argmin(np.abs(angular_natural_frequencies - angular_frequencies[:,np.newaxis]), axis=0)
+        solve_indices = np.argmin(np.abs(angular_natural_frequencies - angular_frequencies[:, np.newaxis]), axis=0)
         # print(solve_indices)
         solve_indices = np.unique(
             solve_indices[:, np.newaxis] + np.arange(frequency_lines_at_resonance) - frequency_lines_at_resonance // 2)
         solve_indices = solve_indices[(solve_indices >= 0) & (
             solve_indices < angular_frequencies.size)]
         # Add the residual indices
-        if residuals:
+        if lower_residuals:
             if frequency_lines_for_residuals is None:
                 low_freq_indices = np.arange(angular_frequencies.size // 10)
+            else:
+                low_freq_indices = np.arange(frequency_lines_for_residuals)
+        else:
+            low_freq_indices = []
+        if upper_residuals:
+            if frequency_lines_for_residuals is None:
                 high_freq_indices = angular_frequencies.size - \
                     np.arange(angular_frequencies.size // 10) - 1
             else:
-                low_freq_indices = np.arange(frequency_lines_for_residuals)
                 high_freq_indices = angular_frequencies.size - \
                     np.arange(frequency_lines_for_residuals) - 1
-            solve_indices = np.unique(np.concatenate(
-                (solve_indices, low_freq_indices, high_freq_indices)))
-        frf_matrix = frf_matrix[...,solve_indices]
+        else:
+            high_freq_indices = []
+        solve_indices = np.unique(np.concatenate(
+            (solve_indices, low_freq_indices, high_freq_indices)))
+        frf_matrix = frf_matrix[..., solve_indices]
         angular_frequencies = angular_frequencies[solve_indices]
-    
+
+    poles = -damping_ratios*angular_natural_frequencies + 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
+
     if real_modes:
-        denominator = angular_natural_frequencies**2 - angular_frequencies[:,np.newaxis]**2 + 2j*damping_ratios*angular_natural_frequencies*angular_frequencies[:,np.newaxis]
-        l = collapse_complex_to_real(participation_factors).T
-        gamma = 1/denominator[:,np.newaxis]*np.eye(l.shape[-1])
-        coef = (l@gamma).reshape(-1,gamma.shape[-1])
-        
-        kernel = np.concatenate((coef.real,coef.imag),axis=0)
-        
+        kernel = generate_kernel_real(
+            angular_frequencies, poles,
+            participation_factors, lower_residuals, 
+            upper_residuals, displacement_derivative)
+        if angular_frequencies.size != reconstruction_angular_frequencies.size:
+            reconstruction_kernel = generate_kernel_real(
+                reconstruction_angular_frequencies, poles,
+                participation_factors, lower_residuals, 
+                upper_residuals, displacement_derivative)
+        else:
+            reconstruction_kernel = kernel
     else:
-        # Now set up the kernel
-        poles = -damping_ratios*angular_natural_frequencies + 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
-        poles_conj = -damping_ratios*angular_natural_frequencies - 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
-        
-        gamma = (1/(1j*angular_frequencies[:,np.newaxis] - poles))[...,np.newaxis,:]*np.eye(poles.size)
-        gamma_conj = (1/(1j*angular_frequencies[:,np.newaxis] - poles_conj))[...,np.newaxis,:]*np.eye(poles.size)
-        
-        l = participation_factors.T
-        l_conj = l.conj()
-        
-        coef = (l@gamma).reshape(-1,gamma.shape[-1])
-        coef_conj = (l_conj@gamma_conj).reshape(-1,gamma.shape[-1])
-    
-        kernel = np.block([
-            [coef.real + coef_conj.real, coef_conj.imag - coef.imag],
-            [coef.imag + coef_conj.imag, coef.real - coef_conj.real],
-            ])
-        
-    if residuals:
-        lr = (-np.eye(l.shape[0])/angular_frequencies[:,np.newaxis,np.newaxis]**2).reshape(-1,l.shape[0])
-        ur = (np.eye(l.shape[0])*np.ones((angular_frequencies.size,1,1))).reshape(-1,l.shape[0])
-        zeros = np.zeros(lr.shape)
+        kernel = generate_kernel_complex(
+            angular_frequencies, poles, participation_factors, lower_residuals,
+            upper_residuals, displacement_derivative)
+        if angular_frequencies.size != reconstruction_angular_frequencies.size:
+            reconstruction_kernel = generate_kernel_complex(
+                reconstruction_angular_frequencies, poles, participation_factors, lower_residuals, 
+                upper_residuals, displacement_derivative)
+        else:
+            reconstruction_kernel = kernel
 
-        residual_block = np.block([[lr,zeros,ur,zeros],
-                                   [zeros,lr,zeros,ur]])
+    coefficients, (full_reconstruction, residual_reconstruction) = stack_and_lstsq(
+        frf_matrix, kernel,
+        return_reconstruction=True,
+        reconstruction_partitions = [slice(None),
+                                     slice(poles.size*(1 if real_modes else 2),None)],
+        reconstruction_kernel = reconstruction_kernel)
 
-        kernel = np.concatenate((kernel,residual_block),axis=-1)
-        
-    # Convert to accelerations to do the solve
-    omega_scale_factor = np.tile(np.repeat(-angular_frequencies**2,l.shape[0]),2)
-    kernel *= omega_scale_factor[:,np.newaxis]
-    frf_matrix *= (1j * angular_frequencies)**(2 - displacement_derivative)
-    
-    # TODO: See about putting weighting in here
-    
-    # Now assemble the FRF matrix to fit.
-    frf_to_fit = frf_matrix.transpose().reshape(-1,experimental_frf.shape[0])
-    frf_to_fit = np.concatenate((frf_to_fit.real,frf_to_fit.imag),axis=0)
-    
-    # Solve the least squares problem
-    shape_coefficients,*metrics = np.linalg.lstsq(kernel,frf_to_fit)
-    
+    residual_frfs = experimental_frf.copy().extract_elements(abscissa_indices)
+    residual_frfs.ordinate = residual_reconstruction
+    kernel_frfs = experimental_frf.copy().extract_elements(abscissa_indices)
+    kernel_frfs.ordinate = full_reconstruction
+
     # Extract the shapes and residues
     if real_modes:
-        shapes = (shape_coefficients[:l.shape[1]]).T
+        shapes = (coefficients[:poles.size]).T
     else:
-        shapes = (shape_coefficients[:l.shape[1]] + 1j*shape_coefficients[l.shape[1]:2*l.shape[1]]).T
-    
-    reconstruction_angular_frequencies = frequencies*2*np.pi
-    residual_frfs = experimental_frf.copy().extract_elements(abscissa_indices)
-    if residuals:
-        lr = (-np.eye(l.shape[0])/reconstruction_angular_frequencies[:,np.newaxis,np.newaxis]**2).reshape(-1,l.shape[0])
-        ur = (np.eye(l.shape[0])*np.ones((reconstruction_angular_frequencies.size,1,1))).reshape(-1,l.shape[0])
-        zeros = np.zeros(lr.shape)
+        shapes = (coefficients[:poles.size] + 1j*coefficients[poles.size:2*poles.size]).T
 
-        residual_reconstruction_block = np.block([[lr,zeros,ur,zeros],
-                                                  [zeros,lr,zeros,ur]])
-    
-        residual_reconstruction = (residual_reconstruction_block @ shape_coefficients[-4*l.shape[0]:])
-        residual_reconstruction = (residual_reconstruction[:residual_reconstruction.shape[0]//2] 
-                                   + 1j*residual_reconstruction[residual_reconstruction.shape[0]//2:]).reshape(reconstruction_angular_frequencies.size,l.shape[0],-1)
-        residual_frfs.ordinate = residual_reconstruction.transpose() * (1j*reconstruction_angular_frequencies)**displacement_derivative
-    else:
-        residual_frfs.ordinate = 0
-    
     # Now we have to go in and find the scale factor to scale the shapes correctly
     drive_points = np.where(experimental_frf.response_coordinate == experimental_frf.reference_coordinate)
     if drive_points[0].size == 0:
-        print('Warning, Drive Points Not Found in Dataset, Shapes are Unscaled.')
-        output_shape = shape_array(abs_coordinate[:,0,0], shapes.T,
+        print('Warning: Drive Points Not Found in Dataset, Shapes are Unscaled.')
+        output_shape = shape_array(abs_coordinate[:, 0, 0], shapes.T,
                                    angular_natural_frequencies/(2*np.pi),
                                    damping_ratios,
                                    1)
-        if real_modes:
-            denominator = angular_natural_frequencies**2 - reconstruction_angular_frequencies[:,np.newaxis]**2 + 2j*damping_ratios*angular_natural_frequencies*reconstruction_angular_frequencies[:,np.newaxis]
-            l = collapse_complex_to_real(participation_factors).T
-            gamma = 1/denominator[:,np.newaxis]*np.eye(l.shape[-1])
-            coef = (l@gamma).reshape(-1,gamma.shape[-1])
-            
-            full_kernel = np.concatenate((coef.real,coef.imag),axis=0)
-        else:
-            gamma = (1/(1j*reconstruction_angular_frequencies[:,np.newaxis] - poles))[...,np.newaxis,:]*np.eye(poles.size)
-            gamma_conj = (1/(1j*reconstruction_angular_frequencies[:,np.newaxis] - poles_conj))[...,np.newaxis,:]*np.eye(poles.size)
-            
-            l = participation_factors.T
-            l_conj = l.conj()
-            
-            coef = (l@gamma).reshape(-1,gamma.shape[-1])
-            coef_conj = (l_conj@gamma_conj).reshape(-1,gamma.shape[-1])
-    
-            full_kernel = np.block([
-                [coef.real + coef_conj.real, coef_conj.imag - coef.imag],
-                [coef.imag + coef_conj.imag, coef.real - coef_conj.real],
-                ])
-        reconstruction = full_kernel@shape_coefficients[:-4*l.shape[0]:]
-        reconstruction = reconstruction[:reconstruction.shape[0]//2] + 1j*reconstruction[reconstruction.shape[0]//2:]
-        
-        frfs_resynthesized = residual_frfs.copy()
-        frfs_resynthesized.ordinate += (reconstruction.reshape(frequencies.size,-1,reconstruction.shape[-1])).transpose()
+        frfs_resynthesized = kernel_frfs
     else:
-        residues = l[drive_points[1]]*shapes[drive_points[0]]
-        max_residue = np.argmax(residues if real_modes else abs(residues),axis=0)
-        scale_pre_sqrt = l[drive_points[1]]/shapes[drive_points[0]]
-        scale_pre_sqrt = scale_pre_sqrt[max_residue,np.arange(max_residue.size)]
-        if real_modes:
-            negative_drive_points = np.where(scale_pre_sqrt < 0)[0]
-            if len(negative_drive_points) > 0:
-                print('Negative Drive Point for Modes {:}'.format(negative_drive_points+1))
-                print('These shapes will not be scaled correctly!')
-            scale_pre_sqrt[negative_drive_points] *= -1
-        shape_scaling = np.sqrt(scale_pre_sqrt)
-        shape_scaling = shape_scaling
-        shapes *= shape_scaling
-        
-        output_shape = shape_array(abs_coordinate[:,0,0], shapes.T,
+        shapes_normalized = []
+        drive_residues = shapes[drive_points[0]].T*participation_factors[:,drive_points[1]]
+        for k, drive_residue in enumerate(drive_residues):
+            if real_modes:
+                # Throw away negative drive points
+                bad_indices = drive_residue < 0
+            else:
+                # Throw away non-negative imaginary parts
+                bad_indices_positive = drive_residue.imag > 0
+                # Throw away small values compared to the average value (only considering negative imaginary parts)
+                bad_indices_small = np.abs(drive_residue) < 0.01*np.mean(np.abs(drive_residue[~bad_indices_positive]))
+                # Combine into a single criteria
+                bad_indices = bad_indices_positive | bad_indices_small
+            # Get the good indices that are remaining
+            remaining_indices = np.where(~bad_indices)[0]
+            if len(remaining_indices) == 0:
+                print('Warning: Mode {:} had no valid drive points and is therefore unscaled.'.format(k+1))
+                shapes_normalized.append(shapes[:,k])
+                continue
+            # We will then construct the least squares solution
+            shape_coefficients = shapes[drive_points[0][remaining_indices],k][:,np.newaxis]
+            residue_coefficients = np.sqrt(drive_residue[remaining_indices])[:,np.newaxis]
+            # Before we compute the scale, we need to make sure that we have all of the signs the same way.
+            # This is because the square root can give you +/- root where root**2 = complex number
+            # This will mess up the least squares at it will try to find something between the
+            # two vectors.
+            scale_vector = (residue_coefficients/shape_coefficients).flatten()
+            sign_vector = np.array((scale_vector.real,scale_vector.imag))
+            # Get the signs
+            signs = np.sign(np.dot(sign_vector[:,0],sign_vector))
+            residue_coefficients = residue_coefficients*signs[:,np.newaxis]
+            # Now compute the least-squares solution
+            scale = np.linalg.lstsq(shape_coefficients,residue_coefficients)[0].squeeze()
+            print('Scale for mode {:}: {:}'.format(k+1,scale))
+            shapes_normalized.append(shapes[:,k]*scale)
+        shapes_normalized = np.array(shapes_normalized).T
+
+        output_shape = shape_array(abs_coordinate[:, 0, 0], shapes_normalized.T,
                                    angular_natural_frequencies/(2*np.pi),
                                    damping_ratios,
                                    1)
-        
+
         frfs_resynthesized = (output_shape.compute_frf(
             frequencies,
-            responses = experimental_frf.response_coordinate[:,0],
-            references = experimental_frf.reference_coordinate[0,:],
-            displacement_derivative = displacement_derivative)
+            responses=experimental_frf.response_coordinate[:, 0],
+            references=experimental_frf.reference_coordinate[0, :],
+            displacement_derivative=displacement_derivative)
             + residual_frfs)
 
     frfs_resynthesized = frfs_resynthesized[original_coordinates]
     residual_frfs = residual_frfs[original_coordinates]
+    kernel_frfs = kernel_frfs[original_coordinates]
+
+    return output_shape, frfs_resynthesized, residual_frfs, kernel_frfs
+
+def generate_kernel_complex(omegas, poles, participation_factors,
+                            lower_residuals = False, upper_residuals = False,
+                            displacement_derivative = 0):
+    """
     
-    return output_shape,frfs_resynthesized,residual_frfs
+
+    Parameters
+    ----------
+    omegas : np.ndarray
+        The angular frequencies (in radians/s) at which the kernel matrix will
+        be computed.  This should be a 1D array with length num_freqs.
+    poles : np.ndarray
+        An array of poles corresponding to the modes of the structure.  This
+        should be a 1D array with length num_modes.
+    participation_factors : np.ndarray
+        A 2D array of participation factors corresponding to the reference
+        degrees of freedom.  This should have shape (num_modes, num_inputs).
+    lower_residuals : bool, optional
+        If True, construct the kernel matrix such that lower residuals will be
+        computed in the least-squares operation.  The default is False.
+    upper_residuals : bool, optional
+        If True, construct the kernel matrix such that upper residuals will be
+        computed in the least-squares operation.  The default is False.
+    displacement_derivative : int, optional
+        The derivative of displacement used to construct the frequency response
+        functions.  Should be 0 for a receptance (displacement/force) frf, 1
+        for a mobility (velocity/force) frf, or 2 for an accelerance
+        (acceleration/force) frf.
+
+    Returns
+    -------
+    kernel_matrix : np.ndarray
+        A 3D matrix that represents the kernel that can be inverted to solve
+        for mode shapes.  The size of the output array will be num_inputs x
+        num_freq*2 x num_modes*2.  The top partition of the num_freq dimension
+        corresponds to the real part of the frf, and the
+        bottom portion corresponds to the imaginary part of the frf.  The top
+        partition of the num_modes dimension corresponds to the real part of
+        the mode shape matrix, and the bottom partition corresponds to the
+        imaginary part.  If residuals are included, there will be an extra two
+        entries along the num_modes dimension corresponding to real and
+        imaginary parts of the residual matrix for each of the residuals
+        included.
+    """
+    omegas = np.array(omegas)
+    poles = np.array(poles)
+    participation_factors = np.array(participation_factors)
+    if omegas.ndim != 1:
+        raise ValueError('`omegas` should be 1-dimensional')
+    if poles.ndim != 1:
+        raise ValueError('`poles` should be 1-dimensional')
+    if participation_factors.ndim != 2:
+        raise ValueError('`participation_factors` should be 2-dimensional (num_modes x num_inputs)')
+    n_modes,n_inputs = participation_factors.shape
+    if poles.size != n_modes:
+        raise ValueError('number of poles ({:}) is not equal to the number of rows in the participation_factors array ({:})'.format(
+            poles.size,n_modes))
+    # Set up broadcasting
+    # We want the output array to be n_input x n_freq*2 x n_modes*2
+    # So let's adjust the terms so they have the right shapes
+    # We want frequency lines to be the middle dimension
+    omega = omegas[np.newaxis,:,np.newaxis]
+    # We want inputs to be the first dimension and modes the
+    # last dimension
+    participation_factors = participation_factors.T[:,np.newaxis,:]
+    # Split up terms into real and imaginary parts
+    p_r = poles.real
+    p_i = poles.imag
+    l_r = participation_factors.real
+    l_i = participation_factors.imag
+    
+    # Now go through the different derivatives and compute the kernel plus any
+    # residuals
+    if displacement_derivative == 0:
+        kernel = np.array([
+            [(-l_i*omega - l_i*p_i - l_r*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2) 
+              + (l_i*omega - l_i*p_i - l_r*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2),
+             (l_i*p_r - l_r*omega - l_r*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*p_r + l_r*omega - l_r*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)],
+            [(-l_i*p_r - l_r*omega + l_r*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*p_r - l_r*omega - l_r*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2),
+             (l_i*omega - l_i*p_i - l_r*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2) 
+              + (l_i*omega + l_i*p_i + l_r*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron(-1/omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(-1/omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+    elif displacement_derivative == 1:
+        kernel = np.array([
+            [(-l_i*omega*p_r + l_r*omega**2 + l_r*omega*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*omega*p_r + l_r*omega**2 - l_r*omega*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2),
+             (-l_i*omega**2 - l_i*omega*p_i - l_r*omega*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (-l_i*omega**2 + l_i*omega*p_i + l_r*omega*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)],
+            [(-l_i*omega**2 - l_i*omega*p_i - l_r*omega*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*omega**2 - l_i*omega*p_i - l_r*omega*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2),
+             (l_i*omega*p_r - l_r*omega**2 - l_r*omega*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*omega*p_r + l_r*omega**2 - l_r*omega*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron( 1/omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1])),
+                np.kron(-1/omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(-omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1])),
+                np.kron( omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0]))],axis=1)
+    elif displacement_derivative == 2:
+        kernel = np.array([
+            [(-l_i*omega**3 + l_i*omega**2*p_i + l_r*omega**2*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*omega**3 + l_i*omega**2*p_i + l_r*omega**2*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2),
+             (-l_i*omega**2*p_r - l_r*omega**3 + l_r*omega**2*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)
+              + (-l_i*omega**2*p_r + l_r*omega**3 + l_r*omega**2*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)],
+            [(-l_i*omega**2*p_r + l_r*omega**3 + l_r*omega**2*p_i)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (l_i*omega**2*p_r + l_r*omega**3 - l_r*omega**2*p_i)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2),
+             (-l_i*omega**3 - l_i*omega**2*p_i - l_r*omega**2*p_r)/(omega**2 + 2*omega*p_i + p_i**2 + p_r**2)
+              + (-l_i*omega**3 + l_i*omega**2*p_i + l_r*omega**2*p_r)/(omega**2 - 2*omega*p_i + p_i**2 + p_r**2)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(-omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(-omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+    kernel = np.block([[kernel[0,0],kernel[0,1]],
+                       [kernel[1,0],kernel[1,1]]])
+    if lower_residuals:
+        kernel = np.concatenate((kernel,kernel_RL),axis=-1)
+    if upper_residuals:
+        kernel = np.concatenate((kernel,kernel_RU),axis=-1)
+    
+    return kernel
+
+def generate_kernel_real(omegas, poles, participation_factors,
+                         lower_residuals = False, upper_residuals = False,
+                         displacement_derivative = 0):
+    """
+    
+
+    Parameters
+    ----------
+    omegas : np.ndarray
+        The angular frequencies (in radians/s) at which the kernel matrix will
+        be computed.  This should be a 1D array with length num_freqs.
+    poles : np.ndarray
+        An array of poles corresponding to the modes of the structure.  This
+        should be a 1D array with length num_modes.
+    participation_factors : np.ndarray
+        A 2D array of participation factors corresponding to the reference
+        degrees of freedom.  This should have shape (num_modes, num_inputs).
+    lower_residuals : bool, optional
+        If True, construct the kernel matrix such that lower residuals will be
+        computed in the least-squares operation.  The default is False.
+    upper_residuals : bool, optional
+        If True, construct the kernel matrix such that upper residuals will be
+        computed in the least-squares operation.  The default is False.
+    displacement_derivative : int, optional
+        The derivative of displacement used to construct the frequency response
+        functions.  Should be 0 for a receptance (displacement/force) frf, 1
+        for a mobility (velocity/force) frf, or 2 for an accelerance
+        (acceleration/force) frf.
+
+    Returns
+    -------
+    kernel_matrix : np.ndarray
+        A 3D matrix that represents the kernel that can be inverted to solve
+        for mode shapes.  The size of the output array will be num_inputs x
+        num_freq*2 x num_modes.  The top partition of the num_freq dimension
+        corresponds to the real part of the frf, and the
+        bottom portion corresponds to the imaginary part of the frf.
+        If residuals are included, there will be an extra two
+        entries along the num_modes dimension corresponding to real and
+        imaginary parts of the residual matrix for each of the residuals
+        included.
+    """
+    omegas = np.array(omegas)
+    poles = np.array(poles)
+    participation_factors = np.array(participation_factors)
+    if omegas.ndim != 1:
+        raise ValueError('`omegas` should be 1-dimensional')
+    if poles.ndim != 1:
+        raise ValueError('`poles` should be 1-dimensional')
+    if participation_factors.ndim != 2:
+        raise ValueError('`participation_factors` should be 2-dimensional (num_modes x num_inputs)')
+    n_modes,n_inputs = participation_factors.shape
+    if poles.size != n_modes:
+        raise ValueError('number of poles ({:}) is not equal to the number of rows in the participation_factors array ({:})'.format(
+            poles.size,n_modes))
+    # Set up broadcasting
+    # We want the output array to be n_input x n_freq*2 x n_modes*2
+    # So let's adjust the terms so they have the right shapes
+    # We want frequency lines to be the middle dimension
+    omega = omegas[np.newaxis,:,np.newaxis]
+    # We want inputs to be the first dimension and modes the
+    # last dimension
+    l_r = participation_factors.T[:,np.newaxis,:]
+    # Split up terms into real and imaginary parts
+    omega_r = np.abs(poles)
+    zeta_r = -np.real(poles)/omega_r
+    
+    # Now go through the different derivatives and compute the kernel plus any
+    # residuals
+    if displacement_derivative == 0:
+        kernel = np.array([[(-l_r*omega**2 + l_r*omega_r**2)/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)],
+                           [-2*l_r*omega*omega_r*zeta_r/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron(-1/omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(-1/omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+    elif displacement_derivative == 1:
+        kernel = np.array([[2*l_r*omega**2*omega_r*zeta_r/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)],
+                           [(-l_r*omega**3 + l_r*omega*omega_r**2)/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron( 1/omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1])),
+                np.kron(-1/omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(-omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1])),
+                np.kron( omegas[:,np.newaxis],np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0]))],axis=1)
+    elif displacement_derivative == 2:
+        kernel = np.array([[(l_r*omega**4 - l_r*omega**2*omega_r**2)/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)],
+                           [2*l_r*omega**3*omega_r*zeta_r/
+                             (omega**4 + 4*omega**2*omega_r**2*zeta_r**2 - 2*omega**2*omega_r**2 + omega_r**4)]])
+        if lower_residuals:
+            kernel_RL = np.concatenate([
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(np.ones((omegas.size,1)),np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+        if upper_residuals:
+            kernel_RU = np.concatenate([
+                np.kron(-omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[1,0])),
+                np.kron(-omegas[:,np.newaxis]**2,np.kron(np.eye(n_inputs)[:,np.newaxis],[0,1]))],axis=1)
+    kernel = np.block([[kernel[0,0]],
+                       [kernel[1,0]]])
+    if lower_residuals:
+        kernel = np.concatenate((kernel,kernel_RL),axis=-1)
+    if upper_residuals:
+        kernel = np.concatenate((kernel,kernel_RU),axis=-1)
+    
+    return kernel
+
+def stack_and_lstsq(frf_matrix, kernel_matrix, return_reconstruction = False,
+                    reconstruction_partitions = None,
+                    reconstruction_kernel = None):
+    """
+    Stacks the frf and kernel matrices appropriately,
+    then solves the least-squares problem
+
+    Parameters
+    ----------
+    frf_matrix : np.ndarray
+        A num_outputs x num_inputs x num_frequencies array representing the
+        frequency response function matrix.
+    kernel_matrix : np.ndarray
+        A num_inputs x 2*num_freq x num_coefficients kernel matrix from generated
+        from generate_kernel_complex or generate_kernel_real functions.
+    return_reconstruction : bool
+        If True, a reconstruction of the frequency response function matrix
+        using the kernel and the computed shape coefficients.  Default is False.
+    reconstruction_paritions : list
+        If specified, a list of reconstructions will be returned.  For each
+        entry in this list, a frf matrix will be reconstructed using the entry
+        as indices into the coefficient matrix's rows and the kernel matrix's
+        columns.  This allows, for example, reconstruction of the frf matrix
+        using only the residual terms or only the shape terms.  If not
+        specified when `return_reconstruction` is True, only one frf matrix will
+        be returned using all shape coefficients.
+    reconstruction_kernel : np.ndarray
+        A separate kernel matrix used for reconstruction.  If not specified, the
+        kernel matrix used to solve the least-squares problem will be used for
+        the reconstruction.
+
+    Returns
+    -------
+    coefficients : np.ndarray
+        A num_coefficients x num_outputs array of solution values to the
+        least-squares problem.
+    reconstruction : np.ndarray or list of np.ndarray
+        A frf matrix reconstructed from the kernel and the shape coefficients.
+        If multiple `reconstruction_partitions` are specified in a list, then
+        this return value will also be a list of reconstructions corresponding
+        to those partitions.  This will only be returned if
+        `return_reconstruction` is True.
+        
+
+    """
+    H = frf_matrix.transpose(1,2,0) # input, freq, output
+    H = np.concatenate((H.real,H.imag),axis=1) # Stack real/imag along the freq axis
+    if H.shape[:2] != kernel_matrix.shape[:2]:
+        raise ValueError('`frf_matrix` {:} does not have consistent dimensions with the kernel matrix {:}'.format(
+            H.shape,kernel_matrix.shape))
+    H = H.reshape(-1,H.shape[-1]) # Stack input and freq along the same dimension
+    kernel = kernel_matrix.reshape(-1,kernel_matrix.shape[-1]) # Stack input and freq
+    coefficients = np.linalg.lstsq(kernel,H)[0]
+    if not return_reconstruction:
+        return coefficients
+    if reconstruction_kernel is None:
+        reconstruction_kernel = kernel_matrix
+    if reconstruction_partitions is None:
+        H_reconstructed = reconstruction_kernel@coefficients
+        frf_matrix_reconstructed = H_reconstructed.transpose(2,0,1) # output, input, freq
+        frf_matrix_reconstructed = (frf_matrix_reconstructed[...,:frf_matrix_reconstructed.shape[-1]//2] + 
+                                    1j*frf_matrix_reconstructed[...,frf_matrix_reconstructed.shape[-1]//2:])
+    else:
+        frf_matrix_reconstructed = []
+        for partition in reconstruction_partitions:
+            recon = (reconstruction_kernel[...,partition]@coefficients[partition]).transpose(2,0,1) # output, input, freq
+            recon = recon[...,:recon.shape[-1]//2] + 1j*recon[...,recon.shape[-1]//2:]
+            frf_matrix_reconstructed.append(recon)
+    return coefficients, frf_matrix_reconstructed

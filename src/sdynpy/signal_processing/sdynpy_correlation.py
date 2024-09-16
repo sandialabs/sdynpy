@@ -45,8 +45,9 @@ def frac(fft_1, fft_2=None):
     fft_1_original_shape = fft_1.shape
     fft_1_flattened = fft_1.reshape(-1, fft_1.shape[-1])
     fft_2_flattened = fft_2.reshape(-1, fft_2.shape[-1])
-    frac = np.abs(np.sum(fft_1_flattened * fft_2_flattened.conj(), axis=-1))**2 / ((np.sum(fft_1_flattened *
-                                                                                           fft_1_flattened.conj(), axis=-1)) * np.sum(fft_2_flattened * fft_2_flattened.conj(), axis=-1))
+    frac = (np.abs(np.sum(fft_1_flattened * fft_2_flattened.conj(), axis=-1))**2
+            / ((np.sum(fft_1_flattened * fft_1_flattened.conj(), axis=-1))
+               * np.sum(fft_2_flattened * fft_2_flattened.conj(), axis=-1)))
     return frac.reshape(fft_1_original_shape[:-1])
 
 
@@ -56,25 +57,28 @@ def trac(th_1, th_2=None):
     th_1_original_shape = th_1.shape
     th_1_flattened = th_1.reshape(-1, th_1.shape[-1])
     th_2_flattened = th_2.reshape(-1, th_2.shape[-1])
-    trac = np.abs(np.sum(th_1_flattened * th_2_flattened.conj(), axis=-1))**2 / ((np.sum(th_1_flattened *
-                                                                                         th_1_flattened.conj(), axis=-1)) * np.sum(th_2_flattened * th_2_flattened.conj(), axis=-1))
+    trac = (np.abs(np.sum(th_1_flattened * th_2_flattened.conj(), axis=-1))**2
+            / ((np.sum(th_1_flattened * th_1_flattened.conj(), axis=-1))
+               * np.sum(th_2_flattened * th_2_flattened.conj(), axis=-1)))
     return trac.reshape(th_1_original_shape[:-1])
- 
-def msf(shapes,reference_shapes = None):
+
+
+def msf(shapes, reference_shapes=None):
     if reference_shapes is None:
         reference_shapes = shapes
-    output = (np.einsum('...ij,...ij->...j',shapes,reference_shapes.conj())/
-              np.einsum('...ij,...ij->...j',reference_shapes,reference_shapes.conj()))
+    output = (np.einsum('...ij,...ij->...j', shapes, reference_shapes.conj()) /
+              np.einsum('...ij,...ij->...j', reference_shapes, reference_shapes.conj()))
     return output
 
-def orthog(shapes_1,mass_matrix,shapes_2 = None,scaling = None):
-    if not scaling in ['none','unity',None]:
+
+def orthog(shapes_1, mass_matrix, shapes_2=None, scaling=None):
+    if scaling not in ['none', 'unity', None]:
         raise ValueError('Invalid scaling, should be one of "none", "unity", or None')
     if shapes_2 is None:
         shapes_2 = shapes_1
-    mat = np.moveaxis(shapes_1,-2,-1) @ mass_matrix @ shapes_2
+    mat = np.moveaxis(shapes_1, -2, -1) @ mass_matrix @ shapes_2
     if scaling == 'unity':
-        diagonal = np.einsum('...ii->...i',mat)
+        diagonal = np.einsum('...ii->...i', mat)
         scaling = 1/np.sqrt(diagonal)
         scaling_matrix = np.zeros(mat.shape)
         scaling_matrix[...,
@@ -82,6 +86,7 @@ def orthog(shapes_1,mass_matrix,shapes_2 = None,scaling = None):
                        np.arange(scaling_matrix.shape[-1])] = scaling
         mat = scaling_matrix @ mat @ scaling_matrix
     return mat
+
 
 def matrix_plot(shape_matrix, ax=None, display_values=(0.1, 1.1), text_size=12, vmin=0, vmax=1,
                 boundaries=None):
@@ -111,7 +116,7 @@ def matrix_plot(shape_matrix, ax=None, display_values=(0.1, 1.1), text_size=12, 
         @ticker.FuncFormatter
         def major_formatter(x, pos):
             x = int(np.round(x))
-            if not x in index_map:
+            if x not in index_map:
                 return ''
             else:
                 x = index_map[x]
@@ -131,7 +136,7 @@ def matrix_plot(shape_matrix, ax=None, display_values=(0.1, 1.1), text_size=12, 
     ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     ax.set_xlabel('Shape Number')
     ax.set_ylabel('Shape Number')
-    if not display_values is None:
+    if display_values is not None:
         for key, val in np.ndenumerate(shape_matrix):
             if ((True if display_values[0] is None else (val > display_values[0]))
                 and

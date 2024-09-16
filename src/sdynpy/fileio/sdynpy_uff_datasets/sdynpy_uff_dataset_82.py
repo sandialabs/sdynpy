@@ -44,11 +44,8 @@ class Sdynpy_UFF_Dataset_82:
 
     @classmethod
     def from_uff_data_array(cls, data):
-        ids = []
-        nodes = []
-        colors = []
-        descriptions = []
-        index = 0
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
 #            Record 1: FORMAT(3I10)
 #                       Field 1 -    trace line number
 #                       Field 2 -    number of nodes defining trace line

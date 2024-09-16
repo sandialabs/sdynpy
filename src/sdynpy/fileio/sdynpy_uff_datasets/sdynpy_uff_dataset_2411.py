@@ -43,6 +43,8 @@ class Sdynpy_UFF_Dataset_2411:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         nnodes = len(data) // 2
         node_labels = np.empty(nnodes, dtype=int)
         export_coordinate_systems = np.empty(nnodes, dtype=int)
@@ -71,7 +73,8 @@ class Sdynpy_UFF_Dataset_2411:
 
     def write_string(self):
         return_string = ''
-        for node_label, export_coordinate_system, displacement_coordinate_system, color, coordinates in zip(self.node_labels, self.export_coordinate_systems, self.displacement_coordinate_systems, self.colors, self.coordinates):
+        for node_label, export_coordinate_system, displacement_coordinate_system, color, coordinates in zip(
+                self.node_labels, self.export_coordinate_systems, self.displacement_coordinate_systems, self.colors, self.coordinates):
             return_string += write_uff_line([node_label, export_coordinate_system, displacement_coordinate_system,
                                             color] + coordinates.tolist(), 4 * ['I10'] + ['\n'] + 3 * ['D25.16'])
         return return_string

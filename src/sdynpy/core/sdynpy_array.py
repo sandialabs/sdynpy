@@ -247,7 +247,7 @@ class SdynpyArray(np.ndarray):
         Parameters
         ----------
         filename : str
-            Filename specifying the file to load.  If the filename has 
+            Filename specifying the file to load.  If the filename has
             extension .unv or .uff, it will be loaded as a universal file.
             Otherwise, it will be loaded as a NumPy file.
 

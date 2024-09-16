@@ -48,9 +48,9 @@ class PolyPy:
         self.max_frequency = max_frequency
         self.displacement_derivative = displacement_derivative
         abscissa_indices = np.ones(self.frequencies.shape, dtype=bool)
-        if not min_frequency is None:
+        if min_frequency is not None:
             abscissa_indices &= (self.frequencies >= min_frequency)
-        if not max_frequency is None:
+        if max_frequency is not None:
             abscissa_indices &= (self.frequencies <= max_frequency)
         abscissa = self.frequencies[abscissa_indices]
         freq_range = np.array((np.min(abscissa), np.max(abscissa)))
@@ -88,7 +88,7 @@ class PolyPy:
         self.modal_participation_threshold = modal_participation_threshold
 
         pole_dtype = np.dtype([('omega', float), ('zeta', float), ('Lr_real', float, (num_input,)),
-                               ('Lr_complex', complex, (num_input,)), ('freq_stable',bool), ('damp_stable', bool),
+                               ('Lr_complex', complex, (num_input,)), ('freq_stable', bool), ('damp_stable', bool),
                                ('part_stable', bool)])
 
         self.pole_list = []
@@ -178,7 +178,9 @@ class PolyPy:
                             poles['damp_stable'][i_pole] = True
                             # Now check participation factor
                             previous_Lr = last_poles['Lr_complex'][closest_freq_index]
-                            if np.mean(np.abs(np.abs(pole['Lr_complex']) - np.abs(previous_Lr)) / np.abs(previous_Lr)) < modal_participation_threshold:
+                            if np.all(
+                                    (np.abs(np.abs(pole['Lr_complex']) - np.abs(previous_Lr)) / np.abs(previous_Lr) < modal_participation_threshold) | 
+                                    (np.abs(pole['Lr_complex']) < np.abs(previous_Lr).max()*1e-4)): # Added this to remove divide by zero issues
                                 poles['part_stable'][i_pole] = True
             last_poles = poles.copy()
 
@@ -196,7 +198,7 @@ class PolyPy:
         ax_poles = ax.twinx()
 
         for j, (order, poles) in enumerate(zip(self.polynomial_orders, self.pole_list)):
-            if not order_range is None:
+            if order_range is not None:
                 if order < order_range[0]:
                     continue
                 if order > order_range[1]:
@@ -281,22 +283,23 @@ class PolyPy:
             a.set_title(title)
 
     def compute_shapes(self, poles,
-                         residuals=True, real_modes=False,
-                         frequency_lines_at_resonance: int = None,
-                         frequency_lines_for_residuals: int = None 
-                         ):
+                       low_residuals=True, high_residuals = True, real_modes=False,
+                       frequency_lines_at_resonance: int = None,
+                       frequency_lines_for_residuals: int = None
+                       ):
         self.natural_frequencies = poles['omega'] / (2 * np.pi)
         self.damping_ratios = poles['zeta']
         self.participation_factors = poles['Lr_complex']
-        self.shapes, self.frfs_synth, self.frfs_synth = (
+        self.shapes, self.frfs_synth, self.frfs_residuals, self.frfs_kernel = (
             compute_shapes_multireference(
-                self.frfs, self.natural_frequencies, self.damping_ratios, 
-                self.participation_factors, real_modes, residuals,
+                self.frfs, self.natural_frequencies, self.damping_ratios,
+                self.participation_factors, real_modes,
+                low_residuals, high_residuals,
                 self.min_frequency, self.max_frequency,
                 self.displacement_derivative,
                 frequency_lines_at_resonance,
                 frequency_lines_for_residuals))
-            
+
     @property
     def frequencies(self):
         return self.frfs[0, 0].abscissa
@@ -453,7 +456,7 @@ class PolyPy_Stability(QWidget):
                 # print('Closest Marker {:}'.format(self.pole_positions[closest_marker]))
             except ValueError:
                 return
-            if not self.previous_closest_marker_index is None:
+            if self.previous_closest_marker_index is not None:
                 if self.previous_closest_marker_index in self.selected_poles:
                     order_index, pole_index = self.pole_indices[self.previous_closest_marker_index]
                     pole = self.polypy.pole_list[order_index][pole_index]
@@ -540,6 +543,7 @@ class PolyPy_GUI(QMainWindow):
         self.resynthesized_frfs = self.frfs.copy()
         self.resynthesized_frfs.ordinate = 0
         self.frfs_synth_residual = self.resynthesized_frfs.copy()
+        self.frfs_synth_kernel = self.resynthesized_frfs.copy()
         self.shapes = ShapeArray((0,), self.frfs.shape[0])
         self.first_stability = True
 
@@ -601,9 +605,9 @@ class PolyPy_GUI(QMainWindow):
     @property
     def frequency_slice(self):
         abscissa_indices = np.ones(self.frequencies.shape, dtype=bool)
-        if not self.min_frequency is None:
+        if self.min_frequency is not None:
             abscissa_indices &= (self.frequencies >= self.min_frequency)
-        if not self.max_frequency is None:
+        if self.max_frequency is not None:
             abscissa_indices &= (self.frequencies <= self.max_frequency)
         abscissa = self.frequencies[abscissa_indices]
         if abscissa[0] == 0:
@@ -635,7 +639,10 @@ class PolyPy_GUI(QMainWindow):
         self.all_frequency_lines_checkbox.stateChanged.connect(self.pole_selection_changed)
         self.lines_at_resonance_spinbox.valueChanged.connect(self.pole_selection_changed)
         self.lines_at_residuals_spinbox.valueChanged.connect(self.pole_selection_changed)
-        self.use_residuals_checkbox.stateChanged.connect(self.pole_selection_changed)
+        self.use_low_residuals_checkbox.stateChanged.connect(self.pole_selection_changed)
+        self.use_high_residuals_checkbox.stateChanged.connect(self.pole_selection_changed)
+        self.mode_display_selector.currentIndexChanged.connect(self.update_resynthesis)
+        self.reconstruction_mode_selector.currentIndexChanged.connect(self.update_resynthesis)
         self.export_fit_data_button.clicked.connect(self.export_fit_data)
         self.all_frequency_lines_checkbox.stateChanged.connect(self.show_line_selectors)
 
@@ -700,19 +707,20 @@ class PolyPy_GUI(QMainWindow):
 
     def create_frf_window(self):
         self.resynthesis_plots.append(
-            ('frf', GUIPlot(Data = self.frfs, Fit = self.resynthesized_frfs)))
+            ('frf', GUIPlot(Data=self.frfs, Fit=self.resynthesized_frfs)))
         self.update_resynthesis()
 
     def create_cmif_window(self):
         self.resynthesis_plots.append(
-            ('cmif', GUIPlot(Data = self.frfs.compute_cmif(), Fit = self.resynthesized_frfs.compute_cmif())))
+            ('cmif', GUIPlot(Data=self.frfs.compute_cmif(), Fit=self.resynthesized_frfs.compute_cmif())))
         self.resynthesis_plots[-1][-1].ordinate_log = True
         self.resynthesis_plots[-1][-1].actionOrdinate_Log.setChecked(True)
         self.update_resynthesis()
 
     def create_qmif_window(self):
         self.resynthesis_plots.append(
-            ('qmif', GUIPlot(Data = self.frfs.compute_cmif(part='real' if self.datatype_selector.currentIndex() == 1 else 'imag'), Fit = self.resynthesized_frfs.compute_cmif(part='imag'))))
+            ('qmif', GUIPlot(Data=self.frfs.compute_cmif(part='real' if self.datatype_selector.currentIndex() == 1 else 'imag'),
+                             Fit=self.resynthesized_frfs.compute_cmif(part='imag'))))
         self.resynthesis_plots[-1][-1].ordinate_log = True
         self.resynthesis_plots[-1][-1].actionOrdinate_Log.setChecked(True)
         self.update_resynthesis()
@@ -725,12 +733,12 @@ class PolyPy_GUI(QMainWindow):
             mmif = test_mmif.copy()
             mmif.ordinate = 1
         self.resynthesis_plots.append(
-            ('mmif', GUIPlot(Data = test_mmif, Fit = mmif)))
+            ('mmif', GUIPlot(Data=test_mmif, Fit=mmif)))
         self.update_resynthesis()
 
     def create_nmif_window(self):
         self.resynthesis_plots.append(
-            ('nmif', GUIPlot(Data = self.frfs.compute_nmif(), Fit = self.resynthesized_frfs.compute_nmif())))
+            ('nmif', GUIPlot(Data=self.frfs.compute_nmif(), Fit=self.resynthesized_frfs.compute_nmif())))
         self.update_resynthesis()
 
     def update_resynthesis(self):
@@ -738,24 +746,34 @@ class PolyPy_GUI(QMainWindow):
         self.resynthesis_plots = [(function_type, window) for function_type,
                                   window in self.resynthesis_plots if window.isVisible()]
         # Now go and update the resynthesized FRFs
-        data_computed = {'frf': self.resynthesized_frfs.flatten()}
+        if self.reconstruction_mode_selector.currentIndex() == 0:
+            data_computed = {'frf': self.resynthesized_frfs.flatten()}
+        elif self.reconstruction_mode_selector.currentIndex() == 1:
+            data_computed = {'frf': self.frfs_synth_kernel.flatten()}
+        elif self.reconstruction_mode_selector.currentIndex() == 2:
+            data_computed = {'frf': self.frfs_synth_residual.flatten()}
         for function_type, window in self.resynthesis_plots:
-            if not function_type in data_computed:
+            if function_type not in data_computed:
                 if function_type == 'cmif':
-                    data_computed[function_type] = self.resynthesized_frfs.compute_cmif().flatten()
+                        data_computed[function_type] = data_computed['frf'].compute_cmif().flatten()
                 elif function_type == 'qmif':
-                    data_computed[function_type] = self.resynthesized_frfs.compute_cmif(
+                    data_computed[function_type] = data_computed['frf'].compute_cmif(
                         part='real' if self.datatype_selector.currentIndex() == 1 else 'imag').flatten()
                 elif function_type == 'mmif':
                     try:
-                        data_computed[function_type] = self.resynthesized_frfs.compute_mmif().flatten()
+                        data_computed[function_type] = data_computed['frf'].compute_mmif().flatten()
                     except np.linalg.LinAlgError:
                         test_mmif = self.frfs.compute_mmif().copy()
                         test_mmif.ordinate = 1
                         data_computed[function_type] = test_mmif
                 elif function_type == 'nmif':
-                    data_computed[function_type] = self.resynthesized_frfs.compute_nmif().flatten()
+                    data_computed[function_type] = data_computed['frf'].compute_nmif().flatten()
             window.data_dictionary['Fit'] = data_computed[function_type]
+            if self.mode_display_selector.currentIndex() > 0:
+                symbol = [None,'vline','o','x','+','star'][self.mode_display_selector.currentIndex()]
+                window.marker_data['Fit'] = [self.shapes.frequency, '{index:}: {abscissa:0.2f}', symbol]
+            else:
+                window.marker_data['Fit'] = [None, None, None]
             window.update()
 
     def compute_shapes(self):
@@ -770,6 +788,7 @@ class PolyPy_GUI(QMainWindow):
                 self.resynthesized_frfs = self.frfs.copy()
                 self.resynthesized_frfs.ordinate = 0
                 self.frfs_synth_residual = self.resynthesized_frfs.copy()
+                self.frfs_synth_kernel = self.resynthesized_frfs.copy()
                 self.shapes = ShapeArray((0,), self.frfs.shape[0])
                 self.negative_drive_points = np.zeros((0,), dtype=int)
                 return
@@ -778,12 +797,13 @@ class PolyPy_GUI(QMainWindow):
             participation_factors = poles['Lr_complex']
             H = self.frfs.ordinate[..., self.frequency_slice]
             num_outputs, num_inputs, num_elements = H.shape
-            self.shapes, self.resynthesized_frfs, self.frfs_synth_residual = (
+            self.shapes, self.resynthesized_frfs, self.frfs_synth_residual, self.frfs_synth_kernel = (
                 compute_shapes_multireference(
                     self.frfs, natural_frequencies, damping_ratios,
-                    participation_factors, 
+                    participation_factors,
                     not self.complex_modes_checkbox.isChecked(),
-                    self.use_residuals_checkbox.isChecked(),
+                    self.use_low_residuals_checkbox.isChecked(),
+                    self.use_high_residuals_checkbox.isChecked(),
                     self.min_frequency, self.max_frequency,
                     self.datatype_selector.currentIndex(),
                     None if self.all_frequency_lines_checkbox.isChecked() else self.lines_at_resonance_spinbox.value(),

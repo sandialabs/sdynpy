@@ -45,6 +45,7 @@ import time
 import os
 from PIL import Image
 from scipy.spatial import Delaunay
+import pandas as pd
 
 try:
     repr(pv.GPUInfo())
@@ -160,7 +161,16 @@ _exodus_elem_type_map = {'hex8': 115,
                          'hex20': 116,
                          'tetra10': 118,
                          'hex': 115,
-                         'beam': 21
+                         'beam': 21,
+                         'rod':21, # 21 : 'Linear beam',
+                         'truss':21, # 21 : 'Linear beam',
+                         'tri':41, # 41 : 'Plane Stress Linear Triangle',
+                         'triangle':41, # 41 : 'Plane Stress Linear Triangle',
+                         'quad':44, # 44 : 'Plane Stress Linear Quadrilateral',
+                         'quadrilateral':44, # 44 : 'Plane Stress Linear Quadrilateral',
+                         'hexahedral':115,
+                         'tet':111,
+                         'tetrahedral':111,
                          # Add new elements here
                          }
 
@@ -182,6 +192,7 @@ _vtk_connectivity_reorder = {
 }
 
 MAX_NUMBER_REPR = 100
+
 
 class GeometryPlotter(pvqt.BackgroundPlotter):
     """Class used to plot geometry
@@ -338,7 +349,7 @@ class TransientPlotter(GeometryPlotter):
         None.
 
         """
-        self.shape_select_toolbar: pvqt.plotting.QToolbar = None
+        self.shape_select_toolbar: pvqt.plotting.QToolBar = None
         self.animation_control_toolbar: pvqt.plotting.QToolBar = None
         self.loop_action = None
         self.plot_abscissa_action = None
@@ -458,7 +469,7 @@ class TransientPlotter(GeometryPlotter):
             (self.point_mesh_deformed, self.point_mesh_undeformed),
             (self.solid_mesh_deformed, self.solid_mesh_undeformed)
         ):
-            if not mesh_deformed is None:
+            if mesh_deformed is not None:
                 mesh_deformed.points = (mesh_undeformed.points +
                                         displacement.reshape(-1, 3) * self.displacement_scale
                                         )
@@ -664,7 +675,7 @@ class TransientPlotter(GeometryPlotter):
         self.last_time = time.time()
 
     def stop_animation(self):
-        if not self.timer is None:
+        if self.timer is not None:
             self.timer.stop()
             self.timer = None
 
@@ -731,11 +742,11 @@ class TransientPlotter(GeometryPlotter):
         self.stop_animation()
         imgs = []
         indices = np.arange(self.abscissa.size)
-        if not start_time is None:
+        if start_time is not None:
             indices = indices[self.abscissa[indices] >= start_time]
-        if not stop_time is None:
+        if stop_time is not None:
             indices = indices[self.abscissa[indices] <= stop_time]
-        if not step is None:
+        if step is not None:
             indices = indices[::step]
         for index in indices:
             self.abscissa_index = index
@@ -756,9 +767,11 @@ class TransientPlotter(GeometryPlotter):
                     'P', palette=Image.ADAPTIVE, colors=256) for img in imgs]
                 imgs[0].save(fp=filename, format='GIF', append_images=imgs[1:],
                              save_all=True, duration=int(1 / frame_rate * 1000), loop=0)
+
     def _close(self):
         self.stop_animation()
         super(TransientPlotter, self)._close()
+
 
 class ShapePlotter(GeometryPlotter):
     """Class used to plot animated shapes"""
@@ -788,13 +801,13 @@ class ShapePlotter(GeometryPlotter):
         starting_scale : float, optional
             Starting scale of the shapes on the plot. The default is 1.0.
         shape_name : str, optional
-            Name that will be used in the plotter to describe the shape. The 
+            Name that will be used in the plotter to describe the shape. The
             default is "Mode"
         show_damping : bool, optional
             Boolean that specifies whether the damping should be displayed in
             the comment.
         """
-        self.shape_select_toolbar: pvqt.plotting.QToolbar = None
+        self.shape_select_toolbar: pvqt.plotting.QToolBar = None
         self.animation_control_toolbar: pvqt.plotting.QToolBar = None
         self.signed_amplitude_action = None
         self.complex_action = None
@@ -805,7 +818,7 @@ class ShapePlotter(GeometryPlotter):
         self.save_animation_action = None
         self.display_undeformed = None
         self.geometry = geometry
-        self.shapes = shapes.flatten()
+        self.shapes = shapes.ravel()
         self.node_displacements = None
         self.current_shape = 0
         self.displacement_scale = 1.0
@@ -816,6 +829,7 @@ class ShapePlotter(GeometryPlotter):
         self.timer: pvqt.plotting.QTimer = None
         self.shape_name = shape_name
         self.show_damping = show_damping
+        self.shape_comment_table = None
 
         super().__init__(**background_plotter_kwargs)
 
@@ -845,7 +859,7 @@ class ShapePlotter(GeometryPlotter):
         for coordinate_index, node_id in np.ndenumerate(nodes):
             if direction[coordinate_index] == 0 or abs(direction[coordinate_index]) > 3:
                 continue
-            if not node_id in self.coordinate_node_index_map:
+            if node_id not in self.coordinate_node_index_map:
                 self.coordinate_node_index_map[node_id] = []
             self.coordinate_node_index_map[node_id].append(coordinate_index[0])
         local_deformations = coordinates.local_direction()
@@ -900,7 +914,7 @@ class ShapePlotter(GeometryPlotter):
         Parameters
         ----------
         phase : float, optional
-            Sets the current phase of the shape. The default is None, which 
+            Sets the current phase of the shape. The default is None, which
             computes the new phase based on the time elapsed.
 
         """
@@ -939,7 +953,7 @@ class ShapePlotter(GeometryPlotter):
                 (self.point_mesh_deformed, self.point_mesh_undeformed),
                 (self.solid_mesh_deformed, self.solid_mesh_undeformed)
         ):
-            if not mesh_deformed is None:
+            if mesh_deformed is not None:
                 mesh_deformed.points = (mesh_undeformed.points +
                                         deformation * self.displacement_scale * self.displacement_scale_modification
                                         )
@@ -1141,7 +1155,7 @@ class ShapePlotter(GeometryPlotter):
 
     def stop_animation(self):
         """Stops the animation from playing"""
-        if not self.timer is None:
+        if self.timer is not None:
             self.timer.stop()
             self.timer = None
 
@@ -1280,8 +1294,19 @@ class ShapePlotter(GeometryPlotter):
         self.update_shape()
         self.show_comment()
 
+    def reset_shape(self) -> None:
+        """
+        Resets a shape if the value of the current shape is changed
+        """
+        self.compute_displacements()
+        self.phase = 0.0
+        self.last_time = time.time()
+        self.update_shape()
+        self.show_comment()
+
     def select_shape(self) -> None:
-        pass
+        from .sdynpy_shape import ShapeCommentTable
+        self.shape_comment_table = ShapeCommentTable(self.shapes, self)
 
     def show_comment(self):
         """
@@ -1303,6 +1328,7 @@ class ShapePlotter(GeometryPlotter):
     def _close(self):
         self.stop_animation()
         super(ShapePlotter, self)._close()
+
 
 class DeflectionShapePlotter(ShapePlotter):
     """Class used to plot animated deflection shapes from spectra"""
@@ -1431,7 +1457,7 @@ def split_list(seq, value):
     ----------
     seq : iterable
         The sequence to split up
-    value : 
+    value :
         Value within the list to use to split up the list
 
     Yields
@@ -1454,7 +1480,7 @@ def global_coord(coordinate_system, local_coord):
     '''Compute global coordinates from local coordinates
 
     Compute the global coordinates of a node from its local coordinates in the
-    corresponding coordinate system.  
+    corresponding coordinate system.
 
     Parameters
     ----------
@@ -1464,7 +1490,7 @@ def global_coord(coordinate_system, local_coord):
     local_coord : ndarray
         An array of coordinates of shape [...,3]
 
-    Returns 
+    Returns
     ------
     global_coord : ndarray
         An array of coordinates of shape [...,3]
@@ -1496,7 +1522,7 @@ def local_coord(coordinate_system, global_coord):
     """Compute local coordinates from global coordinates
 
     Compute the local coordinates of a node in the
-    corresponding coordinate system from its global coordinates.  
+    corresponding coordinate system from its global coordinates.
 
     Parameters
     ----------
@@ -1506,7 +1532,7 @@ def local_coord(coordinate_system, global_coord):
     global_coord : ndarray
         An array of coordinates of shape [...,3]
 
-    Returns 
+    Returns
     ------
     local_coord : ndarray
         An array of coordinates of shape [...,3]
@@ -1522,7 +1548,7 @@ def local_coord(coordinate_system, global_coord):
     cylindrical_css = coordinate_system.cs_type == 1
     cyl_coord = local_coordinate[cylindrical_css]
     cyl_coord[..., 0], cyl_coord[..., 1] = (np.sqrt(cyl_coord[..., 0]**2 + cyl_coord[..., 1]**2),
-                                        np.arctan2(cyl_coord[..., 1], cyl_coord[..., 0]) * 180 / np.pi)
+                                            np.arctan2(cyl_coord[..., 1], cyl_coord[..., 0]) * 180 / np.pi)
     local_coordinate[cylindrical_css] = cyl_coord
 
     spherical_css = coordinate_system.cs_type == 2
@@ -1569,7 +1595,7 @@ def global_deflection(coordinate_system, local_deflection, global_point=None):
     """
     # Make sure we don't change local_deflection or point
     local_deflection = np.array(copy.deepcopy(local_deflection))
-    if not global_point is None:
+    if global_point is not None:
         global_point = np.array(copy.deepcopy(global_point))
     # Convert cylindrical and spherical to a local cartesian AT THE POINT
     # OF INTEREST (i.e. rotated in the coordinate system)
@@ -1693,6 +1719,7 @@ class CoordinateSystemArray(SdynpyArray):
             output_arrays = np.concatenate(output_arrays)
         return output_arrays
 
+
 def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concatenate((np.eye(3), np.zeros((1, 3))), axis=0),
                             structured_array=None):
     """
@@ -1725,7 +1752,7 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
     -------
     coordinate_system_array : CoordinateSystemArray
     """
-    if not structured_array is None:
+    if structured_array is not None:
         try:
             id = structured_array['id']
             name = structured_array['name']
@@ -1752,6 +1779,7 @@ def coordinate_system_array(id=1, name='', color=1, cs_type=0, matrix=np.concate
     coord_sys_array.matrix = matrix
 
     return coord_sys_array
+
 
 class ElementArray(SdynpyArray):
     """Element information array
@@ -1998,7 +2026,7 @@ def element_array(id=1, type=None, color=1,
        231: 'Axisymetric linear rigid surface',
        232: 'Axisymentric parabolic rigid surface'
     """
-    if not structured_array is None:
+    if structured_array is not None:
         try:
             id = structured_array['id']
             type = structured_array['type']
@@ -2022,11 +2050,11 @@ def element_array(id=1, type=None, color=1,
     earray.color = color
     if earray.ndim == 0:
         # This is gross, but it works!
-        np.ndarray.__getitem__(earray, 'connectivity')[()] = np.array(connectivity,dtype='uint32')
+        np.ndarray.__getitem__(earray, 'connectivity')[()] = np.array(connectivity, dtype='uint32')
     else:
         connectivity = np.array(connectivity, dtype=object)
         for key, val in np.ndenumerate(id):
-            earray.connectivity[key] = np.array(connectivity[key],dtype='uint32')
+            earray.connectivity[key] = np.array(connectivity[key], dtype='uint32')
     return earray
 
 
@@ -2232,7 +2260,7 @@ class NodeArray(SdynpyArray):
         cs_array : CoordinateSystemArray
             CoordinateSystemArray containing coordinate systems for each node.
         projection_function : function, optional
-            Function to use to project 3D coordinates to 2D coordinates for 
+            Function to use to project 3D coordinates to 2D coordinates for
             triangulation. The default is None.
         return_element_array : bool, optional
             Returns an ElementArray if True, otherwise it simply returns the
@@ -2260,7 +2288,7 @@ class NodeArray(SdynpyArray):
         # Now triangulate
         tri = Delaunay(projected_positions)
         simplices = tri.simplices
-        if not condition_threshold is None:
+        if condition_threshold is not None:
             # Now remove small triangles via condition number
             tri_points = projected_positions[tri.simplices, :]
             tri_points -= np.mean(tri_points, axis=1, keepdims=True)
@@ -2340,6 +2368,7 @@ class NodeArray(SdynpyArray):
         candidate_node_ids = np.unique(candidate_nodes.id)
         return candidate_nodes(candidate_node_ids)
 
+
 def node_array(id=1, coordinate=np.array((0, 0, 0)), color=1, def_cs=1, disp_cs=1,
                structured_array=None):
     """
@@ -2373,7 +2402,7 @@ def node_array(id=1, coordinate=np.array((0, 0, 0)), color=1, def_cs=1, disp_cs=
     -------
     node_array : NodeArray
     """
-    if not structured_array is None:
+    if structured_array is not None:
         try:
             id = structured_array['id']
             coordinate = structured_array['coordinate']
@@ -2555,7 +2584,7 @@ def traceline_array(id=1, description='', color=1,
     traceline_array : TracelineArray
 
     """
-    if not structured_array is None:
+    if structured_array is not None:
         try:
             id = structured_array['id']
             description = structured_array['description']
@@ -2578,17 +2607,18 @@ def traceline_array(id=1, description='', color=1,
     tlarray.description = description
     tlarray.color = color
     if tlarray.ndim == 0:
-        np.ndarray.__getitem__(tlarray, 'connectivity')[()] = np.array(connectivity,dtype='uint32')
+        np.ndarray.__getitem__(tlarray, 'connectivity')[()] = np.array(connectivity, dtype='uint32')
     else:
         connectivity = np.array(connectivity, dtype=object)
         for key, val in np.ndenumerate(id):
-            tlarray.connectivity[key] = np.array(connectivity[key],dtype='uint32')
+            tlarray.connectivity[key] = np.array(connectivity[key], dtype='uint32')
 
     return tlarray
 
 
-from ..fem.sdynpy_exodus import Exodus, ExodusInMemory
-from .sdynpy_shape import shape_array
+from ..fem.sdynpy_exodus import Exodus, ExodusInMemory  # noqa: E402
+from .sdynpy_shape import shape_array  # noqa: E402
+
 
 class Geometry:
     """Container for nodes, coordinate systems, tracelines, and elements
@@ -2694,14 +2724,14 @@ class Geometry:
                                         [np.array(connectivity)])
         self.traceline = np.concatenate((self.traceline, new_traceline), axis=0)
 
-    def add_element(self, elem_type, connectivity, id = None, color=1):
+    def add_element(self, elem_type, connectivity, id=None, color=1):
         if id is None:
             if self.element.size > 0:
                 id = np.max(self.element.id) + 1
             else:
                 id = 1
-        new_element = element_array((id,),elem_type,color,[np.array(connectivity)])
-        self.element = np.concatenate((self.element,new_element))
+        new_element = element_array((id,), elem_type, color, [np.array(connectivity)])
+        self.element = np.concatenate((self.element, new_element))
 
     @classmethod
     def from_unv(cls, unv_dict):
@@ -2753,11 +2783,175 @@ class Geometry:
 
     from_uff = from_unv
 
+    @staticmethod
+    def write_excel_template(path_to_xlsx):
+        """
+        Writes an Excel File Template for Creating Geometry
+
+        Parameters
+        ----------
+        path_to_xlsx : string
+            Path to write xlsx Excel file
+
+        Returns
+        -------
+        Nothing
+
+        Notes
+        -----
+        See documentation for from_excel_template for instructions on filling
+        out the template to create a geometry.
+        """
+        writer = pd.ExcelWriter(path_to_xlsx,engine='xlsxwriter')
+
+        df_coordinate_systems = pd.DataFrame(columns=['ID','Name','Color','Type','X Location','Y Location','Z Location','Rotation 1 Angle','Rotation 1 Axis','Rotation 2 Angle','Rotation 2 Axis','Rotation 3 Angle','Rotation 3 Axis'])
+        df_coordinate_systems.to_excel(excel_writer = writer, sheet_name='Coordinate Systems',index=False)
+
+        df_nodes = pd.DataFrame(columns=['ID','Color','X Location','Y Location','Z Location','Displacement CS','Definition CS'])
+        df_nodes.to_excel(excel_writer = writer, sheet_name='Nodes',index=False)
+
+        df_elements = pd.DataFrame(columns=['ID','Color','Type']+['Node {:}'.format(i+1) for i in range(20)])
+        df_elements.to_excel(excel_writer = writer, sheet_name='Elements',index=False)
+
+        df_trace_lines = pd.DataFrame(columns=['ID','Description','Color']+['Node {:}'.format(i+1) for i in range(20)])
+        df_trace_lines.to_excel(excel_writer = writer, sheet_name='Trace Lines',index=False)
+
+        writer.close()
+
+    @classmethod
+    def from_excel_template(cls, path_to_xlsx):
+        """
+        Create a geometry from Excel file template
+
+        Parameters
+        ----------
+        path_to_xlsx : string
+            Path to xlsx Excel file containing geometry information
+
+        Returns
+        -------
+        Geometry
+            Geometry object created from the Excel file
+
+        Notes
+        -----
+        To use this function, first save out an excel template file using the
+        `write_excel_template` function.  This will construct an excel
+        workbook with four worksheets on which the different portions of the
+        Geometry are defined.
+
+        On the Coordinate Systems tab, users will define the various global and
+        local coordinate systems in their geometry.  Each geometry requires
+        an ID number.   A Name can optionally be given.  The Color should be
+        specified as an integer corresponding to the Ideas color map.  The
+        Type of the coordinate system should be an integer:
+            0 - Cartesian
+            1 - Polar
+            2 - Spherical
+        The origin of the coordinate system can be specified with the X Location,
+        Y Location, Z Location columns.  Then rotations of the coordinate system
+        can be specified using rotations about axes.  Up to three axes and angles
+        can be specified to create arbitrary compound rotations.  The rotation
+        axes should be X, Y, or Z, and the rotation angles are in degrees.
+
+        On the Nodes tab, all tabs must be filled out.  ID numbers must be unique.
+        Colors should be an integer corresponding to the Ideas color map.  The
+        position of the node is specified using the X Location, Y Location, Z
+        Location columns.  Each node has a displacement coordinate system in which
+        its position is defined, and a a definition coordinate system in which
+        its displacements are defined.  These columns should consist of integers
+        corresponding to ID numbers from the Coordinate Systems tab.
+
+        On the Elements tab, elements connecting nodes are defined.  The ID
+        column must consist of unique integer identifiers.  The Color tab should
+        be specified as an integer corresponding to the Ideas color map.  The
+        type can be a string (hex, quad, tet, tri, beam, etc.) or an integer
+        consisting of a universal file format element type.  If the type column
+        is empty, an element type based on the number of connections given will
+        be used. Defult element types for connection length of 2 is "Type 21 - Linear Beam",
+        for a connection length of 3 is "Type 41 - Plane Stress Linear Triangle",
+        and for a connection length of 4 is "Type 44 - Plane Stress Linear Quadrilateral"
+        The columns Node 1 through Node 20 contain the nodes in each element.  Only the required
+        number of nodes must be filled out (e.g. a tri element would only contain
+        3 nodes, so only columns Node 1, Node 2, and Node 3 would be filled).
+
+        On the Trace Lines tab, lines connecting the nodes are defined.  The
+        ID column must consist of unique integer identifiers.  The Description
+        column contains a string description of the line.  The Color column
+        should consist of an integer corresponding to the Ideas color map.  The
+        Node 1 through Node 20 columns should contain the nodes for each line.
+        Only the number of nodes in the line must be filled out, so if a line
+        only connects 5 nodes, only Node 1 though Node 5 must be filled.
+
+
+        """
+
+        #%% Read Geometry Information from Excel File
+        df_coordinate_systems = pd.read_excel(io = path_to_xlsx,sheet_name='Coordinate Systems')
+        df_nodes = pd.read_excel(io = path_to_xlsx,sheet_name='Nodes')
+        df_elements = pd.read_excel(io = path_to_xlsx,sheet_name='Elements')
+        df_trace_lines = pd.read_excel(io = path_to_xlsx,sheet_name='Trace Lines')
+
+        #%% Add Coordinate Systems
+        # Start with an empty coordinate system
+        coordinate_systems = coordinate_system_array([])
+        for row_index, df_coordinate_system in df_coordinate_systems.iterrows():
+            # Create Transformation Matrix
+            T = np.eye(3)
+            for rotation in range(1,(len(df_coordinate_system)-7)//2+1):
+                rotation_angle = df_coordinate_system['Rotation ' + str(rotation) + ' Angle']
+                rotation_axis = df_coordinate_system['Rotation ' + str(rotation) + ' Axis']
+                rotation_axis_dict = {'X':0,'Y':1,'Z':2}
+                if pd.notnull(rotation_angle) and pd.notnull(rotation_axis):
+                    T = R(rotation_axis_dict[rotation_axis],rotation_angle,degrees=True).T@T
+
+            # Add Coordinate System to Geometry
+            origin = np.array((df_coordinate_system['X Location'],df_coordinate_system['Y Location'],df_coordinate_system['Z Location']))[np.newaxis,:]
+            coordinate_systems = np.concatenate((coordinate_systems,coordinate_system_array(id=df_coordinate_system['ID'], name=df_coordinate_system['Name'], color=df_coordinate_system['Color'], cs_type=df_coordinate_system['Type'], matrix = np.concatenate((T,origin),axis=0))),axis=None)
+
+        #%% Add Nodes
+        nodes = node_array(
+            id=np.array(df_nodes['ID']),
+            coordinate=np.concatenate(
+                [np.array(df_nodes['X Location'])[:,np.newaxis],np.array(df_nodes['Y Location'])[:,np.newaxis],np.array(df_nodes['Z Location'])[:,np.newaxis]],axis=-1),
+            color=np.array(df_nodes['Color']),
+            def_cs=np.array(df_nodes['Definition CS']),
+            disp_cs=np.array(df_nodes['Displacement CS']))
+
+        #%% Add Elements
+        elements = element_array([])
+        element_connection_length_dict = {
+                                        2:21, # 21 : 'Linear Beam'
+                                        3:41, # 41 : 'Plane Stress Linear Triangle'
+                                        4:44, # 44 : 'Plane Stress Linear Quadrilateral'
+                                            }
+        for row_index, df_element in df_elements.iterrows():
+            connectivity = df_element[3:].values
+            connectivity = connectivity[pd.notnull(connectivity)]
+            if isinstance(df_element['Type'],str):
+                element_type = _exodus_elem_type_map[df_element['Type'].lower()]
+            elif isinstance(df_element['Type'],int):
+                element_type = df_element['Type']
+            elif pd.isnull(df_element['Type']):
+                element_type = element_connection_length_dict[len(connectivity)]
+            new_element = element_array(id=df_element['ID'], type=element_type, color=df_element['Color'],connectivity=connectivity)
+            elements = np.concatenate((elements,new_element),axis=None)
+
+        #%% Add Tracelines
+        tracelines = traceline_array([])
+        for row_index, df_trace_line in df_trace_lines.iterrows():
+            connectivity=df_trace_line[3:].values
+            connectivity = connectivity[pd.notnull(connectivity)]
+            new_traceline = traceline_array(connectivity=connectivity,id=df_trace_line['ID'],description=df_trace_line['Description'],color=df_trace_line['Color'])
+            tracelines = np.concatenate((tracelines,new_traceline),axis=None)
+
+        return cls(nodes, coordinate_systems, tracelines, elements)
+
     @classmethod
     def from_exodus(cls, exo: Exodus, blocks=None, local=False,
                     preferred_local_orientation=np.array((0.0, 0.0, 1.0)),
                     secondary_preferred_local_orientation=np.array((1.0, 0.0, 0.0)),
-                    local_nodes = None):
+                    local_nodes=None):
         """
         Generate a geometry from exodus file data
 
@@ -2771,7 +2965,7 @@ class Geometry:
         local : bool, optional
             Flag to specify whether or not to create local coordinate systems
             for each node in the model.  This can be useful when creating
-            instrumnetation positions from a finite element model, where the 
+            instrumnetation positions from a finite element model, where the
             sensor will be oriented perpendicular to the surface it is mounted
             on.  The default is False, which returns all data in a single
             global coordinate system.
@@ -2784,7 +2978,7 @@ class Geometry:
             along the global Z+ axis.
         secondary_preferred_local_orientation : np.ndarray, optional
             A secondary preferred direction is only used if the surface normal
-            direction is parallel to the primary preferred_local_orientation. 
+            direction is parallel to the primary preferred_local_orientation.
             The default is np.array((1.0,0.0,0.0)), which points the local
             coordinate system along the local Z+ axis.
         local_nodes : np.ndarray, optional
@@ -2816,7 +3010,10 @@ class Geometry:
             blocks = [block for block in exo.blocks if block.id in blocks]
         for i, block in enumerate(blocks):
             color_index = (i % 14) + 1
-            connectivity = node_map[block.connectivity]
+            try:
+                connectivity = node_map[block.connectivity]
+            except AttributeError:
+                continue
             elem_type = block.elem_type
             if connectivity.shape[-1] <= 1:
                 # Skip conmasses
@@ -2832,15 +3029,15 @@ class Geometry:
                               elem_types, elem_color, elem_connectivity)
         if local:
             if local_nodes is not None:
-                node_map_dict = {val:index for index,val in enumerate(node_map)}
+                node_map_dict = {val: index for index, val in enumerate(node_map)}
                 local_node_indices = np.array([node_map_dict[node] for node in local_nodes])
-                local_node_index_map = {node_index:index for index,node_index in enumerate(local_node_indices)}
+                local_node_index_map = {node_index: index for index, node_index in enumerate(local_node_indices)}
             preferred_local_orientation /= np.linalg.norm(preferred_local_orientation)
             secondary_preferred_local_orientation /= np.linalg.norm(
                 secondary_preferred_local_orientation)
             # Go through each node, find the block that it's in, get its elements
             normal_sum = np.zeros(
-                (coordinates.shape[0]  if local_nodes is None else len(local_nodes),
+                (coordinates.shape[0] if local_nodes is None else len(local_nodes),
                  3))
             for block in blocks:
                 if block.connectivity.shape[-1] <= 1:
@@ -2852,14 +3049,14 @@ class Geometry:
                 normal_vectors /= np.linalg.norm(normal_vectors, axis=-1, keepdims=True)
                 block_nodes = np.unique(block.connectivity)
                 if local_nodes is not None:
-                    block_nodes = local_node_indices[np.in1d(local_node_indices,block_nodes)]
+                    block_nodes = local_node_indices[np.in1d(local_node_indices, block_nodes)]
                 for index in block_nodes:
                     node_elements = np.any(block.connectivity == index, axis=-1)
                     node_normals = normal_vectors[node_elements]
                     if local_nodes is None:
                         normal_sum[index] += np.sum(node_normals, axis=0)
                     else:
-                        normal_sum[local_node_index_map[index]] += np.sum(node_normals,axis=0)
+                        normal_sum[local_node_index_map[index]] += np.sum(node_normals, axis=0)
             # Put small nodes to reasonable values to avoid divide by zero
             normal_sum[np.linalg.norm(normal_sum, axis=-1) < 1e-14] = preferred_local_orientation
             node_rotations = np.zeros((3,) + normal_sum.shape)
@@ -2966,9 +3163,9 @@ class Geometry:
             geometry.add_traceline(np.array([0, 4]) + 10 * (i + 1), color=this_color)
         return geometry
 
-    def compress_ids(self,compress_nodes=True,compress_elements=True,
-                     compress_tracelines=True,compress_cs=True,
-                     return_maps = False):
+    def compress_ids(self, compress_nodes=True, compress_elements=True,
+                     compress_tracelines=True, compress_cs=True,
+                     return_maps=False):
         """
         Compresses ID numbers to make node, element, etc. contiguous
 
@@ -3013,30 +3210,30 @@ class Geometry:
         if compress_nodes:
             to_nodes = np.arange(self.node.size)+1
             from_nodes = self.node.id.flatten()
-            node_map = id_map(from_nodes,to_nodes)
+            node_map = id_map(from_nodes, to_nodes)
         else:
             node_map = None
         if compress_cs:
             to_cs = np.arange(self.coordinate_system.size)+1
             from_cs = self.coordinate_system.id.flatten()
-            cs_map = id_map(from_cs,to_cs)
+            cs_map = id_map(from_cs, to_cs)
         else:
             cs_map = None
         if compress_elements:
             to_elements = np.arange(self.element.size)+1
             from_elements = self.coordinate_system.id.flatten()
-            element_map = id_map(from_elements,to_elements)
+            element_map = id_map(from_elements, to_elements)
         else:
             element_map = None
         if compress_tracelines:
             to_tls = np.arange(self.traceline.size)+1
             from_tls = self.coordinate_system.id.flatten()
-            traceline_map = id_map(from_tls,to_tls)
+            traceline_map = id_map(from_tls, to_tls)
         else:
             traceline_map = None
-        mapped_geometry = self.map_ids(node_map,traceline_map,element_map,cs_map)
+        mapped_geometry = self.map_ids(node_map, traceline_map, element_map, cs_map)
         if return_maps:
-            return mapped_geometry,node_map,traceline_map,element_map,cs_map
+            return mapped_geometry, node_map, traceline_map, element_map, cs_map
         else:
             return mapped_geometry
 
@@ -3094,18 +3291,18 @@ class Geometry:
                               connectivity=[val.flatten() for val in tl_struct['conn'][0, 0].flatten()])
         return cls(nodes, css, tls, elems)
 
-    def global_node_coordinate(self, node_ids = None):
+    def global_node_coordinate(self, node_ids=None):
         """
         Position of the Geometry's nodes in the global coordinate system
-        
+
         Parameters
         ----------
         node_ids : np.ndarray
             An array of node id numbers to keep in the output coordinate.  If
             not specified, all nodes will be returned in the order they are in
             the model.
-        
-            
+
+
         Returns
         -------
         np.ndarray
@@ -3121,7 +3318,7 @@ class Geometry:
         cs_array = self.coordinate_system(node.def_cs)
         return node.global_coordinate(cs_array)
 
-    def node_by_global_position(self,global_position_array):
+    def node_by_global_position(self, global_position_array):
         """
         Select node by closest position
 
@@ -3184,7 +3381,7 @@ class Geometry:
             geometry
         color_override : iterable, optional
             An iterble of integers specifying colors, which will override the
-            existing geometry colors.  This should have the same length as the 
+            existing geometry colors.  This should have the same length as the
             `geometries` input.  The default is None, which keeps the original
             geometry colors.
         return_node_id_offset : bool, optional
@@ -3231,7 +3428,7 @@ class Geometry:
             element_change=10**(elem_length) * (i + 1),
             coordinate_system_change=10**(cs_length) * (i + 1))
             for i, geometry in enumerate(geometries)]
-        if not color_override is None:
+        if color_override is not None:
             for i, color in enumerate(color_override):
                 new_geometries[i].node.color = color
                 new_geometries[i].traceline.color = color
@@ -3255,20 +3452,20 @@ class Geometry:
         Parameters
         ----------
         node_size : int, optional
-            Size to display the nodes in pixels.  Set to 0 to not display nodes. 
+            Size to display the nodes in pixels.  Set to 0 to not display nodes.
             The default is 5.
         line_width : int, optional
             Width to display tracelines and element edges in pixels.  Set to 0
             to not show tracelines or edges.  The default is 1.
         opacity : float, optional
             A float between 0 and 1 to specify the transparency of the geometry.
-            Set to 1 for completely opaque, and 0 for completely transparent 
+            Set to 1 for completely opaque, and 0 for completely transparent
             (invisible).  The default is 1.0, no transparency.
         view_up : np.ndarray, optional
             Set the "up" direction in the plot by passing in a size-3 numpy
             array.  The default is None.
         view_from : np.ndarray, optional
-            Specify the direction from which the geometry is viewed.  The 
+            Specify the direction from which the geometry is viewed.  The
             default is None.
         plotter : BackgroundPlotter, optional
             A plotter can be specified to plot the geometry in an existing
@@ -3318,7 +3515,6 @@ class Geometry:
         solid_element_connectivity = []
         solid_element_colors = []
         solid_element_types = []
-        solid_element_offsets = []
         node_colors = []
         line_connectivity = []
         line_colors = []
@@ -3351,7 +3547,6 @@ class Geometry:
                 except KeyError:
                     raise ValueError('Do not know equivalent VTK element type for {:}: {:}'.format(
                         element.type, _element_types[element.type]))
-                solid_element_offsets.append(len(solid_element_connectivity))
                 solid_element_connectivity.append(len(element.connectivity))
                 try:
                     if solid_element_types[-1] in _vtk_connectivity_reorder:
@@ -3399,8 +3594,7 @@ class Geometry:
         if len(solid_element_connectivity) == 0:
             solid_mesh = None
         else:
-            solid_mesh = pv.UnstructuredGrid(np.array(solid_element_offsets),
-                                             np.array(solid_element_connectivity),
+            solid_mesh = pv.UnstructuredGrid(np.array(solid_element_connectivity),
                                              np.array(solid_element_types, dtype='uint8'),
                                              np.array(global_node_positions))
             solid_mesh.cell_data['color'] = solid_element_colors
@@ -3413,19 +3607,19 @@ class Geometry:
         if node_size > 0:
             point_mesh = pv.PolyData(global_node_positions)
             point_mesh.cell_data['color'] = node_colors
-            plotter.add_mesh(point_mesh, scalars='color', cmap=colormap, clim=[0, 15],
+            plotter.add_mesh(point_mesh, scalars=node_colors, cmap=colormap, clim=[0, 15],
                              show_edges=show_edges,  # True if line_width > 0 else False,
                              show_scalar_bar=False, point_size=node_size,
                              opacity=opacity)
         else:
             point_mesh = None
-        if not view_from is None:
+        if view_from is not None:
             focus = plotter.camera.focal_point
             distance = plotter.camera.distance
             plotter.camera.position = np.array(
                 focus) + distance * np.array(view_from) / np.linalg.norm(view_from)
             plotter.camera.focal_point = focus
-        if not view_up is None:
+        if view_up is not None:
             plotter.camera.up = view_up
         plotter.show()
         plotter.render()
@@ -3446,7 +3640,7 @@ class Geometry:
             Coordinates to draw on the geometry.  If no coordinates are specified,
             all translation degrees of freedom at each node will be plotted.
         arrow_scale : float, optional
-            Size of the arrows in proportion to the length of the diagonal of 
+            Size of the arrows in proportion to the length of the diagonal of
             the bounding box of the Geometry if `arrow_scale_type` is 'bbox',
             otherwise the raw length of the arrow.  The default is 0.1.
         arrow_scale_type : str, optional
@@ -3461,10 +3655,10 @@ class Geometry:
             Default is 16.
         opacity : float, optional
             A float between 0 and 1 to specify the transparency of the geometry.
-            Set to 1 for completely opaque, and 0 for completely transparent 
+            Set to 1 for completely opaque, and 0 for completely transparent
             (invisible).  The default is 1.0, no transparency.
         arrow_ends_on_node : bool, optional
-            If True, arrow tip ends at the node, otherwise the arrow begins at 
+            If True, arrow tip ends at the node, otherwise the arrow begins at
             node.
             Defualt is False
         plot_kwargs : dict, optional
@@ -3612,11 +3806,11 @@ class Geometry:
             Any additional arguments that should be passed to the
             BackgroundPlotter initializer.  The default is {'editor':False}.
         undeformed_opacity : float, optional
-            A float between 0 and 1 to specify the transparency of the undeformed 
+            A float between 0 and 1 to specify the transparency of the undeformed
             geometry.  Set to 1 for completely opaque, and 0 for completely
             transparent (invisible).  The default is 0.25.
         deformed_opacity : float, optional
-            A float between 0 and 1 to specify the transparency of the deformed 
+            A float between 0 and 1 to specify the transparency of the deformed
             geometry.  Set to 1 for completely opaque, and 0 for completely
             transparent (invisible). The default is 1.0.
         starting_scale : float, optional
@@ -3631,7 +3825,8 @@ class Geometry:
         """
         if IGNORE_PLOTS:
             return None
-        return ShapePlotter(self, shape, plot_kwargs, background_plotter_kwargs, undeformed_opacity, deformed_opacity=deformed_opacity, starting_scale=starting_scale)
+        return ShapePlotter(self, shape, plot_kwargs, background_plotter_kwargs,
+                            undeformed_opacity, deformed_opacity=deformed_opacity, starting_scale=starting_scale)
 
     def plot_deflection_shape(self, deflection_shape_data, plot_kwargs={},
                               background_plotter_kwargs={'editor': False},
@@ -3651,11 +3846,11 @@ class Geometry:
             Any additional arguments that should be passed to the
             BackgroundPlotter initializer.  The default is {'editor':False}.
         undeformed_opacity : float, optional
-            A float between 0 and 1 to specify the transparency of the undeformed 
+            A float between 0 and 1 to specify the transparency of the undeformed
             geometry.  Set to 1 for completely opaque, and 0 for completely
             transparent (invisible).  The default is 0.25.
         deformed_opacity : float, optional
-            A float between 0 and 1 to specify the transparency of the deformed 
+            A float between 0 and 1 to specify the transparency of the deformed
             geometry.  Set to 1 for completely opaque, and 0 for completely
             transparent (invisible). The default is 1.0.
         starting_scale : float, optional
@@ -3670,7 +3865,8 @@ class Geometry:
         """
         if IGNORE_PLOTS:
             return None
-        return DeflectionShapePlotter(self, deflection_shape_data, plot_kwargs, background_plotter_kwargs, undeformed_opacity, deformed_opacity=deformed_opacity, starting_scale=starting_scale)
+        return DeflectionShapePlotter(self, deflection_shape_data, plot_kwargs, background_plotter_kwargs,
+                                      undeformed_opacity, deformed_opacity=deformed_opacity, starting_scale=starting_scale)
 
     def plot_transient(self, displacement_data, displacement_scale=1.0,
                        frames_per_second=20,
@@ -3864,19 +4060,19 @@ class Geometry:
 
         """
         geom_out = self.copy()
-        if not node_id_map is None:
+        if node_id_map is not None:
             geom_out.node.id = node_id_map(self.node.id)
             for key, val in self.traceline.ndenumerate():
                 geom_out.traceline.connectivity[key] = node_id_map(self.traceline.connectivity[key])
             for key, val in self.element.ndenumerate():
                 geom_out.element.connectivity[key] = node_id_map(self.element.connectivity[key])
-        if not coordinate_system_id_map is None:
+        if coordinate_system_id_map is not None:
             geom_out.coordinate_system.id = coordinate_system_id_map(self.coordinate_system.id)
             geom_out.node.disp_cs = coordinate_system_id_map(self.node.disp_cs)
             geom_out.node.def_cs = coordinate_system_id_map(self.node.def_cs)
-        if not traceline_id_map is None:
+        if traceline_id_map is not None:
             geom_out.traceline.id = traceline_id_map(self.traceline.id)
-        if not element_id_map is None:
+        if element_id_map is not None:
             geom_out.element.id = element_id_map(self.element.id)
         return geom_out
 
@@ -3965,7 +4161,7 @@ class Geometry:
         for i in range(3):
             for j in range(len(full_coordinates)):
                 direction = full_coordinates[j].local_direction()
-                coord = self.node(full_coordinates[j].node).coordinate
+                coord = self.global_node_coordinate(full_coordinates[j].node)
                 rotation_shape_matrix[i, j] = phi[i + 3, i + 3] * \
                     np.dot(direction, np.cross(rotation_directions[:, i], coord - cg))
         # Concatenate shapes together
@@ -4037,7 +4233,7 @@ class Geometry:
         Parameters
         ----------
         filename : str
-            Filename to which the geometry will be written.  If None, a 
+            Filename to which the geometry will be written.  If None, a
             unv data dictionary will be returned instead, similar to that
             obtained from the readunv function in sdynpy
         write_nodes : bool, optional
@@ -4047,10 +4243,10 @@ class Geometry:
             If True, write the geometry's coordinate systems to dataset 2420
             in the output file. The default is True.
         write_tracelines : bool, optional
-            If True, write the geometry's tracelines to dataset 82 in the 
+            If True, write the geometry's tracelines to dataset 82 in the
             output file. The default is True.
         write_elements : TYPE, optional
-            If True, write the geometry's elements to dataset 2412 in the 
+            If True, write the geometry's elements to dataset 2412 in the
             output file. The default is True.
         dataset_2412_kwargs : dict, optional
             Allows users to specify additional element parameters not stored
@@ -4091,16 +4287,16 @@ class Geometry:
                 node_unv = None
         if write_elements:
             if self.element.size > 0:
-                if not 'physical_property_table_numbers' in dataset_2412_kwargs:
+                if 'physical_property_table_numbers' not in dataset_2412_kwargs:
                     dataset_2412_kwargs['physical_property_table_numbers'] = [1] * self.element.size
-                if not 'material_property_table_numbers' in dataset_2412_kwargs:
+                if 'material_property_table_numbers' not in dataset_2412_kwargs:
                     dataset_2412_kwargs['material_property_table_numbers'] = [1] * self.element.size
-                if not 'beam_orientations' in dataset_2412_kwargs:
+                if 'beam_orientations' not in dataset_2412_kwargs:
                     dataset_2412_kwargs['beam_aft_cross_section_numbers'] = [
                         None] * self.element.size
-                if not 'beam_aft_cross_section_numbers' in dataset_2412_kwargs:
+                if 'beam_aft_cross_section_numbers' not in dataset_2412_kwargs:
                     dataset_2412_kwargs['beam_orientations'] = [None] * self.element.size
-                if not 'beam_fore_cross_section_numbers' in dataset_2412_kwargs:
+                if 'beam_fore_cross_section_numbers' not in dataset_2412_kwargs:
                     dataset_2412_kwargs['beam_fore_cross_section_numbers'] = [
                         None] * self.element.size
                 elem_unv = dataset_2412.Sdynpy_UFF_Dataset_2412(
@@ -4128,17 +4324,17 @@ class Geometry:
             return unv_dict
         else:
             with open(filename, 'w') as f:
-                if not cs_unv is None:
+                if cs_unv is not None:
                     f.write('    -1\n')
                     f.write('  2420\n')
                     f.write(cs_unv.write_string())
                     f.write('    -1\n')
-                if not node_unv is None:
+                if node_unv is not None:
                     f.write('    -1\n')
                     f.write('  2411\n')
                     f.write(node_unv.write_string())
                     f.write('    -1\n')
-                if not elem_unv is None:
+                if elem_unv is not None:
                     f.write('    -1\n')
                     f.write('  2412\n')
                     f.write(elem_unv.write_string())
@@ -4150,6 +4346,8 @@ class Geometry:
                     f.write('    -1\n')
 
 
+from_excel_template = Geometry.from_excel_template
+write_excel_template = Geometry.write_excel_template
 from_imat_struct = Geometry.from_imat_struct
 from_exodus = Geometry.from_exodus
 from_unv = Geometry.from_unv
@@ -4178,7 +4376,7 @@ class id_map:
         """
         self.from_ids = from_ids
         self.to_ids = to_ids
-        self.mapper = np.vectorize({f: t for f, t in zip(from_ids, to_ids)}.__getitem__,otypes=['uint64'])
+        self.mapper = np.vectorize({f: t for f, t in zip(from_ids, to_ids)}.__getitem__, otypes=['uint64'])
 
     def __call__(self, val):
         """

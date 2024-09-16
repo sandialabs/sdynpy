@@ -71,6 +71,8 @@ class Sdynpy_UFF_Dataset_151:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         ds_151 = cls()
         # Record 1:       FORMAT(80A1)
         # Field 1      -- model file name

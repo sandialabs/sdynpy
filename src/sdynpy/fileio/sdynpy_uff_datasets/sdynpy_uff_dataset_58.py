@@ -24,8 +24,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from ..sdynpy_uff import parse_uff_line, parse_uff_lines, write_uff_line
+from ...core.sdynpy_coordinate import parse_coordinate_string
 import numpy as np
-
+import struct
+import warnings
 
 def is_abscissa_even(abscissa):
     abscissa_inc = np.mean(np.diff(abscissa))
@@ -100,7 +102,21 @@ class Sdynpy_UFF_Dataset_58:
         return 58
 
     @classmethod
-    def from_uff_data_array(cls, data):
+    def from_uff_data_array(cls, block_lines, is_binary, byte_ordering,
+                            floating_point_format, num_ascii_lines_following,
+                            num_bytes_following):
+        """
+        Extract function at nodal DOF - data-set 58.
+
+        Returns
+        -------
+        ds_58
+            Object with attributes as the dataset fields and values containing the
+            data from the universal file in those dataset fields.
+        """
+        if num_ascii_lines_following is None:
+            num_ascii_lines_following = 11
+        split_header = [line.decode('utf-8') for line in block_lines[:num_ascii_lines_following]]
         #        Record 1:     Format(80A1)
         #                       Field 1    - ID Line 1
         #
@@ -108,10 +124,10 @@ class Sdynpy_UFF_Dataset_58:
         #
         #                           ID Line 1 is generally  used  for  the  function
         #                           description.
-        idline1, = parse_uff_line(data[0], ['A80'])
+        idline1, = parse_uff_line(split_header[0], ['A80'])
 #        Record 2:     Format(80A1)
 #                       Field 1    - ID Line 2
-        idline2, = parse_uff_line(data[1], ['A80'])
+        idline2, = parse_uff_line(split_header[1], ['A80'])
 #        Record 3:     Format(80A1)
 #                       Field 1    - ID Line 3
 #
@@ -121,13 +137,13 @@ class Sdynpy_UFF_Dataset_58:
 #                           function  was  created.  The date is in the form
 #                           DD-MMM-YY, and the time is in the form HH:MM:SS,
 #                           with a general Format(9A1,1X,8A1).
-        idline3, = parse_uff_line(data[2], ['A80'])
+        idline3, = parse_uff_line(split_header[2], ['A80'])
 #        Record 4:     Format(80A1)
 #                       Field 1    - ID Line 4
-        idline4, = parse_uff_line(data[3], ['A80'])
+        idline4, = parse_uff_line(split_header[3], ['A80'])
 #         Record 5:     Format(80A1)
 #                       Field 1    - ID Line 5
-        idline5, = parse_uff_line(data[4], ['A80'])
+        idline5, = parse_uff_line(split_header[4], ['A80'])
 #        Record 6:     Format(2(I5,I10),2(1X,10A1,I10,I4))
 #                                  DOF Identification
 #                       Field 1    - Function Type
@@ -185,7 +201,8 @@ class Sdynpy_UFF_Dataset_58:
         (function_type, function_id, version_number, load_case,
          response_entity_name, response_node, response_direction,
          reference_entity_name, reference_node, reference_direction) = (
-            parse_uff_line(data[5], 2 * ['I5', 'I10'] + 2 * ['X1', 'A10', 'I10', 'I4']))
+            parse_uff_line(split_header[5], 2 * ['I5', 'I10'] + 2 * ['X1', 'A10', 'I10', 'I4']))
+
 #        Record 7:     Format(3I10,3E13.5)
 #                                  Data Form
 #                       Field 1    - Ordinate Data Type
@@ -204,7 +221,7 @@ class Sdynpy_UFF_Dataset_58:
 #                       Field 6    - Z-axis value (0.0 if unused)
         (ordinate_data_type, num_data, abscissa_spacing, abscissa_minimum,
          abscissa_increment, zaxis_value) = (
-            parse_uff_line(data[6], 3 * ['I10'] + 3 * ['E13.5']))
+            parse_uff_line(split_header[6], 3 * ['I10'] + 3 * ['E13.5']))
 #        Record 8:     Format(I10,3I5,2(1X,20A1))
 #                                  Abscissa Data Characteristics
 #                       Field 1    - Specific Data Type
@@ -252,25 +269,25 @@ class Sdynpy_UFF_Dataset_58:
         (abscissa_data_type, abscissa_length_exponent,
          abscissa_force_exponent, abscissa_temp_exponent,
          abscissa_axis_label, abscissa_units_label) = (
-            parse_uff_line(data[7], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
+            parse_uff_line(split_header[7], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
 #         Record 9:     Format(I10,3I5,2(1X,20A1))
 #                       Ordinate (or ordinate numerator) Data Characteristics
         (ordinate_num_data_type, ordinate_num_length_exponent,
          ordinate_num_force_exponent, ordinate_num_temp_exponent,
          ordinate_num_axis_label, ordinate_num_units_label) = (
-            parse_uff_line(data[8], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
+            parse_uff_line(split_header[8], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
 #         Record 10:    Format(I10,3I5,2(1X,20A1))
 #                       Ordinate Denominator Data Characteristics
         (ordinate_den_data_type, ordinate_den_length_exponent,
          ordinate_den_force_exponent, ordinate_den_temp_exponent,
          ordinate_den_axis_label, ordinate_den_units_label) = (
-            parse_uff_line(data[9], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
+            parse_uff_line(split_header[9], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
 #         Record 11:    Format(I10,3I5,2(1X,20A1))
 #                       Z-axis Data Characteristics
         (zaxis_data_type, zaxis_length_exponent,
          zaxis_force_exponent, zaxis_temp_exponent,
          zaxis_axis_label, zaxis_units_label) = (
-            parse_uff_line(data[10], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
+            parse_uff_line(split_header[10], ['I10'] + 3 * ['I5'] + 2 * ['X1', 'A20']))
 #         Record 12:
 #                                   Data Values
 #
@@ -286,32 +303,53 @@ class Sdynpy_UFF_Dataset_58:
 #               7     complex    double        even         4E20.12
 #               8     complex    double       uneven      E13.5,2E20.12
 #           --------------------------------------------------------------
-        if (ordinate_data_type in [2, 5]):   # Single, regardless of abscissa or complexity
-            read_format = 6 * ['E13.5']
-            ordinate_data_dtype = 'float32'
-        elif (ordinate_data_type in [4, 6]   # Double precision
-              and abscissa_spacing == 1):   # Even spacing
-            read_format = 4 * ['E20.12']
-            ordinate_data_dtype = 'float64'
-        elif (ordinate_data_type == 4       # Real double precision
-              and abscissa_spacing == 0):   # Uneven spacing
-            read_format = 2 * ['E13.5', 'E20.12']
-            ordinate_data_dtype = 'float64'
-        elif (ordinate_data_type == 6       # Complex double precision
-              and abscissa_spacing == 0):   # Uneven spacing
-            read_format = ['E13.5'] + 2 * ['E20.12']
-            ordinate_data_dtype = 'float64'
-        # Number of data points to read
+        
+        # Number of data points to read per item
         read_multiplication_factor = 1  # Base value is just one value
         if abscissa_spacing == 0:       # If abscissa spacing is uneven
             read_multiplication_factor += 1  # Will need to read that too
         if ordinate_data_type in [5, 6]:  # If complex,
             read_multiplication_factor += 1  # Will need to read 2 ordinates
-        total_number_of_entries = read_multiplication_factor * num_data
-        # Now read the data
-        ordinate = np.array(
-            parse_uff_lines(data[11:], read_format, total_number_of_entries)[0],
-            dtype=ordinate_data_dtype).reshape(-1, read_multiplication_factor)
+
+        # reading Record 12 if encoded in binary
+        if is_binary:
+            split_data = b''.join(block_lines[num_ascii_lines_following:])
+            if byte_ordering == 1:
+                bo = '<'
+            elif byte_ordering == 2:
+                bo = '>'
+            else:
+                warnings.warn('UFF file does not contain byte_ordering parameter, assuming Little Endian (DEC VMS & ULTRIX, WIN NT)', EncodingWarning, stacklevel=5)
+                bo = '<'
+            if (ordinate_data_type in [2, 5]):
+                # single precision - 4 bytes
+                ordinate = np.asarray(struct.unpack('%c%sf' % (bo, int(len(split_data) / 4)), split_data), 'd').reshape(-1,read_multiplication_factor)
+            else:
+                # double precision - 8 bytes
+                ordinate = np.asarray(struct.unpack('%c%sd' % (bo, int(len(split_data) / 8)), split_data), 'd').reshape(-1,read_multiplication_factor)
+
+        # reading Record 12 if encoded as ascii
+        else:
+            if (ordinate_data_type in [2, 5]):   # Single, regardless of abscissa or complexity
+                read_format = 6 * ['E13.5']
+                ordinate_data_dtype = 'float32'
+            elif (ordinate_data_type in [4, 6]   # Double precision
+                and abscissa_spacing == 1):   # Even spacing
+                read_format = 4 * ['E20.12']
+                ordinate_data_dtype = 'float64'
+            elif (ordinate_data_type == 4       # Real double precision
+                and abscissa_spacing == 0):   # Uneven spacing
+                read_format = 2 * ['E13.5', 'E20.12']
+                ordinate_data_dtype = 'float64'
+            elif (ordinate_data_type == 6       # Complex double precision
+                and abscissa_spacing == 0):   # Uneven spacing
+                read_format = ['E13.5'] + 2 * ['E20.12']
+                ordinate_data_dtype = 'float64'
+            total_number_of_entries = read_multiplication_factor * num_data
+            # Now read the data
+            ordinate = np.array(
+                parse_uff_lines([line.decode('utf-8') for line in block_lines[num_ascii_lines_following:]], read_format, total_number_of_entries)[0],
+                dtype=ordinate_data_dtype).reshape(-1, read_multiplication_factor)
         # Now parse the data into the right format
         if abscissa_spacing == 0:  # If abscissa spacing is uneven
             abscissa = ordinate[:, 0].astype('float32')
@@ -449,5 +487,8 @@ class Sdynpy_UFF_Dataset_58:
             return 'Dataset 58: Data\n  ' + '\n  '.join(lines)
 
 
-def read(data):
-    return Sdynpy_UFF_Dataset_58.from_uff_data_array(data)
+def read(data,is_binary=False, byte_ordering = None, floating_point_format = None,
+         num_ascii_lines_following = None, num_bytes_following = None):
+    return Sdynpy_UFF_Dataset_58.from_uff_data_array(
+        data, is_binary, byte_ordering, floating_point_format,
+        num_ascii_lines_following, num_bytes_following)

@@ -26,17 +26,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from scipy.linalg import eigh
 from .sdynpy_coordinate import CoordinateArray, from_nodelist, outer_product, coordinate_array
 from ..fem.sdynpy_beam import beamkm, rect_beam_props
 from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces
 from ..signal_processing import frf as spfrf
 from ..signal_processing import generator
-from scipy.linalg import eigh, block_diag, null_space
+from scipy.linalg import eigh, block_diag, null_space, eig
 from scipy.signal import lsim, StateSpace, resample, butter, filtfilt
 import copy
 import netCDF4 as nc4
 import matplotlib.pyplot as plt
+import warnings
+
 
 class System:
     """Matrix Equations representing a Structural Dynamics System"""
@@ -107,7 +108,7 @@ class System:
         # Check symmetry
         if not np.allclose(mass, mass.T):
             raise ValueError('mass matrix must be symmetric')
-        if not np.allclose(stiffness, stiffness.T,atol=1e-6*stiffness.max()):
+        if not np.allclose(stiffness, stiffness.T, atol=1e-6*stiffness.max()):
             raise ValueError('stiffness matrix must be symmetric')
         if not np.allclose(damping, damping.T):
             raise ValueError('damping matrix must be symmetric')
@@ -260,7 +261,7 @@ class System:
         return self.transformation.shape[0]
 
     def to_state_space(self, output_displacement=True, output_velocity=True, output_acceleration=True, output_force=True,
-                       response_coordinates = None,input_coordinates = None):
+                       response_coordinates=None, input_coordinates=None):
         """
         Compute the state space representation of the system
 
@@ -297,7 +298,7 @@ class System:
         C = self.C
         if response_coordinates is None:
             phi_response = self.transformation
-        elif isinstance(response_coordinates,str) and response_coordinates == 'state':
+        elif isinstance(response_coordinates, str) and response_coordinates == 'state':
             # If you want the state variables back, the transformation is the
             # identity matrix.
             phi_response = np.eye(self.transformation.shape[-1])
@@ -357,7 +358,7 @@ class System:
         D_state = D_state[output_indices]
         return A_state, B_state, C_state, D_state
 
-    def time_integrate(self, forces, dt = None, responses=None, references=None,
+    def time_integrate(self, forces, dt=None, responses=None, references=None,
                        displacement_derivative=2, initial_state=None,
                        integration_oversample=1):
         """
@@ -406,12 +407,12 @@ class System:
         from .sdynpy_data import data_array, FunctionTypes, TimeHistoryArray
         if isinstance(forces, TimeHistoryArray):
             dt = forces.abscissa_spacing
-            references = forces.coordinate[...,0]
+            references = forces.coordinate[..., 0]
             forces = forces.ordinate
         else:
             if dt is None:
                 raise ValueError('`dt` must be specified if `forces` is not a `TimeHistoryArray`')
-        if responses is not None and not isinstance(responses,str):
+        if responses is not None and not isinstance(responses, str):
             responses = np.atleast_1d(responses)
         if references is not None:
             references = np.atleast_1d(references)
@@ -419,7 +420,7 @@ class System:
                                          displacement_derivative == 1,
                                          displacement_derivative == 2,
                                          False,
-                                         responses,references
+                                         responses, references
                                          )
         forces = np.atleast_2d(forces)
         times = np.arange(forces.shape[-1]) * dt
@@ -431,8 +432,8 @@ class System:
             time_response = time_response[:, np.newaxis]
         if responses is None:
             response_coordinate = self.coordinate.copy()
-        elif isinstance(responses,str) and responses == 'state':
-            response_coordinate = coordinate_array(np.arange(self.ndof),0)
+        elif isinstance(responses, str) and responses == 'state':
+            response_coordinate = coordinate_array(np.arange(self.ndof), 0)
         else:
             response_coordinate = responses
         response_array = data_array(FunctionTypes.TIME_RESPONSE,
@@ -480,9 +481,9 @@ class System:
 
         """
         if complex_modes is False:
-            if not num_modes is None:
+            if num_modes is not None:
                 num_modes = [0, int(num_modes) - 1]
-            if not maximum_frequency is None:
+            if maximum_frequency is not None:
                 maximum_frequency = (2 * np.pi * maximum_frequency)**2
                 maximum_frequency = [-maximum_frequency, maximum_frequency]  # Convert to eigenvalue
             lam, phi = eigh(self.K, self.M, subset_by_index=num_modes,
@@ -505,15 +506,69 @@ class System:
             else:
                 return System(self.coordinate, np.eye(freq.size), np.diag((2 * np.pi * freq)**2), np.diag(2 * (2 * np.pi * freq) * damping), phi)
         else:
-            raise NotImplementedError('Complex Modes are not implemented yet!')
+            if self.ndof > 1000:
+                warnings.warn('The complex mode implementation currently computes all eigenvalues and eigenvectors, which may take a long time for large systems.')
+            # For convenience, assign a zeros matrix
+            Z = np.zeros(self.M.shape)
+            A = np.block([[     Z, self.M],
+                          [self.M, self.C]])
+            B = np.block([[-self.M,      Z],
+                          [      Z, self.K]])
+            lam, E = eig(-B,A)
+            # Sort the eigenvalues such that they are increasing in frequency
+            isort = np.argsort(np.abs(lam))
+            lam = lam[isort]
+            E = E[:,isort]
+            # Eigenvalues will be in complex conjugate pairs.  Let's only keep
+            # the ones that are greater than zero.
+            keep = lam.imag > 0
+            lam = lam[keep]
+            E = E[:,keep]
+            if A.shape[0]//2 != lam.size:
+                warnings.warn('The complex mode implementation currently does not do well with rigid body modes (0 Hz frequencies).  Compute them from a real-modes solution then transform to complex.')
+            # Cull values we don't want
+            if num_modes is not None:
+                lam = lam[:num_modes]
+                E = E[:,:num_modes]
+            if maximum_frequency is not None:
+                keep = np.abs(lam) <= maximum_frequency*2*np.pi
+                lam = lam[keep]
+                E = E[:,keep]
+            # Mass normalize the mode shapes
+            E = E/np.sqrt(np.einsum('ji,jk,ki->i',E,A,E))
+            # Find repeated eigenvalues where the eigenvectors are not orthogonal
+            # TODO: Might have to do some orthogonalization for repeated
+            # eigenvalues
+            # A_modal = np.einsum('ji,jk,kl->il',E,A,E)
+            # Extract just the displacement partition
+            psi = E[E.shape[0]//2:,:]
+            # Add in a transformation to get to physical dofs
+            psi_t = self.transformation @ psi
+            frequency = np.abs(lam)/(2*np.pi)
+            damping = -np.real(lam)/np.abs(lam)
+            if return_shape:
+                from .sdynpy_shape import shape_array
+                return shape_array(self.coordinate, psi.T, frequency, damping)
+            else:
+                warnings.warn('Complex Modes will in general not diagonalize the system M, C, and K, matrices.')
+                return System(self.coordinate,
+                              psi.T@self.M@psi,
+                              psi.T@self.K@psi.T,
+                              psi.T@self.C@psi.T,
+                              psi_t)
+            
 
-    def transformation_shapes(self,shape_indices=None):
+    def transformation_shapes(self, shape_indices=None):
         from .sdynpy_shape import shape_array
         if shape_indices is None:
             shape_indices = slice(None)
-        shape_matrix = self.transformation[:,shape_indices]
-        return shape_array(self.coordinate,shape_matrix.T,
-                           frequency=0,damping=0)
+        shape_matrix = self.transformation[:, shape_indices]
+        return shape_array(self.coordinate, shape_matrix.T,
+                           frequency=0, damping=0)
+
+    def remove_transformation(self):
+        return System(coordinate_array(np.arange(self.ndof)+1,0),
+                      self.mass.copy(),self.stiffness.copy(),self.damping.copy())
 
     def frequency_response(self, frequencies, responses=None, references=None,
                            displacement_derivative=0):
@@ -568,7 +623,7 @@ class System:
                          outer_product(output_coordinates, input_coordinates))
         return frf
 
-    def assign_modal_damping(self,damping_ratios):
+    def assign_modal_damping(self, damping_ratios):
         """
         Assigns a damping matrix to the system that results in equivalent
         modal damping
@@ -585,7 +640,7 @@ class System:
         """
         damping_ratios = np.array(damping_ratios)
         if damping_ratios.ndim == 1:
-            shapes = self.eigensolution(num_modes = damping_ratios.size)
+            shapes = self.eigensolution(num_modes=damping_ratios.size)
         else:
             shapes = self.eigensolution()
         shapes.damping = damping_ratios
@@ -594,7 +649,7 @@ class System:
         shape_pinv = np.linalg.pinv(modal_system.transformation.T)
         full_damping_matrix = shape_pinv@modal_system.damping@shape_pinv.T
         self.damping[:] = full_damping_matrix
-        
+
     def save(self, filename):
         """
         Saves the system to a file
@@ -837,7 +892,7 @@ class System:
         constraint_matrix = []
         for constraint_dof_0, constraint_dof_1 in dof_pairs:
             constraint = self.transformation_matrix_at_coordinates(constraint_dof_0)
-            if not constraint_dof_1 is None:
+            if constraint_dof_1 is not None:
                 constraint -= self.transformation_matrix_at_coordinates(constraint_dof_1)
             constraint_matrix.append(constraint)
         constraint_matrix = np.concatenate(constraint_matrix, axis=0)
@@ -859,7 +914,7 @@ class System:
         connection_dofs_0 : CoordinateArray
             Array of coordinates to use in the constraints
         connection_dofs_1 : CoordinateArray, optional
-            Array of coordinates to constrain to the coordinates in 
+            Array of coordinates to constrain to the coordinates in
             `connection_dofs_0`. If not specified, the `connection_dofs_0`
             degrees of freedom will be constrained to ground.
         rcond : float, optional
@@ -880,7 +935,7 @@ class System:
         shape_matrix_0 = constraint_shapes[connection_dofs_0].T
         transform_matrix_0 = self.transformation_matrix_at_coordinates(connection_dofs_0)
         constraint_matrix = np.linalg.lstsq(shape_matrix_0, transform_matrix_0)[0]
-        if not connection_dofs_1 is None:
+        if connection_dofs_1 is not None:
             shape_matrix_1 = constraint_shapes[connection_dofs_1].T
             transform_matrix_1 = self.transformation_matrix_at_coordinates(connection_dofs_1)
             constraint_matrix -= np.linalg.lstsq(shape_matrix_1, transform_matrix_1)[0]
@@ -906,7 +961,7 @@ class System:
         """
         Sets the damping matrix to a proportion of the mass and stiffness matrices.
 
-        The damping matrix will be set to `mass_fraction*self.mass + 
+        The damping matrix will be set to `mass_fraction*self.mass +
         stiffness_fraction*self.stiffness`
 
         Parameters
@@ -1093,7 +1148,7 @@ class System:
             keep_dofs = self.get_indices_by_coordinate(coordinates)
         else:
             keep_dofs = np.array(coordinates)
-        discard_dofs = np.array([i for i in range(self.ndof) if not i in keep_dofs])
+        discard_dofs = np.array([i for i in range(self.ndof) if i not in keep_dofs])
         I_a = np.eye(keep_dofs.size)
         K_dd = self.stiffness[discard_dofs[:, np.newaxis],
                               discard_dofs]
@@ -1132,7 +1187,7 @@ class System:
             keep_dofs = self.get_indices_by_coordinate(coordinates)
         else:
             keep_dofs = np.array(coordinates)
-        discard_dofs = np.array([i for i in range(self.ndof) if not i in keep_dofs])
+        discard_dofs = np.array([i for i in range(self.ndof) if i not in keep_dofs])
         I_a = np.eye(keep_dofs.size)
         D = self.stiffness - (2 * np.pi * frequency)**2 * self.mass
         D_dd = D[discard_dofs[:, np.newaxis],
@@ -1181,7 +1236,7 @@ class System:
             connection_indices = self.get_indices_by_coordinate(connection_degrees_of_freedom)
         else:
             connection_indices = np.array(connection_degrees_of_freedom)
-        other_indices = np.array([i for i in range(self.ndof) if not i in connection_indices])
+        other_indices = np.array([i for i in range(self.ndof) if i not in connection_indices])
 
         # Extract portions of the mass and stiffness matrices
         K_ii = self.K[other_indices[:, np.newaxis], other_indices]
@@ -1215,7 +1270,7 @@ class System:
     def from_exodus_superelement(cls, superelement_nc4, transformation_exodus_file=None,
                                  x_disp='DispX', y_disp='DispY', z_disp='DispZ',
                                  x_rot=None, y_rot=None, z_rot=None,
-                                 reduce_to_external_surfaces = False):
+                                 reduce_to_external_surfaces=False):
         """
         Creates a system from a superelement from Sierra/SD
 
@@ -1297,7 +1352,7 @@ class System:
             else:
                 raise ValueError('transformation_exodus_file must be a string or a sdpy.Exodus')
             if reduce_to_external_surfaces:
-                exo = reduce_exodus_to_surfaces(exo,variables_to_transform=[var for var in [x_disp,y_disp,z_disp,x_rot,y_rot,z_rot] if var is not None])
+                exo = reduce_exodus_to_surfaces(exo, variables_to_transform=[var for var in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot] if var is not None])
             from .sdynpy_shape import ShapeArray
             shapes = ShapeArray.from_exodus(exo, x_disp, y_disp, z_disp, x_rot, y_rot, z_rot)
             transformation = shapes.shape_matrix.T
@@ -1414,7 +1469,7 @@ class System:
             signals = np.tile(signals, [num_signals, 1])
         elif excitation.lower() == 'multi-hammer':
             signal_length = frame_length * integration_oversample
-            pulse_width = 2 / bandwidth
+            pulse_width = 2 / (bandwidth if excitation_max_frequency is None else excitation_max_frequency)
             signals = []
             for i in range(num_signals):
                 signals.append([])
@@ -1447,12 +1502,12 @@ class System:
                     'Warning: Sine signal generally not recommended for multi-reference excitation')
             frequencies = excitation_max_frequency if excitation_min_frequency is None else excitation_min_frequency
             num_samples = frame_length * integration_oversample * num_averages + int(steady_state_time * sample_rate)
-            kwargs = {'frequencies':frequencies,
-                      'dt':dt,
-                      'num_samples':num_samples,
-                      'amplitudes':excitation_level}
+            kwargs = {'frequencies': frequencies,
+                      'dt': dt,
+                      'num_samples': num_samples,
+                      'amplitudes': excitation_level}
             kwargs.update(generator_kwargs)
-            signals = np.tile(generator.sine(**kwargs),(num_signals,1))
+            signals = np.tile(generator.sine(**kwargs), (num_signals, 1))
         # Set up the integration
         responses, references = self.time_integrate(
             signals, dt, responses, references, displacement_derivative)

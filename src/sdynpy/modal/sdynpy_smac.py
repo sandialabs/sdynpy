@@ -39,6 +39,7 @@ import pyqtgraph
 pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
 
+
 def correlation_coefficient(x, y, axis=-1):
     mx = np.mean(x, axis=axis, keepdims=True)
     my = np.mean(y, axis=axis, keepdims=True)
@@ -63,9 +64,9 @@ class SMAC:
         self.min_frequency = min_frequency
         self.max_frequency = max_frequency
         abscissa_indices = np.ones(self.frequencies.shape, dtype=bool)
-        if not min_frequency is None:
+        if min_frequency is not None:
             abscissa_indices &= (self.frequencies >= min_frequency)
-        if not max_frequency is None:
+        if max_frequency is not None:
             abscissa_indices &= (self.frequencies <= max_frequency)
         abscissa = self.frequencies[abscissa_indices]
         freq_range = np.array((np.min(abscissa), np.max(abscissa)))
@@ -209,7 +210,7 @@ class SMAC:
         for reference_index, (matrix, peaklist) in enumerate(zip(self.initial_correlation_matrix, peaklists)):
             for key in zip(*peaklist):
                 value = matrix[key]
-                if not key in root_index_list or root_index_list[key][0] < value:
+                if key not in root_index_list or root_index_list[key][0] < value:
                     root_index_list[key] = (value, reference_index)
         root_list = np.ndarray(len(root_index_list), dtype=[('frequency', 'float64'),
                                                             ('damping', 'float64'),
@@ -253,7 +254,7 @@ class SMAC:
                             if ((1 - mmif[i].ordinate[peaks[i][peak_index]]) / (1 - mmif[i - 1].ordinate[peaks[i][peak_index]]) >= 0.6
                                     and mmif[i].ordinate[peaks[i][peak_index]] < 0.9
                                     # and nroots[j] > 0
-                                    ):
+                                    ):  # noqa: E124
                                 nroots[j] += 1
                         else:
                             nroots[j] += 1
@@ -280,7 +281,7 @@ class SMAC:
                             # The primary mif must also have a peak - I don't think this is true
                             if ((cmif[i].ordinate[peaks[i][peak_index]]) / (cmif[i - 1].ordinate[peaks[i][peak_index]]) >= 0.1
                                     # and nroots[j] > 0
-                                    ):
+                                    ):  # noqa: E124
                                 nroots[j] += 1
                         else:
                             nroots[j] += 1
@@ -1009,7 +1010,7 @@ class SMAC_GUI(QMainWindow):
 
     def add_root(self):
         freq, damp, corr = AddRootDialog.add_root(self)
-        if not freq is None:
+        if freq is not None:
             # add root to the table
             new_root = np.zeros((1,), dtype=self.rootlist.dtype)
             new_root['frequency'] = freq
@@ -1102,7 +1103,7 @@ class SMAC_GUI(QMainWindow):
         for reference_index, (matrix, peaklist) in enumerate(zip(self.initial_correlation[..., np.newaxis], peaklists)):
             for key in zip(*peaklist):
                 value = matrix[key]
-                if not key in root_index_list or root_index_list[key][0] < value:
+                if key not in root_index_list or root_index_list[key][0] < value:
                     root_index_list[key] = (value, reference_index)
         root_list = np.ndarray(len(root_index_list), dtype=[('frequency', 'float64'),
                                                             ('damping', 'float64'),
@@ -1180,7 +1181,7 @@ class SMAC_GUI(QMainWindow):
             pen = pyqtgraph.mkPen(color=[int(255 * v) for v in self.cm(0 % self.cm_mod)])
             self.mif_plot.plot(mif.abscissa, mif.ordinate)
         # Now plot the correlation coefficient
-        if not self.initial_correlation is None:
+        if self.initial_correlation is not None:
             for i, curve in enumerate(self.initial_correlation):
                 pen = pyqtgraph.mkPen(color=[int(255 * v) for v in self.cm(i % self.cm_mod)])
                 self.correlation_plot.plot(self.initial_correlation_frequencies, curve, pen=pen)

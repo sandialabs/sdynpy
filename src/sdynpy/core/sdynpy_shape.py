@@ -39,6 +39,9 @@ from ..fem.sdynpy_exodus import Exodus
 from ..fem.sdynpy_dof import by_condition_number, by_effective_independence
 from copy import deepcopy
 import pandas as pd
+from qtpy.QtWidgets import QDialog, QTableWidget, QDialogButtonBox, QVBoxLayout, QTableWidgetItem, QAbstractItemView
+from qtpy.QtCore import Qt
+import time
 
 
 class ShapeArray(sdynpy_array.SdynpyArray):
@@ -95,7 +98,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         """
         return [
             ('frequency', 'float64'),
-            ('damping', 'complex128'),
+            ('damping', 'float64'),
             ('coordinate', sdynpy_coordinate.CoordinateArray.data_dtype, (ndof,)),
             ('shape_matrix', 'complex128', (ndof,)),
             ('modal_mass', 'complex128'),
@@ -203,7 +206,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             return return_value
         else:
             output = super().__getitem__(key)
-            if isinstance(key,str) and key == 'coordinate':
+            if isinstance(key, str) and key == 'coordinate':
                 return output.view(sdynpy_coordinate.CoordinateArray)
             else:
                 return output
@@ -289,18 +292,34 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             else:
                 raise ValueError('Cannot handle shapes besides 3Dof and 6Dof')
             data_matrix = np.array([dataset.node_data_dictionary[key] for key in nodes]).flatten()
-            this_shape = shape_array(
-                coordinate=coordinates,
-                shape_matrix=data_matrix,
-                frequency=dataset.frequency,
-                damping=dataset.modal_viscous_damping,
-                modal_mass=dataset.modal_mass,
-                comment1=dataset.idline1,
-                comment2=dataset.idline2,
-                comment3=dataset.idline3,
-                comment4=dataset.idline4,
-                comment5=dataset.idline5,
-            )
+            if dataset.analysis_type == 2:
+                this_shape = shape_array(
+                    coordinate=coordinates,
+                    shape_matrix=data_matrix,
+                    frequency=dataset.frequency,
+                    damping=dataset.modal_viscous_damping,
+                    modal_mass=dataset.modal_mass,
+                    comment1=dataset.idline1,
+                    comment2=dataset.idline2,
+                    comment3=dataset.idline3,
+                    comment4=dataset.idline4,
+                    comment5=dataset.idline5,
+                )
+            elif dataset.analysis_type == 3:
+                this_shape = shape_array(
+                    coordinate=coordinates,
+                    shape_matrix=data_matrix,
+                    frequency=np.abs(dataset.eigenvalue)/(2*np.pi),
+                    damping=-np.real(dataset.eigenvalue)/np.abs(dataset.eigenvalue),
+                    modal_mass=dataset.modal_a,
+                    comment1=dataset.idline1,
+                    comment2=dataset.idline2,
+                    comment3=dataset.idline3,
+                    comment4=dataset.idline4,
+                    comment5=dataset.idline5,
+                )
+            else:
+                raise NotImplementedError('Analysis Type {:} for UFF Dataset 55 not implemented yet'.format(dataset.analysis_type))
             output_arrays.append(this_shape)
         if combine:
             output_arrays = np.concatenate([val[np.newaxis] for val in output_arrays])
@@ -356,7 +375,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             String denoting the nodal variable in the exodus file from which
             the Z-direction rotation should be read. The default is `None` which
             results in the Z-direction rotation not being read. Typically this
-            would be set to 'RotZ' if rotational values are desired.    
+            would be set to 'RotZ' if rotational values are desired.
         timesteps : iterable, optional
             A list of timesteps from which data should be read. The default is
             `None`, which reads all timesteps.
@@ -368,7 +387,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
 
         """
         if isinstance(exo, Exodus):
-            variables = [v for v in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot] if not v is None]
+            variables = [v for v in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot] if v is not None]
             exo = exo.load_into_memory(close=False, variables=variables, timesteps=None, blocks=[])
         node_ids = np.arange(
             exo.nodes.coordinates.shape[0]) + 1 if exo.nodes.node_num_map is None else exo.nodes.node_num_map
@@ -493,20 +512,20 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         damping_ratios = flat_self.damping
         angular_natural_frequencies = flat_self.frequency*2*np.pi
         angular_frequencies = frequencies*2*np.pi
-        response_shape_matrix = flat_self[responses] # nm x no
-        reference_shape_matrix = flat_self[references] # nm x ni
+        response_shape_matrix = flat_self[responses]  # nm x no
+        reference_shape_matrix = flat_self[references]  # nm x ni
         modal_mass = flat_self.modal_mass
         if self.is_complex():
             poles = -damping_ratios*angular_natural_frequencies + 1j*np.sqrt(1-damping_ratios**2)*angular_natural_frequencies
-            denominator = 1/(modal_mass*(1j*angular_frequencies[:,np.newaxis] - poles)) # nf x nm
-            denominator_conj = 1/(modal_mass*(1j*angular_frequencies[:,np.newaxis] - poles.conjugate())) # nf x nm
-            frf_ordinate = (np.einsum('mo,mi,fm->oif',response_shape_matrix,reference_shape_matrix,denominator) + 
-                            np.einsum('mo,mi,fm->oif',response_shape_matrix.conjugate(), reference_shape_matrix.conjugate(), denominator_conj))
+            denominator = 1/(modal_mass*(1j*angular_frequencies[:, np.newaxis] - poles))  # nf x nm
+            denominator_conj = 1/(modal_mass*(1j*angular_frequencies[:, np.newaxis] - poles.conjugate()))  # nf x nm
+            frf_ordinate = (np.einsum('mo,mi,fm->oif', response_shape_matrix, reference_shape_matrix, denominator) +
+                            np.einsum('mo,mi,fm->oif', response_shape_matrix.conjugate(), reference_shape_matrix.conjugate(), denominator_conj))
         else:
-            denominator = 1/(modal_mass*
-                             (-angular_frequencies[:,np.newaxis]**2
+            denominator = 1/(modal_mass *
+                             (-angular_frequencies[:, np.newaxis]**2
                               + angular_natural_frequencies**2
-                              + 2j*damping_ratios*angular_frequencies[:,np.newaxis]*angular_natural_frequencies))
+                              + 2j*damping_ratios*angular_frequencies[:, np.newaxis]*angular_natural_frequencies))
 
             frf_ordinate = np.einsum('mo,mi,fm->oif',
                                      response_shape_matrix,
@@ -519,7 +538,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         # Now package into a sdynpy array
         output_data = sdynpy_data.data_array(sdynpy_data.FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                                              frequencies, frf_ordinate,
-                                             sdynpy_coordinate.outer_product(responses,references))
+                                             sdynpy_coordinate.outer_product(responses, references))
 
         return output_data
 
@@ -530,7 +549,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         Parameters
         ----------
         nodelist_or_coordinate_array : iterable or CoordinateArray
-            Consists of either a list of node ids or a CoordinateArray.  The 
+            Consists of either a list of node ids or a CoordinateArray.  The
             ShapeArray will be reduced to only the degrees of freedom specified
 
         Returns
@@ -633,7 +652,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             return expanded_shapes
 
     def transform_coordinate_system(self, original_geometry, new_geometry, node_id_map=None, rotations=False,
-                                    missing_dofs_are_zero = False):
+                                    missing_dofs_are_zero=False):
         """
         Performs coordinate system transformations on the shape
 
@@ -663,7 +682,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             A ShapeArray that can now be plotted with the new geometry
 
         """
-        if not node_id_map is None:
+        if node_id_map is not None:
             original_geometry = original_geometry.reduce(node_id_map.from_ids)
             original_geometry.node.id = node_id_map(original_geometry.node.id)
             self = self.reduce(node_id_map.from_ids)
@@ -677,25 +696,25 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         if missing_dofs_are_zero:
             # Find any coordinates that are not in shapes
             shape_coords = np.unique(abs(self.coordinate))
-            coords_not_in_shape = coordinates[~np.isin(abs(coordinates),shape_coords)]
+            coords_not_in_shape = coordinates[~np.isin(abs(coordinates), shape_coords)]
             # Create a new shape array and set the coefficients to zero
             append_shape_matrix = np.zeros(self.shape+(coords_not_in_shape.size,),
                                            dtype=self.shape_matrix.dtype)
             # Create a shape
-            append_shape = shape_array(coords_not_in_shape,append_shape_matrix)
+            append_shape = shape_array(coords_not_in_shape, append_shape_matrix)
             # Append it
-            self = ShapeArray.concatenate_dofs((self,append_shape))
+            self = ShapeArray.concatenate_dofs((self, append_shape))
         shape_matrix = self[coordinates].reshape(*self.shape, *coordinates.shape)
         new_shape_matrix = np.einsum('nij,nkj,...nk->...ni', transform_to_new,
                                      transform_from_original, shape_matrix)
         return shape_array(coordinates.flatten(), new_shape_matrix.reshape(*self.shape, -1), self.frequency, self.damping, self.modal_mass,
                            self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
 
-    def reduce_for_comparison(self,comparison_shape, node_id_map = None):
-        if not node_id_map is None:
+    def reduce_for_comparison(self, comparison_shape, node_id_map=None):
+        if node_id_map is not None:
             self = self.reduce(node_id_map.from_ids)
             self.coordinate.node = node_id_map(self.coordinate.node)
-        common_dofs = np.intersect1d(abs(self.coordinate),abs(comparison_shape.coordinate))
+        common_dofs = np.intersect1d(abs(self.coordinate), abs(comparison_shape.coordinate))
         reduced_self = self.reduce(common_dofs)
         reduced_comparison = comparison_shape.reduce(common_dofs)
         return reduced_self, reduced_comparison
@@ -731,7 +750,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         ax.plot(self.frequency.flatten(), ys.flatten(), **plot_kwargs)
         return ax
 
-    def to_real(self, force_angle = -np.pi/4, **kwargs):
+    def to_real(self, force_angle=-np.pi/4, **kwargs):
         """
         Creates real shapes from complex shapes by collapsing the complexity
 
@@ -752,14 +771,85 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         """
         if not self.is_complex():
             return self.copy()
-        matrix = collapse_complex_to_real(self.shape_matrix, 
-                                          force_angle = force_angle,
+        matrix = collapse_complex_to_real(self.shape_matrix,
+                                          force_angle=force_angle,
                                           **kwargs)
-        damped_natural_frequency = (self.frequency*2*np.pi*np.sqrt(1-self.damping**2)).real[...,np.newaxis]
+        damped_natural_frequency = (self.frequency*2*np.pi*np.sqrt(1-self.damping**2)).real[..., np.newaxis]
         matrix *= np.sqrt(2*damped_natural_frequency)
         return shape_array(self.coordinate, matrix.real, self.frequency, self.damping.real,
                            self.modal_mass.real, self.comment1, self.comment2, self.comment3,
                            self.comment4, self.comment5)
+    
+    def to_complex(self):
+        """
+        Creates complex shapes from real shapes
+
+        Returns
+        -------
+        ShapeArray
+            Complex shapes compute from the real shape coefficients
+
+        """
+        if self.is_complex():
+            return self.copy()
+        matrix = self.shape_matrix-1j*self.shape_matrix
+        damped_natural_frequency = (self.frequency*2*np.pi*np.sqrt(1-self.damping**2)).real[..., np.newaxis]
+        matrix /= 2*np.sqrt(damped_natural_frequency)
+        return shape_array(self.coordinate, matrix, self.frequency, self.damping.real,
+                           self.modal_mass.real, self.comment1, self.comment2, self.comment3,
+                           self.comment4, self.comment5)
+    
+    def normalize(self,system_or_matrix, return_modal_matrix = False):
+        """
+        Computes A-normalized or mass-normalized shapes
+
+        Parameters
+        ----------
+        system_or_matrix : System or np.ndarray
+            A System object or a mass matrix for real modes or A-matrix for
+            complex modes.
+        return_modal_matrix : bool, optional
+            If true, it will return the modal mass or modal-A matrix computed
+            from the normalized mode shapes.  The default is False.
+
+        Returns
+        -------
+        ShapeArray
+            A copy of the original shape array with normalized shape coefficients
+
+        """
+        if self.is_complex():
+            if isinstance(system_or_matrix,sdynpy_system.System):
+                Z = np.zeros(system_or_matrix.M.shape)
+                A = np.block([[                 Z, system_or_matrix.M],
+                              [system_or_matrix.M, system_or_matrix.C]])
+                shapes = self[system_or_matrix.coordinate].T
+            else:
+                A = system_or_matrix
+                shapes = self.modeshape
+            omega_r = self.frequency*2*np.pi
+            zeta_r = self.damping
+            lam = -omega_r*zeta_r + 1j*omega_r*np.sqrt(1-zeta_r**2)
+            E = np.concatenate((lam*shapes,shapes),axis=-2)
+            scale_factors = 1/np.sqrt(np.einsum('ji,jk,ki->i',E,A,E))
+            if return_modal_matrix:
+                modal_matrix = np.einsum('ji,jk,kl->il',E*scale_factors,A,E*scale_factors)
+        else:
+            if isinstance(system_or_matrix,sdynpy_system.System):
+                M = system_or_matrix.M
+                shapes = self[system_or_matrix.coordinate].T
+            else:
+                M = system_or_matrix
+                shapes = self.modeshape
+            scale_factors = 1/np.sqrt(np.einsum('ji,jk,ki->i',shapes,M,shapes))
+            if return_modal_matrix:
+                modal_matrix = np.einsum('ji,jk,kl->il',shapes*scale_factors,M,shapes*scale_factors)
+        output_shape = self.copy()
+        output_shape *= scale_factors
+        if return_modal_matrix:
+            return output_shape, modal_matrix
+        else:
+            return output_shape
 
     def write_to_unv(self, filename, specific_data_type=12, load_case_number=0
                      ):
@@ -769,7 +859,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         Parameters
         ----------
         filename : str
-            Filename to which the geometry will be written.  If None, 
+            Filename to which the geometry will be written.  If None,
             unv data will be returned instead, similar to that
             obtained from the readunv function in sdynpy
         specific_data_type : int, optional
@@ -886,7 +976,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             ShapeArray
         color_override : iterable, optional
             An iterble of integers specifying colors, which will override the
-            existing geometry colors.  This should have the same length as the 
+            existing geometry colors.  This should have the same length as the
             `geometries` input.  The default is None, which keeps the original
             geometry colors.
 
@@ -941,9 +1031,9 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         Returns
         -------
         response_array : TimeHistoryArray
-            Input forces assembled into a TimeHistoryArray.
-        reference_array : TimeHistoryArray
             Responses assembled into a TimeHistoryArray.
+        reference_array : TimeHistoryArray
+            Input forces assembled into a TimeHistoryArray.
 
         """
         if self.is_complex():
@@ -969,14 +1059,16 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             response = phi_out @ modal_response
             response_array = sdynpy_data.data_array(sdynpy_data.FunctionTypes.TIME_RESPONSE,
                                                     times, response,
-                                                    sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis] if responses is None else np.atleast_1d(responses)[:, np.newaxis])
+                                                    sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis]
+                                                    if responses is None else np.atleast_1d(responses)[:, np.newaxis])
             reference_array = sdynpy_data.data_array(sdynpy_data.FunctionTypes.TIME_RESPONSE,
                                                      times, forces.reshape(-1, forces.shape[-1]),
-                                                     sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis] if references is None else np.atleast_1d(references)[:, np.newaxis])
+                                                     sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis]
+                                                     if references is None else np.atleast_1d(references)[:, np.newaxis])
             return response_array, reference_array
 
     def optimize_degrees_of_freedom(self, sensors_to_keep,
-                                    group_by_node = False, method = 'ei'):
+                                    group_by_node=False, method='ei'):
         """
         Creates a reduced set of shapes using optimal degrees of freedom
 
@@ -1001,11 +1093,11 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         if group_by_node:
             nodes = np.unique(self.coordinate.node)
             directions = np.unique(abs(self.coordinate).direction)
-            coordinate_array = sdynpy_coordinate.coordinate_array(nodes[:,np.newaxis],directions)
+            coordinate_array = sdynpy_coordinate.coordinate_array(nodes[:, np.newaxis], directions)
         else:
             coordinate_array = np.unique(abs(self.coordinate))
         shape_matrix = self[coordinate_array]
-        shape_matrix = np.moveaxis(shape_matrix,0,-1)
+        shape_matrix = np.moveaxis(shape_matrix, 0, -1)
         if method == 'ei':
             indices = by_effective_independence(sensors_to_keep, shape_matrix)
         elif method == 'cond':
@@ -1120,8 +1212,121 @@ class ShapeArray(sdynpy_array.SdynpyArray):
                 return df.to_csv(index=False)
             elif table_format.lower() == 'latex':
                 return df.to_latex(index=False)
+            
+    def edit_comments(self, geometry = None):
+        """
+        Opens up a table where the shape comments can be edited
+        
+        If a geometry is also passed, it will also open up a mode shape plotter
+        window where you can visualize the modes you are looking at.
+        
+        Edited comments will be stored back into the ShapeArray object when the
+        OK button is pressed.  Comments will not be stored if the Cancel button
+        is pressed.
 
+        Parameters
+        ----------
+        geometry : Geometry, optional
+            A geometry on which the shapes will be plotted.  If not specified,
+            a table will just open up.
 
+        Returns
+        -------
+        ShapeCommentTable
+            A ShapeCommentTable displaying the modal information where comments
+            can be edited.
+            
+        Notes
+        -----
+        Due to how Python handles garbage collection, the table may be
+        immediately closed if not assigned to a variable, as Python things it
+        is no longer in use.
+
+        """
+        if geometry is not None:
+            plotter = geometry.plot_shape(self)
+        return ShapeCommentTable(self, plotter)
+        
+class ShapeCommentTable(QDialog):
+    def __init__(self, shapes, plotter = None, parent = None):
+        """
+        Creates a table window that allows editing of comments on the mode
+        shapes.
+
+        Parameters
+        ----------
+        shapes : ShapeArray
+            The shapes for which the comments need to be modified.
+        plotter : ShapePlotter, optional
+            A shape plotter that is to be linked to the table.  It should have
+            the same modes used for the table plotted on it.  The plotter will
+            automatically update the mode being displayed as different rows of
+            the table are selected. If not specified, there will be no mode
+            shape display linked to the table.
+        parent : QWidget, optional
+            Parent widget for the window. The default is No parent.
+
+        Returns
+        -------
+        None.
+
+        """
+        super().__init__(parent)
+        # Add a table widget
+        self.setWindowTitle('Shape Comment Editor')
+        
+        self.plotter = plotter
+        self.shapes = shapes
+        
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        
+        self.layout = QVBoxLayout()
+        # Columns will be key, frequency, damping, comment1, comment2, ... comment5
+        self.mode_table = QTableWidget(shapes.size, 8)
+        self.mode_table.currentItemChanged.connect(self.update_mode)
+        self.mode_table.setHorizontalHeaderLabels(['Index','Frequency','Damping','Comment1','Comment2','Comment3','Comment4','Comment5'])
+        self.mode_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        for row,(shape_index,shape) in enumerate(shapes.ndenumerate()):
+            for column,value in enumerate([shape_index,shape.frequency,
+                                           shape.damping,
+                                           shape.comment1,
+                                           shape.comment2,
+                                           shape.comment3,
+                                           shape.comment4,
+                                           shape.comment5]):
+                if column == 1:
+                    item = QTableWidgetItem('{:0.2f}'.format(value))
+                elif column == 2:
+                    item = QTableWidgetItem('{:0.2f}%'.format(value*100))
+                else:
+                    item = QTableWidgetItem(str(value))
+                if column <= 2:
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                self.mode_table.setItem(row,column,item)
+        
+        self.layout.addWidget(self.mode_table)
+        self.layout.addWidget(self.button_box)
+        self.setLayout(self.layout)
+        
+        self.show()
+        
+    def update_mode(self):
+        row = self.mode_table.currentRow()
+        if self.plotter is not None:
+            self.plotter.current_shape = row
+            self.plotter.reset_shape()
+        
+    def accept(self):
+        for index,(shape_index,shape) in enumerate(self.shapes.ndenumerate()):
+            shape.comment1 = self.mode_table.item(index,3).text()
+            shape.comment2 = self.mode_table.item(index,4).text()
+            shape.comment3 = self.mode_table.item(index,5).text()
+            shape.comment4 = self.mode_table.item(index,6).text()
+            shape.comment5 = self.mode_table.item(index,7).text()
+        super().accept()
+    
 #    def string_array(self):
 #        return create_coordinate_string_array(self.node,self.direction)
 #
@@ -1221,7 +1426,7 @@ def shape_array(coordinate=None, shape_matrix=None, frequency=1.0, damping=0.0, 
         'comment5',
     ]
     data = {}
-    if not structured_array is None:
+    if structured_array is not None:
         for key in keys:
             try:
                 data[key] = structured_array[key]
@@ -1306,7 +1511,7 @@ def rigid_body_error(geometry, rigid_shapes, **rigid_shape_kwargs):
 
 
 def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, distance_yscale=20, residuals_to_label=5,
-                     return_shape_diagnostics=False, plot=True, **rigid_shape_kwargs):
+                     return_shape_diagnostics=False, plot=True, return_figures = False, **rigid_shape_kwargs):
     """
     Performs rigid body checks, both looking at the complex plane and residuals
 
@@ -1326,7 +1531,7 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
         Penalty factor applied to the complex portion of the shape when
         computing distances. The default is 20.
     residuals_to_label : int, optional
-        The top `residuals_to_label` residuals will be highlighted in the 
+        The top `residuals_to_label` residuals will be highlighted in the
         residual plots. The default is 5.
     return_shape_diagnostics : True, optional
         If True, additional outputs are returned to help diagnose issues. The
@@ -1342,13 +1547,13 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
     suspicious_channels : CoordinateArray
         A set of suspicous channels that should be investigated
     analytic_rigid_shapes : ShapeArray
-        Rigid body shapes created from the geometry.  Only returned if 
+        Rigid body shapes created from the geometry.  Only returned if
         return_shape_diagnostics is True
     residual : np.ndarray
         Values of the residuals at coordinates np.unique(rigid_shapes.coordinate).
         Only returned if return_shape_diagnostics is True
     shape_matrix_exp : np.ndarray
-        The shape matrix of the supplied rigid shapes.  Only returned if 
+        The shape matrix of the supplied rigid shapes.  Only returned if
         return_shape_diagnostics is True
 
     """
@@ -1360,6 +1565,7 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
     residual = np.abs(shape_matrix_exp - projection)
     suspicious_channels = []
     # Plot the complex plane for each shape
+    figs = []
     if plot:
         for i, (shape, data) in enumerate(zip(rigid_shapes, shape_matrix_exp.T)):
             fig, ax = plt.subplots(num='Shape {:} Complex Plane'.format(
@@ -1375,11 +1581,13 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
             for outlier in outliers:
                 ax.text(data[outlier].real, data[outlier].imag, str(coordinates[outlier]))
                 suspicious_channels.append(coordinates[outlier])
+            figs.append(fig)
     # Now plot the residuals
     residual_order = np.argsort(np.max(residual, axis=-1))
     if plot:
         fig, ax = plt.subplots(num='Projection Residuals')
         ax.plot(residual, 'x')
+        figs.append(fig)
     for i in range(residuals_to_label):
         index = residual_order[-1 - i]
         if plot:
@@ -1389,10 +1597,15 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
         # ax.set_yscale('log')
         ax.set_ylabel('Residual')
         ax.set_xlabel('Degree of Freedom')
+    return_object = (np.array(suspicious_channels).view(sdynpy_coordinate.CoordinateArray),)
     if return_shape_diagnostics:
-        return np.array(suspicious_channels).view(sdynpy_coordinate.CoordinateArray), true_rigid_shapes, residual, shape_matrix_exp
+        return_object = return_object + (true_rigid_shapes, residual, shape_matrix_exp)
+    if return_figures:
+        return_object = return_object + tuple(figs)
+    if len(return_object) == 1:
+        return return_object[0]
     else:
-        return np.array(suspicious_channels).view(sdynpy_coordinate.CoordinateArray)
+        return return_object
 
 
 def rigid_body_fix_node_orientation(geometry, rigid_shapes, suspect_nodes, new_cs_ids=None, gtol=1e-8, xtol=1e-8):
@@ -1437,7 +1650,7 @@ def rigid_body_fix_node_orientation(geometry, rigid_shapes, suspect_nodes, new_c
     # Loop through all suspect nodes
     for i, node in enumerate(suspect_nodes):
         keep_nodes = [val for val in np.unique(geometry.node.id) if (
-            not val in suspect_nodes) or (val == node)]
+            val not in suspect_nodes) or (val == node)]
         error_geometry = geometry.reduce(keep_nodes)
         error_shapes = rigid_shapes.reduce(keep_nodes)
 
@@ -1564,7 +1777,7 @@ def shape_comparison_table(shape_1, shape_2, frequency_format='{:0.2f}',
     freq_table_format = '{{:>{:}}}'.format(freq_size + spacing)
     mac_table_format = '{{:>{:}}}'.format(mac_size + spacing)
     freqerr_table_format = '{{:>{:}}}'.format(freqerr_size + spacing)
-    if not damping_format is None:
+    if damping_format is not None:
         damping_strings_1 = ['Damp 1'] + [damping_format.format(shape.damping * 100)
                                           for shape in shape_1]
         damping_strings_2 = ['Damp 2'] + [damping_format.format(shape.damping * 100)
@@ -1588,7 +1801,7 @@ def shape_comparison_table(shape_1, shape_2, frequency_format='{:0.2f}',
         separator_string = '|'
         lineend_string = '|\n'
         linebegin_string = '|'
-        if not damping_format is None:
+        if damping_format is not None:
             header_separator_string = lineend_string + linebegin_string + separator_string.join(['-' * (length + spacing) for length in [
                 index_size, freq_size, freq_size, freqerr_size,
                 damp_size, damp_size, damperr_size, mac_size]]) + lineend_string
@@ -1596,11 +1809,11 @@ def shape_comparison_table(shape_1, shape_2, frequency_format='{:0.2f}',
             header_separator_string = lineend_string + linebegin_string + separator_string.join(['-' * (length + spacing) for length in [
                 index_size, freq_size, freq_size, freqerr_size, mac_size]]) + lineend_string
     elif table_format.lower() == 'latex':
-        if not damping_format is None:
+        if damping_format is not None:
             table_begin_string = '\\begin{tabular}{rrrrrrrr}\n'
         else:
             table_begin_string = '\\begin{tabular}{rrrrr}\n'
-        table_end_string = '\end{tabular}'
+        table_end_string = r'\end{tabular}'
         separator_string = ' & '
         lineend_string = '\\\\\n'
         linebegin_string = '    '
@@ -1608,7 +1821,7 @@ def shape_comparison_table(shape_1, shape_2, frequency_format='{:0.2f}',
     else:
         raise ValueError("Invalid table_format.  Must be one of ['text','markdown','latex'].")
     output_string = table_begin_string
-    if not damping_format is None:
+    if damping_format is not None:
         for i, (ind, f1, f2, d1, d2, fe, de, m) in enumerate(zip(
                 index_strings, frequency_strings_1, frequency_strings_2,
                 damping_strings_1, damping_strings_2, freq_error_strings,

@@ -75,6 +75,8 @@ class Sdynpy_UFF_Dataset_1858:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         #       Record 1:     FORMAT(6I12)
         #              Field 1       - Set record number
         #              Field 2       - Octave format

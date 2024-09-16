@@ -445,7 +445,7 @@ Fitting Modes to the FRFs
 -------------------------
 
 Now that we have data and geometry, we can perform experimental modal analysis.
-We will fit modes both with SMAC and PolyMax.  First we will do SMAC, so we can
+We will fit modes both with SMAC and PolyPy.  First we will do SMAC, so we can
 call :py:class:`sdpy.SMAC_GUI<sdynpy.modal.sdynpy_smac.SMAC_GUI>` in the
 IPython console to load the GUI.
 
@@ -508,39 +508,39 @@ The MAC can also be plotted to visualize the independence of the shapes.
 Shapes are saved to the file :code:`'rattlesnake_test_shapes_smac.npy'` so they
 can be loaded into the script without re-running SMAC.
 
-Similarly, PolyMax can be run by calling the :py:class:`sdpy.PolyMax_GUI<sdynpy.modal.sdynpy_polymax.PolyMax_GUI>`
+Similarly, PolyPy can be run by calling the :py:class:`sdpy.PolyPy_GUI<sdynpy.modal.sdynpy_polypy.PolyPy_GUI>`
 class from the IPython console.
 
 .. code-block:: console
 
-    In [13]: sdynpy.PolyMax_GUI(frfs)
-    Out[13]: <sdynpy.modal.sdynpy_polymax.PolyMax_GUI at 0x14fff4c5d30>
+    In [13]: sdynpy.PolyPy_GUI(frfs)
+    Out[13]: <sdynpy.modal.sdynpy_polypy.PolyPy_GUI at 0x14fff4c5d30>
     
-The first page of the SDynPy PolyMax implementation allows users to select the
+The first page of the SDynPy PolyPy implementation allows users to select the
 frequency range of the analysis.  Also selected is the number of poles to use
 in the polynomial fitter.
 
-.. image:: figures/sdynpy_demo_polymax_setup.png
+.. image:: figures/sdynpy_demo_polypy_setup.png
   :width: 600
-  :alt: Initial setup for PolyMax frequency range
+  :alt: Initial setup for PolyPy frequency range
   
 Once the poles are solved, a stability plot is presented.  The user can click
 on individual icons on the stability plot to select given poles to use in the
 resynthesis.
 
-.. image:: figures/sdynpy_demo_polymax_stability_plot.png
+.. image:: figures/sdynpy_demo_polypy_stability_plot.png
   :width: 600
-  :alt: PolyMax stability plot
+  :alt: PolyPy stability plot
   
 With the poles selected, shapes can be computed.  Resynthesized FRFs are plotted
 for the user to investigate.
 
-.. image:: figures/sdynpy_demo_polymax_resynthesize.png
+.. image:: figures/sdynpy_demo_polypy_resynthesize.png
   :width: 600
-  :alt: PolyMax resynthesis
+  :alt: PolyPy resynthesis
   
-Shapes are saved to the file :code:`'rattlesnake_test_shapes_polymax.npy'` so they
-can be loaded into the script without re-running PolyMax.
+Shapes are saved to the file :code:`'rattlesnake_test_shapes_polypy.npy'` so they
+can be loaded into the script without re-running PolyPy.
 
 Analyzing Modal Parameters
 --------------------------
@@ -553,7 +553,7 @@ shape files into our script for analysis using the
 
     # Load the shape files from our curve fitting into the script
     test_shapes_smac = sdpy.shape.load('rattlesnake_test_shapes_smac.npy')
-    test_shapes_polymax = sdpy.shape.load('rattlesnake_test_shapes_smac.npy')
+    test_shapes_polypy = sdpy.shape.load('rattlesnake_test_shapes_smac.npy')
     
 We also want to extract finite element shapes from the Exodus file using the
 :py:func:`sdpy.shape.from_exodus<sdynpy.core.sdynpy_shape.ShapeArray.from_exodus>`
@@ -584,7 +584,7 @@ finite element shapes reduced to the test degrees of freedom.
     response_dofs = test_shapes_smac[0].coordinate
     # Can extract a shape matrix by indexing the shape arrays with a CoordinateArray
     test_shape_matrix_smac = test_shapes_smac[response_dofs].T
-    test_shape_matrix_polymax = test_shapes_smac[response_dofs].T
+    test_shape_matrix_polypy = test_shapes_smac[response_dofs].T
     test_shape_matrix_fem = fem_shapes[response_dofs].T
     # Create an actual ShapeArray object
     fem_shapes_reduced = sdpy.shape_array(response_dofs,
@@ -601,11 +601,11 @@ function that provides a nice visualization of the Modal Assurance Criterion mat
 .. code-block:: python
 
     # Look at correlation between shapes from different tests/analyses
-    mac_smac_polymax = sdpy.correlation.mac(test_shape_matrix_smac,test_shape_matrix_polymax)
+    mac_smac_polypy = sdpy.correlation.mac(test_shape_matrix_smac,test_shape_matrix_polypy)
     mac_smac_fem = sdpy.correlation.mac(test_shape_matrix_smac,test_shape_matrix_fem)
-    mac_polymax_fem = sdpy.correlation.mac(test_shape_matrix_polymax,test_shape_matrix_fem)
+    mac_polypy_fem = sdpy.correlation.mac(test_shape_matrix_polypy,test_shape_matrix_fem)
     # Plot the mac matrix between the 
-    sdpy.correlation.matrix_plot(mac_polymax_fem)
+    sdpy.correlation.matrix_plot(mac_polypy_fem)
 
 .. image:: figures/sdynpy_demo_mac_test_fem.png
   :width: 600
@@ -625,11 +625,11 @@ of the first mode to a :code:`.gif` file.
 
     # Compare shapes by overlaying them
     # Find the best match in the FEM to each of the test shapes
-    fem_matches = np.argmax(mac_polymax_fem,axis=1)
+    fem_matches = np.argmax(mac_polypy_fem,axis=1)
     # Overlay the shapes and geometry
     combined_geometry,combined_shapes = sdpy.shape.overlay_shapes(
         (test_geometry,test_geometry),
-        (test_shapes_polymax,fem_shapes_reduced[fem_matches]),
+        (test_shapes_polypy,fem_shapes_reduced[fem_matches]),
         color_override=[1,11])
     # Plot the shapes to set up the animation
     geometry_kwargs = {'view_up':[0,1,0],'line_width':5,'node_size':8}
@@ -679,7 +679,7 @@ slide that does not have a subtitle placeholder on it.
                                   title='BARC Modal with Rattlesnake',
                                   subtitle='A SDynPy Demonstration',
                                   geometry = test_geometry,
-                                  shapes = test_shapes_polymax,
+                                  shapes = test_shapes_polypy,
                                   frfs=frfs,
                                   geometry_plot_kwargs = geometry_kwargs,
                                   content_slide_layout_index=2,
@@ -724,7 +724,7 @@ to allow animation of the shapes inside the exported PDF.
     sdpy.doc.create_latex_summary(
         figure_basename='figures/rattlesnake_test.png', 
         geometry = test_geometry, 
-        shapes = test_shapes_polymax, 
+        shapes = test_shapes_polypy, 
         frfs = frfs,
         output_file = 'rattlesnake_test_memo_content.tex',
         geometry_plot_kwargs = geometry_kwargs)
@@ -798,7 +798,7 @@ shapes should be included in the expansion.
 
 .. code-block:: python
 
-    q = np.linalg.lstsq(test_shape_matrix_fem[:,:14],test_shape_matrix_polymax)[0]
+    q = np.linalg.lstsq(test_shape_matrix_fem[:,:14],test_shape_matrix_polypy)[0]
 
 We then want to multiply this coefficient by the full finite element shapes to
 estimate what the test shapes would look like in the full finite element space.
@@ -824,7 +824,7 @@ us to fill that information in with the test frequencies.
     # Linearly combine the existing shapes into new shapes
     fexo_repack = fexo.repack(q)
     # Fill in the abscissa data (frequencies in this case)
-    fexo_repack.time = test_shapes_polymax.frequency
+    fexo_repack.time = test_shapes_polypy.frequency
     
 If we want to plot the new shapes in SDynPy, we could load the shapes back into
 a :py:class:`sdpy.ShapeArray<sdynpy.core.sdynpy_shape.ShapeArray>` object, and
@@ -834,11 +834,11 @@ even combine with the finite element shapes for comparison.
 
     # Plot expanded shapes against finite element shapes
     # Load shapes into sdynpy ShapeArray object
-    expanded_shapes_polymax = sdpy.shape.from_exodus(fexo_repack)
+    expanded_shapes_polypy = sdpy.shape.from_exodus(fexo_repack)
     # combine the shapes
     combined_expanded_geometry,combined_expanded_shapes = sdpy.shape.overlay_shapes(
         (fem_geometry,fem_geometry),
-        (expanded_shapes_polymax,fem_shapes[fem_matches]),color_override=[1,11])
+        (expanded_shapes_polypy,fem_shapes[fem_matches]),color_override=[1,11])
     # Plot the shapes overlaid
     plotter = combined_expanded_geometry.plot_shape(
         combined_expanded_shapes,{'view_up':[0,1,0],'node_size':0},
@@ -855,11 +855,11 @@ to visualize in external software.
 .. code-block:: python
 
     # Create an ExodusInMemory object from sdynpy objects
-    fexo_out = sdpy.ExodusInMemory.from_sdynpy(test_geometry,test_shapes_polymax)
+    fexo_out = sdpy.ExodusInMemory.from_sdynpy(test_geometry,test_shapes_polypy)
     # Write it to a file
     fexo_out.write_to_file('rattlesnake_test_output.exo',clobber=True)
     # Repeat with the expanded data
-    fexo_out = sdpy.ExodusInMemory.from_sdynpy(fem_geometry,expanded_shapes_polymax)
+    fexo_out = sdpy.ExodusInMemory.from_sdynpy(fem_geometry,expanded_shapes_polypy)
     fexo_out.write_to_file('rattlesnake_test_output_expanded.exo',clobber=True)
 
 The Exodus files can then be loaded into an external software such as Paraview

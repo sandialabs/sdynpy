@@ -2,7 +2,7 @@
 """
 Interface to the universal file format (UFF).
 
-Using the functions in this module, one can read and write unv files.  
+Using the functions in this module, one can read and write unv files.
 
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import numpy as np
 
 class UFFReadError(Exception):
     """Exception to be used when there is an error reading a UNV file"""
@@ -157,7 +158,7 @@ def write_uff_line(data, format_specs, fill_line=True):
     """
     write_number = len(data)
     non_X_format_specs = [
-        format_spec for format_spec in format_specs if not 'X' in format_spec.upper()]
+        format_spec for format_spec in format_specs if 'X' not in format_spec.upper()]
     copies = int((write_number - 1) // len(non_X_format_specs) + 1)
     format_specs = (copies * (format_specs + ['\n']))
     line = ''
@@ -187,7 +188,7 @@ def write_uff_line(data, format_specs, fill_line=True):
             break
     if fill_line:
         lines = line.split('\n')
-        line = '\n'.join('{:<80s}'.format(l) for l in lines) + '\n'
+        line = '\n'.join('{:<80s}'.format(this_line) for this_line in lines) + '\n'
     return line
 
 
@@ -195,16 +196,16 @@ def write_uff_line(data, format_specs, fill_line=True):
 # and write command, import it here, then add it to the dataset dictionary
 # using the dataset number as the key.
 
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_55 as dataset_55
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_58 as dataset_58
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_82 as dataset_82
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_151 as dataset_151
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_164 as dataset_164
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_1858 as dataset_1858
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_2400 as dataset_2400
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_2411 as dataset_2411
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_2412 as dataset_2412
-from .sdynpy_uff_datasets import sdynpy_uff_dataset_2420 as dataset_2420
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_55 as dataset_55  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_58 as dataset_58  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_82 as dataset_82  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_151 as dataset_151  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_164 as dataset_164  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_1858 as dataset_1858  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_2400 as dataset_2400  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_2411 as dataset_2411  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_2412 as dataset_2412  # noqa: E402
+from .sdynpy_uff_datasets import sdynpy_uff_dataset_2420 as dataset_2420  # noqa: E402
 
 dataset_dict = {55: dataset_55,
                 58: dataset_58,
@@ -218,6 +219,7 @@ dataset_dict = {55: dataset_55,
                 2420: dataset_2420}
 
 
+
 def readuff(filename, datasets=None, verbose=False):
     """
     Read a universal file
@@ -227,7 +229,7 @@ def readuff(filename, datasets=None, verbose=False):
     filename : str
         Path to the file that should be read.
     datasets : iterable, optional
-        List of dataset numbers to read. The default is None.
+        List of dataset id numbers to read. The default is None.
     verbose : bool, optional
         Output extra information when reading the file. The default is False.
 
@@ -244,22 +246,22 @@ def readuff(filename, datasets=None, verbose=False):
 
     """
     return_dict = {}
-    with open(filename) as f:
-        line = '\n'
+    with open(filename, 'rb') as f:
+        line = b'\n'
         line_num = 0
         dataset_line_num = 0
         # Loop through the file until it is at its end
-        while line != '':
+        while line != b'':
             # Find the first delimiter line
             # Here we want to find a line that has -1 in the 5th and 6th column,
             # and make sure that -1 isn't the only thing in the line to make sure
             # that any comments at the start of the file don't accidentally line up
-            while not line[4:6] == '-1' and not line.strip() == '-1':
+            while not line[4:6] == b'-1' and not line.strip() == b'-1':
                 line = f.readline()
                 line_num += 1
-                if line == '':
+                if line == b'':
                     break
-            if line == '':
+            if line == b'':
                 break
             dataset_line_num = line_num
             # Load in the dataset specifier
@@ -267,8 +269,16 @@ def readuff(filename, datasets=None, verbose=False):
             line_num += 1
             try:
                 # Make sure that we can convert it to an integer
-                dataset = int(line)
-            except ValueError:
+                (dataset, b, byte_ordering, floating_point_format,
+                 num_ascii_lines_following, num_bytes_following, *not_used) = parse_uff_line(
+                     line.decode(), ['I6', 'A1', 'I6', 'I6', 'I12', 'I12', 'I6', 'I6', 'I12', 'I12'])
+                is_binary = b is not None
+                if is_binary:
+                    if byte_ordering is None:
+                        byte_ordering = 1
+                    if num_ascii_lines_following is None:
+                        num_ascii_lines_following = 11
+            except UFFReadError:
                 raise UFFReadError(
                     'Improperly formatted dataset specification at line {}, {}'.format(line_num, line))
             if verbose:
@@ -278,25 +288,27 @@ def readuff(filename, datasets=None, verbose=False):
             line_num += 1
             data = []
             # Loop through the file until we find the delimiter
-            while not line[4:6] == '-1' and not line.strip() == '-1':
+            while (not (not is_binary and line[4:6] == b'-1' and line.strip() == b'-1')
+                   and
+                   not (is_binary and line.rstrip()[-6:] == b'    -1' and line_num - dataset_line_num - 1 > num_ascii_lines_following)):
                 data.append(line)
                 line = f.readline()
                 line_num += 1
                 if line == '':
                     raise UFFReadError(
                         'File ended before dataset starting at line {} was ended.'.format(dataset_line_num))
+                if is_binary and line.rstrip()[-6:] == b'    -1' and line_num - dataset_line_num - 1 > num_ascii_lines_following:
+                    data.append(line.rstrip()[:-6])
             try:
                 read_fn = dataset_dict[dataset].read
-            except KeyError as e:
-                #                raise e
+            except KeyError:
                 print('Dataset {} at line {} is not implemented, skipping...'.format(
                     dataset, dataset_line_num))
                 # Read the next line in preparation for the next loop of the script
                 line = f.readline()
                 line_num += 1
                 continue
-            except AttributeError as e:
-                #                raise e
+            except AttributeError:
                 print('Dataset {} at line {} read function is not implemented, skipping...'.format(
                     dataset, dataset_line_num))
                 # Read the next line in preparation for the next loop of the script
@@ -309,7 +321,12 @@ def readuff(filename, datasets=None, verbose=False):
                 line = f.readline()
                 line_num += 1
                 continue
-            dataset_obj = read_fn(data)
+            if is_binary:
+                dataset_obj = read_fn(data, is_binary, byte_ordering,
+                                      floating_point_format, num_ascii_lines_following,
+                                      num_bytes_following)
+            else:
+                dataset_obj = read_fn(data)
             if isinstance(dataset_obj, UFFReadError):
                 raise UFFReadError('In dataset starting at line {}, {}'.format(
                     dataset_line_num, dataset_obj.value))
@@ -320,6 +337,7 @@ def readuff(filename, datasets=None, verbose=False):
             # Read the next line in preparation for the next loop of the script
             line = f.readline()
             line_num += 1
+
     return return_dict
 
 

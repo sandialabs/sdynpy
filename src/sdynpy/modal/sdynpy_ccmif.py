@@ -36,12 +36,12 @@ from qtpy import QtWidgets, uic, QtGui
 from qtpy.QtGui import QIcon, QFont
 from qtpy.QtCore import Qt, QCoreApplication, QRect
 from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
-                             QGroupBox, QWidget, QMessageBox, QHBoxLayout,
-                             QVBoxLayout, QSizePolicy, QMainWindow,
-                             QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
-                             QLineEdit,
-                             QDockWidget, QGridLayout, QButtonGroup, QDialog,
-                             QCheckBox, QRadioButton, QMenuBar, QMenu)
+                            QGroupBox, QWidget, QMessageBox, QHBoxLayout,
+                            QVBoxLayout, QSizePolicy, QMainWindow,
+                            QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
+                            QLineEdit,
+                            QDockWidget, QGridLayout, QButtonGroup, QDialog,
+                            QCheckBox, QRadioButton, QMenuBar, QMenu)
 try:
     from qtpy.QtGui import QAction
 except ImportError:
@@ -184,7 +184,7 @@ class ColoredCMIF(QMainWindow):
             item.setSelected(not item.isSelected())
             self.set_properties(file_index, shape_index)
             self.update_shape_list(no_load=True)
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
 
     def set_properties(self, file_index, shape_index):
@@ -283,7 +283,7 @@ class ColoredCMIF(QMainWindow):
                 frf = file_data['frfs'].view(TransferFunctionArray).reshape_to_matrix()
                 shapes = file_data['shapes'].view(ShapeArray).flatten()
                 # Check sizes of things
-                if (not self.frf_array is None) and (self.frf_array.size > 0):
+                if (self.frf_array is not None) and (self.frf_array.size > 0):
                     if (np.setdiff1d(frf.response_coordinate, self.frf_array.response_coordinate).size > 0 or
                             np.setdiff1d(self.frf_array.response_coordinate, frf.response_coordinate).size > 0):
                         QMessageBox.critical(self, 'Bad Response Data',
@@ -322,7 +322,7 @@ class ColoredCMIF(QMainWindow):
                 self.file_selector.blockSignals(False)
                 self.update_shape_list()
                 self.compute_and_plot_ccmif()
-            except Exception as e:
+            except Exception:
                 print(traceback.format_exc())
 
     def plot_ccmif(self):

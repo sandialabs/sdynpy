@@ -57,7 +57,8 @@ setup(
         "pyvista",
         "pyvistaqt",
         "openpyxl",
-        "vtk"
+        "vtk",
+        "joblib"
     ],
     python_requires='>=3.8',
     extras_require={
@@ -72,6 +73,7 @@ setup(
                 'sphinx-rtd-theme', 'sphinxcontrib-bibtex']},
     classifiers=['Natural Language :: English',
                  'Operating System :: Microsoft :: Windows :: Windows 10',
+                 'Operating System :: Microsoft :: Windows :: Windows 11',
                  'Operating System :: MacOS :: MacOS X',
                  'Operating System :: POSIX :: Linux',
                  'Programming Language :: Python :: 3.8',

@@ -64,7 +64,7 @@ def MCK_to_StateSpace(M, C, K):
 def MCK_incomplete_to_StateSpace(M, C, K, massless_dofs=[]):
     nomass = len(massless_dofs)
     mass = M.shape[0] - nomass
-    mass_dofs = np.array([v for v in range(M.shape[0]) if not v in massless_dofs])
+    mass_dofs = np.array([v for v in range(M.shape[0]) if v not in massless_dofs])
     massless_dofs = np.array(massless_dofs)
 
     Kmm = K[mass_dofs[:, np.newaxis], mass_dofs]

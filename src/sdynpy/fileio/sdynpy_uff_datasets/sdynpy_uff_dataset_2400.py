@@ -79,6 +79,8 @@ class Sdynpy_UFF_Dataset_2400:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         # Record 1: FORMAT(I12,2I6,I12)
         #                 Field 1       -- Model UID
         #                 Field 2       -- Entity type

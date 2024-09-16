@@ -24,12 +24,12 @@ def test_parse_coordinate_string(string,node,direction):
     assert sdpy.coordinate.parse_coordinate_string(string) == (node,direction)
     
 def test_parse_coordinate_string_invalid_node():
-    with pytest.raises(ValueError):
-        sdpy.coordinate.parse_coordinate_string('X+')
+    coord = sdpy.coordinate.parse_coordinate_string('X+')
+    assert coord[0] == 0
 
 def test_parse_coordinate_string_invalid_direction():
-    with pytest.raises(KeyError):
-        sdpy.coordinate.parse_coordinate_string('201Q')
+    coord = sdpy.coordinate.parse_coordinate_string('201Q')
+    assert coord[1] == 0
     
 def test_parse_coordinate_string_vectorized():
     string_array = [['101X+','101X-','101Z+'],

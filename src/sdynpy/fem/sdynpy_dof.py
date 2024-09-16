@@ -50,7 +50,7 @@ def by_condition_number(sensors_to_keep, shape_matrix, return_condition_numbers=
     -------
     indices : np.array
         A 1d array corresponding to the indices to keep in the first dimension
-        of the shape_matrix array (e.g. new_shape_matrix = 
+        of the shape_matrix array (e.g. new_shape_matrix =
         shape_matrix[incies,...])
     returned_condition_numbers : list
         The condition number at each iteration.  Returned only if
@@ -106,7 +106,7 @@ def by_effective_independence(sensors_to_keep, shape_matrix, return_efi=False):
     -------
     indices : np.array
         A 1d array corresponding to the indices to keep in the first dimension
-        of the shape_matrix array (e.g. new_shape_matrix = 
+        of the shape_matrix array (e.g. new_shape_matrix =
         shape_matrix[incies,...])
     returned_efi : list
         The effective independence at each iteration.  Returned only if

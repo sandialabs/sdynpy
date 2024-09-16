@@ -32,12 +32,12 @@ from qtpy import QtWidgets, uic, QtGui
 from qtpy.QtGui import QIcon, QFont
 from qtpy.QtCore import Qt, QCoreApplication, QRect
 from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
-                             QGroupBox, QWidget, QMessageBox, QHBoxLayout,
-                             QVBoxLayout, QSizePolicy, QMainWindow,
-                             QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
-                             QLineEdit,
-                             QDockWidget, QGridLayout, QButtonGroup, QDialog,
-                             QCheckBox, QRadioButton, QMenuBar, QMenu)
+                            QGroupBox, QWidget, QMessageBox, QHBoxLayout,
+                            QVBoxLayout, QSizePolicy, QMainWindow,
+                            QFileDialog, QErrorMessage, QListWidget, QListWidgetItem,
+                            QLineEdit,
+                            QDockWidget, QGridLayout, QButtonGroup, QDialog,
+                            QCheckBox, QRadioButton, QMenuBar, QMenu)
 try:
     from qtpy.QtGui import QAction
 except ImportError:
@@ -47,6 +47,7 @@ import pyqtgraph as pqtg
 import matplotlib.cm as cm
 from scipy.signal import get_window
 import traceback
+
 
 class SignalProcessingGUI(QMainWindow):
     """An iteractive window allowing users to compute FRFs"""
@@ -152,7 +153,7 @@ class SignalProcessingGUI(QMainWindow):
                        self.hysteresis_level_selector_references]:
             widget.setVisible(False)
         self.connect_callbacks()
-        if not time_history_array is None:
+        if time_history_array is not None:
             self.time_history_data = time_history_array.flatten()
             self.initialize_ui()
         self.setWindowTitle('Graphical Signal Processing Tool')
@@ -681,7 +682,7 @@ class SignalProcessingGUI(QMainWindow):
             pen = pqtg.mkPen(color=[int(255 * v) for v in self.cm(j % self.cm_mod)])
             self.referencesPlot.plot(x=data_entry.abscissa,
                                      y=data_entry.ordinate, name=text, pen=pen)
-        if not xrange is None:
+        if xrange is not None:
             self.referencesPlot.setXRange(*xrange, padding=0.0)
         self.referencesPlot.addItem(self.time_selector_references)
         self.referencesPlot.addItem(self.trigger_level_selector_references)
@@ -715,7 +716,7 @@ class SignalProcessingGUI(QMainWindow):
             # print(pen)
             self.responsesPlot.plot(x=data_entry.abscissa,
                                     y=data_entry.ordinate, name=text, pen=pen)
-        if not xrange is None:
+        if xrange is not None:
             self.responsesPlot.setXRange(*xrange, padding=0.0)
         self.responsesPlot.addItem(self.time_selector_responses)
         self.responsesPlot.addItem(self.trigger_level_selector_responses)
@@ -926,7 +927,7 @@ class SignalProcessingGUI(QMainWindow):
             frequency_spacing = self.frequencySpacingDoubleSpinBox.value()
             frame_size = self.frameSizeSpinBox.value()
             frame_indices = np.array([start_index for frame_number, start_index in enumerate(self.frame_start_indices)
-                                      if not frame_number in self.ignore_frames])[:, np.newaxis] + np.arange(frame_size)
+                                      if frame_number not in self.ignore_frames])[:, np.newaxis] + np.arange(frame_size)
             if frame_indices.shape[0] == 0:
                 QMessageBox.critical(self, 'Invalid Frames',
                                      'At least one measurement frame must be selected')
@@ -1009,7 +1010,7 @@ class SignalProcessingGUI(QMainWindow):
                     self.frf_data = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                                                freq, np.moveaxis(H, 0, -1), frf_coordinate)
                     success = True
-                elif self.frfComboBox.currentIndex() == 1: # H2
+                elif self.frfComboBox.currentIndex() == 1:  # H2
                     if (response_fft.shape != reference_fft.shape):
                         QMessageBox.critical(self, 'Bad FRF Shape',
                                              'For H2, Number of inputs must equal number of outputs')
@@ -1024,7 +1025,7 @@ class SignalProcessingGUI(QMainWindow):
                         self.frf_data = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                                                    freq, np.moveaxis(H, 0, -1), frf_coordinate)
                         success = True
-                elif self.frfComboBox.currentIndex() == 2: # H3
+                elif self.frfComboBox.currentIndex() == 2:  # H3
                     if (response_fft.shape != reference_fft.shape):
                         QMessageBox.critical(self, 'Bad FRF Shape',
                                              'For H3, Number of inputs must equal number of outputs')
@@ -1044,7 +1045,7 @@ class SignalProcessingGUI(QMainWindow):
                         self.frf_data = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                                                    freq, np.moveaxis(H, 0, -1), frf_coordinate)
                         success = True
-                elif self.frfComboBox.currentIndex() == 3: # Hv
+                elif self.frfComboBox.currentIndex() == 3:  # Hv
                     Gxx = np.einsum('...iaf,...iaf->...if', response_fft,
                                     np.conj(response_fft))[..., np.newaxis, np.newaxis]
                     Gxf = np.einsum('...iaf,...jaf->...ifj', response_fft,
@@ -1055,7 +1056,7 @@ class SignalProcessingGUI(QMainWindow):
                     # print(Gxf.shape)
                     # print(Gff.shape)
                     # Broadcast over all responses
-                    Gff = np.broadcast_to(Gff,Gxx.shape[:-2]+Gff.shape[-2:])
+                    Gff = np.broadcast_to(Gff, Gxx.shape[:-2]+Gff.shape[-2:])
                     Gffx = np.block([[Gff, np.conj(np.moveaxis(Gxf, -2, -1))],
                                      [Gxf, Gxx]])
                     # Compute eigenvalues

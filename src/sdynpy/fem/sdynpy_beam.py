@@ -216,11 +216,11 @@ def beamkm(node_coords, element_connectivity, bend_direction_1,
     return K, M
 
 
-'''        
+'''
 node_coords = np.array([np.linspace(0,1,10),
                          np.zeros(10),
                          np.zeros(10)]).T
-        
+
 element_connectivity = np.array([np.arange(0,9),np.arange(1,10)]).T
 
 bend_direction_1 = np.array([np.zeros(element_connectivity.shape[0]),np.zeros(element_connectivity.shape[0]),np.ones(element_connectivity.shape[0])]).T
@@ -285,11 +285,11 @@ def rect_beam_props(E, rho, nu, b, h=None, nelem=None):
     -----
     Steel : SI
         E = 200e9 # [N/m^2],
-        nu = 0.25 # [-], 
+        nu = 0.25 # [-],
         rho = 7850 # [kg/m^3]
     Aluminum : SI
-        E = 69e9 # [N/m^2], 
-        nu = 0.33 # [-], 
+        E = 69e9 # [N/m^2],
+        nu = 0.33 # [-],
         rho = 2830 # [kg/m^3]
     '''
     if h is None:
@@ -307,7 +307,7 @@ def rect_beam_props(E, rho, nu, b, h=None, nelem=None):
     return_dict['ei2'] = E * I2
     return_dict['mass_per_length'] = rho * A
     return_dict['tmmi_per_length'] = Ixx_per_L
-    if not nelem is None:
+    if nelem is not None:
         for key in return_dict:
             return_dict[key] = return_dict[key] * np.ones((nelem,), float)
     return return_dict

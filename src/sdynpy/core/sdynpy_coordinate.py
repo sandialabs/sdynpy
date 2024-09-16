@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
 from .sdynpy_array import SdynpyArray
+import warnings
 
 # This maps direction integers to their string counterparts
 _string_map = {1: 'X+', 2: 'Y+', 3: 'Z+', 4: 'RX+', 5: 'RY+', 6: 'RZ+',
@@ -71,8 +72,16 @@ def parse_coordinate_string(coordinate: str):
         'X-' = -1, 'Y-' = -2, 'Z-' = -3
 
     """
-    node = int(''.join(v for v in coordinate if v in '0123456789'))
-    direction = _direction_map[''.join(v for v in coordinate if not v in '0123456789')]
+    try:
+        node = int(''.join(v for v in coordinate if v in '0123456789'))
+    except ValueError:
+        warnings.warn('Node ID {:} is not Valid.  Defaulting to 0.'.format(''.join(v for v in coordinate if v in '0123456789')))
+        node = 0
+    try:
+        direction = _direction_map[''.join(v for v in coordinate if not v in '0123456789')]
+    except KeyError:
+        warnings.warn('Direction {:} is not Valid.  Defaulting to no direction.'.format(''.join(v for v in coordinate if not v in '0123456789')))
+        direction = 0
     return node, direction
 
 
@@ -138,7 +147,7 @@ class CoordinateArray(SdynpyArray):
     def direction_string_array(self):
         """
         Returns a string array representation of the direction
-        
+
         Returns
         -------
         np.ndarray
@@ -195,7 +204,7 @@ class CoordinateArray(SdynpyArray):
 
     def local_direction(self):
         """
-        Returns a local direction array 
+        Returns a local direction array
 
         Returns
         -------
@@ -218,6 +227,24 @@ class CoordinateArray(SdynpyArray):
         for key, index in np.ndenumerate(indices):
             if index != -1:
                 output[key + (index,)] = signs[key]
+        return output
+
+    def offset_node_ids(self, offset_value):
+        """
+        Returns a copy of the CoordinateArray with the node IDs offset
+
+        Parameters
+        ----------
+        offset_value : int
+            The value to offset the node IDs by.
+
+        Returns
+        -------
+        CoordinateArray
+
+        """
+        output = self.copy()
+        output.node += offset_value
         return output
 
     @classmethod
@@ -314,14 +341,14 @@ def coordinate_array(node=None, direction=None,
     coordinate_array : CoordinateArray
 
     """
-    if not structured_array is None:
+    if structured_array is not None:
         try:
             node = structured_array['node']
             direction = structured_array['direction']
         except (ValueError, TypeError):
             raise ValueError(
                 'structured_array must be numpy.ndarray with dtype names "node" and "direction"')
-    elif not string_array is None:
+    elif string_array is not None:
         string_array = np.array(string_array)
         node, direction = parse_coordinate_string_array(string_array)
     else:

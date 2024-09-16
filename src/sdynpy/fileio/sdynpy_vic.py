@@ -31,6 +31,7 @@ from time import time
 
 REPORT_TIME = 5
 
+
 def extract_vic_cal_parameters(z3d_file):
     """
     Extracts camera calibration parameters from a VIC3D .z3d file.
@@ -271,7 +272,7 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
     time_data_3D : TimeHistoryArray
         3D Displacement data from the test.  Only returned if read_3D is True.
     geometry_2D : Geometry
-        Geometry object consisting of the 2D (pixel) node positions from the 
+        Geometry object consisting of the 2D (pixel) node positions from the
         test.  Only returned if read_2D is True
     time_data_2D : TimeHistoryArray
         2D Pixel Displacement data from the test.  Only returned if read_2D is
@@ -282,7 +283,7 @@ def read_vic3D_mat_files(files, read_3D=True, read_2D=False, read_quality=False,
         positions over time for the right image.  Only returned if read_2D is
         True.
     sigma_data : TimeHistoryArray
-        Data quality metric for the test over time.  Only returned if 
+        Data quality metric for the test over time.  Only returned if
         read_quality is True
 
     """

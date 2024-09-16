@@ -169,10 +169,10 @@ def add_shape_overview_slide(presentation, shapes, title='Modal Parameters',
         pic.width = int(pic.height * ar)
         plt.close(fig)
 
-    if not exp_data is None:
+    if exp_data is not None:
         fig, ax = plt.subplots(1, 1, **subplots_kwargs)
         h1 = ax.plot(exp_data.abscissa.T, exp_data.ordinate.T, 'r', **plot_kwargs)
-        if not fit_data is None:
+        if fit_data is not None:
             h2 = ax.plot(fit_data.abscissa.T, fit_data.ordinate.T, 'b', **plot_kwargs)
             ax.legend([np.atleast_1d(h1)[0], np.atleast_1d(h2)[0]],
                       ['Experiment', 'Analytic Fit'])
@@ -279,9 +279,9 @@ def add_shape_comparison_overview_slide(presentation, shapes_1, shapes_2,
     # Plot the MAC matrix
     fig, ax = plt.subplots(1, 1, **mac_subplots_kwargs)
     matrix_plot(mac_matrix, ax, **matrix_plot_kwargs)
-    if not shapes_1_label is None:
+    if shapes_1_label is not None:
         ax.set_ylabel(shapes_1_label)
-    if not shapes_2_label is None:
+    if shapes_2_label is not None:
         ax.set_xlabel(shapes_2_label)
     fig.tight_layout()
     # Add a table for the mode shapes
@@ -413,9 +413,9 @@ def create_summary_pptx(presentation, title=None, subtitle='',
         prs = presentation
     else:
         prs = pptx.Presentation()
-        if not slide_width is None:
+        if slide_width is not None:
             prs.slide_width = Inches(slide_width)
-        if not slide_height is None:
+        if slide_height is not None:
             prs.slide_height = Inches(slide_height)
 
     def position_placeholder(placeholder, left=None, top=None, right=None, bottom=None):
@@ -445,7 +445,7 @@ def create_summary_pptx(presentation, title=None, subtitle='',
         placeholder.height = height
 
     # Add Title Slide
-    if not title is None:
+    if title is not None:
         title_slide_layout = prs.slide_layouts[title_slide_layout_index]
         slide = prs.slides.add_slide(title_slide_layout)
         slide.shapes.title.text = title
@@ -457,7 +457,7 @@ def create_summary_pptx(presentation, title=None, subtitle='',
     empty_slide = prs.slide_layouts[empty_slide_layout_index]
 
     # Plot the test geometry
-    if not geometry is None:
+    if geometry is not None:
         geometry_plot = geometry.plot(**geometry_plot_kwargs)[0]
         slide = prs.slides.add_slide(bullet_slide)
         text_placeholder = slide.placeholders[1]
@@ -485,10 +485,10 @@ def create_summary_pptx(presentation, title=None, subtitle='',
             p.level = 1
 
     # Plot the list of shapes
-    if not shapes is None:
-        if not max_shapes is None:
+    if shapes is not None:
+        if max_shapes is not None:
             shapes = shapes.flatten()[:max_shapes]
-        if not max_frequency is None:
+        if max_frequency is not None:
             shapes = shapes.flatten()[shapes.flatten().frequency < max_frequency]
         slide = prs.slides.add_slide(empty_slide)
 
@@ -516,7 +516,7 @@ def create_summary_pptx(presentation, title=None, subtitle='',
             table.cell(i + 1, 2).text = damping_format.format(shape.damping * 100)
             table.cell(i + 1, 3).text = shape.comment1
 
-        if not analytic_cmif is None:
+        if analytic_cmif is not None:
             fig, ax = plt.subplots(1, 1, **subplots_kwargs)
             experimental_cmif.plot(ax, **plot_kwargs)
             analytic_cmif.plot(ax, **plot_kwargs)
@@ -535,7 +535,7 @@ def create_summary_pptx(presentation, title=None, subtitle='',
             pic.height = int(pic.width / ar)
 
         # Now we need to plot each shape if possible
-        if not geometry is None:
+        if geometry is not None:
             output_save_file = os.path.join(tempfile.gettempdir(),
                                             'Shape_{:}.gif')
             shapes_plot = geometry.plot_shape(shapes.flatten(), plot_kwargs=geometry_plot_kwargs)

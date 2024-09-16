@@ -17,8 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 from . import sdynpy_uff as uff
-unv = uff
-
 from . import sdynpy_rattlesnake as rattlesnake
 from . import sdynpy_vic as vic
 from . import sdynpy_tshaker as tshaker
+
+unv = uff

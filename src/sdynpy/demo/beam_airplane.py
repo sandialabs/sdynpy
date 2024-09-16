@@ -173,14 +173,14 @@ def create_models():
         )
 
     # Now let's create the full airplane
-    systems = [all_systems[name] for name in names if not name in ['transmission_simulator']]
-    geometries = [all_geometries[name] for name in names if not name in ['transmission_simulator']]
+    systems = [all_systems[name] for name in names if name not in ['transmission_simulator']]
+    geometries = [all_geometries[name] for name in names if name not in ['transmission_simulator']]
 
     full_system, full_geometry = _substructure_by_position(systems, geometries)
 
     # Now let's create the stubby airplane
-    systems = [all_systems[name] for name in names if not name in ['wing']]
-    geometries = [all_geometries[name] for name in names if not name in ['wing']]
+    systems = [all_systems[name] for name in names if name not in ['wing']]
+    geometries = [all_geometries[name] for name in names if name not in ['wing']]
 
     transmission_system, transmission_geometry = _substructure_by_position(systems, geometries)
 

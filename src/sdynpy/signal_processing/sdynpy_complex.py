@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 
 def collapse_complex_to_real(vector, axis=-1, preserve_magnitude=False, plot=False,
-                             force_angle = None):
+                             force_angle=None):
     x = np.real(vector)
     y = np.imag(vector)
     slope = np.sum(x * y, axis=axis, keepdims=True) / np.sum(x * x, axis=axis, keepdims=True)

@@ -60,7 +60,7 @@ def pseudorandom(fft_lines, f_nyq, signal_rms=1, min_freq=None, max_freq=None, f
         pseudorandom input, each frame will be a replica of the first.
     shape_function : function
         A shaping that can be applied to the signal per frequency line.  If
-        specified, it should be a function that takes in one argument (the 
+        specified, it should be a function that takes in one argument (the
         frequency in Hz) and returns a single argument (the amplitude of the
         sine wave at that frequency).
 
@@ -102,13 +102,13 @@ def pseudorandom(fft_lines, f_nyq, signal_rms=1, min_freq=None, max_freq=None, f
 def random(shape, n_samples, rms=1.0, dt=1.0,
            low_frequency_cutoff=None, high_frequency_cutoff=None):
     signal = np.random.randn(*shape, n_samples)
-    if (not low_frequency_cutoff is None) or (not high_frequency_cutoff is None):
+    if (low_frequency_cutoff is not None) or (high_frequency_cutoff is not None):
         freqs = np.fft.rfftfreq(n_samples, dt)
         signal_fft = np.fft.rfft(signal, axis=-1)
-        if not low_frequency_cutoff is None:
+        if low_frequency_cutoff is not None:
             zero_indices = freqs < low_frequency_cutoff
             signal_fft[..., zero_indices] = 0
-        if not high_frequency_cutoff is None:
+        if high_frequency_cutoff is not None:
             zero_indices = freqs > high_frequency_cutoff
             signal_fft[..., zero_indices] = 0
         signal = np.fft.irfft(signal_fft, axis=-1)
@@ -169,3 +169,116 @@ def pulse(signal_length, pulse_time, pulse_width, pulse_peak=1, dt=1, sine_expon
         argument = 2 * np.pi / period * (abscissa - time)
         signal += peak * np.cos(argument)**sine_exponent * (np.abs(argument) < np.pi / 2)
     return signal
+
+def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases = 0):
+    """
+    Generates a sweeping sine wave with linear or logarithmic sweep rate
+
+    Parameters
+    ----------
+    dt : float
+        The time step of the output signal
+    frequencies : iterable
+        A list of frequency breakpoints for the sweep.  Can be ascending or
+        decending or both.  Frequencies are specified in Hz, not rad/s.
+    sweep_rates : iterable
+        A list of sweep rates between the breakpoints.  This array should have
+        one fewer element than the `frequencies` array.  The ith element of this
+        array specifies the sweep rate between `frequencies[i]` and
+        `frequencies[i+1]`. For a linear sweep,
+        the rate is in Hz/s.  For a logarithmic sweep, the rate is in octave/s.
+    sweep_types : iterable or str
+        The type of sweep to perform between each frequency breakpoint.  Can be
+        'lin' or 'log'.  If a string is specified, it will be used for all
+        breakpoints.  Otherwise it should be an array containing strings with
+        one fewer element than that of the `frequencies` array.
+    amplitudes : iterable or float, optional
+        Amplitude of the sine wave at each of the frequency breakpoints.  Can
+        be specified as a single floating point value, or as an array with a
+        value specified for each breakpoint. The default is 1.
+    phases : iterable or float, optional
+        Phases of the sine wave at each of the frequency breakpoints.  Can
+        be specified as a single floating point value, or as an array with a
+        value specified for each breakpoint. Be aware that modifying the phase
+        between breakpoints will effectively change the frequency of the signal,
+        because the phase will change over time.  The default is 0.
+
+    Raises
+    ------
+    ValueError
+        If the sweep rate and start and end frequency would result in a negative
+        sweep time, for example if the start frequency is above the end frequency
+        and a positive sweep rate is specified.
+
+    Returns
+    -------
+    ordinate : np.ndarray
+        A numpy array consisting of the generated sine sweep signal.  The length
+        of the signal will be determined by the frequency breakpoints and sweep
+        rates.
+
+    """
+    last_phase = 0
+    abscissa = []
+    ordinate = []
+    # Go through each section
+    for i in range(len(frequencies)-1):
+        # Extract the terms
+        start_frequency = frequencies[i]
+        end_frequency = frequencies[i+1]
+        omega_start = start_frequency*2*np.pi
+        try:
+            sweep_rate = sweep_rates[i]
+        except TypeError:
+            sweep_rate = sweep_rates
+        if isinstance(sweep_types,str):
+            sweep_type = sweep_types
+        else:
+            sweep_type = sweep_types[i]
+        try:
+            start_amplitude = amplitudes[i]
+            end_amplitude = amplitudes[i+1]
+        except TypeError:
+            start_amplitude = amplitudes
+            end_amplitude = amplitudes
+        try:
+            start_phase = phases[i]*np.pi/180
+            end_phase = phases[i-1]*np.pi/180
+        except TypeError:
+            start_phase = phases*np.pi/180
+            end_phase = phases*np.pi/180
+        # Compute the length of this portion of the signal
+        if sweep_type.lower() in ['lin','linear']:
+            sweep_time =+ (end_frequency-start_frequency)/sweep_rate
+        elif sweep_type.lower() in ['log','logarithmic']:
+            sweep_time = np.log(end_frequency/start_frequency)/(sweep_rate*np.log(2))
+        if sweep_time < 0:
+            raise ValueError('Sweep time for segment index {:} is negative.  Check sweep rate.'.format(i))
+        sweep_samples = int(np.floor(sweep_time/dt))
+        # Construct the abscissa
+        this_abscissa = np.arange(sweep_samples+1)*dt
+        # Compute the phase over time
+        if sweep_type.lower() in ['lin','linear']:
+            this_argument = (1/2)*(sweep_rate*2*np.pi)*this_abscissa**2 + omega_start*this_abscissa
+            this_frequency = (sweep_rate)*this_abscissa + omega_start/(2*np.pi)
+        elif sweep_type.lower() in ['log','logarithmic']:
+            this_argument = 2**(sweep_rate*this_abscissa)*omega_start/(sweep_rate*np.log(2)) - omega_start/(sweep_rate*np.log(2))
+            this_frequency = 2**(sweep_rate*this_abscissa)*omega_start/(2*np.pi)
+        # Compute the phase at each time step
+        if end_frequency > start_frequency:
+            freq_interp = [start_frequency,end_frequency]
+            phase_interp = [start_phase,end_phase]
+            amp_interp = [start_amplitude,end_amplitude]
+        else:
+            freq_interp = [end_frequency, start_frequency]
+            phase_interp = [end_phase,start_phase]
+            amp_interp = [end_amplitude,start_amplitude]
+        this_phases = np.interp(this_frequency,freq_interp,phase_interp)
+        # Compute the amplitude at each time step
+        this_amplitudes = np.interp(this_frequency,freq_interp,amp_interp)
+        this_ordinate = this_amplitudes*np.sin(this_argument+this_phases+last_phase)
+        last_phase += this_argument[-1]
+        abscissa.append(this_abscissa[:-1])
+        ordinate.append(this_ordinate[:-1])
+    ordinate = np.concatenate(ordinate)
+    return ordinate

@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 from . import sdynpy_cpsd as cpsd
 from . import sdynpy_frf as frf
+from . import sdynpy_lrm as lrm
 from . import sdynpy_generator as generator
 from . import sdynpy_integration as integration
 from . import sdynpy_correlation as correlation

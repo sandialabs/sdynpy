@@ -54,6 +54,8 @@ class Sdynpy_UFF_Dataset_2412:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         element_labels = []
         fe_descriptor_ids = []
         physical_property_table_numbers = []
@@ -124,7 +126,9 @@ class Sdynpy_UFF_Dataset_2412:
 
     def write_string(self):
         return_string = ''
-        for element_label, fe_descriptor_id, physical_property_table_number, material_property_table_number, color, connectivity, beam_orientation, beam_fore_cross_section_number, beam_aft_cross_section_number in zip(
+        for (element_label, fe_descriptor_id, physical_property_table_number,
+             material_property_table_number, color, connectivity, beam_orientation,
+             beam_fore_cross_section_number, beam_aft_cross_section_number) in zip(
                 self.element_labels,
                 self.fe_descriptor_ids,
                 self.physical_property_table_numbers,
@@ -134,7 +138,10 @@ class Sdynpy_UFF_Dataset_2412:
                 self.beam_orientations,
                 self.beam_fore_cross_section_numbers,
                 self.beam_aft_cross_section_numbers):
-            return_string += write_uff_line([element_label, fe_descriptor_id, physical_property_table_number, material_property_table_number, color, len(connectivity)],
+            return_string += write_uff_line([element_label, fe_descriptor_id,
+                                             physical_property_table_number,
+                                             material_property_table_number,
+                                             color, len(connectivity)],
                                             6 * ['I10'])
             if fe_descriptor_id in _beam_elem_types:
                 return_string += write_uff_line(

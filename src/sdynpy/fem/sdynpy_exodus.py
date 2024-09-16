@@ -337,9 +337,9 @@ class Exodus:
     def num_dimensions(self):
         return self._ncdf_handle.dimensions['num_dim'].size
 
-    '''
-     _   _           _           
-    | \ | | ___   __| | ___  ___ 
+    r'''
+     _   _           _
+    | \ | | ___   __| | ___  ___
     |  \| |/ _ \ / _` |/ _ \/ __|
     | |\  | (_) | (_| |  __/\__ \
     |_| \_|\___/ \__,_|\___||___/
@@ -670,9 +670,9 @@ class Exodus:
         return np.array([self.get_node_variable_values(displacement_name + (val.upper() if capital_coordinates else val.lower()))
                          for val in 'xyz'])
 
-    '''        
-      _____ _                           _       
-     | ____| | ___ _ __ ___   ___ _ __ | |_ ___ 
+    r'''
+      _____ _                           _
+     | ____| | ___ _ __ ___   ___ _ __ | |_ ___
      |  _| | |/ _ \ '_ ` _ \ / _ \ '_ \| __/ __|
      | |___| |  __/ | | | | |  __/ | | | |_\__ \
      |_____|_|\___|_| |_| |_|\___|_| |_|\__|___/
@@ -892,7 +892,7 @@ class Exodus:
 
         Parameters
         ----------
-        id : int 
+        id : int
             The block id for which the element connectivity is being assigned
         connectivity : 2D array-like
             A 2D array of dimension num_elements x num_nodes_per_element
@@ -908,7 +908,7 @@ class Exodus:
         except ValueError:
             raise ExodusError('Invalid Block ID')
         conn_name = 'connect{:d}'.format(block_index)
-        if not conn_name in self._ncdf_handle.variables:
+        if conn_name not in self._ncdf_handle.variables:
             raise ExodusError('Element Block {:d} has not been defined yet')
         connectivity = np.array(connectivity)
         if self._ncdf_handle.variables[conn_name][:].shape != connectivity.shape:
@@ -921,7 +921,7 @@ class Exodus:
 
         Parameters
         ----------
-        d : int 
+        d : int
             The block id for which the number of attributes is desired
 
         Returns
@@ -946,7 +946,7 @@ class Exodus:
 
         Parameters
         ----------
-        d : int 
+        d : int
             The block id for which the number of attributes is desired
 
         Returns
@@ -969,7 +969,7 @@ class Exodus:
 
         Parameters
         ----------
-        d : int 
+        d : int
             The block id for which the number of attributes is desired
 
         Returns
@@ -1028,7 +1028,7 @@ class Exodus:
         except ValueError:
             raise ExodusError('Invalid Block ID')
         attr_name = 'attrib{:d}'.format(block_index)
-        if not attr_name in self._ncdf_handle.variables:
+        if attr_name not in self._ncdf_handle.variables:
             raise ExodusError('Element Block {:d} has no defined attributes')
         attributes = np.array(attributes)
         if self._ncdf_handle.variables[attr_name][:].shape != attributes.shape:
@@ -1349,9 +1349,9 @@ class Exodus:
 
     def put_element_property_value(self):
         raise NotImplementedError
-    '''        
-     _   _           _                _       
-    | \ | | ___   __| | ___  ___  ___| |_ ___ 
+    r'''
+     _   _           _                _
+    | \ | | ___   __| | ___  ___  ___| |_ ___
     |  \| |/ _ \ / _` |/ _ \/ __|/ _ \ __/ __|
     | |\  | (_) | (_| |  __/\__ \  __/ |_\__ \
     |_| \_|\___/ \__,_|\___||___/\___|\__|___/
@@ -1536,7 +1536,7 @@ class Exodus:
             raise ExodusError(
                 'Information for node set {:d} has already been put to the exodus file.'.format(id))
         nodes = np.array(nodes).flatten()
-        if not dist_fact is None:
+        if dist_fact is not None:
             dist_fact = np.array(dist_fact).flatten()
             if nodes.shape != dist_fact.shape:
                 raise ExodusError('dist_fact must be the same size as nodes')
@@ -1546,7 +1546,7 @@ class Exodus:
         node_name = 'node_ns{:d}'.format(ns_index)
         self._ncdf_handle.createVariable(node_name, 'int32', (num_node_in_ns_name,))
         self._ncdf_handle.variables[node_name][:] = nodes + 1
-        if not dist_fact is None:
+        if dist_fact is not None:
             distfact_name = 'dist_fact_ns{:d}'.format(ns_index)
             self._ncdf_handle.createVariable(
                 distfact_name, self.floating_point_type, (num_node_in_ns_name,))
@@ -1555,10 +1555,10 @@ class Exodus:
         # actually what it should be, just every exodus file I've looked at has
         # the eb_status as all ones...)
         self._ncdf_handle.variables['ns_status'][ns_index - 1] = 1
-    '''
-       _____ _     _                _       
-      / ____(_)   | |              | |      
-     | (___  _  __| | ___  ___  ___| |_ ___ 
+    r'''
+       _____ _     _                _
+      / ____(_)   | |              | |
+     | (___  _  __| | ___  ___  ___| |_ ___
       \___ \| |/ _` |/ _ \/ __|/ _ \ __/ __|
       ____) | | (_| |  __/\__ \  __/ |_\__ \
      |_____/|_|\__,_|\___||___/\___|\__|___/
@@ -1749,7 +1749,7 @@ class Exodus:
                 'Information for side set {:d} has already been put to the exodus file.'.format(id))
         elements = np.array(elements).flatten()
         sides = np.array(sides).flatten()
-        if not dist_fact is None:
+        if dist_fact is not None:
             print('Warning:Distribution factors for sidesets have not been thoroughly checked! Use with Caution!')
             dist_fact = np.array(dist_fact).flatten()
             # TODO: Check if the size of dist_fact is correct
@@ -1764,7 +1764,7 @@ class Exodus:
         self._ncdf_handle.createVariable(side_name, 'int32', (num_side_in_ss_name,))
         self._ncdf_handle.variables[elem_name][:] = elements + 1
         self._ncdf_handle.variables[side_name][:] = sides + 1
-        if not dist_fact is None:
+        if dist_fact is not None:
             distfact_name = 'dist_fact_ss{:d}'.format(ss_index)
             distfact_dim_name = 'num_df_ss{:d}'.format(ss_index)
             self._ncdf_handle.createDimension(distfact_dim_name, len(dist_fact))
@@ -1779,10 +1779,10 @@ class Exodus:
     def get_side_set_node_list(self, id):
         raise NotImplementedError
 
-    '''        
-       _____ _       _           _  __      __        _       _     _           
-      / ____| |     | |         | | \ \    / /       (_)     | |   | |          
-     | |  __| | ___ | |__   __ _| |  \ \  / /_ _ _ __ _  __ _| |__ | | ___  ___ 
+    r'''
+       _____ _       _           _  __      __        _       _     _
+      / ____| |     | |         | | \ \    / /       (_)     | |   | |
+     | |  __| | ___ | |__   __ _| |  \ \  / /_ _ _ __ _  __ _| |__ | | ___  ___
      | | |_ | |/ _ \| '_ \ / _` | |   \ \/ / _` | '__| |/ _` | '_ \| |/ _ \/ __|
      | |__| | | (_) | |_) | (_| | |    \  / (_| | |  | | (_| | |_) | |  __/\__ \
       \_____|_|\___/|_.__/ \__,_|_|     \/ \__,_|_|  |_|\__,_|_.__/|_|\___||___/
@@ -1977,7 +1977,7 @@ class Exodus:
             surface faces of the block.  Values in this array correspond to
             indices into the node_indices array.  To recover the connectivity
             array in the original node indices of the exodus file, it can be
-            passed through the node_indices as 
+            passed through the node_indices as
             node_indices[block_surface_connectivity].  The
             block_surface_original_elements array shows the original element
             indices of the block that each surface came from.  This can be
@@ -2394,13 +2394,13 @@ class ExodusInMemory:
                 elem_var_names = exo.get_elem_variable_names()
                 variable_truth_table = exo.get_elem_variable_table().data
                 for blk_index, blk_id in enumerate(exo.get_elem_blk_ids()):
-                    if not blk_id in block_ids:
+                    if blk_id not in block_ids:
                         continue
                     block_dict = {}
                     block_dict['id'] = blk_id
                     block_dict['elem_var_data'] = []
                     for elem_index, elem_name in enumerate(elem_var_names):
-                        if (variables is not None) and (not elem_name in variables):
+                        if (variables is not None) and (elem_name not in variables):
                             continue
                         if variable_truth_table[blk_index, elem_index] == 0:
                             block_dict['elem_var_data'].append(None)
@@ -2600,7 +2600,7 @@ class ExodusInMemory:
         # Write the nodes
         exo_out.put_coord_names(self.nodes.names)
         exo_out.put_coords(self.nodes.coordinates.T)
-        if not self.nodes.node_num_map is None:
+        if self.nodes.node_num_map is not None:
             exo_out.put_node_num_map(self.nodes.node_num_map)
 
         # Initialize blocks
@@ -2620,11 +2620,11 @@ class ExodusInMemory:
                 exo_out.set_elem_attr(block.id, block.attributes)
 
         # Element Map
-        if not self.element_map is None:
+        if self.element_map is not None:
             exo_out.put_elem_num_map(self.element_map)
 
         # Nodesets
-        if not self.nodesets is None:
+        if self.nodesets is not None:
             exo_out.put_node_set_ids([ns.id for ns in self.nodesets])
             exo_out.put_node_set_names(
                 ['' if nodeset.name is None else nodeset.name for nodeset in self.nodesets])
@@ -2632,7 +2632,7 @@ class ExodusInMemory:
                 exo_out.put_node_set_info(nodeset.id, nodeset.nodes, nodeset.dist_factors)
 
         # Sidesets
-        if not self.sidesets is None:
+        if self.sidesets is not None:
             exo_out.put_side_set_ids([ns.id for ns in self.sidesets])
             exo_out.put_side_set_names(
                 ['' if sideset.name is None else sideset.name for sideset in self.sidesets])
@@ -2641,21 +2641,21 @@ class ExodusInMemory:
                                           sideset.sides, sideset.dist_factors)
 
         # Global Variables #TODO: Make it so I can write all timesteps at once.
-        if not self.global_vars is None:
+        if self.global_vars is not None:
             exo_out.put_global_variable_names([var.name for var in self.global_vars])
             for i, var in enumerate(self.global_vars):
                 for j, time in enumerate(self.time):
                     exo_out.set_global_variable_values(i, j, self.global_vars[i].data[j])
 
         # Nodal Variables #TODO: Make it so I can write all timesteps at once.
-        if not self.nodal_vars is None:
+        if self.nodal_vars is not None:
             exo_out.put_node_variable_names([var.name for var in self.nodal_vars])
             for i, var in enumerate(self.nodal_vars):
                 for j, time in enumerate(self.time):
                     exo_out.set_node_variable_values(i, j, self.nodal_vars[i].data[j, :])
 
         # Element Variables # TODO: Make it so I can write all timesteps at once
-        if not self.elem_vars is None:
+        if self.elem_vars is not None:
             nblocks = len(self.elem_vars)
             nelemvars = len(self.elem_vars[0].elem_var_data)
             elem_table = np.zeros((nblocks, nelemvars), dtype=int)
@@ -2751,7 +2751,7 @@ class ExodusInMemory:
             surface faces of the block.  Values in this array correspond to
             indices into the node_indices array.  To recover the connectivity
             array in the original node indices of the exodus file, it can be
-            passed through the node_indices as 
+            passed through the node_indices as
             node_indices[block_surface_connectivity].  The
             block_surface_original_elements array shows the original element
             indices of the block that each surface came from.  This can be
@@ -2938,9 +2938,9 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
            /  |           /  |
           5--------------6   |
           |   4----------|---3
-          |  /           |  / 
-          | /            | /  
-          |/             |/   
+          |  /           |  /
+          | /            | /
+          |/             |/
           1--------------2
 
     So the 6 faces are as follows::
@@ -3141,7 +3141,7 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
     # If the exodus file has element variables, we are only keeping the ones
     # corresponding to the blocks we are keeping
     if exo_in_mem:
-        has_elem_vars = (not fexo.elem_vars is None) and len(node_variables_to_transform) > 0
+        has_elem_vars = (fexo.elem_vars is not None) and len(node_variables_to_transform) > 0
     else:
         try:
             has_elem_vars = fexo.num_elem_variables > 0 and len(elem_variables_to_transform) > 0
@@ -3258,13 +3258,13 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
                 face_elem_vars = fexo.elem_vars[[var.id for var in fexo.elem_vars].index(block_id)]
                 for elem_index, elem_var_data in enumerate(face_elem_vars.elem_var_data):
                     # Check if we need to skip it
-                    if not elem_index in elem_variables_to_transform:
+                    if elem_index not in elem_variables_to_transform:
                         print('  Skipping Element Variable {:}'.format(elem_index))
                         continue
                     # If the variable doesn't exist it will be None (for example a
                     # volume quantity on a surface element).  We only operate if
                     # the variable exists (is not None)
-                    if not elem_var_data is None:
+                    if elem_var_data is not None:
                         # We use the face's original elements vector to map the
                         # element data to the face connectivity matrix
                         if verbose:
@@ -3286,7 +3286,7 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
                 # Loop through and pick element variables that exist in the truth table
                 for elem_index, elem_name in enumerate(elem_var_names):
                     # Check if we need to skip it
-                    if not elem_index in elem_variables_to_transform:
+                    if elem_index not in elem_variables_to_transform:
                         if verbose:
                             print('  Skipping Element Variable {:}'.format(elem_name))
                         continue
@@ -3354,7 +3354,7 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
         if len(node_variables_to_transform) > 0:
             fexo_out.nodal_vars = []
             for node_var_index, node_var in enumerate(fexo.nodal_vars):
-                if not node_var_index in node_variables_to_transform:
+                if node_var_index not in node_variables_to_transform:
                     if verbose:
                         print('  Skipping Nodal Variable {:}'.format(node_var.name))
                     continue
@@ -3368,7 +3368,7 @@ def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_trans
                 fexo_out.nodal_vars = []
                 node_vars = fexo.get_node_variable_names()
                 for node_var_index, node_var_name in enumerate(node_vars):
-                    if not node_var_index in node_variables_to_transform:
+                    if node_var_index not in node_variables_to_transform:
                         if verbose:
                             print('  Skipping Nodal Variable {:}'.format(node_var_name))
                         continue
@@ -3440,7 +3440,7 @@ def extract_sharp_edges(exo, edge_threshold=60, **kwargs):
     for node_var_index, node_var in enumerate(edge_fexo.nodal_vars):
         node_var.data = node_var.data[:, keep_nodes]
     edge_fexo.elem_vars = None
-    edge_fexo.blocks = [block for block in edge_fexo.blocks if not block.id is None]
+    edge_fexo.blocks = [block for block in edge_fexo.blocks if block.id is not None]
     for block in edge_fexo.blocks:
         block.connectivity = node_map[block.connectivity]
     edge_fexo.nodes.node_num_map = surface_fexo.nodes.node_num_map[keep_nodes]

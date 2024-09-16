@@ -21,3 +21,4 @@ from .sdynpy_smac import SMAC, SMAC_GUI
 from .sdynpy_modeshape import compute_residues, compute_shapes
 from .sdynpy_signal_processing_gui import SignalProcessingGUI
 from .sdynpy_ccmif import ColoredCMIF
+from .sdynpy_modal_test import read_modal_fit_data, ModalTest

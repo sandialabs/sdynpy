@@ -29,7 +29,7 @@ from .sdynpy_rotation import matrix_to_rodrigues, rodrigues_to_matrix
 def camera_matrix_from_image(image_points, spatial_points):
     '''Computes camera matrices from at least six points
 
-    This function computes camera matrices K (intrinic parameters) and R|T 
+    This function computes camera matrices K (intrinic parameters) and R|T
     (extrinsic parameters) from a set of points defined on the image (u,v) and
     in 3D space (x,y,z).  It sets up a system of homogeneous linear equations
     for the camera parameters and solves for them using the singular value
@@ -43,7 +43,7 @@ def camera_matrix_from_image(image_points, spatial_points):
         A n x 2 array where n is the number of points being correlated.  The
         first column is the horizontal pixel index from the left side of the
         image, and the second column is the vertical pixel index from the top
-        of the image.  Pixel locations can be extracted from software such as 
+        of the image.  Pixel locations can be extracted from software such as
         Paint or GIMP, or if the image is plotted using
         matplotlib.pyplot.imshow.
     spatial_points : ndarray
@@ -181,17 +181,47 @@ def camera_derivative_matrix(K, RT, x, y, z):
     displacement_derivatives.py.
     '''
     return np.array(
-        [[(K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0]) + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1]) + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2]) + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 0] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
-          (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0]) + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] +
-                                                                                                                                                                                                                                                        K[0, 2] * RT[2, 1]) + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2]) + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 1] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
-          (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0]) + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] +
-                                                                                                                                                                                                                                                        K[0, 2] * RT[2, 1]) + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2]) + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 2] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2
+        [[(K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0])
+             + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1])
+             + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2])
+             + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 0]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
+          (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0])
+             + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1])
+             + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2])
+             + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 1]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
+          (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[0, 0] * RT[0, 0] + K[0, 1] * RT[1, 0] + K[0, 2] * RT[2, 0])
+             + y * (K[0, 0] * RT[0, 1] + K[0, 1] * RT[1, 1] + K[0, 2] * RT[2, 1])
+             + z * (K[0, 0] * RT[0, 2] + K[0, 1] * RT[1, 2] + K[0, 2] * RT[2, 2])
+             + K[0, 0] * RT[0, 3] + K[0, 1] * RT[1, 3] + K[0, 2] * RT[2, 3]) * K[2, 2] * RT[2, 2]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2
           ],
-         [(K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0]) + y * (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1]) + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2]) + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 0] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
-          (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0]) + y * (K[1, 1] * RT[1, 1] + K[1, 2]
-                                                                                                                                                                                                              * RT[2, 1]) + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2]) + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 1] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
-          (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2]) / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3]) - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0]) + y * (K[1, 1] * RT[1, 1] + K[1, 2]
-                                                                                                                                                                                                              * RT[2, 1]) + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2]) + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 2] / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2
+         [(K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0])
+             + y * (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1])
+             + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2])
+             + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 0]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
+          (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0])
+             + y * (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1])
+             + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2])
+             + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 1]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2,
+          (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2])
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])
+          - (x * (K[1, 1] * RT[1, 0] + K[1, 2] * RT[2, 0]) + y * (K[1, 1] * RT[1, 1] + K[1, 2] * RT[2, 1])
+             + z * (K[1, 1] * RT[1, 2] + K[1, 2] * RT[2, 2]) + K[1, 1] * RT[1, 3] + K[1, 2] * RT[2, 3]) * K[2, 2] * RT[2, 2]
+          / (x * K[2, 2] * RT[2, 0] + y * K[2, 2] * RT[2, 1] + z * K[2, 2] * RT[2, 2] + K[2, 2] * RT[2, 3])**2
           ]]
     )
 
@@ -357,7 +387,8 @@ def calibration_linear_estimate(image_points, plane_points):
         valid_plane_points = plane_points_h[:, mask]
 
         def optfunc(h_vect):
-            return np.linalg.norm(valid_image_points - (h_vect[0:6].reshape(2, 3) @ valid_plane_points) / (h_vect[6:9].reshape(1, 3) @ valid_plane_points), axis=0)
+            return np.linalg.norm(valid_image_points - (h_vect[0:6].reshape(2, 3) @ valid_plane_points)
+                                  / (h_vect[6:9].reshape(1, 3) @ valid_plane_points), axis=0)
         soln = least_squares(optfunc, homography_guesses, method='lm')
         homography.append(soln.x)
 
@@ -661,7 +692,7 @@ def decomposeP(P):
     K_h = Q @ np.linalg.cholesky(P_b) @ Q
     K = K_h / K_h[2, 2]
     A = np.linalg .inv(K) @ M
-    l = (1 / np.linalg.det(A))**(1 / 3)
-    R = l * A
-    t = l * np.linalg.inv(K) @ P[0:3, 3]
+    L = (1 / np.linalg.det(A))**(1 / 3)
+    R = L * A
+    t = L * np.linalg.inv(K) @ P[0:3, 3]
     return K, R, t

@@ -24,12 +24,14 @@ from .fem import sdynpy_beam as beam
 from .fem import sdynpy_shaker as shaker
 from .fem import sdynpy_dof as dof
 from .signal_processing import (frf, cpsd, integration, correlation, complex,
-                                rotation, generator, camera, harmonic, 
-                                geometry_fitting, srs)
-from .modal import PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues, compute_shapes, SignalProcessingGUI, ColoredCMIF
+                                rotation, generator, camera, harmonic,
+                                geometry_fitting, srs, lrm)
+from .modal import (PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues,
+                    compute_shapes, SignalProcessingGUI, ColoredCMIF,
+                    read_modal_fit_data, ModalTest)
 from . import doc
 
-__version__ = "0.11.0"
+__version__ = "0.14.0"
 
 # Pull things in for easier access
 SdynpyArray = array.SdynpyArray
@@ -50,6 +52,10 @@ data_array = data.data_array
 NDDataArray = data.NDDataArray
 TimeHistoryArray = data.TimeHistoryArray
 TransferFunctionArray = data.TransferFunctionArray
+CoherenceArray = data.CoherenceArray
+MultipleCoherenceArray = data.MultipleCoherenceArray
+PowerSpectralDensityArray = data.PowerSpectralDensityArray
+SpectrumArray = data.SpectrumArray
 GUIPlot = data.GUIPlot
 CPSDPlot = data.CPSDPlot
 id_map = geometry.id_map

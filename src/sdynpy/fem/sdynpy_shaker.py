@@ -23,6 +23,93 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 import matplotlib.pyplot as plt
 
+# def shaker_4dof(m_armature,m_body,m_forcegauge,
+#                 k_suspension,k_stinger,
+#                 c_suspension,c_stinger,
+#                 resistance,inductance,force_factor):
+#     '''Creates a four degree of freedom electromechanical model of a shaker
+
+#     Parameters
+#     ----------
+#     m_armature : float
+#         Mass of the armaturesistance
+#     m_body : float
+#         Mass of the body and trunion of the shaker
+#     m_forcegauge : float
+#         Mass of the force gauge at the tip of the stinger
+#     k_suspension : float
+#         Stiffness of the spring between the body and armature
+#     k_stinger : float
+#         Stiffness of the stinger between the armature and force gauge
+#     c_suspension : float
+#         Damping of the spring between the body and armature
+#     c_stinger : float
+#         Damping of the stinger between the armature and force gauge
+#     resistance : float
+#         Coil resistance of the electronics portion of the shaker
+#     inductance : float
+#         Coil inductance of the electronics portion of the shaker
+#     force_factor : float
+#         Force factor BL of the magnet and coil
+
+#     Returns
+#     -------
+#     M_shaker : ndarray
+#         The mass matrix of the shaker
+#     C_shaker : ndarray
+#         The damping matrix of the shaker
+#     K_shaker : ndarray
+#         The stiffness matrix of the shaker
+
+#     Notes
+#     -----
+#     The dof order of the responses are:
+#     Displacement of Armature,
+#     Displacement of Body,
+#     Displacement of Force Gauge,
+#     Shaker Current.
+
+#     The dof order of the inputs are:
+#     Force into Armature
+#     Force into Body
+#     Force into Force Gauge
+#     Shaker Voltage.
+
+#     The force imparted by the shaker can be computed as the stinger stiffness
+#     times the difference in displacement of the armature and force gauge plus
+#     the stinger damping times the difference in the velocity of the armature
+#     and force gauge.
+#     '''
+
+#     # Cresistanceate the matrices
+#     M_shaker = np.array([[m_armature,  0,  0,  0],
+#                          [ 0, m_body,  0,  0],
+#                          [ 0,  0, m_forcegauge,  0],
+#                          [ 0,  0,  0,  0]])
+#     C_shaker = np.array([[(c_suspension+c_stinger), -c_suspension, -c_stinger, 0],
+#                          [     -c_suspension,  c_suspension,    0, 0],
+#                          [     -c_stinger,    0,  c_stinger, 0],
+#                          [       force_factor,  -force_factor, 0,   inductance]])
+#     K_shaker = np.array([[(k_suspension+k_stinger), -k_suspension, -k_stinger, -force_factor],
+#                          [     -k_suspension,  k_suspension,    0,  force_factor],
+#                          [     -k_stinger,    0,  k_stinger,   0],
+#                          [        0,    0,    0,  resistance]])
+
+#     return M_shaker,C_shaker,K_shaker
+
+# test_shaker_dakota = shaker_4dof( m_armature = 0.227, # [kg] ~ armaturesistance mass
+#                                   m_body = 24.9, # [kg] ~ body mass
+#                                   k_suspension = 2312, # [N/m] ~ suspension stiffness
+#                                   c_suspension = 20, # [N/(m/s)] damping ...
+#                                   k_stinger = 4e6, # [N/m] stiff stinger spring
+#                                   m_forcegauge = 1e-2, # [kg] force gauge mass
+#                                   c_stinger = 10, # [N/(m/s)] damping
+#                                   resistance = 1.3, # [ohm] ~ coil resistance
+#                                   inductance = 100e-6, # [Henry] ~ coil inductance
+#                                   force_factor = 30 # [-] ~ Force Factor of magnet & coil
+#                                 )
+
+
 class Shaker4DoF:
     """A class defining a four degree-of-freedom model of a shaker
 
@@ -83,7 +170,7 @@ class Shaker4DoF:
 
         Notes
         -----
-        The dof order of the responses are: 
+        The dof order of the responses are:
         Displacement of Armature,
         Displacement of Body,
         Displacement of Force Gauge,
@@ -133,10 +220,10 @@ class Shaker4DoF:
 
         Notes
         -----
-        The dof order of the state matrix is 
+        The dof order of the state matrix is
           0. armature displacement
           1. body displacement
-          2. forcegauge displacement, 
+          2. forcegauge displacement,
           3. armature velocity
           4. body velocity
           5. forcegauge velocity
@@ -170,8 +257,14 @@ class Shaker4DoF:
         A = np.array([[0, 0, 0, 1, 0, 0, 0],
                       [0, 0, 0, 0, 1, 0, 0],
                       [0, 0, 0, 0, 0, 1, 0],
-                      [(-self.k_suspension - self.k_stinger) / self.m_armature, self.k_suspension / self.m_armature, self.k_stinger / self.m_armature, (-self.c_suspension -
-                                                                                                                                                        self.c_stinger) / self.m_armature, self.c_suspension / self.m_armature, self.c_stinger / self.m_armature, self.force_factor / self.m_armature],
+                      [(-self.k_suspension - self.k_stinger) / self.m_armature,
+                       self.k_suspension / self.m_armature,
+                       self.k_stinger / self.m_armature,
+                       (-self.c_suspension
+                        - self.c_stinger) / self.m_armature,
+                       self.c_suspension / self.m_armature,
+                       self.c_stinger / self.m_armature,
+                       self.force_factor / self.m_armature],
                       [self.k_suspension / self.m_body, -self.k_suspension / self.m_body, 0, self.c_suspension /
                           self.m_body, -self.c_suspension / self.m_body, 0, -self.force_factor / self.m_body],
                       [self.k_stinger / self.m_forcegauge, 0, -self.k_stinger / self.m_forcegauge,
@@ -188,8 +281,10 @@ class Shaker4DoF:
             # States: x1, x2, x3, xd1, xd2, xd3, i
                      [1, 0, 0, 0, 0, 0, 0],  # Displacement of mass 1
                      [0, 0, 0, 1, 0, 0, 0],  # Velocity of mass 1
-                     [(-self.k_suspension - self.k_stinger) / self.m_armature, self.k_suspension / self.m_armature, self.k_stinger / self.m_armature, (-self.c_suspension - self.c_stinger) / \
-                      self.m_armature, self.c_suspension / self.m_armature, self.c_stinger / self.m_armature, self.force_factor / self.m_armature],  # Acceleration of mass 1
+                     [(-self.k_suspension - self.k_stinger) / self.m_armature, self.k_suspension / self.m_armature,
+                      self.k_stinger / self.m_armature, (-self.c_suspension - self.c_stinger) / \
+                      self.m_armature, self.c_suspension / self.m_armature,
+                      self.c_stinger / self.m_armature, self.force_factor / self.m_armature],  # Acceleration of mass 1
                      [0, 0, 0, 0, 0, 0, 0],  # External Force on mass 1
                      [0, 1, 0, 0, 0, 0, 0],  # Displacement of mass 2
                      [0, 0, 0, 0, 1, 0, 0],  # Velocity of mass 2
@@ -264,10 +359,10 @@ class Shaker4DoF:
         fig, ax = plt.subplots(2, 1, sharex=True)
         H = self.transfer_function(frequencies)[..., -1, -1]
         ax[0].plot(frequencies, np.real(1 / H))
-        if not test_data is None:
+        if test_data is not None:
             ax[0].plot(frequencies, np.real(test_data))
         ax[1].plot(frequencies, np.imag(1 / H))
-        if not test_data is None:
+        if test_data is not None:
             ax[1].plot(frequencies, np.real(test_data))
 
     @classmethod
@@ -306,3 +401,7 @@ class Shaker4DoF:
                    resistance=4,
                    inductance=6e-4,
                    force_factor=36)
+
+# shaker = Shaker4DoF.modal_shop_100lbf()
+# shaker.m_forcegauge = 2.6
+# shaker.plot_electrical_impedance()

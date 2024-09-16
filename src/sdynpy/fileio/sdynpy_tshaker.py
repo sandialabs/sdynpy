@@ -27,24 +27,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
 import nptdms as tdms
-from ..core.sdynpy_coordinate import (coordinate_array,outer_product,
-                                      CoordinateArray,_string_map)
+from ..core.sdynpy_coordinate import (coordinate_array, outer_product,
+                                      CoordinateArray, _string_map)
 from ..core.sdynpy_data import data_array, FunctionTypes
 from glob import glob
 import os
 from scipy.io import loadmat
 
-def read_tdms(file,coordinate_property = "Ch_Location",
-              coordinate_string_map = None, invalid_coordinate_value = '999999',
-              min_time = None, max_time = None, channel_indices = None):
+
+def read_tdms(file, coordinate_property="Ch_Location",
+              coordinate_string_map=None, invalid_coordinate_value='999999',
+              min_time=None, max_time=None, channel_indices=None):
     # Read in the file if we've passed a string.
-    if not isinstance(file,tdms.TdmsFile):
+    if not isinstance(file, tdms.TdmsFile):
         file = tdms.TdmsFile.read(file)
-    
+
     # Set up the coordinate_string_map if necessary
     if coordinate_string_map is None:
         coordinate_string_map = {}
-    
+
     # Go through and get the metadata
     dt = 1/file['TH Data Info'].properties['Sample Rate']
     run_number = file['Test Run Info'].properties['Run Number']
@@ -52,7 +53,7 @@ def read_tdms(file,coordinate_property = "Ch_Location",
     test_axis = file['Test Run Info'].properties['Test Axis']
     test_type = file['Test Run Info'].properties['Test Type']
     test_title = file['Test Series Info'].properties['Test Series Title']
-    
+
     # Set up abscissa limits
     if min_time is None:
         min_index = 0
@@ -62,11 +63,11 @@ def read_tdms(file,coordinate_property = "Ch_Location",
         max_index = None
     else:
         max_index = int(np.floor(max_time / dt))+1
-    abscissa_slice = slice(min_index,max_index)
-    
+    abscissa_slice = slice(min_index, max_index)
+
     # Now let's go through the channels
     data = []
-    for i,channel in enumerate(file['TH Data'].channels()):
+    for i, channel in enumerate(file['TH Data'].channels()):
         if channel_indices is not None and i not in channel_indices:
             continue
         print('Reading {:}'.format(channel.name))
@@ -92,10 +93,10 @@ def read_tdms(file,coordinate_property = "Ch_Location",
         # Comment 2 will be DSA_Device DSA_S/N :: DSA_Channel
         # Comment 3 will be Test Series Title :: Run Number :: Run Description, Test Axis :: Test Type
         # Comment 5 will be the coordinate value as a string, just in case we can't convert it to a coordinate
-        comment1 = 'Type: {:}; Unit: {:}'.format(trans_type,ch_eu)
+        comment1 = 'Type: {:}; Unit: {:}'.format(trans_type, ch_eu)
         comment2 = 'Device: {:}; S/N: {:}; Ch: {:}'.format(dsa_device, dsa_sn, dsa_channel)
-        comment3 = '{:} Run {:}: {:} {:} {:}'.format(test_title,run_number, run_description, test_axis, test_type)
-        comment4 = 'Sensor: {:} {:} {:}'.format(trans_model,trans_sn,trans_axis)
+        comment3 = '{:} Run {:}: {:} {:} {:}'.format(test_title, run_number, run_description, test_axis, test_type)
+        comment4 = 'Sensor: {:} {:} {:}'.format(trans_model, trans_sn, trans_axis)
         comment5 = '{:}'.format(channel.properties[coordinate_property])
         # Now create the data object
         data.append(data_array(FunctionTypes.TIME_RESPONSE, abscissa, time_data, coordinate,
@@ -103,20 +104,21 @@ def read_tdms(file,coordinate_property = "Ch_Location",
     data = np.concatenate(data)
     return data
 
-def read_mat_time_history(data_directory,coordinate_property = "Ch_ID",
-              coordinate_string_map = None, invalid_coordinate_value = '999999',
-              min_time = None, max_time = None, file_pattern = 'Ch*_THData.mat',
-              file_sort_key = lambda x: int(os.path.split(x)[-1].split('_')[0].replace('Ch',''))):
+
+def read_mat_time_history(data_directory, coordinate_property="Ch_ID",
+                          coordinate_string_map=None, invalid_coordinate_value='999999',
+                          min_time=None, max_time=None, file_pattern='Ch*_THData.mat',
+                          file_sort_key=lambda x: int(os.path.split(x)[-1].split('_')[0].replace('Ch', ''))):
     # Set up the coordinate_string_map if necessary
     if coordinate_string_map is None:
         coordinate_string_map = {}
-        
+
     # Find files in the directory
-    mat_files = glob(os.path.join(data_directory,file_pattern))
+    mat_files = glob(os.path.join(data_directory, file_pattern))
     # Sort the files by number
     mat_files = sorted(mat_files, key=file_sort_key)
     data_arrays = []
-    for i,data_file in enumerate(mat_files):
+    for i, data_file in enumerate(mat_files):
         print('Reading File {:}'.format(data_file))
         data = loadmat(data_file)
         # Get sample rate
@@ -130,7 +132,7 @@ def read_mat_time_history(data_directory,coordinate_property = "Ch_ID",
             max_index = None
         else:
             max_index = int(np.floor(max_time / dt))+1
-        abscissa_slice = slice(min_index,max_index)
+        abscissa_slice = slice(min_index, max_index)
         # Get metadata
         run_number = str(data['Test_RunNum'].squeeze())
         run_description = str(data['Test_Description'].squeeze())
@@ -151,10 +153,10 @@ def read_mat_time_history(data_directory,coordinate_property = "Ch_ID",
         time_data = data['THData'].squeeze()[abscissa_slice]
         num_elements = time_data.size
         abscissa = np.arange(num_elements)*dt + min_index*dt
-        comment1 = 'Type: {:}; Unit: {:}'.format(trans_type,ch_eu)
+        comment1 = 'Type: {:}; Unit: {:}'.format(trans_type, ch_eu)
         comment2 = 'Channel: {:}'.format(dsa_channel)
         comment3 = 'Run {:}: {:} {:}'.format(run_number, run_description, test_axis)
-        comment4 = 'Sensor: {:} {:}'.format(trans_model,trans_sn)
+        comment4 = 'Sensor: {:} {:}'.format(trans_model, trans_sn)
         comment5 = '{:}'.format(str(data[coordinate_property].squeeze()))
         # Now create the data object
         data_arrays.append(data_array(FunctionTypes.TIME_RESPONSE, abscissa, time_data, coordinate,
@@ -162,9 +164,10 @@ def read_mat_time_history(data_directory,coordinate_property = "Ch_ID",
     data_arrays = np.concatenate(data_arrays)
     return data_arrays
 
-def read_mat_shock(data_file,coordinate_property = "Ch_Info",
-              coordinate_string_map = None, invalid_coordinate_value = '999999',
-              min_time = None, max_time = None, read_filtered_time_data = True):
+
+def read_mat_shock(data_file, coordinate_property="Ch_Info",
+                   coordinate_string_map=None, invalid_coordinate_value='999999',
+                   min_time=None, max_time=None, read_filtered_time_data=True):
     # Set up the coordinate_string_map if necessary
     if coordinate_string_map is None:
         coordinate_string_map = {}
@@ -180,7 +183,7 @@ def read_mat_shock(data_file,coordinate_property = "Ch_Info",
         max_index = None
     else:
         max_index = int(np.floor(max_time / dt))+1
-    abscissa_slice = slice(min_index,max_index)
+    abscissa_slice = slice(min_index, max_index)
     # Get metadata
     run_number = str(data['Test_RunNum'].squeeze())
     run_description = str(data['Test_Description'].squeeze())
@@ -199,25 +202,26 @@ def read_mat_shock(data_file,coordinate_property = "Ch_Info",
         except (KeyError, ValueError):
             coordinate = coordinate_array(string_array=invalid_coordinate_value)
         coordinates.append(coordinate[np.newaxis])
-    coordinates = np.concatenate(coordinates)[:,np.newaxis]
+    coordinates = np.concatenate(coordinates)[:, np.newaxis]
     time_data = data['shk' if read_filtered_time_data else 'unfilshk'][abscissa_slice].T
     num_elements = time_data.shape[-1]
     abscissa = np.arange(num_elements)*dt + min_index*dt
     if len(trans_type) == 0:
         comment1 = ['Unit: {:}'.format(ch) for ch in ch_eu]
     else:
-        comment1 = ['Type: {:}; Unit: {:}'.format(t,ch) for t,ch in zip(trans_type,ch_eu)]
+        comment1 = ['Type: {:}; Unit: {:}'.format(t, ch) for t, ch in zip(trans_type, ch_eu)]
     comment2 = ['Channel: {:}'.format(ch) for ch in dsa_channel]
     comment3 = 'Run {:}: {:} {:}'.format(run_number, run_description, test_axis)
     comment5 = data[coordinate_property]
-    time_data = data_array(FunctionTypes.TIME_RESPONSE,abscissa,time_data,
-                           coordinates,comment1,comment2,comment3,
+    time_data = data_array(FunctionTypes.TIME_RESPONSE, abscissa, time_data,
+                           coordinates, comment1, comment2, comment3,
                            comment5=comment5)
     return time_data
 
-def read_mat_random(data_file,coordinate_property = "Ch_Info",
-                    reference_coordinate_property = "FRF_RefID",
-              coordinate_string_map = None, invalid_coordinate_value = '999999'):
+
+def read_mat_random(data_file, coordinate_property="Ch_Info",
+                    reference_coordinate_property="FRF_RefID",
+                    coordinate_string_map=None, invalid_coordinate_value='999999'):
     # Set up the coordinate_string_map if necessary
     if coordinate_string_map is None:
         coordinate_string_map = {}
@@ -237,7 +241,7 @@ def read_mat_random(data_file,coordinate_property = "Ch_Info",
         except (KeyError, ValueError):
             coordinate = coordinate_array(string_array=invalid_coordinate_value)
         coordinates.append(coordinate[np.newaxis])
-    coordinates = np.concatenate(coordinates)[:,np.newaxis]
+    coordinates = np.concatenate(coordinates)[:, np.newaxis]
     reference_coordinates_raw = data[reference_coordinate_property]
     reference_coordinates = []
     for coordinate in reference_coordinates_raw:
@@ -262,19 +266,19 @@ def read_mat_random(data_file,coordinate_property = "Ch_Info",
         coh_comment1 = ['' for ch in ch_eu]
         frf_comment1 = ['Unit: {:}'.format(ch) for ch in ch_eu]
     else:
-        psd_comment1 = ['Type: {:}; Unit: {:}^2/Hz'.format(t,ch) for t,ch in zip(trans_type,ch_eu)]
-        coh_comment1 = ['Type: {:};'.format(t) for t,ch in zip(trans_type,ch_eu)]
-        frf_comment1 = ['Type: {:}; Unit: {:}'.format(t,ch) for t,ch in zip(trans_type,ch_eu)]
+        psd_comment1 = ['Type: {:}; Unit: {:}^2/Hz'.format(t, ch) for t, ch in zip(trans_type, ch_eu)]
+        coh_comment1 = ['Type: {:};'.format(t) for t, ch in zip(trans_type, ch_eu)]
+        frf_comment1 = ['Type: {:}; Unit: {:}'.format(t, ch) for t, ch in zip(trans_type, ch_eu)]
     comment2 = ['Channel: {:}'.format(ch) for ch in dsa_channel]
     comment3 = 'Run {:}: {:} {:}'.format(run_number, run_description, test_axis)
     comment5 = data[coordinate_property]
     psd_data = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
-                          abscissa,psd,np.concatenate((coordinates,coordinates),axis=-1),
-                          psd_comment1,comment2,comment3,comment5=comment5)
+                          abscissa, psd, np.concatenate((coordinates, coordinates), axis=-1),
+                          psd_comment1, comment2, comment3, comment5=comment5)
     coh_data = data_array(FunctionTypes.COHERENCE,
-                          abscissa,coherence,outer_product(coordinates.flatten(),reference_coordinates.flatten())[:,0,:],
-                          coh_comment1,comment2,comment3,comment5=comment5)
+                          abscissa, coherence, outer_product(coordinates.flatten(), reference_coordinates.flatten())[:, 0, :],
+                          coh_comment1, comment2, comment3, comment5=comment5)
     frf_data = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
-                          abscissa,frf,outer_product(coordinates.flatten(),reference_coordinates.flatten())[:,0,:],
-                          frf_comment1,comment2,comment3,comment5=comment5)
-    return psd_data,coh_data,frf_data
+                          abscissa, frf, outer_product(coordinates.flatten(), reference_coordinates.flatten())[:, 0, :],
+                          frf_comment1, comment2, comment3, comment5=comment5)
+    return psd_data, coh_data, frf_data

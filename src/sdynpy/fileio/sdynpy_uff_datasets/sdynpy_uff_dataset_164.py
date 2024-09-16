@@ -41,6 +41,8 @@ class Sdynpy_UFF_Dataset_164:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         ds_164 = cls()
         # Record 1:       FORMAT(I10,20A1,I10)
         # Field 1      -- units code

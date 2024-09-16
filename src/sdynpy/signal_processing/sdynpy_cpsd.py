@@ -60,7 +60,7 @@ def match_coherence_phase(cpsd_original, cpsd_to_match):
 def cpsd(signals: np.ndarray, sample_rate: int,
          samples_per_frame: int, overlap: float,
          window: str, averages_to_keep: int = None,
-         only_asds: bool = False):
+         only_asds: bool = False, reference_signals = None):
     """
     Compute cpsd from signals
 
@@ -76,12 +76,18 @@ def cpsd(signals: np.ndarray, sample_rate: int,
     overlap : float
         Overlap as a fraction of the frame (e.g. 0.5 not 50).
     window : str
-        Name of a window function in scipy.signal.windows.
+        Name of a window function in scipy.signal.windows, or a NumPy ndarray
+        with the window coefficients
     averages_to_keep : int, optional
         Optional number of averages to use. The default is None.
     only_asds : bool, optional
         If True, only compute autospectral densities, otherwise compute the
         full CPSD matrix
+    reference_signals : np.ndarray
+        If specified, these signals will be used for the columns of the CPSD
+        matrix.  If not specified, the signals passed to the `signals` argument
+        will be used for both the rows and columns of the CPSD matrix.  Cannot
+        be used simultaneously with the `only_asds` argument being set to True.
 
     Returns
     -------
@@ -94,7 +100,10 @@ def cpsd(signals: np.ndarray, sample_rate: int,
     """
 
     samples_per_acquire = int(samples_per_frame * (1 - overlap))
-    window_array = sig.windows.get_window(window.lower(), samples_per_frame, fftbins=True)
+    if isinstance(window[0],str): # This will pass if it is a string or a container with a string as the first value
+        window_array = sig.windows.get_window(window, samples_per_frame, fftbins=True)
+    else:
+        window_array = window
     window_correction = 1 / np.mean(window_array**2)
     frequency_spacing = sample_rate / samples_per_frame
     time_starts = np.arange(0, signals.shape[-1] - samples_per_frame + 1, samples_per_acquire)
@@ -104,19 +113,26 @@ def cpsd(signals: np.ndarray, sample_rate: int,
     response_fft_array = signals[:, time_indices_for_averages]
     response_fft = np.fft.rfft(response_fft_array[:, :, :] * window_array, axis=-1)
     if only_asds:
+        if reference_signals is not None:
+            raise ValueError('Cannot specify `only_asds` equal to True and simultaneously provide reference signals')
         response_spectral_matrix = np.einsum(
             'iaf,iaf->fi', response_fft, np.conj(response_fft)) / response_fft.shape[1]
     else:
+        if reference_signals is None:
+            reference_fft = response_fft
+        else:
+            reference_fft_array = reference_signals[:,time_indices_for_averages]
+            reference_fft = np.fft.rfft(reference_fft_array[:, :, :] * window_array, axis=-1)
         response_spectral_matrix = np.einsum(
-            'iaf,jaf->fij', response_fft, np.conj(response_fft)) / response_fft.shape[1]
+            'iaf,jaf->fij', response_fft, np.conj(reference_fft)) / response_fft.shape[1]
     # Normalize
     response_spectral_matrix *= (frequency_spacing * window_correction /
                                  sample_rate**2)
     response_spectral_matrix[1:-1] *= 2
     return frequency_spacing, response_spectral_matrix
 
-
 def dB_pow(x): return 10 * np.log10(x)
+
 
 def db2scale(dB):
     """ Converts a decibel value to a scale factor
@@ -125,15 +141,16 @@ def db2scale(dB):
     ----------
     dB : float :
         Value in decibels
-        
+
 
     Returns
     -------
     scale : float :
         Value in linear
-    
+
     """
     return 10**(dB/20)
+
 
 def rms(x, axis=None):
     return np.sqrt(np.mean(x**2, axis=axis))
@@ -327,10 +344,10 @@ def shaped_psd(frequency_spacing, bandwidth, num_channels=1, target_rms=None,
 
     # Truncate to the minimum frequency
     cpsd[all_freqs < min_frequency] = 0
-    if not max_frequency is None:
+    if max_frequency is not None:
         cpsd[all_freqs > max_frequency] = 0
 
-    if not target_rms is None:
+    if target_rms is not None:
         cpsd_rms = np.sqrt(np.sum(cpsd) * frequency_spacing)
         cpsd *= (target_rms / cpsd_rms)**2
 
@@ -343,23 +360,114 @@ def shaped_psd(frequency_spacing, bandwidth, num_channels=1, target_rms=None,
 
     return full_cpsd
 
+def nth_octave_freqs(freq,oct_order=1):
+    """
+    Get N-th octave band frequencies
 
-# frequency = np.ogrid[min_freq:bandwidth:frequency_spacing]
+    Parameters
+    ----------
+    freq : ndarray
+        array of frequency values, either including all freqs or only min and max
+    oct_order : int, optional
+        octave type, 1/octave order. 3 represents 1/3 octave bands. default is 1
 
-# cpsd_channel = np.ones(len(frequency))
+    Returns
+    -------
+    nominal_band_centers : ndarray
+        rounded band center frequencies using ANSI standers. Used to report
+        results, not to compute band limits
+    band_lb : ndarray
+        lower band frequencies in Hz
+    band_ub : ndarray
+        upper band frequencies in Hz
+    band_centers : ndarray
+        exact computed octave center band frequencies
+        
+    Notes
+    -------
+    Uses equations in ANSI S1.11-2014 "Electroacoustics – Octave-band and 
+    Fractionaloctave-band Filters – Part 1: Specifications"
+    
+    Uses the min and max freq lines in the provided freq to determine the upper
+    and lower bands
+    
+    Uses 1000 Hz as the reference frequency (as per the ANSI standard)
+    
+    Computes the 1/Nth band center frequencies, using different equations
+    depending on the octave order. Orders with odd numbers (1, 1/3, etc.) 
+    use ANSI eqn 2. Order with even numbers (1/6, 1/12, etc.) use eqn 3. 
+    This causes any sub-bands to fit entirely within the full octave band
+    
+    Note: even-numbered sub-bands will not share center frequencies with 
+    the full octave band, but will share the upper and lower limits.
+    ANSI S1.11 Annex A gives instructions for rounding to make the nominal
+    band center freqs. If left-most digit is 1-4, round to 3 significant
+    digits. If left-most digit is 5-9, round to 2 significant digits. For
+    example, 41.567 rounds to 41.6. 8785.2 rounds to 8800. 
+    """
+    
+    # Process inputs
+    if not isinstance(freq,np.ndarray):
+        freq = np.array([freq]).flatten()
+    
+    # Setup
+    oct_ratio = 10**0.3
+    f_ref = 1000
+    bands = np.arange(-200,201)
+    
+    # Compute exact center freqs and edges
+    # equation is different if using odd octOrder (1, 3) vs. even octOrder
+    # (6, 12). Note: bandNumbers = x and octOrder = b in the ANSI eqns
+    pow = [(2*bands+1)/(2*oct_order), bands/oct_order]
+    band_centers = f_ref * oct_ratio**pow[oct_order%2]
+    band_lb = ( band_centers * oct_ratio**(-1/(2*oct_order)) ).round(12) # round slightly
+    band_ub = ( band_centers * oct_ratio**(1/(2*oct_order)) ).round(12) # round slightly
+    
+    # ONLY KEEP BANDS IN THE FREQ RANGE OF INTEREST: 
+    # lower limit of lowest band is above min freq
+    # upper limit of highest band is below max freq
+    # rationale: want to compute oct-ave using all the data, so include 
+    # the band the includes the minimum frequency and the band that includes
+    # the maximum frequency.
+    # Note that this will result in an under-estimate of the first and last
+    # band levels since some of the band is empty.
+    inds = (max([freq.min(),10]) < band_ub) * (freq.max() > band_lb)
+    band_centers,band_lb,band_ub = [band_centers[inds],band_lb[inds],band_ub[inds]]
+    
 
-# cpsd_rms = np.sqrt(np.sum(cpsd_channel)*frequency_spacing)
-# print('Original CPSD RMS = {:}'.format(cpsd_rms))
-
-# cpsd_channel *= (target_rms/cpsd_rms)**2
-
-# cpsd_rms = np.sqrt(np.sum(cpsd_channel)*frequency_spacing)
-# print('Scaled CPSD RMS = {:}'.format(cpsd_rms))
-
-# # Now create the full cpsd matrix
-
-# cpsd = np.zeros((len(frequency),nchannels,nchannels),dtype='complex128')
-
-# cpsd[:,np.arange(nchannels),np.arange(nchannels)] = cpsd_channel[:,np.newaxis]
-
-# np.savez('Flat_Force_Specification.npz',cpsd=cpsd,f=frequency)
+    # GET THE NOMINAL BAND CENTER FREQUENCIES BY ROUNDING
+    # These are just "nice" numbers to make it easier to identify the bands 
+    # edges are still calculated from the exact center freqs
+    # method used here is based on:
+    # https://www.mathworks.com/matlabcentral/fileexchange/26212-round-with-significant-digits
+    # freqBandCenters = [ 41.567, 8785.2 ] should give: [ 41.6, 8800]
+    pow_10 = 10** np.floor(np.log10(band_centers))
+    left_digit =np.floor(band_centers/pow_10)
+    sig_digits = 3*(left_digit<=4) + 2*(left_digit>4)
+    tmp = 10 ** np.floor(np.abs(np.log10(band_centers)) - sig_digits + 1)
+    nominal_band_centers = np.round(band_centers/tmp)*tmp
+    
+    # Replace calculated nominal band centers with ANSI nominal band centers if
+    # doing full or 1/3rd octaves:
+    # ANSI only gives freqs from 25 to 20000, so don't correct outside that range
+    # find nearest ANSI nominal center, then verify it is between the band
+    # limits. If the ANSI nominal is between the band limits, replace the 
+    # calculated nominal with the ANSI value.
+    if oct_order == 1:
+        ansi_nominal = np.array([31.5 , 63 , 125 , 250 , 500 , 1000 , 2000 , 4000 , 8000 , 16000])
+    elif oct_order == 3:
+        ansi_nominal = np.array([25 , 31.5 , 40 , 50 , 63 , 80 , 100 , 125 , 160 , 200 ,
+                                   250 , 315 , 400 , 500 , 630 , 800 , 1000 , 1250 , 1600 , 2000 ,
+                                   2500 , 3150 , 4000 , 5000 , 8000 , 10000 , 12500 , 16000 , 20000])
+    
+    if oct_order==1 or oct_order==3:
+        dists = abs(ansi_nominal - band_centers[:,np.newaxis]) # dist from center freq to nominal
+        contained = (ansi_nominal < band_ub[:,np.newaxis]) * (ansi_nominal > band_lb[:,np.newaxis]) # bands contain nominals
+        contained_dists = contained*dists + 1e20*(~contained) # product is infty if not contained
+        
+        assign_inds = contained_dists.argmin(1) # nominal inds to assign    
+        assign_bools = contained_dists.min(1) < 1e20 # center freqs inds to assign
+        
+        nominal_band_centers[assign_bools] = ansi_nominal[assign_inds[assign_bools]]
+        
+    return nominal_band_centers, band_lb, band_ub, band_centers

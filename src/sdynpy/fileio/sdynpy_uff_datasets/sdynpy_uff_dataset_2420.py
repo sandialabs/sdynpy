@@ -45,6 +45,8 @@ class Sdynpy_UFF_Dataset_2420:
 
     @classmethod
     def from_uff_data_array(cls, data):
+        # Transform from binary to ascii
+        data = [line.decode() for line in data]
         #       Record 1:        FORMAT (1I10)
         #                 Field 1       -- Part UID
         part_uid, = parse_uff_line(data[0], ['I10'])
