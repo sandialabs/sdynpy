@@ -13,7 +13,7 @@
 Welcome to SDynPy's documentation!
 ==================================
 
-|docs| |tests| |coverage| |lint| |version|
+|documentation| |build| |codecov| |coveralls| |codefactor| |pylint| |docker|
 
 **SDynPy** is a package for performing structural dynamic analyses using Python.
 It contains several objects that represent various structural dynamics data
@@ -30,11 +30,10 @@ an overview of recommended workflows and a summary of current functionality.
 Information
 ***********
 
-- `Contributing <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/blob/main/CONTRIBUTING.rst>`_
-- `Documentation <http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/>`_
-- `Project <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/>`_
-- `Releases <https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/releases>`_
-- `Tutorial <http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/sdynpy_showcase.html>`_
+- `Documentation <https://sandialabs.github.io/sdynpy/>`_
+- `Project <https://github.com/sandialabs/sdynpy>`_
+- `Releases <https://github.com/sandialabs/sdynpy/releases>`_
+- `Tutorial <https://sandialabs.github.io/sdynpy/sdynpy_showcase.html>`_
 
 .. toctree::
    :maxdepth: 2
@@ -57,21 +56,23 @@ Indices and tables
 ..
     Badges ========================================================================
 
-.. |docs| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/docs.svg?job=pages
-    :target: http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/
-    :alt: docs
+.. |documentation| image:: https://img.shields.io/github/actions/workflow/status/sandialabs/sdynpy/pages.yml?branch=main&label=Documentation
+    :target: https://sandialabs.github.io/sdynpy/
 
-.. |tests| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/tests.svg?job=basic-tests
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/logs/report.xml?job=basic-tests
-    :alt: tests
+.. |build| image:: https://img.shields.io/github/actions/workflow/status/sandialabs/sdynpy/main.yml?branch=main&label=GitHub&logo=github
+    :target: https://github.com/sandialabs/sdynpy
 
-.. |coverage| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/badges/main/coverage.svg
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/pipelines/latest
-    :alt: coverage
+.. |pylint| image:: https://raw.githubusercontent.com/sandialabs/sdynpy/gh-pages/pylint.svg
+    :target: https://github.com/sandialabs/sdynpy
 
-.. |lint| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/lint.svg?job=static-code-checks
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/logs/lint.log?job=static-code-checks
-    :alt: lint
+.. |coveralls| image:: https://img.shields.io/coveralls/github/sandialabs/sdynpy?logo=coveralls&label=Coveralls
+    :target: https://coveralls.io/github/sandialabs/sdynpy?branch=main
 
-.. |version| image:: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/jobs/artifacts/main/raw/badges/version.svg?job=badges
-    :target: https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries/-/releases
+.. |codecov| image:: https://img.shields.io/codecov/c/github/sandialabs/sdynpy?label=Codecov&logo=codecov
+    :target: https://codecov.io/gh/sandialabs/sdynpy
+
+.. |codefactor| image:: https://img.shields.io/codefactor/grade/github/sandialabs/sdynpy?label=Codefactor&logo=codefactor
+   :target: https://www.codefactor.io/repository/github/sandialabs/sdynpy
+
+.. |docker| image:: https://img.shields.io/docker/v/dprohe/sdynpy?color=0db7ed&label=Docker%20Hub&logo=docker&logoColor=0db7ed
+    :target: https://hub.docker.com/r/dprohe/sdynpy
