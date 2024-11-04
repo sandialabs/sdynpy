@@ -31,7 +31,7 @@ from .modal import (PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues,
                     read_modal_fit_data, ModalTest)
 from . import doc
 
-__version__ = "0.14.0"
+__version__ = "0.14.1"
 
 # Pull things in for easier access
 SdynpyArray = array.SdynpyArray

@@ -58,7 +58,8 @@ setup(
         "pyvistaqt",
         "openpyxl",
         "vtk",
-        "joblib"
+        "joblib",
+        "psutil"
     ],
     python_requires='>=3.8',
     extras_require={
