@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry.ShapePlotter &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.core.sdynpy_geometry.ShapePlotter &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -68,6 +68,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a><ul class="current">
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.coordinate_system_array.html">sdynpy.core.sdynpy_geometry.coordinate_system_array</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.element_array.html">sdynpy.core.sdynpy_geometry.element_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_excel_template.html">sdynpy.core.sdynpy_geometry.from_excel_template</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_exodus.html">sdynpy.core.sdynpy_geometry.from_exodus</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_imat_struct.html">sdynpy.core.sdynpy_geometry.from_imat_struct</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.from_uff.html">sdynpy.core.sdynpy_geometry.from_uff</a></li>
@@ -79,6 +80,7 @@
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.node_array.html">sdynpy.core.sdynpy_geometry.node_array</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.split_list.html">sdynpy.core.sdynpy_geometry.split_list</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.traceline_array.html">sdynpy.core.sdynpy_geometry.traceline_array</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.write_excel_template.html">sdynpy.core.sdynpy_geometry.write_excel_template</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.DeflectionShapePlotter.html">sdynpy.core.sdynpy_geometry.DeflectionShapePlotter</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.ElementArray.html">sdynpy.core.sdynpy_geometry.ElementArray</a></li>
@@ -94,6 +96,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.next_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.next_shape()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.play_animation"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.play_animation()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.prev_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.reset_shape"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.reset_shape()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation_all_shapes()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action"><code class="docutils literal notranslate"><span class="pre">ShapePlotter.save_animation_from_action()</span></code></a></li>
@@ -229,67 +232,70 @@ the comment.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prev_shape</span></code></a>()</p></td>
 <td><p>Decreases the index of the shape being plotted</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation</span></code></a>([filename, frames, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.reset_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.reset_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_shape</span></code></a>()</p></td>
+<td><p>Resets a shape if the value of the current shape is changed</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation</span></code></a>([filename, frames, ...])</p></td>
 <td><p>Saves the current shape animation to a file</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_all_shapes</span></code></a>([filename_base, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_all_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_all_shapes</span></code></a>([filename_base, ...])</p></td>
 <td><p>Helper function to easily save animations for all shapes</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_from_action</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action" title="sdynpy.core.sdynpy_geometry.ShapePlotter.save_animation_from_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_animation_from_action</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_complex</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_complex</span></code></a>()</p></td>
 <td><p>Adjusts how complex shapes are plotted</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_loop</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_loop</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p25</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p25</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 0.25x</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p5</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p5</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 0.5x</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p8</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_0p8</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 0.8x</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1</span></code></a>()</p></td>
 <td><p>Resets shape scaling to 1</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1p25</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_1p25</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 1.25x</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_2p0</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_2p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_2p0</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 2x</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_4p0</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_scaling_4p0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_scaling_4p0</span></code></a>()</p></td>
 <td><p>Adjusts the current shape scaling by 4x</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_shape</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_shape</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_0p8</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_0p8"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_0p8</span></code></a>()</p></td>
 <td><p>Adjusts the current animation speed by 0.8</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1</span></code></a>()</p></td>
 <td><p>Resets animation speed to default quantities</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1p25</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25" title="sdynpy.core.sdynpy_geometry.ShapePlotter.select_speed_1p25"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_speed_1p25</span></code></a>()</p></td>
 <td><p>Adjusts the current animation speed by 1.25</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment" title="sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_comment</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment" title="sdynpy.core.sdynpy_geometry.ShapePlotter.show_comment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_comment</span></code></a>()</p></td>
 <td><p>Shows or hides the shape comment</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_animation</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation" title="sdynpy.core.sdynpy_geometry.ShapePlotter.stop_animation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_animation</span></code></a>()</p></td>
 <td><p>Stops the animation from playing</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed" title="sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toggle_undeformed</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed" title="sdynpy.core.sdynpy_geometry.ShapePlotter.toggle_undeformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toggle_undeformed</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape</span></code></a>()</p></td>
 <td><p>Updates the shape that is being plotted</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape_mode</span></code></a>([phase])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode" title="sdynpy.core.sdynpy_geometry.ShapePlotter.update_shape_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_shape_mode</span></code></a>([phase])</p></td>
 <td><p>Updates the mode that is being plotted</p></td>
 </tr>
 </tbody>
@@ -342,6 +348,12 @@ the comment.</p></li>
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape">
 <span class="sig-name descname"><span class="pre">prev_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.prev_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.prev_shape" title="Permalink to this definition"></a></dt>
 <dd><p>Decreases the index of the shape being plotted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.ShapePlotter.reset_shape">
+<span class="sig-name descname"><span class="pre">reset_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#ShapePlotter.reset_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.ShapePlotter.reset_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Resets a shape if the value of the current shape is changed</p>
 </dd></dl>
 
 <dl class="py method">
@@ -519,7 +531,7 @@ computes the new phase based on the time elapsed.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eef6c4c0>
+<jinja2.runtime.BlockReference object at 0x7f5a2787c400>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

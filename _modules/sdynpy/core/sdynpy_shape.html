@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -125,6 +125,9 @@
 <span class="kn">from</span> <span class="nn">..fem.sdynpy_dof</span> <span class="kn">import</span> <span class="n">by_condition_number</span><span class="p">,</span> <span class="n">by_effective_independence</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QTableWidget</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QAbstractItemView</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 
 <div class="viewcode-block" id="ShapeArray"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray">[docs]</a><span class="k">class</span> <span class="nc">ShapeArray</span><span class="p">(</span><span class="n">sdynpy_array</span><span class="o">.</span><span class="n">SdynpyArray</span><span class="p">):</span>
@@ -181,7 +184,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;frequency&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;damping&#39;</span><span class="p">,</span> <span class="s1">&#39;complex128&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;damping&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;coordinate&#39;</span><span class="p">,</span> <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="o">.</span><span class="n">data_dtype</span><span class="p">,</span> <span class="p">(</span><span class="n">ndof</span><span class="p">,)),</span>
             <span class="p">(</span><span class="s1">&#39;shape_matrix&#39;</span><span class="p">,</span> <span class="s1">&#39;complex128&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">ndof</span><span class="p">,)),</span>
             <span class="p">(</span><span class="s1">&#39;modal_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;complex128&#39;</span><span class="p">),</span>
@@ -289,7 +292,7 @@
             <span class="k">return</span> <span class="n">return_value</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;coordinate&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;coordinate&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">output</span>
@@ -375,18 +378,34 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot handle shapes besides 3Dof and 6Dof&#39;</span><span class="p">)</span>
             <span class="n">data_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dataset</span><span class="o">.</span><span class="n">node_data_dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="n">this_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span>
-                <span class="n">coordinate</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span>
-                <span class="n">shape_matrix</span><span class="o">=</span><span class="n">data_matrix</span><span class="p">,</span>
-                <span class="n">frequency</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
-                <span class="n">damping</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">modal_viscous_damping</span><span class="p">,</span>
-                <span class="n">modal_mass</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">,</span>
-                <span class="n">comment1</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
-                <span class="n">comment2</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
-                <span class="n">comment3</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline3</span><span class="p">,</span>
-                <span class="n">comment4</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline4</span><span class="p">,</span>
-                <span class="n">comment5</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline5</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">analysis_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">this_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span>
+                    <span class="n">coordinate</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span>
+                    <span class="n">shape_matrix</span><span class="o">=</span><span class="n">data_matrix</span><span class="p">,</span>
+                    <span class="n">frequency</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                    <span class="n">damping</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">modal_viscous_damping</span><span class="p">,</span>
+                    <span class="n">modal_mass</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">,</span>
+                    <span class="n">comment1</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
+                    <span class="n">comment2</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
+                    <span class="n">comment3</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline3</span><span class="p">,</span>
+                    <span class="n">comment4</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline4</span><span class="p">,</span>
+                    <span class="n">comment5</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline5</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dataset</span><span class="o">.</span><span class="n">analysis_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">this_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span>
+                    <span class="n">coordinate</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span>
+                    <span class="n">shape_matrix</span><span class="o">=</span><span class="n">data_matrix</span><span class="p">,</span>
+                    <span class="n">frequency</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">eigenvalue</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+                    <span class="n">damping</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">eigenvalue</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">eigenvalue</span><span class="p">),</span>
+                    <span class="n">modal_mass</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">modal_a</span><span class="p">,</span>
+                    <span class="n">comment1</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
+                    <span class="n">comment2</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
+                    <span class="n">comment3</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline3</span><span class="p">,</span>
+                    <span class="n">comment4</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline4</span><span class="p">,</span>
+                    <span class="n">comment5</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">idline5</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Analysis Type </span><span class="si">{:}</span><span class="s1"> for UFF Dataset 55 not implemented yet&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">analysis_type</span><span class="p">))</span>
             <span class="n">output_arrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_shape</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">combine</span><span class="p">:</span>
             <span class="n">output_arrays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">val</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">output_arrays</span><span class="p">])</span>
@@ -442,7 +461,7 @@
 <span class="sd">            String denoting the nodal variable in the exodus file from which</span>
 <span class="sd">            the Z-direction rotation should be read. The default is `None` which</span>
 <span class="sd">            results in the Z-direction rotation not being read. Typically this</span>
-<span class="sd">            would be set to &#39;RotZ&#39; if rotational values are desired.    </span>
+<span class="sd">            would be set to &#39;RotZ&#39; if rotational values are desired.</span>
 <span class="sd">        timesteps : iterable, optional</span>
 <span class="sd">            A list of timesteps from which data should be read. The default is</span>
 <span class="sd">            `None`, which reads all timesteps.</span>
@@ -454,7 +473,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exo</span><span class="p">,</span> <span class="n">Exodus</span><span class="p">):</span>
-            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x_disp</span><span class="p">,</span> <span class="n">y_disp</span><span class="p">,</span> <span class="n">z_disp</span><span class="p">,</span> <span class="n">x_rot</span><span class="p">,</span> <span class="n">y_rot</span><span class="p">,</span> <span class="n">z_rot</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x_disp</span><span class="p">,</span> <span class="n">y_disp</span><span class="p">,</span> <span class="n">z_disp</span><span class="p">,</span> <span class="n">x_rot</span><span class="p">,</span> <span class="n">y_rot</span><span class="p">,</span> <span class="n">z_rot</span><span class="p">]</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
             <span class="n">exo</span> <span class="o">=</span> <span class="n">exo</span><span class="o">.</span><span class="n">load_into_memory</span><span class="p">(</span><span class="n">close</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span> <span class="n">timesteps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=</span><span class="p">[])</span>
         <span class="n">node_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
             <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span>
@@ -579,20 +598,20 @@
         <span class="n">damping_ratios</span> <span class="o">=</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">damping</span>
         <span class="n">angular_natural_frequencies</span> <span class="o">=</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
         <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-        <span class="n">response_shape_matrix</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">responses</span><span class="p">]</span> <span class="c1"># nm x no</span>
-        <span class="n">reference_shape_matrix</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">references</span><span class="p">]</span> <span class="c1"># nm x ni</span>
+        <span class="n">response_shape_matrix</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">responses</span><span class="p">]</span>  <span class="c1"># nm x no</span>
+        <span class="n">reference_shape_matrix</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">references</span><span class="p">]</span>  <span class="c1"># nm x ni</span>
         <span class="n">modal_mass</span> <span class="o">=</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">modal_mass</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
             <span class="n">poles</span> <span class="o">=</span> <span class="o">-</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_natural_frequencies</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">damping_ratios</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">angular_natural_frequencies</span>
-            <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="p">))</span> <span class="c1"># nf x nm</span>
-            <span class="n">denominator_conj</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()))</span> <span class="c1"># nf x nm</span>
-            <span class="n">frf_ordinate</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mo,mi,fm-&gt;oif&#39;</span><span class="p">,</span><span class="n">response_shape_matrix</span><span class="p">,</span><span class="n">reference_shape_matrix</span><span class="p">,</span><span class="n">denominator</span><span class="p">)</span> <span class="o">+</span> 
-                            <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mo,mi,fm-&gt;oif&#39;</span><span class="p">,</span><span class="n">response_shape_matrix</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">reference_shape_matrix</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">denominator_conj</span><span class="p">))</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="p">))</span>  <span class="c1"># nf x nm</span>
+            <span class="n">denominator_conj</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">poles</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()))</span>  <span class="c1"># nf x nm</span>
+            <span class="n">frf_ordinate</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mo,mi,fm-&gt;oif&#39;</span><span class="p">,</span> <span class="n">response_shape_matrix</span><span class="p">,</span> <span class="n">reference_shape_matrix</span><span class="p">,</span> <span class="n">denominator</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mo,mi,fm-&gt;oif&#39;</span><span class="p">,</span> <span class="n">response_shape_matrix</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">reference_shape_matrix</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(),</span> <span class="n">denominator_conj</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span><span class="o">*</span>
-                             <span class="p">(</span><span class="o">-</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">modal_mass</span> <span class="o">*</span>
+                             <span class="p">(</span><span class="o">-</span><span class="n">angular_frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
                               <span class="o">+</span> <span class="n">angular_natural_frequencies</span><span class="o">**</span><span class="mi">2</span>
-                              <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">angular_natural_frequencies</span><span class="p">))</span>
+                              <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">damping_ratios</span><span class="o">*</span><span class="n">angular_frequencies</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">angular_natural_frequencies</span><span class="p">))</span>
 
             <span class="n">frf_ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mo,mi,fm-&gt;oif&#39;</span><span class="p">,</span>
                                      <span class="n">response_shape_matrix</span><span class="p">,</span>
@@ -605,7 +624,7 @@
         <span class="c1"># Now package into a sdynpy array</span>
         <span class="n">output_data</span> <span class="o">=</span> <span class="n">sdynpy_data</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdynpy_data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">,</span>
                                              <span class="n">frequencies</span><span class="p">,</span> <span class="n">frf_ordinate</span><span class="p">,</span>
-                                             <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">outer_product</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span><span class="n">references</span><span class="p">))</span>
+                                             <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">outer_product</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">output_data</span></div>
 
@@ -616,7 +635,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        nodelist_or_coordinate_array : iterable or CoordinateArray</span>
-<span class="sd">            Consists of either a list of node ids or a CoordinateArray.  The </span>
+<span class="sd">            Consists of either a list of node ids or a CoordinateArray.  The</span>
 <span class="sd">            ShapeArray will be reduced to only the degrees of freedom specified</span>
 
 <span class="sd">        Returns</span>
@@ -719,7 +738,7 @@
             <span class="k">return</span> <span class="n">expanded_shapes</span></div>
 
 <div class="viewcode-block" id="ShapeArray.transform_coordinate_system"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system">[docs]</a>    <span class="k">def</span> <span class="nf">transform_coordinate_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_geometry</span><span class="p">,</span> <span class="n">new_geometry</span><span class="p">,</span> <span class="n">node_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rotations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                    <span class="n">missing_dofs_are_zero</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+                                    <span class="n">missing_dofs_are_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs coordinate system transformations on the shape</span>
 
@@ -749,7 +768,7 @@
 <span class="sd">            A ShapeArray that can now be plotted with the new geometry</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">node_id_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node_id_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">original_geometry</span> <span class="o">=</span> <span class="n">original_geometry</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">node_id_map</span><span class="o">.</span><span class="n">from_ids</span><span class="p">)</span>
             <span class="n">original_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">node_id_map</span><span class="p">(</span><span class="n">original_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">node_id_map</span><span class="o">.</span><span class="n">from_ids</span><span class="p">)</span>
@@ -763,25 +782,25 @@
         <span class="k">if</span> <span class="n">missing_dofs_are_zero</span><span class="p">:</span>
             <span class="c1"># Find any coordinates that are not in shapes</span>
             <span class="n">shape_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">))</span>
-            <span class="n">coords_not_in_shape</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">coordinates</span><span class="p">),</span><span class="n">shape_coords</span><span class="p">)]</span>
+            <span class="n">coords_not_in_shape</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">coordinates</span><span class="p">),</span> <span class="n">shape_coords</span><span class="p">)]</span>
             <span class="c1"># Create a new shape array and set the coefficients to zero</span>
             <span class="n">append_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="n">coords_not_in_shape</span><span class="o">.</span><span class="n">size</span><span class="p">,),</span>
                                            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="c1"># Create a shape</span>
-            <span class="n">append_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coords_not_in_shape</span><span class="p">,</span><span class="n">append_shape_matrix</span><span class="p">)</span>
+            <span class="n">append_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coords_not_in_shape</span><span class="p">,</span> <span class="n">append_shape_matrix</span><span class="p">)</span>
             <span class="c1"># Append it</span>
-            <span class="bp">self</span> <span class="o">=</span> <span class="n">ShapeArray</span><span class="o">.</span><span class="n">concatenate_dofs</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span><span class="n">append_shape</span><span class="p">))</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="n">ShapeArray</span><span class="o">.</span><span class="n">concatenate_dofs</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span> <span class="n">append_shape</span><span class="p">))</span>
         <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">new_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;nij,nkj,...nk-&gt;...ni&#39;</span><span class="p">,</span> <span class="n">transform_to_new</span><span class="p">,</span>
                                      <span class="n">transform_from_original</span><span class="p">,</span> <span class="n">shape_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">new_shape_matrix</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ShapeArray.reduce_for_comparison"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.reduce_for_comparison">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_for_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">comparison_shape</span><span class="p">,</span> <span class="n">node_id_map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">node_id_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ShapeArray.reduce_for_comparison"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.reduce_for_comparison">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_for_comparison</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comparison_shape</span><span class="p">,</span> <span class="n">node_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node_id_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">node_id_map</span><span class="o">.</span><span class="n">from_ids</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node_id_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
-        <span class="n">common_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">),</span><span class="nb">abs</span><span class="p">(</span><span class="n">comparison_shape</span><span class="o">.</span><span class="n">coordinate</span><span class="p">))</span>
+        <span class="n">common_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">comparison_shape</span><span class="o">.</span><span class="n">coordinate</span><span class="p">))</span>
         <span class="n">reduced_self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">common_dofs</span><span class="p">)</span>
         <span class="n">reduced_comparison</span> <span class="o">=</span> <span class="n">comparison_shape</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">common_dofs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">reduced_self</span><span class="p">,</span> <span class="n">reduced_comparison</span></div>
@@ -817,7 +836,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">ys</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ax</span></div>
 
-<div class="viewcode-block" id="ShapeArray.to_real"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.to_real">[docs]</a>    <span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_angle</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ShapeArray.to_real"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.to_real">[docs]</a>    <span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_angle</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates real shapes from complex shapes by collapsing the complexity</span>
 
@@ -838,14 +857,85 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">collapse_complex_to_real</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="p">,</span> 
-                                          <span class="n">force_angle</span> <span class="o">=</span> <span class="n">force_angle</span><span class="p">,</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">collapse_complex_to_real</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="p">,</span>
+                                          <span class="n">force_angle</span><span class="o">=</span><span class="n">force_angle</span><span class="p">,</span>
                                           <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">damped_natural_frequency</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">real</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">damped_natural_frequency</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">real</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
         <span class="n">matrix</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">damped_natural_frequency</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ShapeArray.to_complex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.to_complex">[docs]</a>    <span class="k">def</span> <span class="nf">to_complex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates complex shapes from real shapes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ShapeArray</span>
+<span class="sd">            Complex shapes compute from the real shape coefficients</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span>
+        <span class="n">damped_natural_frequency</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">real</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">matrix</span> <span class="o">/=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">damped_natural_frequency</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ShapeArray.normalize"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">system_or_matrix</span><span class="p">,</span> <span class="n">return_modal_matrix</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes A-normalized or mass-normalized shapes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        system_or_matrix : System or np.ndarray</span>
+<span class="sd">            A System object or a mass matrix for real modes or A-matrix for</span>
+<span class="sd">            complex modes.</span>
+<span class="sd">        return_modal_matrix : bool, optional</span>
+<span class="sd">            If true, it will return the modal mass or modal-A matrix computed</span>
+<span class="sd">            from the normalized mode shapes.  The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ShapeArray</span>
+<span class="sd">            A copy of the original shape array with normalized shape coefficients</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system_or_matrix</span><span class="p">,</span><span class="n">sdynpy_system</span><span class="o">.</span><span class="n">System</span><span class="p">):</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">system_or_matrix</span><span class="o">.</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span>                 <span class="n">Z</span><span class="p">,</span> <span class="n">system_or_matrix</span><span class="o">.</span><span class="n">M</span><span class="p">],</span>
+                              <span class="p">[</span><span class="n">system_or_matrix</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">system_or_matrix</span><span class="o">.</span><span class="n">C</span><span class="p">]])</span>
+                <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">system_or_matrix</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">system_or_matrix</span>
+                <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeshape</span>
+            <span class="n">omega_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="n">zeta_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span>
+            <span class="n">lam</span> <span class="o">=</span> <span class="o">-</span><span class="n">omega_r</span><span class="o">*</span><span class="n">zeta_r</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega_r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">zeta_r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">lam</span><span class="o">*</span><span class="n">shapes</span><span class="p">,</span><span class="n">shapes</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">scale_factors</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ji,jk,ki-&gt;i&#39;</span><span class="p">,</span><span class="n">E</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">E</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">return_modal_matrix</span><span class="p">:</span>
+                <span class="n">modal_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ji,jk,kl-&gt;il&#39;</span><span class="p">,</span><span class="n">E</span><span class="o">*</span><span class="n">scale_factors</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">E</span><span class="o">*</span><span class="n">scale_factors</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system_or_matrix</span><span class="p">,</span><span class="n">sdynpy_system</span><span class="o">.</span><span class="n">System</span><span class="p">):</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">system_or_matrix</span><span class="o">.</span><span class="n">M</span>
+                <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">system_or_matrix</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">system_or_matrix</span>
+                <span class="n">shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeshape</span>
+            <span class="n">scale_factors</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ji,jk,ki-&gt;i&#39;</span><span class="p">,</span><span class="n">shapes</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">shapes</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">return_modal_matrix</span><span class="p">:</span>
+                <span class="n">modal_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ji,jk,kl-&gt;il&#39;</span><span class="p">,</span><span class="n">shapes</span><span class="o">*</span><span class="n">scale_factors</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">shapes</span><span class="o">*</span><span class="n">scale_factors</span><span class="p">)</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">output_shape</span> <span class="o">*=</span> <span class="n">scale_factors</span>
+        <span class="k">if</span> <span class="n">return_modal_matrix</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">modal_matrix</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output_shape</span></div>
 
 <div class="viewcode-block" id="ShapeArray.write_to_unv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_unv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">specific_data_type</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">load_case_number</span><span class="o">=</span><span class="mi">0</span>
                      <span class="p">):</span>
@@ -855,7 +945,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
-<span class="sd">            Filename to which the geometry will be written.  If None, </span>
+<span class="sd">            Filename to which the geometry will be written.  If None,</span>
 <span class="sd">            unv data will be returned instead, similar to that</span>
 <span class="sd">            obtained from the readunv function in sdynpy</span>
 <span class="sd">        specific_data_type : int, optional</span>
@@ -972,7 +1062,7 @@
 <span class="sd">            ShapeArray</span>
 <span class="sd">        color_override : iterable, optional</span>
 <span class="sd">            An iterble of integers specifying colors, which will override the</span>
-<span class="sd">            existing geometry colors.  This should have the same length as the </span>
+<span class="sd">            existing geometry colors.  This should have the same length as the</span>
 <span class="sd">            `geometries` input.  The default is None, which keeps the original</span>
 <span class="sd">            geometry colors.</span>
 
@@ -1027,9 +1117,9 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        response_array : TimeHistoryArray</span>
-<span class="sd">            Input forces assembled into a TimeHistoryArray.</span>
-<span class="sd">        reference_array : TimeHistoryArray</span>
 <span class="sd">            Responses assembled into a TimeHistoryArray.</span>
+<span class="sd">        reference_array : TimeHistoryArray</span>
+<span class="sd">            Input forces assembled into a TimeHistoryArray.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
@@ -1055,14 +1145,16 @@
             <span class="n">response</span> <span class="o">=</span> <span class="n">phi_out</span> <span class="o">@</span> <span class="n">modal_response</span>
             <span class="n">response_array</span> <span class="o">=</span> <span class="n">sdynpy_data</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdynpy_data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
                                                     <span class="n">times</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span>
-                                                    <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">responses</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+                                                    <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                                                    <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">responses</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
             <span class="n">reference_array</span> <span class="o">=</span> <span class="n">sdynpy_data</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdynpy_data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
                                                      <span class="n">times</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
-                                                     <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+                                                     <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                                                     <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">response_array</span><span class="p">,</span> <span class="n">reference_array</span></div>
 
 <div class="viewcode-block" id="ShapeArray.optimize_degrees_of_freedom"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom">[docs]</a>    <span class="k">def</span> <span class="nf">optimize_degrees_of_freedom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensors_to_keep</span><span class="p">,</span>
-                                    <span class="n">group_by_node</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;ei&#39;</span><span class="p">):</span>
+                                    <span class="n">group_by_node</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ei&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a reduced set of shapes using optimal degrees of freedom</span>
 
@@ -1087,11 +1179,11 @@
         <span class="k">if</span> <span class="n">group_by_node</span><span class="p">:</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
             <span class="n">directions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-            <span class="n">coordinate_array</span> <span class="o">=</span> <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">directions</span><span class="p">)</span>
+            <span class="n">coordinate_array</span> <span class="o">=</span> <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">directions</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">coordinate_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">))</span>
         <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">coordinate_array</span><span class="p">]</span>
-        <span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">shape_matrix</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;ei&#39;</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">by_effective_independence</span><span class="p">(</span><span class="n">sensors_to_keep</span><span class="p">,</span> <span class="n">shape_matrix</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;cond&#39;</span><span class="p">:</span>
@@ -1205,9 +1297,122 @@
             <span class="k">if</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latex&#39;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_latex</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+                <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_latex</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="ShapeArray.edit_comments"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.edit_comments">[docs]</a>    <span class="k">def</span> <span class="nf">edit_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens up a table where the shape comments can be edited</span>
+<span class="sd">        </span>
+<span class="sd">        If a geometry is also passed, it will also open up a mode shape plotter</span>
+<span class="sd">        window where you can visualize the modes you are looking at.</span>
+<span class="sd">        </span>
+<span class="sd">        Edited comments will be stored back into the ShapeArray object when the</span>
+<span class="sd">        OK button is pressed.  Comments will not be stored if the Cancel button</span>
+<span class="sd">        is pressed.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geometry : Geometry, optional</span>
+<span class="sd">            A geometry on which the shapes will be plotted.  If not specified,</span>
+<span class="sd">            a table will just open up.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ShapeCommentTable</span>
+<span class="sd">            A ShapeCommentTable displaying the modal information where comments</span>
+<span class="sd">            can be edited.</span>
+<span class="sd">            </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Due to how Python handles garbage collection, the table may be</span>
+<span class="sd">        immediately closed if not assigned to a variable, as Python things it</span>
+<span class="sd">        is no longer in use.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ShapeCommentTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">)</span></div></div>
+        
+<div class="viewcode-block" id="ShapeCommentTable"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable">[docs]</a><span class="k">class</span> <span class="nc">ShapeCommentTable</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+<div class="viewcode-block" id="ShapeCommentTable.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">plotter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a table window that allows editing of comments on the mode</span>
+<span class="sd">        shapes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shapes : ShapeArray</span>
+<span class="sd">            The shapes for which the comments need to be modified.</span>
+<span class="sd">        plotter : ShapePlotter, optional</span>
+<span class="sd">            A shape plotter that is to be linked to the table.  It should have</span>
+<span class="sd">            the same modes used for the table plotted on it.  The plotter will</span>
+<span class="sd">            automatically update the mode being displayed as different rows of</span>
+<span class="sd">            the table are selected. If not specified, there will be no mode</span>
+<span class="sd">            shape display linked to the table.</span>
+<span class="sd">        parent : QWidget, optional</span>
+<span class="sd">            Parent widget for the window. The default is No parent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="c1"># Add a table widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Shape Comment Editor&#39;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span> <span class="o">=</span> <span class="n">shapes</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="o">.</span><span class="n">accepted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="o">.</span><span class="n">rejected</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="c1"># Columns will be key, frequency, damping, comment1, comment2, ... comment5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span> <span class="o">=</span> <span class="n">QTableWidget</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">currentItemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">setHorizontalHeaderLabels</span><span class="p">([</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span><span class="s1">&#39;Frequency&#39;</span><span class="p">,</span><span class="s1">&#39;Damping&#39;</span><span class="p">,</span><span class="s1">&#39;Comment1&#39;</span><span class="p">,</span><span class="s1">&#39;Comment2&#39;</span><span class="p">,</span><span class="s1">&#39;Comment3&#39;</span><span class="p">,</span><span class="s1">&#39;Comment4&#39;</span><span class="p">,</span><span class="s1">&#39;Comment5&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">setSelectionMode</span><span class="p">(</span><span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">SingleSelection</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,(</span><span class="n">shape_index</span><span class="p">,</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">column</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">shape_index</span><span class="p">,</span><span class="n">shape</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span>
+                                           <span class="n">shape</span><span class="o">.</span><span class="n">comment5</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:0.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">column</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:0.2f}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">^</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">column</span><span class="p">,</span><span class="n">item</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="ShapeCommentTable.update_mode"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.update_mode">[docs]</a>    <span class="k">def</span> <span class="nf">update_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">current_shape</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">reset_shape</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="ShapeCommentTable.accept"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,(</span><span class="n">shape_index</span><span class="p">,</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">()):</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">comment2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">comment3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">comment4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">comment5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+    
 <span class="c1">#    def string_array(self):</span>
 <span class="c1">#        return create_coordinate_string_array(self.node,self.direction)</span>
 <span class="c1">#</span>
@@ -1307,7 +1512,7 @@
         <span class="s1">&#39;comment5&#39;</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">structured_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">structured_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">structured_array</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -1392,7 +1597,7 @@
 
 
 <div class="viewcode-block" id="rigid_body_check"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.rigid_body_check.html#sdynpy.core.sdynpy_shape.rigid_body_check">[docs]</a><span class="k">def</span> <span class="nf">rigid_body_check</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">distance_number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">distance_yscale</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">residuals_to_label</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                     <span class="n">return_shape_diagnostics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">rigid_shape_kwargs</span><span class="p">):</span>
+                     <span class="n">return_shape_diagnostics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_figures</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">rigid_shape_kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs rigid body checks, both looking at the complex plane and residuals</span>
 
@@ -1412,7 +1617,7 @@
 <span class="sd">        Penalty factor applied to the complex portion of the shape when</span>
 <span class="sd">        computing distances. The default is 20.</span>
 <span class="sd">    residuals_to_label : int, optional</span>
-<span class="sd">        The top `residuals_to_label` residuals will be highlighted in the </span>
+<span class="sd">        The top `residuals_to_label` residuals will be highlighted in the</span>
 <span class="sd">        residual plots. The default is 5.</span>
 <span class="sd">    return_shape_diagnostics : True, optional</span>
 <span class="sd">        If True, additional outputs are returned to help diagnose issues. The</span>
@@ -1428,13 +1633,13 @@
 <span class="sd">    suspicious_channels : CoordinateArray</span>
 <span class="sd">        A set of suspicous channels that should be investigated</span>
 <span class="sd">    analytic_rigid_shapes : ShapeArray</span>
-<span class="sd">        Rigid body shapes created from the geometry.  Only returned if </span>
+<span class="sd">        Rigid body shapes created from the geometry.  Only returned if</span>
 <span class="sd">        return_shape_diagnostics is True</span>
 <span class="sd">    residual : np.ndarray</span>
 <span class="sd">        Values of the residuals at coordinates np.unique(rigid_shapes.coordinate).</span>
 <span class="sd">        Only returned if return_shape_diagnostics is True</span>
 <span class="sd">    shape_matrix_exp : np.ndarray</span>
-<span class="sd">        The shape matrix of the supplied rigid shapes.  Only returned if </span>
+<span class="sd">        The shape matrix of the supplied rigid shapes.  Only returned if</span>
 <span class="sd">        return_shape_diagnostics is True</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1446,6 +1651,7 @@
     <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">shape_matrix_exp</span> <span class="o">-</span> <span class="n">projection</span><span class="p">)</span>
     <span class="n">suspicious_channels</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Plot the complex plane for each shape</span>
+    <span class="n">figs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">,</span> <span class="n">shape_matrix_exp</span><span class="o">.</span><span class="n">T</span><span class="p">)):</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Shape </span><span class="si">{:}</span><span class="s1"> Complex Plane&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1461,11 +1667,13 @@
             <span class="k">for</span> <span class="n">outlier</span> <span class="ow">in</span> <span class="n">outliers</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">outlier</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">outlier</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">outlier</span><span class="p">]))</span>
                 <span class="n">suspicious_channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">outlier</span><span class="p">])</span>
+            <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="c1"># Now plot the residuals</span>
     <span class="n">residual_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Projection Residuals&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">figs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">residuals_to_label</span><span class="p">):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">residual_order</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
@@ -1475,10 +1683,15 @@
         <span class="c1"># ax.set_yscale(&#39;log&#39;)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Residual&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Degree of Freedom&#39;</span><span class="p">)</span>
+    <span class="n">return_object</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">suspicious_channels</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">),)</span>
     <span class="k">if</span> <span class="n">return_shape_diagnostics</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">suspicious_channels</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">),</span> <span class="n">true_rigid_shapes</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">shape_matrix_exp</span>
+        <span class="n">return_object</span> <span class="o">=</span> <span class="n">return_object</span> <span class="o">+</span> <span class="p">(</span><span class="n">true_rigid_shapes</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">shape_matrix_exp</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_figures</span><span class="p">:</span>
+        <span class="n">return_object</span> <span class="o">=</span> <span class="n">return_object</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">figs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">return_object</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">return_object</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">suspicious_channels</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">return_object</span></div>
 
 
 <div class="viewcode-block" id="rigid_body_fix_node_orientation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation.html#sdynpy.core.sdynpy_shape.rigid_body_fix_node_orientation">[docs]</a><span class="k">def</span> <span class="nf">rigid_body_fix_node_orientation</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span> <span class="n">suspect_nodes</span><span class="p">,</span> <span class="n">new_cs_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
@@ -1523,7 +1736,7 @@
     <span class="c1"># Loop through all suspect nodes</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">suspect_nodes</span><span class="p">):</span>
         <span class="n">keep_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">suspect_nodes</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">node</span><span class="p">)]</span>
+            <span class="n">val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">suspect_nodes</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">node</span><span class="p">)]</span>
         <span class="n">error_geometry</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">keep_nodes</span><span class="p">)</span>
         <span class="n">error_shapes</span> <span class="o">=</span> <span class="n">rigid_shapes</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">keep_nodes</span><span class="p">)</span>
 
@@ -1650,7 +1863,7 @@
     <span class="n">freq_table_format</span> <span class="o">=</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">freq_size</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">)</span>
     <span class="n">mac_table_format</span> <span class="o">=</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mac_size</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">)</span>
     <span class="n">freqerr_table_format</span> <span class="o">=</span> <span class="s1">&#39;{{:&gt;</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">freqerr_size</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">damping_strings_1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Damp 1&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">damping_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
                                           <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shape_1</span><span class="p">]</span>
         <span class="n">damping_strings_2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Damp 2&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">damping_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
@@ -1674,7 +1887,7 @@
         <span class="n">separator_string</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span>
         <span class="n">lineend_string</span> <span class="o">=</span> <span class="s1">&#39;|</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">linebegin_string</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">header_separator_string</span> <span class="o">=</span> <span class="n">lineend_string</span> <span class="o">+</span> <span class="n">linebegin_string</span> <span class="o">+</span> <span class="n">separator_string</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">)</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="p">[</span>
                 <span class="n">index_size</span><span class="p">,</span> <span class="n">freq_size</span><span class="p">,</span> <span class="n">freq_size</span><span class="p">,</span> <span class="n">freqerr_size</span><span class="p">,</span>
                 <span class="n">damp_size</span><span class="p">,</span> <span class="n">damp_size</span><span class="p">,</span> <span class="n">damperr_size</span><span class="p">,</span> <span class="n">mac_size</span><span class="p">]])</span> <span class="o">+</span> <span class="n">lineend_string</span>
@@ -1682,11 +1895,11 @@
             <span class="n">header_separator_string</span> <span class="o">=</span> <span class="n">lineend_string</span> <span class="o">+</span> <span class="n">linebegin_string</span> <span class="o">+</span> <span class="n">separator_string</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">)</span> <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="p">[</span>
                 <span class="n">index_size</span><span class="p">,</span> <span class="n">freq_size</span><span class="p">,</span> <span class="n">freq_size</span><span class="p">,</span> <span class="n">freqerr_size</span><span class="p">,</span> <span class="n">mac_size</span><span class="p">]])</span> <span class="o">+</span> <span class="n">lineend_string</span>
     <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latex&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">table_begin_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">begin</span><span class="si">{tabular}{rrrrrrrr}</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">table_begin_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">begin</span><span class="si">{tabular}{rrrrr}</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="n">table_end_string</span> <span class="o">=</span> <span class="s1">&#39;\end</span><span class="si">{tabular}</span><span class="s1">&#39;</span>
+        <span class="n">table_end_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\end</span><span class="si">{tabular}</span><span class="s1">&#39;</span>
         <span class="n">separator_string</span> <span class="o">=</span> <span class="s1">&#39; &amp; &#39;</span>
         <span class="n">lineend_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\\\\\n</span><span class="s1">&#39;</span>
         <span class="n">linebegin_string</span> <span class="o">=</span> <span class="s1">&#39;    &#39;</span>
@@ -1694,7 +1907,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid table_format.  Must be one of [&#39;text&#39;,&#39;markdown&#39;,&#39;latex&#39;].&quot;</span><span class="p">)</span>
     <span class="n">output_string</span> <span class="o">=</span> <span class="n">table_begin_string</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">damping_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">fe</span><span class="p">,</span> <span class="n">de</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
                 <span class="n">index_strings</span><span class="p">,</span> <span class="n">frequency_strings_1</span><span class="p">,</span> <span class="n">frequency_strings_2</span><span class="p">,</span>
                 <span class="n">damping_strings_1</span><span class="p">,</span> <span class="n">damping_strings_2</span><span class="p">,</span> <span class="n">freq_error_strings</span><span class="p">,</span>
@@ -1734,7 +1947,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ebbc5150>
+<jinja2.runtime.BlockReference object at 0x7f5a27eb6bc0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_modal_test &mdash; SDynPy 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_modal_test</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.modal.sdynpy_modal_test</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class defining the typical data for a modal test used to automatically create</span>
+<span class="sd">reports and plots</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_shape</span> <span class="kn">import</span> <span class="n">ShapeArray</span><span class="p">,</span> <span class="n">mac</span><span class="p">,</span> <span class="n">matrix_plot</span><span class="p">,</span> <span class="n">rigid_body_check</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TransferFunctionArray</span><span class="p">,</span> <span class="n">CoherenceArray</span><span class="p">,</span>
+                                <span class="n">MultipleCoherenceArray</span><span class="p">,</span> <span class="n">PowerSpectralDensityArray</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_signal_processing_gui</span> <span class="kn">import</span> <span class="n">SignalProcessingGUI</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_polypy</span> <span class="kn">import</span> <span class="n">PolyPy_GUI</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_smac</span> <span class="kn">import</span> <span class="n">SMAC_GUI</span>
+<span class="kn">from</span> <span class="nn">..doc.sdynpy_latex</span> <span class="kn">import</span> <span class="n">figure</span> <span class="k">as</span> <span class="n">latex_figure</span><span class="p">,</span> <span class="n">table</span> <span class="k">as</span> <span class="n">latex_table</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="read_modal_fit_data"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.read_modal_fit_data.html#sdynpy.modal.sdynpy_modal_test.read_modal_fit_data">[docs]</a><span class="k">def</span> <span class="nf">read_modal_fit_data</span><span class="p">(</span><span class="n">modal_fit_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads Modal Fit Data from PolyPy_GUI which contains modes and FRF data</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modal_fit_data : str or NpzFile</span>
+<span class="sd">        Filename to or data loaded from a Modal Fit Data .npz file that is</span>
+<span class="sd">        saved from SDynPy&#39;s mode fitters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    shapes : ShapeArray</span>
+<span class="sd">        The modes fit to the structure</span>
+<span class="sd">    experimental_frfs : TransferFunctionArray</span>
+<span class="sd">        The FRFs to which the modes were fit</span>
+<span class="sd">    resynthesized_frfs : TransferFunctionArray</span>
+<span class="sd">        FRFs resynthesized from the fit modes</span>
+<span class="sd">    residual_frfs : TransferFunctionArray</span>
+<span class="sd">        FRF contribution from the residual terms in the modal fit.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">modal_fit_data</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">modal_fit_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">modal_fit_data</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="n">modal_fit_data</span><span class="p">[</span><span class="s1">&#39;shapes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">ShapeArray</span><span class="p">)</span>
+    <span class="n">experimental_frfs</span> <span class="o">=</span> <span class="n">modal_fit_data</span><span class="p">[</span><span class="s1">&#39;frfs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">TransferFunctionArray</span><span class="p">)</span>
+    <span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="n">modal_fit_data</span><span class="p">[</span><span class="s1">&#39;frfs_resynth&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">TransferFunctionArray</span><span class="p">)</span>
+    <span class="n">residual_frfs</span> <span class="o">=</span> <span class="n">modal_fit_data</span><span class="p">[</span><span class="s1">&#39;frfs_residual&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">TransferFunctionArray</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">experimental_frfs</span><span class="p">,</span> <span class="n">resynthesized_frfs</span><span class="p">,</span> <span class="n">residual_frfs</span></div>
+
+<div class="viewcode-block" id="ModalTest"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest">[docs]</a><span class="k">class</span> <span class="nc">ModalTest</span><span class="p">:</span>
+    
+<div class="viewcode-block" id="ModalTest.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">time_histories</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">autopower_spectra</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">frfs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">coherence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fit_modes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">response_unit</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reference_unit</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">rigid_body_shapes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">channel_table</span> <span class="o">=</span> <span class="kc">None</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="o">=</span> <span class="n">response_unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="o">=</span> <span class="n">reference_unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span> <span class="o">=</span> <span class="n">time_histories</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="o">=</span> <span class="n">autopower_spectra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="o">=</span> <span class="n">frfs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="o">=</span> <span class="n">coherence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="o">=</span> <span class="n">fit_modes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rigid_body_shapes</span> <span class="o">=</span> <span class="n">rigid_body_shapes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel_table</span> <span class="o">=</span> <span class="n">channel_table</span>
+        <span class="c1"># Handles for GUIs that exist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smacgui</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeshape_plotter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deflectionshape_plotter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Quantities of interest for computing spectral quantities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples_per_frame</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_averages</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_channel_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_slope</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_level</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrigger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frf_estimator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Quantities of interest from Curve Fitters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Figures to save to documentation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span> <span class="o">=</span> <span class="p">{}</span></div>
+        
+<div class="viewcode-block" id="ModalTest.set_rigid_body_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">set_rigid_body_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rigid_body_shapes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rigid_body_shapes</span> <span class="o">=</span> <span class="n">rigid_body_shapes</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_units"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_units">[docs]</a>    <span class="k">def</span> <span class="nf">set_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">response_unit</span><span class="p">,</span> <span class="n">reference_unit</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="o">=</span> <span class="n">response_unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="o">=</span> <span class="n">reference_unit</span></div>
+        
+<div class="viewcode-block" id="ModalTest.set_geometry"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">set_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_time_histories"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories">[docs]</a>    <span class="k">def</span> <span class="nf">set_time_histories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_histories</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span> <span class="o">=</span> <span class="n">time_histories</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_autopower_spectra"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra">[docs]</a>    <span class="k">def</span> <span class="nf">set_autopower_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autopower_spectra</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="o">=</span> <span class="n">autopower_spectra</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_frfs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs">[docs]</a>    <span class="k">def</span> <span class="nf">set_frfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frfs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="o">=</span> <span class="n">frfs</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_coherence"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence">[docs]</a>    <span class="k">def</span> <span class="nf">set_coherence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coherence</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="o">=</span> <span class="n">coherence</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_fit_modes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes">[docs]</a>    <span class="k">def</span> <span class="nf">set_fit_modes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_modes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="o">=</span> <span class="n">fit_modes</span></div>
+        
+<div class="viewcode-block" id="ModalTest.set_resynthesized_frfs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs">[docs]</a>    <span class="k">def</span> <span class="nf">set_resynthesized_frfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resynthesized_frfs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span></div>
+    
+<div class="viewcode-block" id="ModalTest.set_channel_table"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table">[docs]</a>    <span class="k">def</span> <span class="nf">set_channel_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channel_table</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel_table</span> <span class="o">=</span> <span class="n">channel_table</span></div>
+    
+<div class="viewcode-block" id="ModalTest.compute_spectral_quantities_SignalProcessingGUI"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI">[docs]</a>    <span class="k">def</span> <span class="nf">compute_spectral_quantities_SignalProcessingGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Time Histories must be defined in order to compute spectral quantities&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span> <span class="o">=</span> <span class="n">SignalProcessingGUI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span></div>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">response_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="o">.</span><span class="n">size</span><span class="p">)[</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">response_indices</span>
+    
+<div class="viewcode-block" id="ModalTest.retrieve_spectral_quantities_SignalProcessingGUI"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_spectral_quantities_SignalProcessingGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">referencesSelector</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">(</span>
+            <span class="n">Qt</span><span class="o">.</span><span class="n">UserRole</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">referencesSelector</span><span class="o">.</span><span class="n">count</span><span class="p">())])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples_per_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">frameSizeSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_averages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">framesSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">startTimeDoubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">endTimeDoubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">typeComboBox</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_channel_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">channelComboBox</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_slope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">slopeComboBox</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">levelDoubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrigger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">pretriggerDoubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">overlapDoubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">/</span><span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">windowComboBox</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frf_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">frfComboBox</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">frfCheckBox</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">autospectraCheckBox</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">coherenceCheckBox</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">autospectra_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra_reference_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">frf_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgui</span><span class="o">.</span><span class="n">coherence_data</span></div>
+        
+<div class="viewcode-block" id="ModalTest.compute_spectral_quantities"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities">[docs]</a>    <span class="k">def</span> <span class="nf">compute_spectral_quantities</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">reference_indices</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span>
+            <span class="n">overlap</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">frf_estimator</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Time Histories must be defined in order to compute spectral quantities&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="o">=</span> <span class="n">reference_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra_reference_indices</span> <span class="o">=</span> <span class="n">reference_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples_per_frame</span> <span class="o">=</span> <span class="n">num_samples_per_frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_channel_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_slope</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_level</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrigger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="n">overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frf_estimator</span> <span class="o">=</span> <span class="n">frf_estimator</span>
+        
+        <span class="c1"># Separate into references and responses</span>
+        <span class="n">time_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">time_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span><span class="p">]</span>
+        
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">time_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">response_indices</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_averages</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_data</span><span class="o">.</span><span class="n">num_elements</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">overlap</span><span class="p">)</span><span class="o">*</span><span class="n">num_samples_per_frame</span><span class="p">)</span><span class="o">//</span><span class="n">num_samples_per_frame</span> <span class="o">+</span> <span class="mi">1</span>
+        
+        <span class="c1"># Compute FRFs, Coherence, and Autospectra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="o">=</span> <span class="n">TransferFunctionArray</span><span class="o">.</span><span class="n">from_time_data</span><span class="p">(</span>
+            <span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span> <span class="n">frf_estimator</span><span class="p">,</span>
+            <span class="n">window</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="o">=</span> <span class="n">PowerSpectralDensityArray</span><span class="o">.</span><span class="n">from_time_data</span><span class="p">(</span>
+            <span class="n">time_data</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">only_asds</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="o">=</span> <span class="n">MultipleCoherenceArray</span><span class="o">.</span><span class="n">from_time_data</span><span class="p">(</span>
+                <span class="n">responses</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> 
+                <span class="n">references</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="o">=</span> <span class="n">CoherenceArray</span><span class="o">.</span><span class="n">from_time_data</span><span class="p">(</span>
+                <span class="n">responses</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">references</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="ModalTest.define_spectral_processing_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">define_spectral_processing_parameters</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">reference_indices</span><span class="p">,</span> <span class="n">num_samples_per_frame</span><span class="p">,</span> <span class="n">num_averages</span><span class="p">,</span> 
+            <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">trigger</span><span class="p">,</span> <span class="n">trigger_channel_index</span><span class="p">,</span>
+            <span class="n">trigger_slope</span><span class="p">,</span> <span class="n">trigger_level</span><span class="p">,</span> <span class="n">pretrigger</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span>
+            <span class="n">frf_estimator</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="o">=</span> <span class="n">reference_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra_reference_indices</span> <span class="o">=</span> <span class="n">reference_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples_per_frame</span> <span class="o">=</span> <span class="n">num_samples_per_frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_averages</span> <span class="o">=</span> <span class="n">num_averages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="n">trigger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_channel_index</span> <span class="o">=</span> <span class="n">trigger_channel_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_slope</span> <span class="o">=</span> <span class="n">trigger_slope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger_level</span> <span class="o">=</span> <span class="n">trigger_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrigger</span> <span class="o">=</span> <span class="n">pretrigger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="n">overlap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frf_estimator</span> <span class="o">=</span> <span class="n">frf_estimator</span></div>
+    
+<div class="viewcode-block" id="ModalTest.fit_modes_PolyPy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy">[docs]</a>    <span class="k">def</span> <span class="nf">fit_modes_PolyPy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs must be defined in order to fit modes&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span> <span class="o">=</span> <span class="n">PolyPy_GUI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.retrieve_modes_PolyPy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_modes_PolyPy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">compute_shapes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">shapes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:[</span>
+            <span class="s1">&#39;Modes were fit to the data in </span><span class="si">{:}</span><span class="s1"> bands.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">stability_diagrams</span><span class="p">))]}</span>
+        <span class="n">figure_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Now go through and get polynomial data from each frequency range</span>
+        <span class="k">for</span> <span class="n">stability_diagram</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">stability_diagrams</span><span class="p">:</span>
+            <span class="c1"># First get data about the stabilization diagram</span>
+            <span class="n">min_frequency</span> <span class="o">=</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">polypy</span><span class="o">.</span><span class="n">min_frequency</span>
+            <span class="n">max_frequency</span> <span class="o">=</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">polypy</span><span class="o">.</span><span class="n">max_frequency</span>
+            <span class="n">min_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">polypy</span><span class="o">.</span><span class="n">polynomial_orders</span><span class="p">)</span>
+            <span class="n">max_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">polypy</span><span class="o">.</span><span class="n">polynomial_orders</span><span class="p">)</span>
+            <span class="n">num_selected_poles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">selected_poles</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;The frequency band from </span><span class="si">{:0.2f}</span><span class="s1"> to </span><span class="si">{:0.2f}</span><span class="s1"> was analyzed with polynomials from order </span><span class="si">{:}</span><span class="s1"> to </span><span class="si">{:}</span><span class="s1">.  &#39;</span><span class="o">+</span>
+                 <span class="s1">&#39;</span><span class="si">{:}</span><span class="s1"> poles were selected from this band.  The stabilization diagram is shown in {{figure</span><span class="si">{:}</span><span class="s1">ref:}}.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">min_frequency</span><span class="p">,</span> <span class="n">max_frequency</span><span class="p">,</span><span class="n">min_order</span><span class="p">,</span><span class="n">max_order</span><span class="p">,</span><span class="n">num_selected_poles</span><span class="p">,</span><span class="n">figure_index</span><span class="p">))</span>
+            <span class="c1"># Go through and save out a figure for each stabilization diagram</span>
+            <span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span><span class="s1">&#39;stability_diagram.png&#39;</span><span class="p">)</span>
+            <span class="c1"># Turn off last highlighted closest mode</span>
+            <span class="k">if</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">previous_closest_marker_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">previous_closest_marker_index</span> <span class="ow">in</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">selected_poles</span><span class="p">:</span>
+                    <span class="n">order_index</span><span class="p">,</span> <span class="n">pole_index</span> <span class="o">=</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">pole_indices</span><span class="p">[</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">previous_closest_marker_index</span><span class="p">]</span>
+                    <span class="n">pole</span> <span class="o">=</span> <span class="n">stability_diagram</span><span class="o">.</span><span class="n">polypy</span><span class="o">.</span><span class="n">pole_list</span><span class="p">[</span><span class="n">order_index</span><span class="p">][</span><span class="n">pole_index</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">pole</span><span class="p">[</span><span class="s1">&#39;part_stable&#39;</span><span class="p">]:</span>
+                        <span class="n">brush</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">pole</span><span class="p">[</span><span class="s1">&#39;damp_stable&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">pole</span><span class="p">[</span><span class="s1">&#39;freq_stable&#39;</span><span class="p">]:</span>
+                        <span class="n">brush</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">brush</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+                    <span class="n">stability_diagram</span><span class="o">.</span><span class="n">pole_markers</span><span class="p">[</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">previous_closest_marker_index</span><span class="p">]</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">brush</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">stability_diagram</span><span class="o">.</span><span class="n">pole_markers</span><span class="p">[</span><span class="n">stability_diagram</span><span class="o">.</span><span class="n">previous_closest_marker_index</span><span class="p">]</span><span class="o">.</span><span class="n">setBrush</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">stability_diagram</span><span class="o">.</span><span class="n">pole_plot</span><span class="o">.</span><span class="n">writeImage</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span><span class="p">[</span><span class="s1">&#39;figure&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)]</span> <span class="o">=</span> <span class="n">image_bytes</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span><span class="p">[</span><span class="s1">&#39;figure&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">figure_index</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;caption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">&#39;Stabilization Diagram from </span><span class="si">{:0.2f}</span><span class="s1"> to </span><span class="si">{:0.2f}</span><span class="s1"> Hz.  &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">min_frequency</span><span class="p">,</span><span class="n">max_frequency</span><span class="p">)</span> <span class="o">+</span> 
+                    <span class="s1">&#39;Red Xs represent unstable poles.  &#39;</span> <span class="o">+</span> 
+                    <span class="s1">&#39;Blue Triangles represent that the frequency has stablized.  &#39;</span> <span class="o">+</span> 
+                    <span class="s1">&#39;Blue Squares represent that the frequency and damping have stablized.  &#39;</span> <span class="o">+</span> 
+                    <span class="s1">&#39;Green circles represent that the frequency, damping, and shape have stablized.  &#39;</span> <span class="o">+</span> 
+                    <span class="s1">&#39;Solid markers are poles that were selected in the final mode set.&#39;</span><span class="p">)</span>
+            <span class="n">figure_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">removedirs</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes_information</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;Complex Modes&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">complex_modes_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;Normal Modes&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; were fit to the data.  &#39;</span> <span class="o">+</span> 
+            <span class="p">(</span><span class="s1">&#39;Residuals&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">use_residuals_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;No residuals&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; were used when fitting mode shapes.  &#39;</span> <span class="o">+</span>
+            <span class="p">(</span><span class="s1">&#39;All frequency lines were used to fit mode shapes.&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">all_frequency_lines_checkbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span>
+            <span class="s1">&#39;Mode shapes were fit using </span><span class="si">{:}</span><span class="s1"> frequency lines around each resonance, and </span><span class="si">{:}</span><span class="s1"> frequency lines were used to fit residuals.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">lines_at_resonance_spinbox</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">ppgui</span><span class="o">.</span><span class="n">lines_at_residuals_spinbox</span><span class="o">.</span><span class="n">value</span><span class="p">())))</span></div>
+    
+<div class="viewcode-block" id="ModalTest.fit_modes_SMAC"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC">[docs]</a>    <span class="k">def</span> <span class="nf">fit_modes_SMAC</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;SMAC has not been implemented yet&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.retrieve_modes_SMAC"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_modes_SMAC</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;SMAC has not been implemented yet&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.edit_mode_comments"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments">[docs]</a>    <span class="k">def</span> <span class="nf">edit_mode_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Modes have not yet been fit or assigned.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">edit_comments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.compute_resynthesized_frfs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs">[docs]</a>    <span class="k">def</span> <span class="nf">compute_resynthesized_frfs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">compute_frf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span><span class="p">,</span>
+                                                             <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">response_coordinate</span><span class="p">),</span>
+                                                             <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">),</span>
+                                                             <span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_reference_autospectra"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra">[docs]</a>    <span class="k">def</span> <span class="nf">plot_reference_autospectra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Autopower Spectra have not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="n">reference_apsd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra_reference_indices</span><span class="p">]</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">reference_apsd</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">(</span><span class="si">{:}</span><span class="s1">$^2$/Hz)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_drive_point_frfs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs">[docs]</a>    <span class="k">def</span> <span class="nf">plot_drive_point_frfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part</span><span class="o">=</span><span class="s1">&#39;imag&#39;</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">get_drive_points</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">part</span><span class="o">=</span><span class="n">part</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">(</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_reciprocal_frfs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs">[docs]</a>    <span class="k">def</span> <span class="nf">plot_reciprocal_frfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="n">reciprocal_frfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">get_reciprocal_data</span><span class="p">()</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">reciprocal_frfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">one_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">original_frf</span><span class="p">,</span> <span class="n">reciprocal_frf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="o">*</span><span class="n">reciprocal_frfs</span><span class="p">):</span>
+            <span class="n">reciprocal_frf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span>
+                <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">original_frf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]),</span>
+                <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">reciprocal_frf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">])])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">(</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span><span class="n">axes</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_coherence_image"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image">[docs]</a>    <span class="k">def</span> <span class="nf">plot_coherence_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Coherence has not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span><span class="o">.</span><span class="n">plot_image</span><span class="p">(</span><span class="n">colorbar_min</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">colorbar_max</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Degree of Freedom&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">ax</span></div>
+        
+<div class="viewcode-block" id="ModalTest.plot_drive_point_frf_coherence"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence">[docs]</a>    <span class="k">def</span> <span class="nf">plot_drive_point_frf_coherence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Coherence has not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="n">frf_ax</span><span class="p">,</span> <span class="n">coh_ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">get_drive_points</span><span class="p">()</span><span class="o">.</span><span class="n">plot_with_coherence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coherence</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">plot_kwargs</span><span class="p">,</span> <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">frf_ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">()</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">(</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frf_ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">frf_ax</span><span class="p">,</span> <span class="n">coh_ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_cmif"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif">[docs]</a>    <span class="k">def</span> <span class="nf">plot_cmif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measured</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">resynthesized</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">mark_modes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">measured_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">resynthesized_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                  <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the complex mode indicator function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measured : bool, optional</span>
+<span class="sd">            If True, plots the measured MIF. The default is True.</span>
+<span class="sd">        resynthesized : bool, optional</span>
+<span class="sd">            If True, plots resynthesized MIF. The default is False.</span>
+<span class="sd">        mark_modes : bool, optional</span>
+<span class="sd">            If True, plots a vertical line at the frequency of each mode. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">        measured_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the measured</span>
+<span class="sd">            data is plotted. The default is {}.</span>
+<span class="sd">        resynthesized_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the </span>
+<span class="sd">            resynthesized data is plotted. The default is {}.</span>
+<span class="sd">        subplots_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the figure</span>
+<span class="sd">            and axes are created.  This is passed to the plt.subplots function.</span>
+<span class="sd">            The default is {}.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if a required data has not been computed or assigned yet.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            A reference to the figure on which the plot is plotted.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            A reference to the axes on which the plot is plotted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">measured_plot_kwargs</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Resynthesized FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">resynthesized_plot_kwargs</span><span class="p">,</span>
+                      <span class="n">abscissa_markers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">frequency</span>
+                      <span class="k">if</span> <span class="n">mark_modes</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abscissa_marker_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;linestyle&#39;</span><span class="p">:</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;k&#39;</span><span class="p">},</span>
+                      <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{abscissa:0.1f}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span> <span class="ow">and</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">cmif</span><span class="o">.</span><span class="n">size</span><span class="p">]],[</span><span class="s1">&#39;Measured&#39;</span><span class="p">,</span><span class="s1">&#39;Resynthesized&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Complex Mode Indicator Function (</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Complex Mode Indicator Function&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_qmif"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif">[docs]</a>    <span class="k">def</span> <span class="nf">plot_qmif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measured</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">resynthesized</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">mark_modes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">measured_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">resynthesized_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                  <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the complex mode indicator function computed from the imaginary</span>
+<span class="sd">        part of the FRFs</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measured : bool, optional</span>
+<span class="sd">            If True, plots the measured MIF. The default is True.</span>
+<span class="sd">        resynthesized : bool, optional</span>
+<span class="sd">            If True, plots resynthesized MIF. The default is False.</span>
+<span class="sd">        mark_modes : bool, optional</span>
+<span class="sd">            If True, plots a vertical line at the frequency of each mode. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">        measured_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the measured</span>
+<span class="sd">            data is plotted. The default is {}.</span>
+<span class="sd">        resynthesized_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the </span>
+<span class="sd">            resynthesized data is plotted. The default is {}.</span>
+<span class="sd">        subplots_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the figure</span>
+<span class="sd">            and axes are created.  This is passed to the plt.subplots function.</span>
+<span class="sd">            The default is {}.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if a required data has not been computed or assigned yet.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            A reference to the figure on which the plot is plotted.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            A reference to the axes on which the plot is plotted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s1">&#39;imag&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">measured_plot_kwargs</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Resynthesized FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s1">&#39;imag&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">resynthesized_plot_kwargs</span><span class="p">,</span>
+                      <span class="n">abscissa_markers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">frequency</span>
+                      <span class="k">if</span> <span class="n">mark_modes</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abscissa_marker_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;linestyle&#39;</span><span class="p">:</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;k&#39;</span><span class="p">},</span>
+                      <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{abscissa:0.1f}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span> <span class="ow">and</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">cmif</span><span class="o">.</span><span class="n">size</span><span class="p">]],[</span><span class="s1">&#39;Measured&#39;</span><span class="p">,</span><span class="s1">&#39;Resynthesized&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Quadrature Mode Indicator Function (</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Quadrature Mode Indicator Function&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_psmif"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif">[docs]</a>    <span class="k">def</span> <span class="nf">plot_psmif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measured</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">resynthesized</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">mark_modes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                   <span class="n">measured_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">resynthesized_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                   <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the first singular value of the complex mode indicator function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measured : bool, optional</span>
+<span class="sd">            If True, plots the measured MIF. The default is True.</span>
+<span class="sd">        resynthesized : bool, optional</span>
+<span class="sd">            If True, plots resynthesized MIF. The default is False.</span>
+<span class="sd">        mark_modes : bool, optional</span>
+<span class="sd">            If True, plots a vertical line at the frequency of each mode. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">        measured_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the measured</span>
+<span class="sd">            data is plotted. The default is {}.</span>
+<span class="sd">        resynthesized_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the </span>
+<span class="sd">            resynthesized data is plotted. The default is {}.</span>
+<span class="sd">        subplots_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the figure</span>
+<span class="sd">            and axes are created.  This is passed to the plt.subplots function.</span>
+<span class="sd">            The default is {}.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if a required data has not been computed or assigned yet.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            A reference to the figure on which the plot is plotted.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            A reference to the axes on which the plot is plotted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">measured_plot_kwargs</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Resynthesized FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()[:</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">resynthesized_plot_kwargs</span><span class="p">,</span>
+                      <span class="n">abscissa_markers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">frequency</span>
+                      <span class="k">if</span> <span class="n">mark_modes</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abscissa_marker_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;linestyle&#39;</span><span class="p">:</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;k&#39;</span><span class="p">},</span>
+                      <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{abscissa:0.1f}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span> <span class="ow">and</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">cmif</span><span class="o">.</span><span class="n">size</span><span class="p">]],[</span><span class="s1">&#39;Measured&#39;</span><span class="p">,</span><span class="s1">&#39;Resynthesized&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Principal Singular Value</span><span class="se">\n</span><span class="s1">Mode Indicator Function (</span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_unit</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_unit</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Principal Singular Value</span><span class="se">\n</span><span class="s1">Mode Indicator Function&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_nmif"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif">[docs]</a>    <span class="k">def</span> <span class="nf">plot_nmif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measured</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">resynthesized</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">mark_modes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">measured_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">resynthesized_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                  <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the normal mode indicator function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measured : bool, optional</span>
+<span class="sd">            If True, plots the measured MIF. The default is True.</span>
+<span class="sd">        resynthesized : bool, optional</span>
+<span class="sd">            If True, plots resynthesized MIF. The default is False.</span>
+<span class="sd">        mark_modes : bool, optional</span>
+<span class="sd">            If True, plots a vertical line at the frequency of each mode. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">        measured_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the measured</span>
+<span class="sd">            data is plotted. The default is {}.</span>
+<span class="sd">        resynthesized_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the </span>
+<span class="sd">            resynthesized data is plotted. The default is {}.</span>
+<span class="sd">        subplots_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the figure</span>
+<span class="sd">            and axes are created.  This is passed to the plt.subplots function.</span>
+<span class="sd">            The default is {}.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if a required data has not been computed or assigned yet.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            A reference to the figure on which the plot is plotted.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            A reference to the axes on which the plot is plotted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">compute_nmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">measured_plot_kwargs</span><span class="p">)</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Resynthesized FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">compute_nmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">resynthesized_plot_kwargs</span><span class="p">,</span>
+                      <span class="n">abscissa_markers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">frequency</span>
+                      <span class="k">if</span> <span class="n">mark_modes</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abscissa_marker_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;linestyle&#39;</span><span class="p">:</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;k&#39;</span><span class="p">},</span>
+                      <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{abscissa:0.1f}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span> <span class="ow">and</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">cmif</span><span class="o">.</span><span class="n">size</span><span class="p">]],[</span><span class="s1">&#39;Measured&#39;</span><span class="p">,</span><span class="s1">&#39;Resynthesized&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Normal Mode Indicator Function&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="ModalTest.plot_mmif"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif">[docs]</a>    <span class="k">def</span> <span class="nf">plot_mmif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measured</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">resynthesized</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">mark_modes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">measured_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">resynthesized_plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                  <span class="n">subplots_kwargs</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the multi mode indicator function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        measured : bool, optional</span>
+<span class="sd">            If True, plots the measured MIF. The default is True.</span>
+<span class="sd">        resynthesized : bool, optional</span>
+<span class="sd">            If True, plots resynthesized MIF. The default is False.</span>
+<span class="sd">        mark_modes : bool, optional</span>
+<span class="sd">            If True, plots a vertical line at the frequency of each mode. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">        measured_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the measured</span>
+<span class="sd">            data is plotted. The default is {}.</span>
+<span class="sd">        resynthesized_plot_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the </span>
+<span class="sd">            resynthesized data is plotted. The default is {}.</span>
+<span class="sd">        subplots_kwargs : dict, optional</span>
+<span class="sd">            Dictionary containing keyword arguments to specify how the figure</span>
+<span class="sd">            and axes are created.  This is passed to the plt.subplots function.</span>
+<span class="sd">            The default is {}.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if a required data has not been computed or assigned yet.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            A reference to the figure on which the plot is plotted.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            A reference to the axes on which the plot is plotted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">compute_mmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">measured_plot_kwargs</span><span class="p">)</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Resynthesized FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+            <span class="n">cmif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resynthesized_frfs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">compute_mmif</span><span class="p">()</span>
+            <span class="n">cmif</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">resynthesized_plot_kwargs</span><span class="p">,</span>
+                      <span class="n">abscissa_markers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="o">.</span><span class="n">frequency</span>
+                      <span class="k">if</span> <span class="n">mark_modes</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">abscissa_marker_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;linestyle&#39;</span><span class="p">:</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+                                                                            <span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;k&#39;</span><span class="p">},</span>
+                      <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{abscissa:0.1f}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">measured</span> <span class="ow">and</span> <span class="n">resynthesized</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ax</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="n">cmif</span><span class="o">.</span><span class="n">size</span><span class="p">]],[</span><span class="s1">&#39;Measured&#39;</span><span class="p">,</span><span class="s1">&#39;Resynthesized&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Multi Mode Indicator Function&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_deflection_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">plot_deflection_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;FRFs have not yet been computed or assigned&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Geometry must be assigned to plot deflection shapes&#39;</span><span class="p">)</span>
+        <span class="n">frfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span><span class="o">.</span><span class="n">reshape_to_matrix</span><span class="p">()</span>
+        <span class="n">plotters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">frf</span> <span class="ow">in</span> <span class="n">frfs</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+            <span class="n">plotters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_deflection_shape</span><span class="p">(</span><span class="n">frf</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">plotters</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_mac"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac">[docs]</a>    <span class="k">def</span> <span class="nf">plot_mac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">matrix_plot_args</span><span class="p">,</span> <span class="o">**</span><span class="n">matrix_plot_kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Modes have not yet been fit or assigned.&#39;</span><span class="p">)</span>
+        <span class="n">mac_matrix</span> <span class="o">=</span> <span class="n">mac</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac_matrix</span><span class="p">,</span> <span class="o">*</span><span class="n">matrix_plot_args</span><span class="p">,</span> <span class="o">**</span><span class="n">matrix_plot_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_modeshape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape">[docs]</a>    <span class="k">def</span> <span class="nf">plot_modeshape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Modes have not yet been fit or assigned.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Geometry must be assigned to plot deflection shapes&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_modes</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.plot_figures_for_documentation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation">[docs]</a>    <span class="k">def</span> <span class="nf">plot_figures_for_documentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                       <span class="n">plot_geometry</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">geometry_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_coordinate</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">coordinate_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_rigid_body_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">rigid_body_checks_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_reference_autospectra</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">reference_autospectra_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_drive_point_frfs</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> 
+                                       <span class="n">drive_point_frfs_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_reciprocal_frfs</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">reciprocal_frfs_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_frf_coherence</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">frf_coherence_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_coherence_image</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">coherence_image_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_cmif</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">cmif_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_qmif</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">qmif_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_nmif</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">nmif_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_mmif</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">mmif_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_modeshapes</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">modeshape_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="n">plot_mac</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> 
+                                       <span class="n">mac_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                                       <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">plot_geometry</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot geometry; geometry is undefined.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">geometry_kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
+        <span class="k">if</span> <span class="n">plot_coordinate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot coordinates; geometry is undefined.&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot coordinates; time_histories is undefined&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;plot_kwargs&#39;</span> <span class="ow">in</span> <span class="n">coordinate_kwargs</span><span class="p">:</span>
+                    <span class="n">coordinate_kwargs</span><span class="p">[</span><span class="s1">&#39;plot_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_kwargs</span>
+                <span class="c1"># Check and see if the references are defined</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">response_indices</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                        <span class="o">**</span><span class="n">coordinate_kwargs</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;response_coordinate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
+                    <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_indices</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                        <span class="o">**</span><span class="n">coordinate_kwargs</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;reference_coordinate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">time_histories</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                        <span class="o">**</span><span class="n">coordinate_kwargs</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;coordinate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotter</span>
+        <span class="k">if</span> <span class="n">plot_rigid_body_checks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot rigid body checks; geometry is undefined.&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_body_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot rigid body checks; rigid_body_shapes is undefined.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">supicious_channels</span><span class="p">,</span> <span class="o">*</span><span class="n">figures</span> <span class="o">=</span> <span class="n">rigid_body_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_body_shapes</span><span class="p">,</span> 
+                                                                <span class="n">return_figures</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">rigid_body_checks_kwargs</span><span class="p">)</span>
+                <span class="n">num_figs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_body_shapes</span><span class="o">.</span><span class="n">size</span><span class="o">+</span><span class="mi">1</span>
+                <span class="n">figures</span> <span class="o">=</span> <span class="n">figures</span><span class="p">[</span><span class="o">-</span><span class="n">num_figs</span><span class="p">:]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_figs</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;rigid_body_complex_plane_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">figures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;rigid_body_residuals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">figures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plot_reference_autospectra</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autopower_spectra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot reference autospectra; autopower_spectra is undefined&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_reference_autospectra</span><span class="p">(</span><span class="o">**</span><span class="n">reference_autospectra_kwargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;reference_autospectra&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="k">if</span> <span class="n">plot_drive_point_frfs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot drive point FRFs; frfs is undefined&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;part&#39;</span><span class="p">:</span><span class="s1">&#39;imag&#39;</span><span class="p">}</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">drive_point_frfs_kwargs</span><span class="p">)</span>
+                <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_drive_point_frfs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">documentation_figures</span><span class="p">[</span><span class="s1">&#39;drive_point_frf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fig</span>
+        <span class="k">if</span> <span class="n">plot_frf_coherence</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frfs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot FRF coherence; frfs is undefined&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">coherence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Could not plot FRF coherence; coherence is undefined&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ModalTest.create_documentation_latex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex">[docs]</a>    <span class="k">def</span> <span class="nf">create_documentation_latex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mif_plots</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cmif&#39;</span><span class="p">],</span> 
+                                   <span class="n">latex_root</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">figure_folder</span> <span class="o">=</span> <span class="s1">&#39;figures&#39;</span><span class="p">,</span>
+                                   <span class="n">document_filename</span> <span class="o">=</span> <span class="s1">&#39;include.tex&#39;</span><span class="p">,</span>
+                                   <span class="n">appendix_filename</span> <span class="o">=</span> <span class="s1">&#39;appendix.tex&#39;</span><span class="p">,</span>
+                                   <span class="n">frequency_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:0.1f}</span><span class="s1">&#39;</span><span class="p">,</span>
+                                   <span class="n">damping_format</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:0.2f}</span><span class="se">\\</span><span class="s1">%&#39;</span><span class="p">,</span>
+                                   <span class="n">comment1_header</span> <span class="o">=</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+                                   <span class="n">comment2_header</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">comment3_header</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">comment4_header</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">comment5_header</span> <span class="o">=</span> <span class="kc">None</span>
+                                   
+                                   <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Not Implemented Yet&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.create_documentation_word"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word">[docs]</a>    <span class="k">def</span> <span class="nf">create_documentation_word</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Not Implemented Yet&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ModalTest.create_documentation_pptx"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx">[docs]</a>    <span class="k">def</span> <span class="nf">create_documentation_pptx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Not Implemented Yet&#39;</span><span class="p">)</span></div></div>
+    
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f5a265a2500>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

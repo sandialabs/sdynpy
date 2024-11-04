@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_modeshape.generate_kernel_real &mdash; SDynPy 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.modal.sdynpy_modeshape.stack_and_lstsq" href="sdynpy.modal.sdynpy_modeshape.stack_and_lstsq.html" />
+    <link rel="prev" title="sdynpy.modal.sdynpy_modeshape.generate_kernel_complex" href="sdynpy.modal.sdynpy_modeshape.generate_kernel_complex.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_ccmif.html">sdynpy.modal.sdynpy_ccmif</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_modal_test.html">sdynpy.modal.sdynpy_modal_test</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.html">sdynpy.modal.sdynpy_modeshape</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.compute_residues.html">sdynpy.modal.sdynpy_modeshape.compute_residues</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.compute_shapes.html">sdynpy.modal.sdynpy_modeshape.compute_shapes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference.html">sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.generate_kernel_complex.html">sdynpy.modal.sdynpy_modeshape.generate_kernel_complex</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.modal.sdynpy_modeshape.generate_kernel_real</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.modal.sdynpy_modeshape.generate_kernel_real"><code class="docutils literal notranslate"><span class="pre">generate_kernel_real()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.stack_and_lstsq.html">sdynpy.modal.sdynpy_modeshape.stack_and_lstsq</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.ShapeSelection.html">sdynpy.modal.sdynpy_modeshape.ShapeSelection</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.html">sdynpy.modal.sdynpy_polypy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_signal_processing_gui.html">sdynpy.modal.sdynpy_signal_processing_gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_smac.html">sdynpy.modal.sdynpy_smac</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.html">sdynpy.modal</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.sdynpy_modeshape.html">sdynpy.modal.sdynpy_modeshape</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_modeshape.generate_kernel_real</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.modal.sdynpy_modeshape.generate_kernel_real.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sdynpy-modal-sdynpy-modeshape-generate-kernel-real">
+<h1>sdynpy.modal.sdynpy_modeshape.generate_kernel_real<a class="headerlink" href="#sdynpy-modal-sdynpy-modeshape-generate-kernel-real" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modeshape.generate_kernel_real">
+<span class="sig-name descname"><span class="pre">generate_kernel_real</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omegas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participation_factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_residuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_residuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modeshape.html#generate_kernel_real"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modeshape.generate_kernel_real" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>omegas</strong> (<em>np.ndarray</em>) – The angular frequencies (in radians/s) at which the kernel matrix will
+be computed.  This should be a 1D array with length num_freqs.</p></li>
+<li><p><strong>poles</strong> (<em>np.ndarray</em>) – An array of poles corresponding to the modes of the structure.  This
+should be a 1D array with length num_modes.</p></li>
+<li><p><strong>participation_factors</strong> (<em>np.ndarray</em>) – A 2D array of participation factors corresponding to the reference
+degrees of freedom.  This should have shape (num_modes, num_inputs).</p></li>
+<li><p><strong>lower_residuals</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, construct the kernel matrix such that lower residuals will be
+computed in the least-squares operation.  The default is False.</p></li>
+<li><p><strong>upper_residuals</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, construct the kernel matrix such that upper residuals will be
+computed in the least-squares operation.  The default is False.</p></li>
+<li><p><strong>displacement_derivative</strong> (<em>int</em><em>, </em><em>optional</em>) – The derivative of displacement used to construct the frequency response
+functions.  Should be 0 for a receptance (displacement/force) frf, 1
+for a mobility (velocity/force) frf, or 2 for an accelerance
+(acceleration/force) frf.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>kernel_matrix</strong> – A 3D matrix that represents the kernel that can be inverted to solve
+for mode shapes.  The size of the output array will be num_inputs x
+num_freq*2 x num_modes.  The top partition of the num_freq dimension
+corresponds to the real part of the frf, and the
+bottom portion corresponds to the imaginary part of the frf.
+If residuals are included, there will be an extra two
+entries along the num_modes dimension corresponding to real and
+imaginary parts of the residual matrix for each of the residuals
+included.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.modal.sdynpy_modeshape.generate_kernel_complex.html" class="btn btn-neutral float-left" title="sdynpy.modal.sdynpy_modeshape.generate_kernel_complex" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.modal.sdynpy_modeshape.stack_and_lstsq.html" class="btn btn-neutral float-right" title="sdynpy.modal.sdynpy_modeshape.stack_and_lstsq" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f5a27968430>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.modal.sdynpy_modal_test.ModalTest &mdash; SDynPy 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.modal.sdynpy_modeshape" href="sdynpy.modal.sdynpy_modeshape.html" />
+    <link rel="prev" title="sdynpy.modal.sdynpy_modal_test.read_modal_fit_data" href="sdynpy.modal.sdynpy_modal_test.read_modal_fit_data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_ccmif.html">sdynpy.modal.sdynpy_ccmif</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.modal.sdynpy_modal_test.html">sdynpy.modal.sdynpy_modal_test</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.modal.sdynpy_modal_test.read_modal_fit_data.html">sdynpy.modal.sdynpy_modal_test.read_modal_fit_data</a></li>
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.modal.sdynpy_modal_test.ModalTest</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest"><code class="docutils literal notranslate"><span class="pre">ModalTest</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.__init__"><code class="docutils literal notranslate"><span class="pre">ModalTest.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs"><code class="docutils literal notranslate"><span class="pre">ModalTest.compute_resynthesized_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities"><code class="docutils literal notranslate"><span class="pre">ModalTest.compute_spectral_quantities()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI"><code class="docutils literal notranslate"><span class="pre">ModalTest.compute_spectral_quantities_SignalProcessingGUI()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex"><code class="docutils literal notranslate"><span class="pre">ModalTest.create_documentation_latex()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx"><code class="docutils literal notranslate"><span class="pre">ModalTest.create_documentation_pptx()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word"><code class="docutils literal notranslate"><span class="pre">ModalTest.create_documentation_word()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters"><code class="docutils literal notranslate"><span class="pre">ModalTest.define_spectral_processing_parameters()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments"><code class="docutils literal notranslate"><span class="pre">ModalTest.edit_mode_comments()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy"><code class="docutils literal notranslate"><span class="pre">ModalTest.fit_modes_PolyPy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC"><code class="docutils literal notranslate"><span class="pre">ModalTest.fit_modes_SMAC()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_cmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_coherence_image()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_deflection_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_drive_point_frf_coherence()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_drive_point_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_figures_for_documentation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_mac()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_mmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_modeshape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_nmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_psmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_qmif()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_reciprocal_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra"><code class="docutils literal notranslate"><span class="pre">ModalTest.plot_reference_autospectra()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.response_indices"><code class="docutils literal notranslate"><span class="pre">ModalTest.response_indices</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy"><code class="docutils literal notranslate"><span class="pre">ModalTest.retrieve_modes_PolyPy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC"><code class="docutils literal notranslate"><span class="pre">ModalTest.retrieve_modes_SMAC()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI"><code class="docutils literal notranslate"><span class="pre">ModalTest.retrieve_spectral_quantities_SignalProcessingGUI()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_autopower_spectra()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_channel_table()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_coherence()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_fit_modes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_geometry()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_resynthesized_frfs()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_rigid_body_shapes()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_time_histories()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_units"><code class="docutils literal notranslate"><span class="pre">ModalTest.set_units()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_modeshape.html">sdynpy.modal.sdynpy_modeshape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_polypy.html">sdynpy.modal.sdynpy_polypy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_signal_processing_gui.html">sdynpy.modal.sdynpy_signal_processing_gui</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.modal.sdynpy_smac.html">sdynpy.modal.sdynpy_smac</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.html">sdynpy.modal</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.modal.sdynpy_modal_test.html">sdynpy.modal.sdynpy_modal_test</a></li>
+      <li class="breadcrumb-item active">sdynpy.modal.sdynpy_modal_test.ModalTest</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sdynpy-modal-sdynpy-modal-test-modaltest">
+<h1>sdynpy.modal.sdynpy_modal_test.ModalTest<a class="headerlink" href="#sdynpy-modal-sdynpy-modal-test-modaltest" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ModalTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_histories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autopower_spectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coherence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rigid_body_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_histories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autopower_spectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coherence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rigid_body_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.__init__" title="sdynpy.modal.sdynpy_modal_test.ModalTest.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([geometry, time_histories, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs" title="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_resynthesized_frfs</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities" title="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_spectral_quantities</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI" title="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_spectral_quantities_SignalProcessingGUI</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex" title="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_documentation_latex</span></code></a>([mif_plots, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx" title="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_documentation_pptx</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word" title="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_documentation_word</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters" title="sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_spectral_processing_parameters</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments" title="sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_mode_comments</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy" title="sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_modes_PolyPy</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC" title="sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_modes_SMAC</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cmif</span></code></a>([measured, resynthesized, ...])</p></td>
+<td><p>Plots the complex mode indicator function</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_coherence_image</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_deflection_shapes</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_drive_point_frf_coherence</span></code></a>([...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_drive_point_frfs</span></code></a>([part, plot_kwargs, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_figures_for_documentation</span></code></a>([...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mac</span></code></a>(*matrix_plot_args, **matrix_plot_kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mmif</span></code></a>([measured, resynthesized, ...])</p></td>
+<td><p>Plots the multi mode indicator function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_modeshape</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_nmif</span></code></a>([measured, resynthesized, ...])</p></td>
+<td><p>Plots the normal mode indicator function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psmif</span></code></a>([measured, resynthesized, ...])</p></td>
+<td><p>Plots the first singular value of the complex mode indicator function</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_qmif</span></code></a>([measured, resynthesized, ...])</p></td>
+<td><p>Plots the complex mode indicator function computed from the imaginary part of the FRFs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_reciprocal_frfs</span></code></a>([plot_kwargs, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra" title="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_reference_autospectra</span></code></a>([plot_kwargs, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy" title="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve_modes_PolyPy</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC" title="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve_modes_SMAC</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI" title="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve_spectral_quantities_SignalProcessingGUI</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_autopower_spectra</span></code></a>(autopower_spectra)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_channel_table</span></code></a>(channel_table)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_coherence</span></code></a>(coherence)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fit_modes</span></code></a>(fit_modes)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_frfs</span></code></a>(frfs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_geometry</span></code></a>(geometry)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resynthesized_frfs</span></code></a>(resynthesized_frfs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_rigid_body_shapes</span></code></a>(rigid_body_shapes)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_time_histories</span></code></a>(time_histories)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_units" title="sdynpy.modal.sdynpy_modal_test.ModalTest.set_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_units</span></code></a>(response_unit, reference_unit)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.response_indices" title="sdynpy.modal.sdynpy_modal_test.ModalTest.response_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_indices</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs">
+<span class="sig-name descname"><span class="pre">compute_resynthesized_frfs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.compute_resynthesized_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_resynthesized_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities">
+<span class="sig-name descname"><span class="pre">compute_spectral_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples_per_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frf_estimator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.compute_spectral_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI">
+<span class="sig-name descname"><span class="pre">compute_spectral_quantities_SignalProcessingGUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.compute_spectral_quantities_SignalProcessingGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.compute_spectral_quantities_SignalProcessingGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex">
+<span class="sig-name descname"><span class="pre">create_documentation_latex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mif_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['cmif']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latex_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'figures'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">document_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'include.tex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appendix_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'appendix.tex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:0.1f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:0.2f}\\%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment1_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Description'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment2_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment3_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment4_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment5_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.create_documentation_latex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_latex" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx">
+<span class="sig-name descname"><span class="pre">create_documentation_pptx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.create_documentation_pptx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_pptx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word">
+<span class="sig-name descname"><span class="pre">create_documentation_word</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.create_documentation_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.create_documentation_word" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters">
+<span class="sig-name descname"><span class="pre">define_spectral_processing_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples_per_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_averages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger_channel_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrigger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frf_estimator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.define_spectral_processing_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.define_spectral_processing_parameters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments">
+<span class="sig-name descname"><span class="pre">edit_mode_comments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.edit_mode_comments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.edit_mode_comments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy">
+<span class="sig-name descname"><span class="pre">fit_modes_PolyPy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.fit_modes_PolyPy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_PolyPy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC">
+<span class="sig-name descname"><span class="pre">fit_modes_SMAC</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.fit_modes_SMAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.fit_modes_SMAC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif">
+<span class="sig-name descname"><span class="pre">plot_cmif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_cmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_cmif" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the complex mode indicator function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measured</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots the measured MIF. The default is True.</p></li>
+<li><p><strong>resynthesized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots resynthesized MIF. The default is False.</p></li>
+<li><p><strong>mark_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots a vertical line at the frequency of each mode. The
+default is False.</p></li>
+<li><p><strong>measured_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the measured
+data is plotted. The default is {}.</p></li>
+<li><p><strong>resynthesized_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the
+resynthesized data is plotted. The default is {}.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the figure
+and axes are created.  This is passed to the plt.subplots function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if a required data has not been computed or assigned yet.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – A reference to the figure on which the plot is plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – A reference to the axes on which the plot is plotted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image">
+<span class="sig-name descname"><span class="pre">plot_coherence_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_coherence_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_coherence_image" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes">
+<span class="sig-name descname"><span class="pre">plot_deflection_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_deflection_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_deflection_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence">
+<span class="sig-name descname"><span class="pre">plot_drive_point_frf_coherence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_drive_point_frf_coherence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frf_coherence" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs">
+<span class="sig-name descname"><span class="pre">plot_drive_point_frfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_drive_point_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_drive_point_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation">
+<span class="sig-name descname"><span class="pre">plot_figures_for_documentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_coordinate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_rigid_body_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rigid_body_checks_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_reference_autospectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_autospectra_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_drive_point_frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive_point_frfs_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_reciprocal_frfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reciprocal_frfs_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_frf_coherence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frf_coherence_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_coherence_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coherence_image_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cmif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmif_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_qmif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qmif_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_nmif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmif_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_mmif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mmif_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_modeshapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeshape_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_mac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mac_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_figures_for_documentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_figures_for_documentation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac">
+<span class="sig-name descname"><span class="pre">plot_mac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">matrix_plot_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">matrix_plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_mac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mac" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif">
+<span class="sig-name descname"><span class="pre">plot_mmif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_mmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_mmif" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the multi mode indicator function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measured</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots the measured MIF. The default is True.</p></li>
+<li><p><strong>resynthesized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots resynthesized MIF. The default is False.</p></li>
+<li><p><strong>mark_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots a vertical line at the frequency of each mode. The
+default is False.</p></li>
+<li><p><strong>measured_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the measured
+data is plotted. The default is {}.</p></li>
+<li><p><strong>resynthesized_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the
+resynthesized data is plotted. The default is {}.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the figure
+and axes are created.  This is passed to the plt.subplots function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if a required data has not been computed or assigned yet.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – A reference to the figure on which the plot is plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – A reference to the axes on which the plot is plotted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape">
+<span class="sig-name descname"><span class="pre">plot_modeshape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_modeshape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_modeshape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif">
+<span class="sig-name descname"><span class="pre">plot_nmif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_nmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_nmif" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the normal mode indicator function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measured</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots the measured MIF. The default is True.</p></li>
+<li><p><strong>resynthesized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots resynthesized MIF. The default is False.</p></li>
+<li><p><strong>mark_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots a vertical line at the frequency of each mode. The
+default is False.</p></li>
+<li><p><strong>measured_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the measured
+data is plotted. The default is {}.</p></li>
+<li><p><strong>resynthesized_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the
+resynthesized data is plotted. The default is {}.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the figure
+and axes are created.  This is passed to the plt.subplots function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if a required data has not been computed or assigned yet.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – A reference to the figure on which the plot is plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – A reference to the axes on which the plot is plotted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif">
+<span class="sig-name descname"><span class="pre">plot_psmif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_psmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_psmif" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the first singular value of the complex mode indicator function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measured</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots the measured MIF. The default is True.</p></li>
+<li><p><strong>resynthesized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots resynthesized MIF. The default is False.</p></li>
+<li><p><strong>mark_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots a vertical line at the frequency of each mode. The
+default is False.</p></li>
+<li><p><strong>measured_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the measured
+data is plotted. The default is {}.</p></li>
+<li><p><strong>resynthesized_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the
+resynthesized data is plotted. The default is {}.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the figure
+and axes are created.  This is passed to the plt.subplots function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if a required data has not been computed or assigned yet.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – A reference to the figure on which the plot is plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – A reference to the axes on which the plot is plotted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif">
+<span class="sig-name descname"><span class="pre">plot_qmif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resynthesized_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_qmif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_qmif" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the complex mode indicator function computed from the imaginary
+part of the FRFs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measured</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots the measured MIF. The default is True.</p></li>
+<li><p><strong>resynthesized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots resynthesized MIF. The default is False.</p></li>
+<li><p><strong>mark_modes</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots a vertical line at the frequency of each mode. The
+default is False.</p></li>
+<li><p><strong>measured_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the measured
+data is plotted. The default is {}.</p></li>
+<li><p><strong>resynthesized_plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the
+resynthesized data is plotted. The default is {}.</p></li>
+<li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing keyword arguments to specify how the figure
+and axes are created.  This is passed to the plt.subplots function.
+The default is {}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if a required data has not been computed or assigned yet.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – A reference to the figure on which the plot is plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – A reference to the axes on which the plot is plotted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs">
+<span class="sig-name descname"><span class="pre">plot_reciprocal_frfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_reciprocal_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reciprocal_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra">
+<span class="sig-name descname"><span class="pre">plot_reference_autospectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.plot_reference_autospectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.plot_reference_autospectra" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.response_indices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">response_indices</span></span><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.response_indices" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy">
+<span class="sig-name descname"><span class="pre">retrieve_modes_PolyPy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.retrieve_modes_PolyPy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_PolyPy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC">
+<span class="sig-name descname"><span class="pre">retrieve_modes_SMAC</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.retrieve_modes_SMAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_modes_SMAC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI">
+<span class="sig-name descname"><span class="pre">retrieve_spectral_quantities_SignalProcessingGUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.retrieve_spectral_quantities_SignalProcessingGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.retrieve_spectral_quantities_SignalProcessingGUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra">
+<span class="sig-name descname"><span class="pre">set_autopower_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">autopower_spectra</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_autopower_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_autopower_spectra" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table">
+<span class="sig-name descname"><span class="pre">set_channel_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_channel_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_channel_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence">
+<span class="sig-name descname"><span class="pre">set_coherence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coherence</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_coherence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_coherence" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes">
+<span class="sig-name descname"><span class="pre">set_fit_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_modes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_fit_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_fit_modes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs">
+<span class="sig-name descname"><span class="pre">set_frfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frfs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry">
+<span class="sig-name descname"><span class="pre">set_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_geometry" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs">
+<span class="sig-name descname"><span class="pre">set_resynthesized_frfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resynthesized_frfs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_resynthesized_frfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_resynthesized_frfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes">
+<span class="sig-name descname"><span class="pre">set_rigid_body_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rigid_body_shapes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_rigid_body_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_rigid_body_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories">
+<span class="sig-name descname"><span class="pre">set_time_histories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_histories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_time_histories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_time_histories" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.modal.sdynpy_modal_test.ModalTest.set_units">
+<span class="sig-name descname"><span class="pre">set_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_unit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/modal/sdynpy_modal_test.html#ModalTest.set_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.modal.sdynpy_modal_test.ModalTest.set_units" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.modal.sdynpy_modal_test.read_modal_fit_data.html" class="btn btn-neutral float-left" title="sdynpy.modal.sdynpy_modal_test.read_modal_fit_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.modal.sdynpy_modeshape.html" class="btn btn-neutral float-right" title="sdynpy.modal.sdynpy_modeshape" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f5a29d58df0>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

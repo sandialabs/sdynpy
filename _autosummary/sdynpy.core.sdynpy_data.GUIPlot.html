@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.GUIPlot &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.GUIPlot &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -181,9 +181,6 @@
 arguments.  Position arguments will be labelled generically in the
 legend.  Keyword arguments will be labelled with their keywords with
 <cite>_</cite> replaced by ` <a href="#id1"><span class="problematic" id="id2">`</span></a>.</p>
-<p>Note that all datasets will be reshaped so that the coordinates match
-the first dataset.  If not all coordinates exist in subsequent datasets
-an error will be thrown.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -191,6 +188,32 @@ an error will be thrown.</p>
 labeled generically in the legend</p></li>
 <li><p><strong>**labeled_data_to_plot</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray"><em>NDDataArray</em></a>) – Data to visualize.  Data passed by keyword argument will be
 labeled with its keyword</p></li>
+<li><p><strong>abscissa_markers</strong> (<em>np.ndarray</em>) – Abscissa values at which markers will be placed.  If not specified,
+no markers will be added.  Markers will be added to all plotted
+curves if this argument is passed.  To add markers to just a
+specific plotted data, pass the argument <cite>abscissa_markers_*</cite> where
+<cite>*</cite> is replaced with either the index of the data that was passed
+via a positional argument, or the keyword of the data that was
+passed via a keyword argument.  Must be passed as a keyword argument.</p></li>
+<li><p><strong>abscissa_marker_labels</strong> (<em>iterable</em>) – Labels that will be applied to the markers.  If not specified, no
+label will be applied.  If a single string is passed, it will be
+passed to the <cite>.format</cite> method with keyword arguments <cite>index</cite> and
+<cite>abscissa</cite>.  This marker label will be used for all plotted
+curves if this argument is passed.  To add markers to just a
+specific plotted data, pass the argument <cite>abscissa_marker_labels_*</cite> where
+<cite>*</cite> is replaced with either the index of the data that was passed
+via a positional argument, or the keyword of the data that was
+passed via a keyword argument.  Must be passed as a keyword argument.</p></li>
+<li><p><strong>abscissa_marker_type</strong> (<em>str:</em>) – The type of marker that will be applied.  Can be ‘vline’ for a
+vertical line across the axis, or it can be a pyqtgraph symbol specifier
+(e.g. ‘x’, ‘o’, ‘star’, etc.) which will be placed on the plotted curves.
+If not specified, a vertical line will be used.
+This marker type will be used for all plotted
+curves if this argument is passed.  To add markers to just a
+specific plotted data, pass the argument <cite>abscissa_marker_type_*</cite> where
+<cite>*</cite> is replaced with either the index of the data that was passed
+via a positional argument, or the keyword of the data that was
+passed via a keyword argument.  Must be passed as a keyword argument.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -379,7 +402,7 @@ labeled with its keyword</p></li>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ecebdd50>
+<jinja2.runtime.BlockReference object at 0x7f5a273c2650>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.NDDataArray &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.NDDataArray &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -100,6 +100,8 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_uff"><code class="docutils literal notranslate"><span class="pre">NDDataArray.from_uff()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_unv"><code class="docutils literal notranslate"><span class="pre">NDDataArray.from_unv()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.function_type"><code class="docutils literal notranslate"><span class="pre">NDDataArray.function_type</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.get_drive_points"><code class="docutils literal notranslate"><span class="pre">NDDataArray.get_drive_points()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data"><code class="docutils literal notranslate"><span class="pre">NDDataArray.get_reciprocal_data()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.idx_by_ab"><code class="docutils literal notranslate"><span class="pre">NDDataArray.idx_by_ab</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.idx_by_el"><code class="docutils literal notranslate"><span class="pre">NDDataArray.idx_by_el</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.interpolate"><code class="docutils literal notranslate"><span class="pre">NDDataArray.interpolate()</span></code></a></li>
@@ -110,6 +112,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_coordinates"><code class="docutils literal notranslate"><span class="pre">NDDataArray.num_coordinates</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.num_elements"><code class="docutils literal notranslate"><span class="pre">NDDataArray.num_elements</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot"><code class="docutils literal notranslate"><span class="pre">NDDataArray.plot()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot_image"><code class="docutils literal notranslate"><span class="pre">NDDataArray.plot_image()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate"><code class="docutils literal notranslate"><span class="pre">NDDataArray.reference_coordinate</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="docutils literal notranslate"><span class="pre">NDDataArray.reshape_to_matrix()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.response_coordinate"><code class="docutils literal notranslate"><span class="pre">NDDataArray.response_coordinate</span></code></a></li>
@@ -224,6 +227,12 @@ SDynPy data arrays inherit from this superclass.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.from_unv" title="sdynpy.core.sdynpy_data.NDDataArray.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_data_dict[, squeeze])</p></td>
 <td><p>Create a data array from a unv dictionary from read_unv</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.get_drive_points" title="sdynpy.core.sdynpy_data.NDDataArray.get_drive_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_drive_points</span></code></a>([return_indices])</p></td>
+<td><p>Returns data arrays where the reference is equal to the response</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data" title="sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reciprocal_data</span></code></a>([return_indices])</p></td>
+<td><p>Gets reciprocal pairs of data from an NDDataArray.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.interpolate" title="sdynpy.core.sdynpy_data.NDDataArray.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>(interpolated_abscissa[, kind])</p></td>
 <td><p>Interpolates the NDDataArray using SciPy's interp1d.</p></td>
 </tr>
@@ -239,31 +248,34 @@ SDynPy data arrays inherit from this superclass.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.min" title="sdynpy.core.sdynpy_data.NDDataArray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>([reduction])</p></td>
 <td><p>Returns the minimum ordinate in the data array</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="sdynpy.core.sdynpy_data.NDDataArray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([one_axis, subplots_kwargs, plot_kwargs])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="sdynpy.core.sdynpy_data.NDDataArray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([one_axis, subplots_kwargs, ...])</p></td>
 <td><p>Plot the data array</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape_to_matrix</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.plot_image" title="sdynpy.core.sdynpy_data.NDDataArray.plot_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_image</span></code></a>([ax, reduction_function, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape_to_matrix</span></code></a>([error_if_missing])</p></td>
 <td><p>Reshapes a data array to a matrix with response coordinates along the rows and reference coordinates along the columns</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="sdynpy.core.sdynpy_data.NDDataArray.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="sdynpy.core.sdynpy_data.NDDataArray.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
 <td><p>Save the array to a numpy file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct</span></code></a>([Version, SetRecord, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct</span></code></a>([Version, SetRecord, ...])</p></td>
 <td><p>Creates a Matlab structure that can be read the IMAT toolbox.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct_array</span></code></a>([Version, SetRecord, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array" title="sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_imat_struct_array</span></code></a>([Version, SetRecord, ...])</p></td>
 <td><p>Creates a Matlab structure that can be read the IMAT toolbox.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_shape_array" title="sdynpy.core.sdynpy_data.NDDataArray.to_shape_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape_array</span></code></a>([abscissa_values])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.to_shape_array" title="sdynpy.core.sdynpy_data.NDDataArray.to_shape_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape_array</span></code></a>([abscissa_values])</p></td>
 <td><p>Converts an NDDataArray to a ShapeArray</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system" title="sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system" title="sdynpy.core.sdynpy_data.NDDataArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
 <td><p>Performs coordinate system transformations on the data</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa" title="sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_common_abscissa</span></code></a>(**allclose_kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa" title="sdynpy.core.sdynpy_data.NDDataArray.validate_common_abscissa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_common_abscissa</span></code></a>(**allclose_kwargs)</p></td>
 <td><p>Returns True if all functions have the same abscissa</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.zero_pad" title="sdynpy.core.sdynpy_data.NDDataArray.zero_pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero_pad</span></code></a>([num_samples, update_abscissa, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.zero_pad" title="sdynpy.core.sdynpy_data.NDDataArray.zero_pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero_pad</span></code></a>([num_samples, update_abscissa, ...])</p></td>
 <td><p>Add zeros to the beginning or end of a signal</p></td>
 </tr>
 </tbody>
@@ -467,6 +479,56 @@ The default is True.</p></li>
 <dd><p>Returns the function type of the data array as a FunctionTypes Enum</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.get_drive_points">
+<span class="sig-name descname"><span class="pre">get_drive_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.get_drive_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.get_drive_points" title="Permalink to this definition"></a></dt>
+<dd><p>Returns data arrays where the reference is equal to the response</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>return_indices</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, it will return a set of indices into the original array
+that extract the drive point functions. If False, then the
+drive point functions are returned directly.  The default is False.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the data does not have reference and response coordinates, the
+    method will raise a ValueError.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If return_indices is True, this will return the indices into the
+original array that extract the drive point data.  If return_indices
+is False, this will return the drive point NDDataArrays directly.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray or NDDataArray subclass</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data">
+<span class="sig-name descname"><span class="pre">get_reciprocal_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.get_reciprocal_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data" title="Permalink to this definition"></a></dt>
+<dd><p>Gets reciprocal pairs of data from an NDDataArray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>return_indices</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, it will return a set of indices into the original array
+that extract the reciprocal functions. If False, then the
+reciprocal functions are returned directly.  The default is False.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the data does not have reference and response coordinates, the
+    method will raise a ValueError.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If return_indices is True, this will return the indices into the
+original array that extract the reciprocal data.  If return_indices
+is False, this will return the reciprocal NDDataArrays directly.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray or NDDataArray subclass</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.idx_by_ab">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idx_by_ab</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.idx_by_ab" title="Permalink to this definition"></a></dt>
@@ -610,7 +672,7 @@ absolute value. The default is None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplots_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_marker_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_marker_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vline'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_marker_plot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the data array</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -622,6 +684,16 @@ True.</p></li>
 <li><p><strong>subplots_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keywords passed to the matplotlib subplots function to create the
 figure and axes. The default is {}.</p></li>
 <li><p><strong>plot_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Keywords passed to the matplotlib plot function. The default is {}.</p></li>
+<li><p><strong>abscissa_markers</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – Array containing abscissa values to mark on the plot to denote
+significant events.</p></li>
+<li><p><strong>abscissa_marker_labels</strong> (<em>str</em><em> or </em><em>ndarray</em>) – Array of strings to label the abscissa_markers with, or
+alternatively a format string that accepts index and abscissa
+inputs (e.g. ‘{index:}: {abscissa:0.2f}’).  By default no label
+will be applied.</p></li>
+<li><p><strong>abscissa_marker_type</strong> (<em>str</em>) – The type of marker to use.  This can either be the string ‘vline’
+or a valid matplotlib symbol specifier (e.g. ‘o’, ‘x’, ‘.’).</p></li>
+<li><p><strong>abscissa_marker_plot_kwargs</strong> (<em>dict</em>) – Additional keyword arguments used when plotting the abscissa label
+markers.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -633,6 +705,11 @@ figure and axes. The default is {}.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.plot_image">
+<span class="sig-name descname"><span class="pre">plot_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.plot_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.plot_image" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reference_coordinate</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.reference_coordinate" title="Permalink to this definition"></a></dt>
@@ -641,15 +718,22 @@ figure and axes. The default is {}.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix">
-<span class="sig-name descname"><span class="pre">reshape_to_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.reshape_to_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reshape_to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_if_missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.reshape_to_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Reshapes a data array to a matrix with response coordinates along the
 rows and reference coordinates along the columns</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>output_array</strong> – 2D Array of NDDataArray</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>error_if_missing</strong> (<em>bool</em>) – If True, an error will be thrown if there are missing data objects
+when trying to make a matrix of functions (i.e. if a response
+degree of freedom is missing from one reference).  If False,
+response coordinates will simply be discarded if they do not exist
+for all references.  Default is True.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Data Aarray</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>output_array</strong> – 2D Array of NDDataArray</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Data Aarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -911,7 +995,7 @@ fast values for FFT as specified by <cite>scipy.fft.next_fast_len</cite>.</p></l
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ec8bb280>
+<jinja2.runtime.BlockReference object at 0x7f5a26dd15d0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Airplane Modal Test &mdash; SDynPy 0.11.0 documentation</title>
+  <title>Airplane Modal Test &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -102,8 +102,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#running-a-virtual-experiment-modal-testing">Running a Virtual Experiment: Modal Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fitting-modes-using-polymax">Fitting Modes using PolyMax</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#running-polymax">Running PolyMax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fitting-modes-using-polypy">Fitting Modes using PolyPy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#running-polypy">Running PolyPy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#comparing-test-and-finite-element-modes">Comparing Test and Finite Element Modes</a></li>
 </ul>
 </li>
@@ -217,9 +217,9 @@ locations.</p></li>
 </ul>
 </li>
 <li><p><a class="reference internal" href="#running-a-virtual-experiment-modal-testing" id="id29">Running a Virtual Experiment: Modal Testing</a></p></li>
-<li><p><a class="reference internal" href="#fitting-modes-using-polymax" id="id30">Fitting Modes using PolyMax</a></p>
+<li><p><a class="reference internal" href="#fitting-modes-using-polypy" id="id30">Fitting Modes using PolyPy</a></p>
 <ul>
-<li><p><a class="reference internal" href="#running-polymax" id="id31">Running PolyMax</a></p></li>
+<li><p><a class="reference internal" href="#running-polypy" id="id31">Running PolyPy</a></p></li>
 <li><p><a class="reference internal" href="#comparing-test-and-finite-element-modes" id="id32">Comparing Test and Finite Element Modes</a></p></li>
 </ul>
 </li>
@@ -979,7 +979,7 @@ function wants as its arguments.  The first argument is <code class="docutils li
 which is the number we just defined.  The second is the <code class="docutils literal notranslate"><span class="pre">shape_matrix</span></code>.
 Reading the documentation, this <code class="docutils literal notranslate"><span class="pre">shape_matrix</span></code> should have its first dimension
 corresponding to each sensor (here a sensor could be a channel or group of
-channels for a triaxial accelerometer) and its last dimension be correspond to
+channels for a triaxial accelerometer) and its last dimension correspond to
 each target mode.  We will therefore want to set up a matrix with shape
 (<code class="docutils literal notranslate"><span class="pre">candidate_node_ids.size</span></code> x 3 x <code class="docutils literal notranslate"><span class="pre">target_shapes.size</span></code>).  This way, the
 target shape dimension is last, and the group of channels corresponding to each
@@ -1731,23 +1731,23 @@ look through all the functions to ensure they look right.</p>
 </div>
 <a class="reference internal image-reference" href="../_images/airplane_gui_plot.png"><img alt="Drive points used for a MIMO modal test." src="../_images/airplane_gui_plot.png" style="width: 600px;" /></a>
 </section>
-<section id="fitting-modes-using-polymax">
-<h2><a class="toc-backref" href="#id30">Fitting Modes using PolyMax</a><a class="headerlink" href="#fitting-modes-using-polymax" title="Permalink to this heading"></a></h2>
+<section id="fitting-modes-using-polypy">
+<h2><a class="toc-backref" href="#id30">Fitting Modes using PolyPy</a><a class="headerlink" href="#fitting-modes-using-polypy" title="Permalink to this heading"></a></h2>
 <p>Now that we have frequency response functions created, we can fit modes to them.
 SDynPy has two mode fitters implemented,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">PolyMax</span></code> and
+<a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html#sdynpy.modal.sdynpy_polypy.PolyPy_GUI" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyPy</span></code></a> and
 <a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_smac.SMAC_GUI.html#sdynpy.modal.sdynpy_smac.SMAC_GUI" title="sdynpy.modal.sdynpy_smac.SMAC_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">SMAC</span></code></a>.  Both curve fitters can
 be used via graphical user interface or via Python commands if it is desirable
 to automate the curve fitting.  This example will use the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">sdpy.PolyMax_GUI</span></code> approach.</p>
-<section id="running-polymax">
-<h3><a class="toc-backref" href="#id31">Running PolyMax</a><a class="headerlink" href="#running-polymax" title="Permalink to this heading"></a></h3>
-<p>We open the PolyMax GUI by initializing the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">sdpy.PolyMax_GUI</span></code> class
+<a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html#sdynpy.modal.sdynpy_polypy.PolyPy_GUI" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdpy.PolyPy_GUI</span></code></a> approach.</p>
+<section id="running-polypy">
+<h3><a class="toc-backref" href="#id31">Running PolyPy</a><a class="headerlink" href="#running-polypy" title="Permalink to this heading"></a></h3>
+<p>We open the PolyPy GUI by initializing the
+<a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html#sdynpy.modal.sdynpy_polypy.PolyPy_GUI" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdpy.PolyPy_GUI</span></code></a> class
 with our frequency response function dataset <code class="docutils literal notranslate"><span class="pre">frf_sampled</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now that we have FRFs we can go fit modes.  We will first look at using</span>
-<span class="c1"># PolyMax</span>
-<span class="n">pm</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">PolyMax_GUI</span><span class="p">(</span><span class="n">frf_sampled</span><span class="p">)</span>
+<span class="c1"># PolyPy</span>
+<span class="n">pm</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">PolyPy_GUI</span><span class="p">(</span><span class="n">frf_sampled</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The initial screen shows mode indicator functions, as well as options for
@@ -1756,15 +1756,15 @@ Complex Mode Indicator function that there are a few instances of closely-spaced
 modes.  We can drag the frequency region on the figure to select the frequency
 range of interest, set the polynomial orders, and press the button to compute
 the stabilization curve.</p>
-<a class="reference internal image-reference" href="../_images/airplane_polymax_stabilization.png"><img alt="Setting up parameters to compute the stabilization plot in PolyMax" src="../_images/airplane_polymax_stabilization.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../_images/airplane_polypy_stabilization.png"><img alt="Setting up parameters to compute the stabilization plot in PolyPy" src="../_images/airplane_polypy_stabilization.png" style="width: 600px;" /></a>
 <p>Once the stabilization plot is computed, stable poles can be selected by
 clicking on them in the stabilization plot.  Once all poles are selected,
 shapes can be computed.</p>
-<a class="reference internal image-reference" href="../_images/airplane_polymax_stabilization_selection.png"><img alt="Selecting poles on the stabilization plot in PolyMax" src="../_images/airplane_polymax_stabilization_selection.png" style="width: 600px;" /></a>
-<p>The final tab of the PolyMax implementation allows you to see how well the
+<a class="reference internal image-reference" href="../_images/airplane_polypy_stabilization_selection.png"><img alt="Selecting poles on the stabilization plot in PolyPy" src="../_images/airplane_polypy_stabilization_selection.png" style="width: 600px;" /></a>
+<p>The final tab of the PolyPy implementation allows you to see how well the
 modes fit to the measured frequency response data.  On this page, modes can be
 saved to a file.</p>
-<a class="reference internal image-reference" href="../_images/airplane_polymax_stabilization_resynthesis.png"><img alt="Visualizing the modal fits in PolyMax" src="../_images/airplane_polymax_stabilization_resynthesis.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="../_images/airplane_polypy_stabilization_resynthesis.png"><img alt="Visualizing the modal fits in PolyPy" src="../_images/airplane_polypy_stabilization_resynthesis.png" style="width: 600px;" /></a>
 </section>
 <section id="comparing-test-and-finite-element-modes">
 <h3><a class="toc-backref" href="#id32">Comparing Test and Finite Element Modes</a><a class="headerlink" href="#comparing-test-and-finite-element-modes" title="Permalink to this heading"></a></h3>
@@ -1774,15 +1774,15 @@ fit shapes and our finite element shapes to compare the results.  We can also
 print a shape comparison table obtained by the
 <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.shape_comparison_table.html#sdynpy.core.sdynpy_shape.shape_comparison_table" title="sdynpy.core.sdynpy_shape.shape_comparison_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdpy.shape.shape_comparison_table</span></code></a>
 function.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In the PolyMax GUI we saved the shapes to disk, so we will now load them.</span>
-<span class="n">test_shapes_polymax</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;shapes_polymax.npy&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In the PolyPy GUI we saved the shapes to disk, so we will now load them.</span>
+<span class="n">test_shapes_polypy</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;shapes_polypy.npy&#39;</span><span class="p">)</span>
 
 <span class="c1"># Let&#39;s compare the shapes to the finite element model shapes</span>
-<span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">test_shapes</span><span class="p">,</span><span class="n">test_shapes_polymax</span><span class="p">)</span>
+<span class="n">mac</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mac</span><span class="p">(</span><span class="n">test_shapes</span><span class="p">,</span><span class="n">test_shapes_polypy</span><span class="p">)</span>
 <span class="n">sdpy</span><span class="o">.</span><span class="n">correlation</span><span class="o">.</span><span class="n">matrix_plot</span><span class="p">(</span>
     <span class="n">mac</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 <span class="n">shape_correspondences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mac</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">)</span>
-<span class="n">shape_1</span> <span class="o">=</span> <span class="n">test_shapes_polymax</span><span class="p">[</span><span class="n">shape_correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">shape_1</span> <span class="o">=</span> <span class="n">test_shapes_polypy</span><span class="p">[</span><span class="n">shape_correspondences</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 <span class="n">shape_2</span> <span class="o">=</span> <span class="n">test_shapes</span><span class="p">[</span><span class="n">shape_correspondences</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_comparison_table</span><span class="p">(</span><span class="n">shape_1</span><span class="p">,</span> <span class="n">shape_2</span><span class="p">,</span>
                                         <span class="n">percent_error_format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{:0.4f}</span><span class="s1">%&#39;</span><span class="p">))</span>
@@ -1871,14 +1871,14 @@ in the expansion.  All coordinate transformations between the local test geometr
 and global finite element geometry are handled automatically by SDynPy.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform the expansion using the finite element shapes in the bandwidth</span>
 <span class="n">expansion_basis</span> <span class="o">=</span> <span class="n">shapes_global</span><span class="p">[</span><span class="n">shapes_global</span><span class="o">.</span><span class="n">frequency</span> <span class="o">&lt;</span> <span class="n">shape_bandwidth</span><span class="p">]</span>
-<span class="n">expanded_shapes</span> <span class="o">=</span> <span class="n">test_shapes_polymax</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">test_geometry</span><span class="p">,</span><span class="n">geometry_global</span><span class="p">,</span>
+<span class="n">expanded_shapes</span> <span class="o">=</span> <span class="n">test_shapes_polypy</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">test_geometry</span><span class="p">,</span><span class="n">geometry_global</span><span class="p">,</span>
                                              <span class="n">expansion_basis</span><span class="p">)</span>
 <span class="c1"># We can then plot the expanded shapes on the original finite element geometry</span>
 <span class="n">geometry_global</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">expanded_shapes</span><span class="p">,</span><span class="n">plot_options</span><span class="p">)</span>
 
 <span class="c1"># Or overlay the geometries and shapes</span>
 <span class="n">expansion_comparison_geometry</span><span class="p">,</span><span class="n">expansion_comparison_shapes</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">overlay_shapes</span><span class="p">(</span>
-    <span class="p">(</span><span class="n">test_geometry</span><span class="p">,</span><span class="n">geometry_global</span><span class="p">),(</span><span class="n">test_shapes_polymax</span><span class="p">,</span><span class="n">expanded_shapes</span><span class="p">),[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+    <span class="p">(</span><span class="n">test_geometry</span><span class="p">,</span><span class="n">geometry_global</span><span class="p">),(</span><span class="n">test_shapes_polypy</span><span class="p">,</span><span class="n">expanded_shapes</span><span class="p">),[</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
 <span class="n">expansion_comparison_geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">expansion_comparison_shapes</span><span class="p">,</span><span class="n">plot_options</span><span class="p">,</span>
                                          <span class="n">deformed_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">undeformed_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
@@ -1899,7 +1899,7 @@ and global finite element geometry are handled automatically by SDynPy.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ef261660>
+<jinja2.runtime.BlockReference object at 0x7f5a297709d0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

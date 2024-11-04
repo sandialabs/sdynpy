@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412 &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412 &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
@@ -140,6 +140,8 @@
 
 <div class="viewcode-block" id="Sdynpy_UFF_Dataset_2412.from_uff_data_array"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412.Sdynpy_UFF_Dataset_2412.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412.Sdynpy_UFF_Dataset_2412.from_uff_data_array">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_uff_data_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Transform from binary to ascii</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
         <span class="n">element_labels</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">fe_descriptor_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">physical_property_table_numbers</span> <span class="o">=</span> <span class="p">[]</span>
@@ -210,7 +212,9 @@
 
 <div class="viewcode-block" id="Sdynpy_UFF_Dataset_2412.write_string"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412.Sdynpy_UFF_Dataset_2412.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_2412.Sdynpy_UFF_Dataset_2412.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">return_string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">for</span> <span class="n">element_label</span><span class="p">,</span> <span class="n">fe_descriptor_id</span><span class="p">,</span> <span class="n">physical_property_table_number</span><span class="p">,</span> <span class="n">material_property_table_number</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">,</span> <span class="n">beam_orientation</span><span class="p">,</span> <span class="n">beam_fore_cross_section_number</span><span class="p">,</span> <span class="n">beam_aft_cross_section_number</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">element_label</span><span class="p">,</span> <span class="n">fe_descriptor_id</span><span class="p">,</span> <span class="n">physical_property_table_number</span><span class="p">,</span>
+             <span class="n">material_property_table_number</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">,</span> <span class="n">beam_orientation</span><span class="p">,</span>
+             <span class="n">beam_fore_cross_section_number</span><span class="p">,</span> <span class="n">beam_aft_cross_section_number</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">element_labels</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fe_descriptor_ids</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">physical_property_table_numbers</span><span class="p">,</span>
@@ -220,7 +224,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">beam_orientations</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">beam_fore_cross_section_numbers</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">beam_aft_cross_section_numbers</span><span class="p">):</span>
-            <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="n">element_label</span><span class="p">,</span> <span class="n">fe_descriptor_id</span><span class="p">,</span> <span class="n">physical_property_table_number</span><span class="p">,</span> <span class="n">material_property_table_number</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectivity</span><span class="p">)],</span>
+            <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="n">element_label</span><span class="p">,</span> <span class="n">fe_descriptor_id</span><span class="p">,</span>
+                                             <span class="n">physical_property_table_number</span><span class="p">,</span>
+                                             <span class="n">material_property_table_number</span><span class="p">,</span>
+                                             <span class="n">color</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">connectivity</span><span class="p">)],</span>
                                             <span class="mi">6</span> <span class="o">*</span> <span class="p">[</span><span class="s1">&#39;I10&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">fe_descriptor_id</span> <span class="ow">in</span> <span class="n">_beam_elem_types</span><span class="p">:</span>
                 <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">(</span>
@@ -247,7 +254,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eba9a9b0>
+<jinja2.runtime.BlockReference object at 0x7f5a273697e0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fileio.sdynpy_uff &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.fileio.sdynpy_uff &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -88,7 +88,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Interface to the universal file format (UFF).</span>
 
-<span class="sd">Using the functions in this module, one can read and write unv files.  </span>
+<span class="sd">Using the functions in this module, one can read and write unv files.</span>
 
 <span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
 <span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
@@ -108,6 +108,7 @@
 <span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <div class="viewcode-block" id="UFFReadError"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.UFFReadError.html#sdynpy.fileio.sdynpy_uff.UFFReadError">[docs]</a><span class="k">class</span> <span class="nc">UFFReadError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception to be used when there is an error reading a UNV file&quot;&quot;&quot;</span>
@@ -243,7 +244,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">write_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">non_X_format_specs</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">format_spec</span> <span class="k">for</span> <span class="n">format_spec</span> <span class="ow">in</span> <span class="n">format_specs</span> <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;X&#39;</span> <span class="ow">in</span> <span class="n">format_spec</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+        <span class="n">format_spec</span> <span class="k">for</span> <span class="n">format_spec</span> <span class="ow">in</span> <span class="n">format_specs</span> <span class="k">if</span> <span class="s1">&#39;X&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">format_spec</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
     <span class="n">copies</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">write_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_X_format_specs</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">format_specs</span> <span class="o">=</span> <span class="p">(</span><span class="n">copies</span> <span class="o">*</span> <span class="p">(</span><span class="n">format_specs</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]))</span>
     <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -273,7 +274,7 @@
             <span class="k">break</span>
     <span class="k">if</span> <span class="n">fill_line</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:&lt;80s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:&lt;80s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">this_line</span><span class="p">)</span> <span class="k">for</span> <span class="n">this_line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="k">return</span> <span class="n">line</span></div>
 
 
@@ -281,16 +282,16 @@
 <span class="c1"># and write command, import it here, then add it to the dataset dictionary</span>
 <span class="c1"># using the dataset number as the key.</span>
 
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_55</span> <span class="k">as</span> <span class="n">dataset_55</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_58</span> <span class="k">as</span> <span class="n">dataset_58</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_82</span> <span class="k">as</span> <span class="n">dataset_82</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_151</span> <span class="k">as</span> <span class="n">dataset_151</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_164</span> <span class="k">as</span> <span class="n">dataset_164</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_1858</span> <span class="k">as</span> <span class="n">dataset_1858</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2400</span> <span class="k">as</span> <span class="n">dataset_2400</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2411</span> <span class="k">as</span> <span class="n">dataset_2411</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2412</span> <span class="k">as</span> <span class="n">dataset_2412</span>
-<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2420</span> <span class="k">as</span> <span class="n">dataset_2420</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_55</span> <span class="k">as</span> <span class="n">dataset_55</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_58</span> <span class="k">as</span> <span class="n">dataset_58</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_82</span> <span class="k">as</span> <span class="n">dataset_82</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_151</span> <span class="k">as</span> <span class="n">dataset_151</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_164</span> <span class="k">as</span> <span class="n">dataset_164</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_1858</span> <span class="k">as</span> <span class="n">dataset_1858</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2400</span> <span class="k">as</span> <span class="n">dataset_2400</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2411</span> <span class="k">as</span> <span class="n">dataset_2411</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2412</span> <span class="k">as</span> <span class="n">dataset_2412</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_uff_datasets</span> <span class="kn">import</span> <span class="n">sdynpy_uff_dataset_2420</span> <span class="k">as</span> <span class="n">dataset_2420</span>  <span class="c1"># noqa: E402</span>
 
 <span class="n">dataset_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">55</span><span class="p">:</span> <span class="n">dataset_55</span><span class="p">,</span>
                 <span class="mi">58</span><span class="p">:</span> <span class="n">dataset_58</span><span class="p">,</span>
@@ -304,6 +305,7 @@
                 <span class="mi">2420</span><span class="p">:</span> <span class="n">dataset_2420</span><span class="p">}</span>
 
 
+
 <div class="viewcode-block" id="readuff"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_uff.readuff.html#sdynpy.fileio.sdynpy_uff.readuff">[docs]</a><span class="k">def</span> <span class="nf">readuff</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">datasets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a universal file</span>
@@ -313,7 +315,7 @@
 <span class="sd">    filename : str</span>
 <span class="sd">        Path to the file that should be read.</span>
 <span class="sd">    datasets : iterable, optional</span>
-<span class="sd">        List of dataset numbers to read. The default is None.</span>
+<span class="sd">        List of dataset id numbers to read. The default is None.</span>
 <span class="sd">    verbose : bool, optional</span>
 <span class="sd">        Output extra information when reading the file. The default is False.</span>
 
@@ -330,22 +332,22 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">dataset_line_num</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="c1"># Loop through the file until it is at its end</span>
-        <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="c1"># Find the first delimiter line</span>
             <span class="c1"># Here we want to find a line that has -1 in the 5th and 6th column,</span>
             <span class="c1"># and make sure that -1 isn&#39;t the only thing in the line to make sure</span>
             <span class="c1"># that any comments at the start of the file don&#39;t accidentally line up</span>
-            <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;-1&#39;</span><span class="p">:</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                 <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="k">break</span>
-            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="k">break</span>
             <span class="n">dataset_line_num</span> <span class="o">=</span> <span class="n">line_num</span>
             <span class="c1"># Load in the dataset specifier</span>
@@ -353,8 +355,16 @@
             <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Make sure that we can convert it to an integer</span>
-                <span class="n">dataset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">byte_ordering</span><span class="p">,</span> <span class="n">floating_point_format</span><span class="p">,</span>
+                 <span class="n">num_ascii_lines_following</span><span class="p">,</span> <span class="n">num_bytes_following</span><span class="p">,</span> <span class="o">*</span><span class="n">not_used</span><span class="p">)</span> <span class="o">=</span> <span class="n">parse_uff_line</span><span class="p">(</span>
+                     <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span> <span class="p">[</span><span class="s1">&#39;I6&#39;</span><span class="p">,</span> <span class="s1">&#39;A1&#39;</span><span class="p">,</span> <span class="s1">&#39;I6&#39;</span><span class="p">,</span> <span class="s1">&#39;I6&#39;</span><span class="p">,</span> <span class="s1">&#39;I12&#39;</span><span class="p">,</span> <span class="s1">&#39;I12&#39;</span><span class="p">,</span> <span class="s1">&#39;I6&#39;</span><span class="p">,</span> <span class="s1">&#39;I6&#39;</span><span class="p">,</span> <span class="s1">&#39;I12&#39;</span><span class="p">,</span> <span class="s1">&#39;I12&#39;</span><span class="p">])</span>
+                <span class="n">is_binary</span> <span class="o">=</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">is_binary</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">byte_ordering</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">byte_ordering</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">num_ascii_lines_following</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">num_ascii_lines_following</span> <span class="o">=</span> <span class="mi">11</span>
+            <span class="k">except</span> <span class="n">UFFReadError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span>
                     <span class="s1">&#39;Improperly formatted dataset specification at line </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line_num</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -364,25 +374,27 @@
             <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="c1"># Loop through the file until we find the delimiter</span>
-            <span class="k">while</span> <span class="ow">not</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>
+            <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_binary</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;-1&#39;</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;-1&#39;</span><span class="p">)</span>
+                   <span class="ow">and</span>
+                   <span class="ow">not</span> <span class="p">(</span><span class="n">is_binary</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()[</span><span class="o">-</span><span class="mi">6</span><span class="p">:]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;    -1&#39;</span> <span class="ow">and</span> <span class="n">line_num</span> <span class="o">-</span> <span class="n">dataset_line_num</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">num_ascii_lines_following</span><span class="p">)):</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                 <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span>
                         <span class="s1">&#39;File ended before dataset starting at line </span><span class="si">{}</span><span class="s1"> was ended.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_line_num</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">is_binary</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()[</span><span class="o">-</span><span class="mi">6</span><span class="p">:]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;    -1&#39;</span> <span class="ow">and</span> <span class="n">line_num</span> <span class="o">-</span> <span class="n">dataset_line_num</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">num_ascii_lines_following</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">6</span><span class="p">])</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">read_fn</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="n">dataset</span><span class="p">]</span><span class="o">.</span><span class="n">read</span>
-            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="c1">#                raise e</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="s1"> is not implemented, skipping...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
                 <span class="c1"># Read the next line in preparation for the next loop of the script</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                 <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="c1">#                raise e</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dataset </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="s1"> read function is not implemented, skipping...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_line_num</span><span class="p">))</span>
                 <span class="c1"># Read the next line in preparation for the next loop of the script</span>
@@ -395,7 +407,12 @@
                 <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                 <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
-            <span class="n">dataset_obj</span> <span class="o">=</span> <span class="n">read_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_binary</span><span class="p">:</span>
+                <span class="n">dataset_obj</span> <span class="o">=</span> <span class="n">read_fn</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">is_binary</span><span class="p">,</span> <span class="n">byte_ordering</span><span class="p">,</span>
+                                      <span class="n">floating_point_format</span><span class="p">,</span> <span class="n">num_ascii_lines_following</span><span class="p">,</span>
+                                      <span class="n">num_bytes_following</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dataset_obj</span> <span class="o">=</span> <span class="n">read_fn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_obj</span><span class="p">,</span> <span class="n">UFFReadError</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">UFFReadError</span><span class="p">(</span><span class="s1">&#39;In dataset starting at line </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">dataset_line_num</span><span class="p">,</span> <span class="n">dataset_obj</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
@@ -406,6 +423,7 @@
             <span class="c1"># Read the next line in preparation for the next loop of the script</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
             <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
     <span class="k">return</span> <span class="n">return_dict</span></div>
 
 
@@ -419,7 +437,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eba81510>
+<jinja2.runtime.BlockReference object at 0x7f5a27f49c90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

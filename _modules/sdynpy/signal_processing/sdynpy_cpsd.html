@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_cpsd &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_cpsd &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -146,7 +146,7 @@
 <div class="viewcode-block" id="cpsd"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.cpsd.html#sdynpy.signal_processing.sdynpy_cpsd.cpsd">[docs]</a><span class="k">def</span> <span class="nf">cpsd</span><span class="p">(</span><span class="n">signals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
          <span class="n">samples_per_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
          <span class="n">window</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">averages_to_keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-         <span class="n">only_asds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+         <span class="n">only_asds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">reference_signals</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute cpsd from signals</span>
 
@@ -162,12 +162,18 @@
 <span class="sd">    overlap : float</span>
 <span class="sd">        Overlap as a fraction of the frame (e.g. 0.5 not 50).</span>
 <span class="sd">    window : str</span>
-<span class="sd">        Name of a window function in scipy.signal.windows.</span>
+<span class="sd">        Name of a window function in scipy.signal.windows, or a NumPy ndarray</span>
+<span class="sd">        with the window coefficients</span>
 <span class="sd">    averages_to_keep : int, optional</span>
 <span class="sd">        Optional number of averages to use. The default is None.</span>
 <span class="sd">    only_asds : bool, optional</span>
 <span class="sd">        If True, only compute autospectral densities, otherwise compute the</span>
 <span class="sd">        full CPSD matrix</span>
+<span class="sd">    reference_signals : np.ndarray</span>
+<span class="sd">        If specified, these signals will be used for the columns of the CPSD</span>
+<span class="sd">        matrix.  If not specified, the signals passed to the `signals` argument</span>
+<span class="sd">        will be used for both the rows and columns of the CPSD matrix.  Cannot</span>
+<span class="sd">        be used simultaneously with the `only_asds` argument being set to True.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -180,7 +186,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">samples_per_acquire</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">samples_per_frame</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">overlap</span><span class="p">))</span>
-    <span class="n">window_array</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">samples_per_frame</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nb">str</span><span class="p">):</span> <span class="c1"># This will pass if it is a string or a container with a string as the first value</span>
+        <span class="n">window_array</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">window_array</span> <span class="o">=</span> <span class="n">window</span>
     <span class="n">window_correction</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">window_array</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">frequency_spacing</span> <span class="o">=</span> <span class="n">sample_rate</span> <span class="o">/</span> <span class="n">samples_per_frame</span>
     <span class="n">time_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">signals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">samples_per_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">samples_per_acquire</span><span class="p">)</span>
@@ -190,19 +199,26 @@
     <span class="n">response_fft_array</span> <span class="o">=</span> <span class="n">signals</span><span class="p">[:,</span> <span class="n">time_indices_for_averages</span><span class="p">]</span>
     <span class="n">response_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">response_fft_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">window_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">only_asds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reference_signals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot specify `only_asds` equal to True and simultaneously provide reference signals&#39;</span><span class="p">)</span>
         <span class="n">response_spectral_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
             <span class="s1">&#39;iaf,iaf-&gt;fi&#39;</span><span class="p">,</span> <span class="n">response_fft</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_fft</span><span class="p">))</span> <span class="o">/</span> <span class="n">response_fft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reference_signals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reference_fft</span> <span class="o">=</span> <span class="n">response_fft</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reference_fft_array</span> <span class="o">=</span> <span class="n">reference_signals</span><span class="p">[:,</span><span class="n">time_indices_for_averages</span><span class="p">]</span>
+            <span class="n">reference_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">reference_fft_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">window_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">response_spectral_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
-            <span class="s1">&#39;iaf,jaf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">response_fft</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">response_fft</span><span class="p">))</span> <span class="o">/</span> <span class="n">response_fft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="s1">&#39;iaf,jaf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">response_fft</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_fft</span><span class="p">))</span> <span class="o">/</span> <span class="n">response_fft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="c1"># Normalize</span>
     <span class="n">response_spectral_matrix</span> <span class="o">*=</span> <span class="p">(</span><span class="n">frequency_spacing</span> <span class="o">*</span> <span class="n">window_correction</span> <span class="o">/</span>
                                  <span class="n">sample_rate</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">response_spectral_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="n">frequency_spacing</span><span class="p">,</span> <span class="n">response_spectral_matrix</span></div>
 
-
 <div class="viewcode-block" id="dB_pow"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.dB_pow.html#sdynpy.signal_processing.sdynpy_cpsd.dB_pow">[docs]</a><span class="k">def</span> <span class="nf">dB_pow</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="db2scale"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.db2scale.html#sdynpy.signal_processing.sdynpy_cpsd.db2scale">[docs]</a><span class="k">def</span> <span class="nf">db2scale</span><span class="p">(</span><span class="n">dB</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Converts a decibel value to a scale factor</span>
@@ -211,15 +227,16 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dB : float :</span>
 <span class="sd">        Value in decibels</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    scale : float :</span>
 <span class="sd">        Value in linear</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">dB</span><span class="o">/</span><span class="mi">20</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="rms"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.rms.html#sdynpy.signal_processing.sdynpy_cpsd.rms">[docs]</a><span class="k">def</span> <span class="nf">rms</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span></div>
@@ -413,10 +430,10 @@
 
     <span class="c1"># Truncate to the minimum frequency</span>
     <span class="n">cpsd</span><span class="p">[</span><span class="n">all_freqs</span> <span class="o">&lt;</span> <span class="n">min_frequency</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">max_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">max_frequency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cpsd</span><span class="p">[</span><span class="n">all_freqs</span> <span class="o">&gt;</span> <span class="n">max_frequency</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">target_rms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">target_rms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cpsd_rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cpsd</span><span class="p">)</span> <span class="o">*</span> <span class="n">frequency_spacing</span><span class="p">)</span>
         <span class="n">cpsd</span> <span class="o">*=</span> <span class="p">(</span><span class="n">target_rms</span> <span class="o">/</span> <span class="n">cpsd_rms</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
 
@@ -429,26 +446,117 @@
 
     <span class="k">return</span> <span class="n">full_cpsd</span></div>
 
+<div class="viewcode-block" id="nth_octave_freqs"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.nth_octave_freqs.html#sdynpy.signal_processing.sdynpy_cpsd.nth_octave_freqs">[docs]</a><span class="k">def</span> <span class="nf">nth_octave_freqs</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">oct_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get N-th octave band frequencies</span>
 
-<span class="c1"># frequency = np.ogrid[min_freq:bandwidth:frequency_spacing]</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    freq : ndarray</span>
+<span class="sd">        array of frequency values, either including all freqs or only min and max</span>
+<span class="sd">    oct_order : int, optional</span>
+<span class="sd">        octave type, 1/octave order. 3 represents 1/3 octave bands. default is 1</span>
 
-<span class="c1"># cpsd_channel = np.ones(len(frequency))</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nominal_band_centers : ndarray</span>
+<span class="sd">        rounded band center frequencies using ANSI standers. Used to report</span>
+<span class="sd">        results, not to compute band limits</span>
+<span class="sd">    band_lb : ndarray</span>
+<span class="sd">        lower band frequencies in Hz</span>
+<span class="sd">    band_ub : ndarray</span>
+<span class="sd">        upper band frequencies in Hz</span>
+<span class="sd">    band_centers : ndarray</span>
+<span class="sd">        exact computed octave center band frequencies</span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -------</span>
+<span class="sd">    Uses equations in ANSI S1.11-2014 &quot;Electroacoustics – Octave-band and </span>
+<span class="sd">    Fractionaloctave-band Filters – Part 1: Specifications&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Uses the min and max freq lines in the provided freq to determine the upper</span>
+<span class="sd">    and lower bands</span>
+<span class="sd">    </span>
+<span class="sd">    Uses 1000 Hz as the reference frequency (as per the ANSI standard)</span>
+<span class="sd">    </span>
+<span class="sd">    Computes the 1/Nth band center frequencies, using different equations</span>
+<span class="sd">    depending on the octave order. Orders with odd numbers (1, 1/3, etc.) </span>
+<span class="sd">    use ANSI eqn 2. Order with even numbers (1/6, 1/12, etc.) use eqn 3. </span>
+<span class="sd">    This causes any sub-bands to fit entirely within the full octave band</span>
+<span class="sd">    </span>
+<span class="sd">    Note: even-numbered sub-bands will not share center frequencies with </span>
+<span class="sd">    the full octave band, but will share the upper and lower limits.</span>
+<span class="sd">    ANSI S1.11 Annex A gives instructions for rounding to make the nominal</span>
+<span class="sd">    band center freqs. If left-most digit is 1-4, round to 3 significant</span>
+<span class="sd">    digits. If left-most digit is 5-9, round to 2 significant digits. For</span>
+<span class="sd">    example, 41.567 rounds to 41.6. 8785.2 rounds to 8800. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Process inputs</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">freq</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    
+    <span class="c1"># Setup</span>
+    <span class="n">oct_ratio</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">0.3</span>
+    <span class="n">f_ref</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">200</span><span class="p">,</span><span class="mi">201</span><span class="p">)</span>
+    
+    <span class="c1"># Compute exact center freqs and edges</span>
+    <span class="c1"># equation is different if using odd octOrder (1, 3) vs. even octOrder</span>
+    <span class="c1"># (6, 12). Note: bandNumbers = x and octOrder = b in the ANSI eqns</span>
+    <span class="nb">pow</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">bands</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">oct_order</span><span class="p">),</span> <span class="n">bands</span><span class="o">/</span><span class="n">oct_order</span><span class="p">]</span>
+    <span class="n">band_centers</span> <span class="o">=</span> <span class="n">f_ref</span> <span class="o">*</span> <span class="n">oct_ratio</span><span class="o">**</span><span class="nb">pow</span><span class="p">[</span><span class="n">oct_order</span><span class="o">%</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">band_lb</span> <span class="o">=</span> <span class="p">(</span> <span class="n">band_centers</span> <span class="o">*</span> <span class="n">oct_ratio</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">oct_order</span><span class="p">))</span> <span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="c1"># round slightly</span>
+    <span class="n">band_ub</span> <span class="o">=</span> <span class="p">(</span> <span class="n">band_centers</span> <span class="o">*</span> <span class="n">oct_ratio</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">oct_order</span><span class="p">))</span> <span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="c1"># round slightly</span>
+    
+    <span class="c1"># ONLY KEEP BANDS IN THE FREQ RANGE OF INTEREST: </span>
+    <span class="c1"># lower limit of lowest band is above min freq</span>
+    <span class="c1"># upper limit of highest band is below max freq</span>
+    <span class="c1"># rationale: want to compute oct-ave using all the data, so include </span>
+    <span class="c1"># the band the includes the minimum frequency and the band that includes</span>
+    <span class="c1"># the maximum frequency.</span>
+    <span class="c1"># Note that this will result in an under-estimate of the first and last</span>
+    <span class="c1"># band levels since some of the band is empty.</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">freq</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span><span class="mi">10</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">band_ub</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">freq</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">band_lb</span><span class="p">)</span>
+    <span class="n">band_centers</span><span class="p">,</span><span class="n">band_lb</span><span class="p">,</span><span class="n">band_ub</span> <span class="o">=</span> <span class="p">[</span><span class="n">band_centers</span><span class="p">[</span><span class="n">inds</span><span class="p">],</span><span class="n">band_lb</span><span class="p">[</span><span class="n">inds</span><span class="p">],</span><span class="n">band_ub</span><span class="p">[</span><span class="n">inds</span><span class="p">]]</span>
+    
 
-<span class="c1"># cpsd_rms = np.sqrt(np.sum(cpsd_channel)*frequency_spacing)</span>
-<span class="c1"># print(&#39;Original CPSD RMS = {:}&#39;.format(cpsd_rms))</span>
-
-<span class="c1"># cpsd_channel *= (target_rms/cpsd_rms)**2</span>
-
-<span class="c1"># cpsd_rms = np.sqrt(np.sum(cpsd_channel)*frequency_spacing)</span>
-<span class="c1"># print(&#39;Scaled CPSD RMS = {:}&#39;.format(cpsd_rms))</span>
-
-<span class="c1"># # Now create the full cpsd matrix</span>
-
-<span class="c1"># cpsd = np.zeros((len(frequency),nchannels,nchannels),dtype=&#39;complex128&#39;)</span>
-
-<span class="c1"># cpsd[:,np.arange(nchannels),np.arange(nchannels)] = cpsd_channel[:,np.newaxis]</span>
-
-<span class="c1"># np.savez(&#39;Flat_Force_Specification.npz&#39;,cpsd=cpsd,f=frequency)</span>
+    <span class="c1"># GET THE NOMINAL BAND CENTER FREQUENCIES BY ROUNDING</span>
+    <span class="c1"># These are just &quot;nice&quot; numbers to make it easier to identify the bands </span>
+    <span class="c1"># edges are still calculated from the exact center freqs</span>
+    <span class="c1"># method used here is based on:</span>
+    <span class="c1"># https://www.mathworks.com/matlabcentral/fileexchange/26212-round-with-significant-digits</span>
+    <span class="c1"># freqBandCenters = [ 41.567, 8785.2 ] should give: [ 41.6, 8800]</span>
+    <span class="n">pow_10</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">band_centers</span><span class="p">))</span>
+    <span class="n">left_digit</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">band_centers</span><span class="o">/</span><span class="n">pow_10</span><span class="p">)</span>
+    <span class="n">sig_digits</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">left_digit</span><span class="o">&lt;=</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">left_digit</span><span class="o">&gt;</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">band_centers</span><span class="p">))</span> <span class="o">-</span> <span class="n">sig_digits</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">nominal_band_centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">band_centers</span><span class="o">/</span><span class="n">tmp</span><span class="p">)</span><span class="o">*</span><span class="n">tmp</span>
+    
+    <span class="c1"># Replace calculated nominal band centers with ANSI nominal band centers if</span>
+    <span class="c1"># doing full or 1/3rd octaves:</span>
+    <span class="c1"># ANSI only gives freqs from 25 to 20000, so don&#39;t correct outside that range</span>
+    <span class="c1"># find nearest ANSI nominal center, then verify it is between the band</span>
+    <span class="c1"># limits. If the ANSI nominal is between the band limits, replace the </span>
+    <span class="c1"># calculated nominal with the ANSI value.</span>
+    <span class="k">if</span> <span class="n">oct_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ansi_nominal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">31.5</span> <span class="p">,</span> <span class="mi">63</span> <span class="p">,</span> <span class="mi">125</span> <span class="p">,</span> <span class="mi">250</span> <span class="p">,</span> <span class="mi">500</span> <span class="p">,</span> <span class="mi">1000</span> <span class="p">,</span> <span class="mi">2000</span> <span class="p">,</span> <span class="mi">4000</span> <span class="p">,</span> <span class="mi">8000</span> <span class="p">,</span> <span class="mi">16000</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">oct_order</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">ansi_nominal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">25</span> <span class="p">,</span> <span class="mf">31.5</span> <span class="p">,</span> <span class="mi">40</span> <span class="p">,</span> <span class="mi">50</span> <span class="p">,</span> <span class="mi">63</span> <span class="p">,</span> <span class="mi">80</span> <span class="p">,</span> <span class="mi">100</span> <span class="p">,</span> <span class="mi">125</span> <span class="p">,</span> <span class="mi">160</span> <span class="p">,</span> <span class="mi">200</span> <span class="p">,</span>
+                                   <span class="mi">250</span> <span class="p">,</span> <span class="mi">315</span> <span class="p">,</span> <span class="mi">400</span> <span class="p">,</span> <span class="mi">500</span> <span class="p">,</span> <span class="mi">630</span> <span class="p">,</span> <span class="mi">800</span> <span class="p">,</span> <span class="mi">1000</span> <span class="p">,</span> <span class="mi">1250</span> <span class="p">,</span> <span class="mi">1600</span> <span class="p">,</span> <span class="mi">2000</span> <span class="p">,</span>
+                                   <span class="mi">2500</span> <span class="p">,</span> <span class="mi">3150</span> <span class="p">,</span> <span class="mi">4000</span> <span class="p">,</span> <span class="mi">5000</span> <span class="p">,</span> <span class="mi">8000</span> <span class="p">,</span> <span class="mi">10000</span> <span class="p">,</span> <span class="mi">12500</span> <span class="p">,</span> <span class="mi">16000</span> <span class="p">,</span> <span class="mi">20000</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">oct_order</span><span class="o">==</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">oct_order</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ansi_nominal</span> <span class="o">-</span> <span class="n">band_centers</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="c1"># dist from center freq to nominal</span>
+        <span class="n">contained</span> <span class="o">=</span> <span class="p">(</span><span class="n">ansi_nominal</span> <span class="o">&lt;</span> <span class="n">band_ub</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">ansi_nominal</span> <span class="o">&gt;</span> <span class="n">band_lb</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="c1"># bands contain nominals</span>
+        <span class="n">contained_dists</span> <span class="o">=</span> <span class="n">contained</span><span class="o">*</span><span class="n">dists</span> <span class="o">+</span> <span class="mf">1e20</span><span class="o">*</span><span class="p">(</span><span class="o">~</span><span class="n">contained</span><span class="p">)</span> <span class="c1"># product is infty if not contained</span>
+        
+        <span class="n">assign_inds</span> <span class="o">=</span> <span class="n">contained_dists</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># nominal inds to assign    </span>
+        <span class="n">assign_bools</span> <span class="o">=</span> <span class="n">contained_dists</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e20</span> <span class="c1"># center freqs inds to assign</span>
+        
+        <span class="n">nominal_band_centers</span><span class="p">[</span><span class="n">assign_bools</span><span class="p">]</span> <span class="o">=</span> <span class="n">ansi_nominal</span><span class="p">[</span><span class="n">assign_inds</span><span class="p">[</span><span class="n">assign_bools</span><span class="p">]]</span>
+        
+    <span class="k">return</span> <span class="n">nominal_band_centers</span><span class="p">,</span> <span class="n">band_lb</span><span class="p">,</span> <span class="n">band_ub</span><span class="p">,</span> <span class="n">band_centers</span></div>
 </pre></div>
 
            </div>
@@ -458,7 +566,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eba6e500>
+<jinja2.runtime.BlockReference object at 0x7f5a270b6aa0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

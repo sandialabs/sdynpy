@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.MultipleCoherenceArray &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.MultipleCoherenceArray &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -89,6 +89,7 @@
 <li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_data.MultipleCoherenceArray</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray"><code class="docutils literal notranslate"><span class="pre">MultipleCoherenceArray</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.__init__"><code class="docutils literal notranslate"><span class="pre">MultipleCoherenceArray.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.from_time_data"><code class="docutils literal notranslate"><span class="pre">MultipleCoherenceArray.from_time_data()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.function_type"><code class="docutils literal notranslate"><span class="pre">MultipleCoherenceArray.function_type</span></code></a></li>
 </ul>
 </li>
@@ -172,6 +173,9 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.from_time_data" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray.from_time_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_time_data</span></code></a>(response_data[, ...])</p></td>
+<td><p>Computes coherence from reference and response time histories</p></td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
@@ -186,6 +190,40 @@
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.MultipleCoherenceArray.from_time_data">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_time_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><span class="pre">TimeHistoryArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><span class="pre">TimeHistoryArray</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#MultipleCoherenceArray.from_time_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.from_time_data" title="Permalink to this definition"></a></dt>
+<dd><p>Computes coherence from reference and response time histories</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response_data</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><em>TimeHistoryArray</em></a>) – Time data to be used as responses</p></li>
+<li><p><strong>samples_per_average</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples used to split up the signals into averages.  The
+default is None, meaning the data is treated as a single measurement
+frame.</p></li>
+<li><p><strong>overlap</strong> (<em>float</em><em>, </em><em>optional</em>) – The overlap as a fraction of the frame (e.g. 0.5 specifies 50% overlap).
+The default is 0.0, meaning no overlap is used.</p></li>
+<li><p><strong>window</strong> (<em>np.ndarray</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – A 1D ndarray with length samples_per_average that specifies the
+coefficients of the window.  A Hann window is applied if not specified.
+If a string is specified, then the window will be obtained from scipy.</p></li>
+<li><p><strong>reference_data</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><em>TimeHistoryArray</em></a>) – Time data to be used as reference.  If not specified, the response
+data will be used as references, resulting in a square coherence matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if reference and response functions do not have consistent
+    abscissa</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A PSD array computed from the specified reference and
+response signals.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray">PowerSpectralDensityArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.MultipleCoherenceArray.function_type">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function_type</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.MultipleCoherenceArray.function_type" title="Permalink to this definition"></a></dt>
@@ -207,7 +245,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ecbbd540>
+<jinja2.runtime.BlockReference object at 0x7f5a26f95450>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_generator &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_generator &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -146,7 +146,7 @@
 <span class="sd">        pseudorandom input, each frame will be a replica of the first.</span>
 <span class="sd">    shape_function : function</span>
 <span class="sd">        A shaping that can be applied to the signal per frequency line.  If</span>
-<span class="sd">        specified, it should be a function that takes in one argument (the </span>
+<span class="sd">        specified, it should be a function that takes in one argument (the</span>
 <span class="sd">        frequency in Hz) and returns a single argument (the amplitude of the</span>
 <span class="sd">        sine wave at that frequency).</span>
 
@@ -188,13 +188,13 @@
 <div class="viewcode-block" id="random"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_generator.random.html#sdynpy.signal_processing.sdynpy_generator.random">[docs]</a><span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">rms</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
            <span class="n">low_frequency_cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high_frequency_cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">low_frequency_cutoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">high_frequency_cutoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">low_frequency_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">high_frequency_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
         <span class="n">signal_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">low_frequency_cutoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">low_frequency_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">&lt;</span> <span class="n">low_frequency_cutoff</span>
             <span class="n">signal_fft</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">zero_indices</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">high_frequency_cutoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">high_frequency_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">&gt;</span> <span class="n">high_frequency_cutoff</span>
             <span class="n">signal_fft</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">zero_indices</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">signal_fft</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
@@ -255,6 +255,119 @@
         <span class="n">argument</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="p">(</span><span class="n">abscissa</span> <span class="o">-</span> <span class="n">time</span><span class="p">)</span>
         <span class="n">signal</span> <span class="o">+=</span> <span class="n">peak</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span><span class="o">**</span><span class="n">sine_exponent</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">signal</span></div>
+
+<div class="viewcode-block" id="sine_sweep"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_generator.sine_sweep.html#sdynpy.signal_processing.sdynpy_generator.sine_sweep">[docs]</a><span class="k">def</span> <span class="nf">sine_sweep</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">sweep_rates</span><span class="p">,</span> <span class="n">sweep_types</span><span class="p">,</span> <span class="n">amplitudes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a sweeping sine wave with linear or logarithmic sweep rate</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The time step of the output signal</span>
+<span class="sd">    frequencies : iterable</span>
+<span class="sd">        A list of frequency breakpoints for the sweep.  Can be ascending or</span>
+<span class="sd">        decending or both.  Frequencies are specified in Hz, not rad/s.</span>
+<span class="sd">    sweep_rates : iterable</span>
+<span class="sd">        A list of sweep rates between the breakpoints.  This array should have</span>
+<span class="sd">        one fewer element than the `frequencies` array.  The ith element of this</span>
+<span class="sd">        array specifies the sweep rate between `frequencies[i]` and</span>
+<span class="sd">        `frequencies[i+1]`. For a linear sweep,</span>
+<span class="sd">        the rate is in Hz/s.  For a logarithmic sweep, the rate is in octave/s.</span>
+<span class="sd">    sweep_types : iterable or str</span>
+<span class="sd">        The type of sweep to perform between each frequency breakpoint.  Can be</span>
+<span class="sd">        &#39;lin&#39; or &#39;log&#39;.  If a string is specified, it will be used for all</span>
+<span class="sd">        breakpoints.  Otherwise it should be an array containing strings with</span>
+<span class="sd">        one fewer element than that of the `frequencies` array.</span>
+<span class="sd">    amplitudes : iterable or float, optional</span>
+<span class="sd">        Amplitude of the sine wave at each of the frequency breakpoints.  Can</span>
+<span class="sd">        be specified as a single floating point value, or as an array with a</span>
+<span class="sd">        value specified for each breakpoint. The default is 1.</span>
+<span class="sd">    phases : iterable or float, optional</span>
+<span class="sd">        Phases of the sine wave at each of the frequency breakpoints.  Can</span>
+<span class="sd">        be specified as a single floating point value, or as an array with a</span>
+<span class="sd">        value specified for each breakpoint. Be aware that modifying the phase</span>
+<span class="sd">        between breakpoints will effectively change the frequency of the signal,</span>
+<span class="sd">        because the phase will change over time.  The default is 0.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the sweep rate and start and end frequency would result in a negative</span>
+<span class="sd">        sweep time, for example if the start frequency is above the end frequency</span>
+<span class="sd">        and a positive sweep rate is specified.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ordinate : np.ndarray</span>
+<span class="sd">        A numpy array consisting of the generated sine sweep signal.  The length</span>
+<span class="sd">        of the signal will be determined by the frequency breakpoints and sweep</span>
+<span class="sd">        rates.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">last_phase</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">abscissa</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ordinate</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Go through each section</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Extract the terms</span>
+        <span class="n">start_frequency</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">end_frequency</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">omega_start</span> <span class="o">=</span> <span class="n">start_frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sweep_rate</span> <span class="o">=</span> <span class="n">sweep_rates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">sweep_rate</span> <span class="o">=</span> <span class="n">sweep_rates</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sweep_types</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+            <span class="n">sweep_type</span> <span class="o">=</span> <span class="n">sweep_types</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sweep_type</span> <span class="o">=</span> <span class="n">sweep_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start_amplitude</span> <span class="o">=</span> <span class="n">amplitudes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">end_amplitude</span> <span class="o">=</span> <span class="n">amplitudes</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">start_amplitude</span> <span class="o">=</span> <span class="n">amplitudes</span>
+            <span class="n">end_amplitude</span> <span class="o">=</span> <span class="n">amplitudes</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+            <span class="n">end_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+            <span class="n">end_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+        <span class="c1"># Compute the length of this portion of the signal</span>
+        <span class="k">if</span> <span class="n">sweep_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span><span class="s1">&#39;linear&#39;</span><span class="p">]:</span>
+            <span class="n">sweep_time</span> <span class="o">=+</span> <span class="p">(</span><span class="n">end_frequency</span><span class="o">-</span><span class="n">start_frequency</span><span class="p">)</span><span class="o">/</span><span class="n">sweep_rate</span>
+        <span class="k">elif</span> <span class="n">sweep_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">,</span><span class="s1">&#39;logarithmic&#39;</span><span class="p">]:</span>
+            <span class="n">sweep_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">end_frequency</span><span class="o">/</span><span class="n">start_frequency</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">sweep_time</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Sweep time for segment index </span><span class="si">{:}</span><span class="s1"> is negative.  Check sweep rate.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">sweep_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">sweep_time</span><span class="o">/</span><span class="n">dt</span><span class="p">))</span>
+        <span class="c1"># Construct the abscissa</span>
+        <span class="n">this_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">sweep_samples</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+        <span class="c1"># Compute the phase over time</span>
+        <span class="k">if</span> <span class="n">sweep_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span><span class="s1">&#39;linear&#39;</span><span class="p">]:</span>
+            <span class="n">this_argument</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="n">this_abscissa</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">omega_start</span><span class="o">*</span><span class="n">this_abscissa</span>
+            <span class="n">this_frequency</span> <span class="o">=</span> <span class="p">(</span><span class="n">sweep_rate</span><span class="p">)</span><span class="o">*</span><span class="n">this_abscissa</span> <span class="o">+</span> <span class="n">omega_start</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">sweep_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">,</span><span class="s1">&#39;logarithmic&#39;</span><span class="p">]:</span>
+            <span class="n">this_argument</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="n">this_abscissa</span><span class="p">)</span><span class="o">*</span><span class="n">omega_start</span><span class="o">/</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="n">omega_start</span><span class="o">/</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">this_frequency</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">sweep_rate</span><span class="o">*</span><span class="n">this_abscissa</span><span class="p">)</span><span class="o">*</span><span class="n">omega_start</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="c1"># Compute the phase at each time step</span>
+        <span class="k">if</span> <span class="n">end_frequency</span> <span class="o">&gt;</span> <span class="n">start_frequency</span><span class="p">:</span>
+            <span class="n">freq_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_frequency</span><span class="p">,</span><span class="n">end_frequency</span><span class="p">]</span>
+            <span class="n">phase_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_phase</span><span class="p">,</span><span class="n">end_phase</span><span class="p">]</span>
+            <span class="n">amp_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_amplitude</span><span class="p">,</span><span class="n">end_amplitude</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">freq_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_frequency</span><span class="p">,</span> <span class="n">start_frequency</span><span class="p">]</span>
+            <span class="n">phase_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_phase</span><span class="p">,</span><span class="n">start_phase</span><span class="p">]</span>
+            <span class="n">amp_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_amplitude</span><span class="p">,</span><span class="n">start_amplitude</span><span class="p">]</span>
+        <span class="n">this_phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">this_frequency</span><span class="p">,</span><span class="n">freq_interp</span><span class="p">,</span><span class="n">phase_interp</span><span class="p">)</span>
+        <span class="c1"># Compute the amplitude at each time step</span>
+        <span class="n">this_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">this_frequency</span><span class="p">,</span><span class="n">freq_interp</span><span class="p">,</span><span class="n">amp_interp</span><span class="p">)</span>
+        <span class="n">this_ordinate</span> <span class="o">=</span> <span class="n">this_amplitudes</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">this_argument</span><span class="o">+</span><span class="n">this_phases</span><span class="o">+</span><span class="n">last_phase</span><span class="p">)</span>
+        <span class="n">last_phase</span> <span class="o">+=</span> <span class="n">this_argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">abscissa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_abscissa</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ordinate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_ordinate</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ordinate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ordinate</span></div>
 </pre></div>
 
            </div>
@@ -264,7 +377,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eb82eb60>
+<jinja2.runtime.BlockReference object at 0x7f5a265a2650>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

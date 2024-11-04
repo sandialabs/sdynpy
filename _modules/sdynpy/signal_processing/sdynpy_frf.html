@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_frf &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_frf &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -109,6 +109,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sig</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">.sdynpy_lrm</span> <span class="kn">import</span> <span class="n">frf_local_model</span>
 
 
 <div class="viewcode-block" id="sysmat2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.sysmat2frf.html#sdynpy.signal_processing.sdynpy_frf.sysmat2frf">[docs]</a><span class="k">def</span> <span class="nf">sysmat2frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">frf_type</span><span class="o">=</span><span class="s1">&#39;disp&#39;</span><span class="p">):</span>
@@ -265,7 +266,8 @@
                  <span class="n">overlap</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,)),</span>
                  <span class="n">response_fft</span><span class="o">=</span><span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
                  <span class="n">reference_fft</span><span class="o">=</span><span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
-                 <span class="n">response_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">response_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_fft_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">return_model_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">lrm_kwargs</span><span class="p">):</span>
     <span class="c1"># TODO Update DOCSTRING with changes after they are all made.</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Creates an FRF matrix given time histories of responses and references</span>
 
@@ -291,7 +293,7 @@
 <span class="sd">    overlap : float</span>
 <span class="sd">        The overlap as a fraction of the frame (e.g. 0.5 specifies 50% overlap).</span>
 <span class="sd">        If not specified, no overlap is used.</span>
-<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;]</span>
+<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;,&#39;LRM&#39;]</span>
 <span class="sd">        The method for creating the frequency response function. &#39;H1&#39; is </span>
 <span class="sd">        default if not specified.</span>
 <span class="sd">    window : ndarray or str</span>
@@ -306,6 +308,15 @@
 <span class="sd">    reference_fft_array : np.ndarray</span>
 <span class="sd">        Array to store the data into before taking the FFT.  Should be</span>
 <span class="sd">        size number_of_references, n_averages, samples_per_average</span>
+<span class="sd">    return_model_data : boolean</span>
+<span class="sd">        Wheter to return selected model orders used in the &#39;LRM&#39; method.</span>
+<span class="sd">        default is False        </span>
+<span class="sd">    **lrm_kwargs</span>
+<span class="sd">        Additional keyword arguments specify parameters if method == &#39;LRM&#39;.</span>
+<span class="sd">        Possible arguments are: f_out (ndarray), bandwidth (float), transient</span>
+<span class="sd">        (boolean), modelset (iterable of (3,1) ndarray), export_ratio (float), </span>
+<span class="sd">        max_parallel (int), print_time (bool). See sdynpy_lrm.frf_local_model.</span>
+<span class="sd">        samples_per_average, overlap, and window are void if method==&#39;LRM&#39;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -314,7 +325,9 @@
 <span class="sd">    H : ndarray</span>
 <span class="sd">        A nf x no x ni array where nf is the number of frequency lines, no is</span>
 <span class="sd">        the number of outputs, and ni is the number of inputs.</span>
-
+<span class="sd">    model_data: dict</span>
+<span class="sd">        Contains None if method != &#39;LRM&#39;. See sdynpy_lrm.frf_local_model.</span>
+<span class="sd">        </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    There are requirements for the shapes of references and responses for some</span>
@@ -324,7 +337,7 @@
     <span class="k">if</span> <span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">responses</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s1">&#39;reference and responses must have the same number of time steps (last dimension)!&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;H3&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">,</span> <span class="s1">&#39;Hcd&#39;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;H3&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">,</span> <span class="s1">&#39;Hcd&#39;</span><span class="p">,</span><span class="s1">&#39;LRM&#39;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method parameter must be one of [&quot;H1&quot;,&quot;H2&quot;,&quot;H3&quot;,&quot;Hv&quot;,&quot;Hcd&quot;]&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">references</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
@@ -332,12 +345,14 @@
         <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
     <span class="c1"># Set up time indices</span>
     <span class="n">ntimes_total</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">samples_per_average</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">samples_per_average</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
         <span class="n">samples_per_average</span> <span class="o">=</span> <span class="n">ntimes_total</span>
     <span class="n">overlap_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">samples_per_average</span> <span class="o">*</span> <span class="n">overlap</span><span class="p">)</span>
     <span class="n">time_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ntimes_total</span> <span class="o">-</span> <span class="n">samples_per_average</span> <span class="o">+</span>
                             <span class="mi">1</span><span class="p">,</span> <span class="n">samples_per_average</span> <span class="o">-</span> <span class="n">overlap_samples</span><span class="p">)</span>
     <span class="n">time_indices_for_averages</span> <span class="o">=</span> <span class="n">time_starts</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">samples_per_average</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
+        <span class="n">window</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,))</span> <span class="c1"># local modeling does not use windowing</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">window</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">samples_per_average</span><span class="p">,</span> <span class="n">fftbins</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Sort the references and responses into their time arrays</span>
@@ -353,7 +368,7 @@
     <span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="n">samples_per_average</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
     <span class="n">response_ffts</span> <span class="o">=</span> <span class="n">response_fft</span><span class="p">(</span><span class="n">response_fft_array</span><span class="p">)</span>
     <span class="n">reference_ffts</span> <span class="o">=</span> <span class="n">reference_fft</span><span class="p">(</span><span class="n">reference_fft_array</span><span class="p">)</span>
-    <span class="c1"># Now start computing FFTs</span>
+    <span class="c1"># Now start computing FRFs</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span>
         <span class="c1"># We want to compute X*F^H = [X1;X2;X3][F1^H F2^H F3^H]</span>
         <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...iaf,...jaf-&gt;...fij&#39;</span><span class="p">,</span> <span class="n">response_ffts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">))</span>
@@ -412,12 +427,21 @@
         <span class="n">evect</span> <span class="o">=</span> <span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Assumes evals are sorted ascending</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="o">-</span><span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">evect</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:],</span>  <span class="c1"># Scale so last value is -1</span>
                         <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
+        <span class="n">frequencies</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">model_data</span> <span class="o">=</span> <span class="n">frf_local_model</span><span class="p">(</span><span class="n">reference_ffts</span><span class="p">,</span><span class="n">response_ffts</span><span class="p">,</span>
+                                                         <span class="n">frequencies</span><span class="p">,</span><span class="o">**</span><span class="n">lrm_kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">{:}</span><span class="s1"> has not been implemented yet!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">H</span></div>
+        
+    <span class="k">if</span> <span class="n">return_model_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
+            <span class="n">model_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span><span class="s1">&#39;modelset&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span><span class="s1">&#39;model_selected&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">model_data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">H</span></div>
 
 
-<div class="viewcode-block" id="fft2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.fft2frf.html#sdynpy.signal_processing.sdynpy_frf.fft2frf">[docs]</a><span class="k">def</span> <span class="nf">fft2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="fft2frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.fft2frf.html#sdynpy.signal_processing.sdynpy_frf.fft2frf">[docs]</a><span class="k">def</span> <span class="nf">fft2frf</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span><span class="n">freqs_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Creates an FRF matrix given ffts of responses and references</span>
 
 <span class="sd">    This function creates a nf x no x ni FRF matrix from the ffts</span>
@@ -431,8 +455,15 @@
 <span class="sd">    responses : ndarray</span>
 <span class="sd">        A no x nf or nf array where no is the number of responses and nf is the</span>
 <span class="sd">        number of time frequencies in the fft.</span>
-<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;]</span>
+<span class="sd">    method : str in [&#39;H1&#39;,&#39;H2&#39;,&#39;Hv&#39;,&#39;Hs&#39;,&#39;LRM&#39;]</span>
 <span class="sd">        The method for creating the frequency response function.</span>
+<span class="sd">    freqs_in : ndarray</span>
+<span class="sd">        Only used if method == &#39;LRM&#39;. A nf or nf x 1 array of frquency values.</span>
+<span class="sd">    **lrm_kwargs</span>
+<span class="sd">        Additional keyword arguments specify parameters if method == &#39;LRM&#39;.</span>
+<span class="sd">        Possible arguments are: f_out (ndarray), bandwidth (float), transient</span>
+<span class="sd">        (boolean), modelset (iterable of (3,1) ndarray), max_parallel (int), </span>
+<span class="sd">        export_ratio (float). See sdynpy_lrm.frf_local_model.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -440,6 +471,10 @@
 <span class="sd">        A nf x no x ni array where nf is the number of frequency lines, no is</span>
 <span class="sd">        the number of outputs, and ni is the number of inputs.  The output</span>
 <span class="sd">        frequency lines will correspond to the frequency lines in the ffts.</span>
+<span class="sd">    freqs_out : None or ndarray</span>
+<span class="sd">        None unless method == &#39;LRM&#39;. See sdynpy_lrm.frf_local_model.</span>
+<span class="sd">    model_data: None dict</span>
+<span class="sd">        None unless method == &#39;LRM&#39;. See sdynpy_lrm.frf_local_model.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -455,8 +490,8 @@
         <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
     <span class="k">elif</span> <span class="n">responses</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;responses should be at maximum a 2 dimensional array&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method parameter must be one of [&quot;H1&quot;,&quot;H2&quot;,&quot;Hs&quot;,&quot;Hv&quot;]&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H1&#39;</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;Hs&#39;</span><span class="p">,</span> <span class="s1">&#39;Hv&#39;</span><span class="p">,</span> <span class="s1">&#39;LRM&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method parameter must be one of [&quot;H1&quot;,&quot;H2&quot;,&quot;Hs&quot;,&quot;Hv&quot;,&quot;LRM&quot;]&#39;</span><span class="p">)</span>
 <span class="c1">#    H = np.zeros((references.shape[1],responses.shape[0],references.shape[0]),dtype=complex)</span>
 <span class="c1">#    for i in range(H.shape[1]):</span>
 <span class="c1">#            for j in range(H.shape[2]):</span>
@@ -468,9 +503,18 @@
         <span class="n">Gxf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;if,jf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
         <span class="n">Gff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;if,jf-&gt;fij&#39;</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Gff</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Gxf</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">freqs_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;if method == </span><span class="se">\&#39;</span><span class="s1">LRM</span><span class="se">\&#39;</span><span class="s1">, freqs_in must be specified&#39;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">sdynpy.signal_processing.sdynpy_lrm</span> <span class="k">as</span> <span class="nn">frflm</span>
+        <span class="n">freqs_out</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">model_data</span> <span class="o">=</span> <span class="n">frflm</span><span class="o">.</span><span class="n">frf_local_model</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> 
+                                                         <span class="n">freqs_in</span><span class="p">,</span> <span class="o">**</span><span class="n">lrm_kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method </span><span class="si">{:}</span><span class="s1"> has not been implemented&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">H</span></div>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s1">&#39;LRM&#39;</span><span class="p">:</span>
+        <span class="n">freqs_out</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model_data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">freqs_out</span><span class="p">,</span> <span class="n">model_data</span></div>
 
 
 <div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_frf.plot.html#sdynpy.signal_processing.sdynpy_frf.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">real_imag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -540,7 +584,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ebbc6f20>
+<jinja2.runtime.BlockReference object at 0x7f5a27eb5750>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.signal_processing.sdynpy_lrm.frf_local_model &mdash; SDynPy 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.signal_processing.sdynpy_rotation" href="sdynpy.signal_processing.sdynpy_rotation.html" />
+    <link rel="prev" title="sdynpy.signal_processing.sdynpy_lrm" href="sdynpy.signal_processing.sdynpy_lrm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_camera.html">sdynpy.signal_processing.sdynpy_camera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_complex.html">sdynpy.signal_processing.sdynpy_complex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_correlation.html">sdynpy.signal_processing.sdynpy_correlation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_cpsd.html">sdynpy.signal_processing.sdynpy_cpsd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf.html">sdynpy.signal_processing.sdynpy_frf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_frf_inverse.html">sdynpy.signal_processing.sdynpy_frf_inverse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_generator.html">sdynpy.signal_processing.sdynpy_generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_geometry_fitting.html">sdynpy.signal_processing.sdynpy_geometry_fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.html">sdynpy.signal_processing.sdynpy_harmonic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_integration.html">sdynpy.signal_processing.sdynpy_integration</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_lrm.html">sdynpy.signal_processing.sdynpy_lrm</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.signal_processing.sdynpy_lrm.frf_local_model</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.signal_processing.sdynpy_lrm.frf_local_model"><code class="docutils literal notranslate"><span class="pre">frf_local_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_rotation.html">sdynpy.signal_processing.sdynpy_rotation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_srs.html">sdynpy.signal_processing.sdynpy_srs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.signal_processing.sdynpy_lrm.html">sdynpy.signal_processing.sdynpy_lrm</a></li>
+      <li class="breadcrumb-item active">sdynpy.signal_processing.sdynpy_lrm.frf_local_model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.signal_processing.sdynpy_lrm.frf_local_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sdynpy-signal-processing-sdynpy-lrm-frf-local-model">
+<h1>sdynpy.signal_processing.sdynpy_lrm.frf_local_model<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-lrm-frf-local-model" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_lrm.frf_local_model">
+<span class="sig-name descname"><span class="pre">frf_local_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[[1,</span> <span class="pre">1,</span> <span class="pre">0],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">2]]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_lrm.html#frf_local_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_lrm.frf_local_model" title="Permalink to this definition"></a></dt>
+<dd><p>Local modeling FRF estimator for MIMO systems.
+This function can be called directly or using
+frf.timedata2frf(…,method=’LRM’) or frf.fft2frf(…,method=’LRM’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>references</strong> (<em>ndarray</em><em> (</em><em>N_in</em><em>, </em><em>N_freqs</em><em>) or </em><em>(</em><em>N_in</em><em>, </em><em>1</em><em>, </em><em>N_freqs</em><em>)</em>) – REFERENCES FREQUENCY-DOMAIN DATA.</p></li>
+<li><p><strong>responses</strong> (<em>ndarray</em><em>, </em><em>shape</em><em> (</em><em>N_out</em><em>, </em><em>N_freqs</em><em>) or </em><em>(</em><em>N_out</em><em>, </em><em>1</em><em>, </em><em>N_freqs</em><em>)</em>) – RESPONSES FREQUENCY-DOMAIN DATA.</p></li>
+<li><p><strong>abcissa</strong> (<em>ndarray</em><em> (</em><em>N_freqs</em><em>,</em><em>)</em>) – INPUT FREQUENCY VECTOR.</p></li>
+<li><p><strong>f_out</strong> (<em>ndarray</em><em> (</em><em>N_freqs_out</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Output frequency vector. Finer resolution increases computational cost,
+but only to a finite limit. Compuatational cost will not increase beyond
+f_out = f_in, but large interpolation may result in a large export_ratio.
+The default is f_in</p></li>
+<li><p><strong>bandwidth</strong> (<em>float</em><em>, </em><em>optional</em>) – Local model estimation bandwidth in units of f_in. Larger values yield
+better noise filtering but risk underfitting and take longer to run.</p></li>
+<li><p><strong>transient</strong> (<em>boolean</em><em>, </em><em>optional</em>) – whetheter to include transient estimation in local models. Recommend False
+for impact testing or burst random, True otherwise. The default is True.</p></li>
+<li><p><strong>modelset</strong> (<em>iterable</em><em> of </em><em>numpy</em><em> (</em><em>3</em><em>,</em><em>) </em><em>arrays</em><em>, </em><em>optional</em>) – Arrays contain [num. order, trans. order, denom. order].
+Recommend increasing numerator order for nonlinear structures
+and complicated FRFs. The default is [[1,1,0],[1,1,1],[1,1,2]].</p></li>
+<li><p><strong>export_ratio</strong> (<em>f;pat</em><em>, </em><em>optional</em>) – (centered) proportion of local bands that can be stored and exported.
+Larger values risk capturing volatile end behavior but yield faster
+computation times. The default is 0.1.</p></li>
+<li><p><strong>max_parallel</strong> (<em>int</em><em>, </em><em>optional</em>) – for very large systems with high frequency resolution and large bandwidths,
+system RAM can be a constraint. The default number of parallel processes
+is the number of CPU threads. If this causes freezing, max_parallel can
+be set to reduce the allowed number of parallel threads. Also, smaller
+pools may initialize faster. The default is 512.</p></li>
+<li><p><strong>print_time</strong> (<em>boolean</em><em>, </em><em>optional</em>) – print remaining time if more than 10 seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>f_out</strong> (<em>ndarray (N_freqs_out,)</em>) – estimated FRM frequency vector</p></li>
+<li><p><strong>H</strong> (<em>ndarray (N_freqs_out, N_out, N_in)</em>) – frequency response matrix</p></li>
+<li><p><strong>model_data</strong> (<em>dict</em>) – candidate model info and selected model at each frequency in f_out</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>To improve noise and transient removal, recommend increasing bandwidth</p>
+<p>To reduce computation time, recommend decreasing f_out resolution,
+increasing export_ratio, or decreasing bandwidth. For very large systems,
+if freezing occurs, reduce max_parallel.</p>
+<p>For more information, see “A practitioner’s guide to local FRF estimation”,
+K. Coletti. This function uses the MISO parameterization</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.signal_processing.sdynpy_lrm.html" class="btn btn-neutral float-left" title="sdynpy.signal_processing.sdynpy_lrm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.signal_processing.sdynpy_rotation.html" class="btn btn-neutral float-right" title="sdynpy.signal_processing.sdynpy_rotation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f5a265a0820>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

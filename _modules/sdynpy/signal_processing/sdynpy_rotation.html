@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_rotation &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_rotation &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -216,23 +216,23 @@
 
 
 <div class="viewcode-block" id="lstsq_rigid_transform"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_rotation.lstsq_rigid_transform.html#sdynpy.signal_processing.sdynpy_rotation.lstsq_rigid_transform">[docs]</a><span class="k">def</span> <span class="nf">lstsq_rigid_transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Computes the Transform between two point sets such that </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Computes the Transform between two point sets such that</span>
 <span class="sd">        y = Rx + t</span>
 
-<span class="sd">        This is a least squares methods as descibed in </span>
+<span class="sd">        This is a least squares methods as descibed in</span>
 <span class="sd">        &quot;Least-Squares Rigid Motion Using SVD&quot;, O. Sorkine-Hornung, M.</span>
 <span class="sd">        Rabinovich, Department of Computer Science, ETH Zurich, Jan 16, 2017</span>
 <span class="sd">        Note found online at https://igl.ethz.ch/projects/ARAP/svd_rot.pdf</span>
 
-<span class="sd">        INPUT </span>
+<span class="sd">        INPUT</span>
 <span class="sd">            x,y = the two point sets as [x,y,z] column vectors</span>
 <span class="sd">                  sizes are (3,n) for n points</span>
 <span class="sd">            w = weighting vector for each point, wi&gt;0</span>
 <span class="sd">                default is uniform weighting of wi=1</span>
 <span class="sd">                size is (1,n) for n points</span>
 
-<span class="sd">        OUTPUT </span>
-<span class="sd">            R,t  = [(3,3),(3,1)] transformation parameters such that </span>
+<span class="sd">        OUTPUT</span>
+<span class="sd">            R,t  = [(3,3),(3,1)] transformation parameters such that</span>
 <span class="sd">            y = Rx + t</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -250,16 +250,16 @@
     <span class="n">Y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">ybar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
     <span class="c1"># Calculate the Covariance</span>
-    <span class="n">Cov</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">Cov</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># Take the SVD of the Covariance matrix</span>
     <span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">VH</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">Cov</span><span class="p">)</span>
-    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">VH</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># numpy&#39;s SVD gives you back V&#39;, not V like Matlab</span>
-    <span class="n">det</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">V</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="n">det</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">D</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">det</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">VH</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># numpy&#39;s SVD gives you back V&#39;, not V like Matlab</span>
+    <span class="n">det</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">V</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">det</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">D</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">det</span>
 
-    <span class="n">R</span> <span class="o">=</span> <span class="n">V</span> <span class="o">@</span> <span class="n">D</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">V</span> <span class="o">@</span> <span class="n">D</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">ybar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">R</span> <span class="o">@</span> <span class="n">xbar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span></div>
@@ -320,7 +320,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99eb8fd720>
+<jinja2.runtime.BlockReference object at 0x7f5a27eb7a90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

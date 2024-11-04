@@ -849,7 +849,7 @@ function wants as its arguments.  The first argument is ``sensors_to_keep``,
 which is the number we just defined.  The second is the ``shape_matrix``.
 Reading the documentation, this ``shape_matrix`` should have its first dimension
 corresponding to each sensor (here a sensor could be a channel or group of
-channels for a triaxial accelerometer) and its last dimension be correspond to
+channels for a triaxial accelerometer) and its last dimension correspond to
 each target mode.  We will therefore want to set up a matrix with shape 
 (``candidate_node_ids.size`` x 3 x ``target_shapes.size``).  This way, the
 target shape dimension is last, and the group of channels corresponding to each
@@ -1726,29 +1726,29 @@ look through all the functions to ensure they look right.
   :width: 600
   :alt: Drive points used for a MIMO modal test.
   
-Fitting Modes using PolyMax
----------------------------
+Fitting Modes using PolyPy
+--------------------------
 
 Now that we have frequency response functions created, we can fit modes to them.
 SDynPy has two mode fitters implemented,
-:py:class:`PolyMax<sdynpy.modal.sdynpy_polymax.PolyMax_GUI>` and 
+:py:class:`PolyPy<sdynpy.modal.sdynpy_polypy.PolyPy_GUI>` and 
 :py:class:`SMAC<sdynpy.modal.sdynpy_smac.SMAC_GUI>`.  Both curve fitters can
 be used via graphical user interface or via Python commands if it is desirable
 to automate the curve fitting.  This example will use the
-:py:class:`sdpy.PolyMax_GUI<sdynpy.modal.sdynpy_polymax.PolyMax_GUI>` approach.
+:py:class:`sdpy.PolyPy_GUI<sdynpy.modal.sdynpy_polypy.PolyPy_GUI>` approach.
 
-Running PolyMax
+Running PolyPy
 ~~~~~~~~~~~~~~~
 
-We open the PolyMax GUI by initializing the
-:py:class:`sdpy.PolyMax_GUI<sdynpy.modal.sdynpy_polymax.PolyMax_GUI>` class
+We open the PolyPy GUI by initializing the
+:py:class:`sdpy.PolyPy_GUI<sdynpy.modal.sdynpy_polypy.PolyPy_GUI>` class
 with our frequency response function dataset ``frf_sampled``
 
 .. code-block:: python
 
     # Now that we have FRFs we can go fit modes.  We will first look at using
-    # PolyMax
-    pm = sdpy.PolyMax_GUI(frf_sampled)
+    # PolyPy
+    pm = sdpy.PolyPy_GUI(frf_sampled)
     
 The initial screen shows mode indicator functions, as well as options for
 computing the initial stabilization diagram.  We can see from the shown
@@ -1757,25 +1757,25 @@ modes.  We can drag the frequency region on the figure to select the frequency
 range of interest, set the polynomial orders, and press the button to compute
 the stabilization curve.
 
-.. image:: figures/airplane_polymax_stabilization.png
+.. image:: figures/airplane_polypy_stabilization.png
   :width: 600
-  :alt: Setting up parameters to compute the stabilization plot in PolyMax
+  :alt: Setting up parameters to compute the stabilization plot in PolyPy
 
 Once the stabilization plot is computed, stable poles can be selected by
 clicking on them in the stabilization plot.  Once all poles are selected,
 shapes can be computed.
 
-.. image:: figures/airplane_polymax_stabilization_selection.png
+.. image:: figures/airplane_polypy_stabilization_selection.png
   :width: 600
-  :alt: Selecting poles on the stabilization plot in PolyMax
+  :alt: Selecting poles on the stabilization plot in PolyPy
 
-The final tab of the PolyMax implementation allows you to see how well the
+The final tab of the PolyPy implementation allows you to see how well the
 modes fit to the measured frequency response data.  On this page, modes can be
 saved to a file.
 
-.. image:: figures/airplane_polymax_stabilization_resynthesis.png
+.. image:: figures/airplane_polypy_stabilization_resynthesis.png
   :width: 600
-  :alt: Visualizing the modal fits in PolyMax
+  :alt: Visualizing the modal fits in PolyPy
 
 Comparing Test and Finite Element Modes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1789,15 +1789,15 @@ function.
 
 .. code-block:: python
 
-    # In the PolyMax GUI we saved the shapes to disk, so we will now load them.
-    test_shapes_polymax = sdpy.shape.load('shapes_polymax.npy')
+    # In the PolyPy GUI we saved the shapes to disk, so we will now load them.
+    test_shapes_polypy = sdpy.shape.load('shapes_polypy.npy')
     
     # Let's compare the shapes to the finite element model shapes
-    mac = sdpy.shape.mac(test_shapes,test_shapes_polymax)
+    mac = sdpy.shape.mac(test_shapes,test_shapes_polypy)
     sdpy.correlation.matrix_plot(
         mac,text_size=6)
     shape_correspondences = np.where(mac > 0.9)
-    shape_1 = test_shapes_polymax[shape_correspondences[1]]
+    shape_1 = test_shapes_polypy[shape_correspondences[1]]
     shape_2 = test_shapes[shape_correspondences[0]]
     print(sdpy.shape.shape_comparison_table(shape_1, shape_2,
                                             percent_error_format='{:0.4f}%'))
@@ -1901,14 +1901,14 @@ and global finite element geometry are handled automatically by SDynPy.
 
     # Perform the expansion using the finite element shapes in the bandwidth
     expansion_basis = shapes_global[shapes_global.frequency < shape_bandwidth]
-    expanded_shapes = test_shapes_polymax.expand(test_geometry,geometry_global,
+    expanded_shapes = test_shapes_polypy.expand(test_geometry,geometry_global,
                                                  expansion_basis)
     # We can then plot the expanded shapes on the original finite element geometry
     geometry_global.plot_shape(expanded_shapes,plot_options)
     
     # Or overlay the geometries and shapes
     expansion_comparison_geometry,expansion_comparison_shapes = sdpy.shape.overlay_shapes(
-        (test_geometry,geometry_global),(test_shapes_polymax,expanded_shapes),[1,7])
+        (test_geometry,geometry_global),(test_shapes_polypy,expanded_shapes),[1,7])
     expansion_comparison_geometry.plot_shape(expansion_comparison_shapes,plot_options,
                                              deformed_opacity=0.5,undeformed_opacity=0)
                                              

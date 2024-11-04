@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_frf.fft2frf &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_frf.fft2frf &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -88,6 +88,7 @@
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_geometry_fitting.html">sdynpy.signal_processing.sdynpy_geometry_fitting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.html">sdynpy.signal_processing.sdynpy_harmonic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_integration.html">sdynpy.signal_processing.sdynpy_integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_lrm.html">sdynpy.signal_processing.sdynpy_lrm</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_rotation.html">sdynpy.signal_processing.sdynpy_rotation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_srs.html">sdynpy.signal_processing.sdynpy_srs</a></li>
 </ul>
@@ -131,7 +132,7 @@
 <h1>sdynpy.signal_processing.sdynpy_frf.fft2frf<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-frf-fft2frf" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_frf.fft2frf">
-<span class="sig-name descname"><span class="pre">fft2frf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'H1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_frf.html#fft2frf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_frf.fft2frf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fft2frf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'H1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freqs_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_frf.html#fft2frf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_frf.fft2frf" title="Permalink to this definition"></a></dt>
 <dd><p>Creates an FRF matrix given ffts of responses and references</p>
 <p>This function creates a nf x no x ni FRF matrix from the ffts
 provided.</p>
@@ -142,16 +143,23 @@ provided.</p>
 the number of frequencies in the fft.</p></li>
 <li><p><strong>responses</strong> (<em>ndarray</em>) – A no x nf or nf array where no is the number of responses and nf is the
 number of time frequencies in the fft.</p></li>
-<li><p><strong>method</strong> (<em>str in</em><em> [</em><em>'H1'</em><em>,</em><em>'H2'</em><em>,</em><em>'Hv'</em><em>,</em><em>'Hs'</em><em>]</em>) – The method for creating the frequency response function.</p></li>
+<li><p><strong>method</strong> (<em>str in</em><em> [</em><em>'H1'</em><em>,</em><em>'H2'</em><em>,</em><em>'Hv'</em><em>,</em><em>'Hs'</em><em>,</em><em>'LRM'</em><em>]</em>) – The method for creating the frequency response function.</p></li>
+<li><p><strong>freqs_in</strong> (<em>ndarray</em>) – Only used if method == ‘LRM’. A nf or nf x 1 array of frquency values.</p></li>
+<li><p><strong>**lrm_kwargs</strong> – Additional keyword arguments specify parameters if method == ‘LRM’.
+Possible arguments are: f_out (ndarray), bandwidth (float), transient
+(boolean), modelset (iterable of (3,1) ndarray), max_parallel (int),
+export_ratio (float). See sdynpy_lrm.frf_local_model.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>H</strong> – A nf x no x ni array where nf is the number of frequency lines, no is
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>H</strong> (<em>ndarray</em>) – A nf x no x ni array where nf is the number of frequency lines, no is
 the number of outputs, and ni is the number of inputs.  The output
-frequency lines will correspond to the frequency lines in the ffts.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+frequency lines will correspond to the frequency lines in the ffts.</p></li>
+<li><p><strong>freqs_out</strong> (<em>None or ndarray</em>) – None unless method == ‘LRM’. See sdynpy_lrm.frf_local_model.</p></li>
+<li><p><strong>model_data</strong> (<em>None dict</em>) – None unless method == ‘LRM’. See sdynpy_lrm.frf_local_model.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -172,7 +180,7 @@ FRF computation methods.  No averaging is performed by this function.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ee9f6bc0>
+<jinja2.runtime.BlockReference object at 0x7f5a26488a60>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

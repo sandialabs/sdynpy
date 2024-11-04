@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fem.sdynpy_exodus &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.fem.sdynpy_exodus &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -423,9 +423,9 @@
     <span class="k">def</span> <span class="nf">num_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;num_dim&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
 
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">     _   _           _           </span>
-<span class="sd">    | \ | | ___   __| | ___  ___ </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">     _   _           _</span>
+<span class="sd">    | \ | | ___   __| | ___  ___</span>
 <span class="sd">    |  \| |/ _ \ / _` |/ _ \/ __|</span>
 <span class="sd">    | |\  | (_) | (_| |  __/\__ \</span>
 <span class="sd">    |_| \_|\___/ \__,_|\___||___/</span>
@@ -756,9 +756,9 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_node_variable_values</span><span class="p">(</span><span class="n">displacement_name</span> <span class="o">+</span> <span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">capital_coordinates</span> <span class="k">else</span> <span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
                          <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="s1">&#39;xyz&#39;</span><span class="p">])</span></div>
 
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;        </span>
-<span class="sd">      _____ _                           _       </span>
-<span class="sd">     | ____| | ___ _ __ ___   ___ _ __ | |_ ___ </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">      _____ _                           _</span>
+<span class="sd">     | ____| | ___ _ __ ___   ___ _ __ | |_ ___</span>
 <span class="sd">     |  _| | |/ _ \ &#39;_ ` _ \ / _ \ &#39;_ \| __/ __|</span>
 <span class="sd">     | |___| |  __/ | | | | |  __/ | | | |_\__ \</span>
 <span class="sd">     |_____|_|\___|_| |_| |_|\___|_| |_|\__|___/</span>
@@ -978,7 +978,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        id : int </span>
+<span class="sd">        id : int</span>
 <span class="sd">            The block id for which the element connectivity is being assigned</span>
 <span class="sd">        connectivity : 2D array-like</span>
 <span class="sd">            A 2D array of dimension num_elements x num_nodes_per_element</span>
@@ -994,7 +994,7 @@
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span><span class="s1">&#39;Invalid Block ID&#39;</span><span class="p">)</span>
         <span class="n">conn_name</span> <span class="o">=</span> <span class="s1">&#39;connect</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">block_index</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">conn_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span><span class="s1">&#39;Element Block </span><span class="si">{:d}</span><span class="s1"> has not been defined yet&#39;</span><span class="p">)</span>
         <span class="n">connectivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">connectivity</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">conn_name</span><span class="p">][:]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">connectivity</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
@@ -1007,7 +1007,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        d : int </span>
+<span class="sd">        d : int</span>
 <span class="sd">            The block id for which the number of attributes is desired</span>
 
 <span class="sd">        Returns</span>
@@ -1032,7 +1032,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        d : int </span>
+<span class="sd">        d : int</span>
 <span class="sd">            The block id for which the number of attributes is desired</span>
 
 <span class="sd">        Returns</span>
@@ -1055,7 +1055,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        d : int </span>
+<span class="sd">        d : int</span>
 <span class="sd">            The block id for which the number of attributes is desired</span>
 
 <span class="sd">        Returns</span>
@@ -1114,7 +1114,7 @@
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span><span class="s1">&#39;Invalid Block ID&#39;</span><span class="p">)</span>
         <span class="n">attr_name</span> <span class="o">=</span> <span class="s1">&#39;attrib</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">block_index</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span><span class="s1">&#39;Element Block </span><span class="si">{:d}</span><span class="s1"> has no defined attributes&#39;</span><span class="p">)</span>
         <span class="n">attributes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">attr_name</span><span class="p">][:]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
@@ -1435,9 +1435,9 @@
 
 <div class="viewcode-block" id="Exodus.put_element_property_value"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus.put_element_property_value">[docs]</a>    <span class="k">def</span> <span class="nf">put_element_property_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;        </span>
-<span class="sd">     _   _           _                _       </span>
-<span class="sd">    | \ | | ___   __| | ___  ___  ___| |_ ___ </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">     _   _           _                _</span>
+<span class="sd">    | \ | | ___   __| | ___  ___  ___| |_ ___</span>
 <span class="sd">    |  \| |/ _ \ / _` |/ _ \/ __|/ _ \ __/ __|</span>
 <span class="sd">    | |\  | (_) | (_| |  __/\__ \  __/ |_\__ \</span>
 <span class="sd">    |_| \_|\___/ \__,_|\___||___/\___|\__|___/</span>
@@ -1622,7 +1622,7 @@
             <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span>
                 <span class="s1">&#39;Information for node set </span><span class="si">{:d}</span><span class="s1"> has already been put to the exodus file.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dist_fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dist_fact</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">nodes</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">dist_fact</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ExodusError</span><span class="p">(</span><span class="s1">&#39;dist_fact must be the same size as nodes&#39;</span><span class="p">)</span>
@@ -1632,7 +1632,7 @@
         <span class="n">node_name</span> <span class="o">=</span> <span class="s1">&#39;node_ns</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ns_index</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="s1">&#39;int32&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">num_node_in_ns_name</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">node_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">nodes</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">distfact_name</span> <span class="o">=</span> <span class="s1">&#39;dist_fact_ns</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ns_index</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
                 <span class="n">distfact_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">floating_point_type</span><span class="p">,</span> <span class="p">(</span><span class="n">num_node_in_ns_name</span><span class="p">,))</span>
@@ -1641,10 +1641,10 @@
         <span class="c1"># actually what it should be, just every exodus file I&#39;ve looked at has</span>
         <span class="c1"># the eb_status as all ones...)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;ns_status&#39;</span><span class="p">][</span><span class="n">ns_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></div>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">       _____ _     _                _       </span>
-<span class="sd">      / ____(_)   | |              | |      </span>
-<span class="sd">     | (___  _  __| | ___  ___  ___| |_ ___ </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">       _____ _     _                _</span>
+<span class="sd">      / ____(_)   | |              | |</span>
+<span class="sd">     | (___  _  __| | ___  ___  ___| |_ ___</span>
 <span class="sd">      \___ \| |/ _` |/ _ \/ __|/ _ \ __/ __|</span>
 <span class="sd">      ____) | | (_| |  __/\__ \  __/ |_\__ \</span>
 <span class="sd">     |_____/|_|\__,_|\___||___/\___|\__|___/</span>
@@ -1835,7 +1835,7 @@
                 <span class="s1">&#39;Information for side set </span><span class="si">{:d}</span><span class="s1"> has already been put to the exodus file.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning:Distribution factors for sidesets have not been thoroughly checked! Use with Caution!&#39;</span><span class="p">)</span>
             <span class="n">dist_fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dist_fact</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="c1"># TODO: Check if the size of dist_fact is correct</span>
@@ -1850,7 +1850,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="n">side_name</span><span class="p">,</span> <span class="s1">&#39;int32&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">num_side_in_ss_name</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">elem_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">elements</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">side_name</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dist_fact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">distfact_name</span> <span class="o">=</span> <span class="s1">&#39;dist_fact_ss</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ss_index</span><span class="p">)</span>
             <span class="n">distfact_dim_name</span> <span class="o">=</span> <span class="s1">&#39;num_df_ss</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ss_index</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ncdf_handle</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="n">distfact_dim_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist_fact</span><span class="p">))</span>
@@ -1865,10 +1865,10 @@
 <div class="viewcode-block" id="Exodus.get_side_set_node_list"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus.get_side_set_node_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_side_set_node_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;        </span>
-<span class="sd">       _____ _       _           _  __      __        _       _     _           </span>
-<span class="sd">      / ____| |     | |         | | \ \    / /       (_)     | |   | |          </span>
-<span class="sd">     | |  __| | ___ | |__   __ _| |  \ \  / /_ _ _ __ _  __ _| |__ | | ___  ___ </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">       _____ _       _           _  __      __        _       _     _</span>
+<span class="sd">      / ____| |     | |         | | \ \    / /       (_)     | |   | |</span>
+<span class="sd">     | |  __| | ___ | |__   __ _| |  \ \  / /_ _ _ __ _  __ _| |__ | | ___  ___</span>
 <span class="sd">     | | |_ | |/ _ \| &#39;_ \ / _` | |   \ \/ / _` | &#39;__| |/ _` | &#39;_ \| |/ _ \/ __|</span>
 <span class="sd">     | |__| | | (_) | |_) | (_| | |    \  / (_| | |  | | (_| | |_) | |  __/\__ \</span>
 <span class="sd">      \_____|_|\___/|_.__/ \__,_|_|     \/ \__,_|_|  |_|\__,_|_.__/|_|\___||___/</span>
@@ -2063,7 +2063,7 @@
 <span class="sd">            surface faces of the block.  Values in this array correspond to</span>
 <span class="sd">            indices into the node_indices array.  To recover the connectivity</span>
 <span class="sd">            array in the original node indices of the exodus file, it can be</span>
-<span class="sd">            passed through the node_indices as </span>
+<span class="sd">            passed through the node_indices as</span>
 <span class="sd">            node_indices[block_surface_connectivity].  The</span>
 <span class="sd">            block_surface_original_elements array shows the original element</span>
 <span class="sd">            indices of the block that each surface came from.  This can be</span>
@@ -2480,13 +2480,13 @@
                 <span class="n">elem_var_names</span> <span class="o">=</span> <span class="n">exo</span><span class="o">.</span><span class="n">get_elem_variable_names</span><span class="p">()</span>
                 <span class="n">variable_truth_table</span> <span class="o">=</span> <span class="n">exo</span><span class="o">.</span><span class="n">get_elem_variable_table</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
                 <span class="k">for</span> <span class="n">blk_index</span><span class="p">,</span> <span class="n">blk_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exo</span><span class="o">.</span><span class="n">get_elem_blk_ids</span><span class="p">()):</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">blk_id</span> <span class="ow">in</span> <span class="n">block_ids</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">blk_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">block_ids</span><span class="p">:</span>
                         <span class="k">continue</span>
                     <span class="n">block_dict</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">block_dict</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blk_id</span>
                     <span class="n">block_dict</span><span class="p">[</span><span class="s1">&#39;elem_var_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">elem_index</span><span class="p">,</span> <span class="n">elem_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elem_var_names</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem_name</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">elem_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
                             <span class="k">continue</span>
                         <span class="k">if</span> <span class="n">variable_truth_table</span><span class="p">[</span><span class="n">blk_index</span><span class="p">,</span> <span class="n">elem_index</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                             <span class="n">block_dict</span><span class="p">[</span><span class="s1">&#39;elem_var_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -2686,7 +2686,7 @@
         <span class="c1"># Write the nodes</span>
         <span class="n">exo_out</span><span class="o">.</span><span class="n">put_coord_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
         <span class="n">exo_out</span><span class="o">.</span><span class="n">put_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_node_num_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span><span class="p">)</span>
 
         <span class="c1"># Initialize blocks</span>
@@ -2706,11 +2706,11 @@
                 <span class="n">exo_out</span><span class="o">.</span><span class="n">set_elem_attr</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
 
         <span class="c1"># Element Map</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_elem_num_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_map</span><span class="p">)</span>
 
         <span class="c1"># Nodesets</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_node_set_ids</span><span class="p">([</span><span class="n">ns</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesets</span><span class="p">])</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_node_set_names</span><span class="p">(</span>
                 <span class="p">[</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">nodeset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesets</span><span class="p">])</span>
@@ -2718,7 +2718,7 @@
                 <span class="n">exo_out</span><span class="o">.</span><span class="n">put_node_set_info</span><span class="p">(</span><span class="n">nodeset</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">nodeset</span><span class="o">.</span><span class="n">dist_factors</span><span class="p">)</span>
 
         <span class="c1"># Sidesets</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidesets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidesets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_side_set_ids</span><span class="p">([</span><span class="n">ns</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidesets</span><span class="p">])</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_side_set_names</span><span class="p">(</span>
                 <span class="p">[</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">sideset</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sideset</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">sideset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidesets</span><span class="p">])</span>
@@ -2727,21 +2727,21 @@
                                           <span class="n">sideset</span><span class="o">.</span><span class="n">sides</span><span class="p">,</span> <span class="n">sideset</span><span class="o">.</span><span class="n">dist_factors</span><span class="p">)</span>
 
         <span class="c1"># Global Variables #TODO: Make it so I can write all timesteps at once.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_global_variable_names</span><span class="p">([</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_vars</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_vars</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
                     <span class="n">exo_out</span><span class="o">.</span><span class="n">set_global_variable_values</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
 
         <span class="c1"># Nodal Variables #TODO: Make it so I can write all timesteps at once.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exo_out</span><span class="o">.</span><span class="n">put_node_variable_names</span><span class="p">([</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodal_vars</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodal_vars</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
                     <span class="n">exo_out</span><span class="o">.</span><span class="n">set_node_variable_values</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodal_vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
 
         <span class="c1"># Element Variables # TODO: Make it so I can write all timesteps at once</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nblocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_vars</span><span class="p">)</span>
             <span class="n">nelemvars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">elem_var_data</span><span class="p">)</span>
             <span class="n">elem_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nblocks</span><span class="p">,</span> <span class="n">nelemvars</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -2837,7 +2837,7 @@
 <span class="sd">            surface faces of the block.  Values in this array correspond to</span>
 <span class="sd">            indices into the node_indices array.  To recover the connectivity</span>
 <span class="sd">            array in the original node indices of the exodus file, it can be</span>
-<span class="sd">            passed through the node_indices as </span>
+<span class="sd">            passed through the node_indices as</span>
 <span class="sd">            node_indices[block_surface_connectivity].  The</span>
 <span class="sd">            block_surface_original_elements array shows the original element</span>
 <span class="sd">            indices of the block that each surface came from.  This can be</span>
@@ -3024,9 +3024,9 @@
 <span class="sd">           /  |           /  |</span>
 <span class="sd">          5--------------6   |</span>
 <span class="sd">          |   4----------|---3</span>
-<span class="sd">          |  /           |  / </span>
-<span class="sd">          | /            | /  </span>
-<span class="sd">          |/             |/   </span>
+<span class="sd">          |  /           |  /</span>
+<span class="sd">          | /            | /</span>
+<span class="sd">          |/             |/</span>
 <span class="sd">          1--------------2</span>
 
 <span class="sd">    So the 6 faces are as follows::</span>
@@ -3227,7 +3227,7 @@
     <span class="c1"># If the exodus file has element variables, we are only keeping the ones</span>
     <span class="c1"># corresponding to the blocks we are keeping</span>
     <span class="k">if</span> <span class="n">exo_in_mem</span><span class="p">:</span>
-        <span class="n">has_elem_vars</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">fexo</span><span class="o">.</span><span class="n">elem_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_variables_to_transform</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">has_elem_vars</span> <span class="o">=</span> <span class="p">(</span><span class="n">fexo</span><span class="o">.</span><span class="n">elem_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_variables_to_transform</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">has_elem_vars</span> <span class="o">=</span> <span class="n">fexo</span><span class="o">.</span><span class="n">num_elem_variables</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem_variables_to_transform</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -3344,13 +3344,13 @@
                 <span class="n">face_elem_vars</span> <span class="o">=</span> <span class="n">fexo</span><span class="o">.</span><span class="n">elem_vars</span><span class="p">[[</span><span class="n">var</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">fexo</span><span class="o">.</span><span class="n">elem_vars</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">block_id</span><span class="p">)]</span>
                 <span class="k">for</span> <span class="n">elem_index</span><span class="p">,</span> <span class="n">elem_var_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">face_elem_vars</span><span class="o">.</span><span class="n">elem_var_data</span><span class="p">):</span>
                     <span class="c1"># Check if we need to skip it</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">elem_index</span> <span class="ow">in</span> <span class="n">elem_variables_to_transform</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">elem_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem_variables_to_transform</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Skipping Element Variable </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem_index</span><span class="p">))</span>
                         <span class="k">continue</span>
                     <span class="c1"># If the variable doesn&#39;t exist it will be None (for example a</span>
                     <span class="c1"># volume quantity on a surface element).  We only operate if</span>
                     <span class="c1"># the variable exists (is not None)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">elem_var_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">elem_var_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="c1"># We use the face&#39;s original elements vector to map the</span>
                         <span class="c1"># element data to the face connectivity matrix</span>
                         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -3372,7 +3372,7 @@
                 <span class="c1"># Loop through and pick element variables that exist in the truth table</span>
                 <span class="k">for</span> <span class="n">elem_index</span><span class="p">,</span> <span class="n">elem_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elem_var_names</span><span class="p">):</span>
                     <span class="c1"># Check if we need to skip it</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">elem_index</span> <span class="ow">in</span> <span class="n">elem_variables_to_transform</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">elem_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elem_variables_to_transform</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Skipping Element Variable </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem_name</span><span class="p">))</span>
                         <span class="k">continue</span>
@@ -3440,7 +3440,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_variables_to_transform</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">fexo_out</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">node_var_index</span><span class="p">,</span> <span class="n">node_var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fexo</span><span class="o">.</span><span class="n">nodal_vars</span><span class="p">):</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">node_var_index</span> <span class="ow">in</span> <span class="n">node_variables_to_transform</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node_var_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node_variables_to_transform</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Skipping Nodal Variable </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node_var</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                     <span class="k">continue</span>
@@ -3454,7 +3454,7 @@
                 <span class="n">fexo_out</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">node_vars</span> <span class="o">=</span> <span class="n">fexo</span><span class="o">.</span><span class="n">get_node_variable_names</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">node_var_index</span><span class="p">,</span> <span class="n">node_var_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_vars</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">node_var_index</span> <span class="ow">in</span> <span class="n">node_variables_to_transform</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">node_var_index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node_variables_to_transform</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Skipping Nodal Variable </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node_var_name</span><span class="p">))</span>
                         <span class="k">continue</span>
@@ -3526,7 +3526,7 @@
     <span class="k">for</span> <span class="n">node_var_index</span><span class="p">,</span> <span class="n">node_var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edge_fexo</span><span class="o">.</span><span class="n">nodal_vars</span><span class="p">):</span>
         <span class="n">node_var</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">node_var</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">keep_nodes</span><span class="p">]</span>
     <span class="n">edge_fexo</span><span class="o">.</span><span class="n">elem_vars</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">edge_fexo</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">block</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">edge_fexo</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">edge_fexo</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">block</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">edge_fexo</span><span class="o">.</span><span class="n">blocks</span> <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">edge_fexo</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
         <span class="n">block</span><span class="o">.</span><span class="n">connectivity</span> <span class="o">=</span> <span class="n">node_map</span><span class="p">[</span><span class="n">block</span><span class="o">.</span><span class="n">connectivity</span><span class="p">]</span>
     <span class="n">edge_fexo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span> <span class="o">=</span> <span class="n">surface_fexo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span><span class="p">[</span><span class="n">keep_nodes</span><span class="p">]</span>
@@ -3540,7 +3540,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ebbbbf40>
+<jinja2.runtime.BlockReference object at 0x7f5a27f4bdf0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

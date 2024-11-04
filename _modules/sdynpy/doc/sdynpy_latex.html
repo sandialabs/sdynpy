@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.doc.sdynpy_latex &mdash; SDynPy 0.11.0 documentation</title>
+  <title>sdynpy.doc.sdynpy_latex &mdash; SDynPy 0.14.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -109,7 +109,11 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pyqtgraph</span> <span class="k">as</span> <span class="nn">pqtg</span>
+<span class="kn">import</span> <span class="nn">PIL</span>
 <span class="kn">from</span> <span class="nn">..signal_processing.sdynpy_correlation</span> <span class="kn">import</span> <span class="n">mac</span><span class="p">,</span> <span class="n">matrix_plot</span>
+<span class="kn">from</span> <span class="nn">..core.sdynpy_geometry</span> <span class="kn">import</span> <span class="n">GeometryPlotter</span><span class="p">,</span> <span class="n">ShapePlotter</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy</span>
 
 
 <div class="viewcode-block" id="create_latex_summary"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_latex_summary.html#sdynpy.doc.sdynpy_latex.create_latex_summary">[docs]</a><span class="k">def</span> <span class="nf">create_latex_summary</span><span class="p">(</span><span class="n">figure_basename</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">frfs</span><span class="p">,</span>
@@ -137,7 +141,8 @@
                          <span class="n">latex_shape_caption</span><span class="o">=</span><span class="s1">&#39;Mode shapes extracted from test data.&#39;</span><span class="p">,</span>
                          <span class="n">latex_shape_label</span><span class="o">=</span><span class="s1">&#39;fig:modeshapes&#39;</span><span class="p">,</span>
                          <span class="n">latex_shape_table_columns</span><span class="o">=</span><span class="s1">&#39;lllp</span><span class="si">{3.5in}</span><span class="s1">&#39;</span><span class="p">,</span>
-                         <span class="n">latex_shape_table_caption</span><span class="o">=</span><span class="s1">&#39;List of modes extracted from the test data.  Modal parameters are shown along with a brief description of the mode shape.&#39;</span><span class="p">,</span>
+                         <span class="n">latex_shape_table_caption</span><span class="o">=</span><span class="p">(</span>
+                             <span class="s1">&#39;List of modes extracted from the test data.  Modal parameters are shown along with a brief description of the mode shape.&#39;</span><span class="p">),</span>
                          <span class="n">latex_shape_table_label</span><span class="o">=</span><span class="s1">&#39;tab:modelist&#39;</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="n">figure_basename_relative_to_latex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -216,7 +221,7 @@
                          <span class="n">latex_cmif_label</span><span class="p">)</span>
 
     <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">    </span>
+
 <span class="s1">\begin{{figure}}</span>
 <span class="s1">    \centering</span>
 <span class="s1">    \includegraphics[</span><span class="si">{:}</span><span class="s1">]{{</span><span class="si">{:}</span><span class="s1">}}</span>
@@ -229,7 +234,7 @@
 
     <span class="c1"># Create a table of natural frequencies, damping values, and comments</span>
     <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">    </span>
+
 <span class="s1">\begin{{table}}</span>
 <span class="s1">    \centering</span>
 <span class="s1">    \caption{{</span><span class="si">{:}</span><span class="s1">}}</span>
@@ -242,7 +247,7 @@
         <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        </span><span class="si">{:}</span><span class="s1"> &amp; </span><span class="si">{:}</span><span class="s1"> &amp; </span><span class="si">{:}</span><span class="s1"> &amp; </span><span class="si">{:}</span><span class="s1"> \\&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frequency_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">frequency</span><span class="p">),</span>
                                            <span class="n">damping_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span><span class="p">)</span>
-    <span class="n">output_string</span> <span class="o">+=</span> <span class="s1">&#39;&#39;&#39;</span>
+    <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">    \end</span><span class="si">{tabular}</span>
 <span class="s1">    %}</span>
 <span class="s1">\end</span><span class="si">{table}</span><span class="s1">&#39;&#39;&#39;</span>
@@ -256,8 +261,8 @@
             <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">\end</span><span class="si">{figure}</span>
 <span class="s1">\begin</span><span class="si">{figure}</span><span class="s1">[h]</span>
-<span class="s1">	\ContinuedFloat</span>
-<span class="s1">	\centering&#39;&#39;&#39;</span>
+<span class="s1">    \ContinuedFloat</span>
+<span class="s1">    \centering&#39;&#39;&#39;</span>
         <span class="n">output_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">    \begin{{subfigure}}</span><span class="si">{subfigure_options:}</span>
 <span class="s1">        \centering</span>
@@ -289,6 +294,257 @@
     <span class="k">if</span> <span class="n">close</span><span class="p">:</span>
         <span class="n">output_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">output_string</span></div>
+
+<div class="viewcode-block" id="figure"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.figure.html#sdynpy.doc.sdynpy_latex.figure">[docs]</a><span class="k">def</span> <span class="nf">figure</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span> <span class="n">figure_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">figure_caption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
+           <span class="n">animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
+           <span class="n">figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+           <span class="n">subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span> <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+           <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span>
+           <span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds figures, subfigures, and animations to a running latex document.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    figures : list</span>
+<span class="sd">        Figure or figures that can be inserted into a latex document.  See </span>
+<span class="sd">        note for various figure types and configurations that can be used.</span>
+<span class="sd">    figure_label : str, optional</span>
+<span class="sd">        The label that will be used for the figure in the latex document.</span>
+<span class="sd">        If not specified, the figure will not be labeled.</span>
+<span class="sd">    figure_caption : str, optional</span>
+<span class="sd">        The caption that will be used for the figure in the latex document.</span>
+<span class="sd">        If not specified, the figure will only be captioned with the figure</span>
+<span class="sd">        number.</span>
+<span class="sd">    graphics_options : str, optional</span>
+<span class="sd">        Graphics options that will be used for the figure.  If not specified</span>
+<span class="sd">        this will be r&#39;width=0.7\linewidth&#39;.</span>
+<span class="sd">    animate_graphics_options : str, optional</span>
+<span class="sd">        Graphics options that will be used for an animation.  If not specified</span>
+<span class="sd">        this will be r&#39;width=0.7\linewidth,loop&#39;.</span>
+<span class="sd">    figure_placement : str, optional</span>
+<span class="sd">        Specify the placement of the figure with strings such as &#39;[t]&#39;, &#39;[b]&#39;,</span>
+<span class="sd">        or &#39;[h]&#39;.  If not specified, the figure will have no placement</span>
+<span class="sd">        specified.</span>
+<span class="sd">    subfigure_options : str, optional</span>
+<span class="sd">        The options that will be applied to each subfigure in the figure, if</span>
+<span class="sd">        subfigures are specified.  By default, this will be r&#39;[t]{0.45\linewidth}&#39;</span>
+<span class="sd">    subfigure_labels : str, optional</span>
+<span class="sd">        Labels to apply to the subfigure.  This can either be a list of strings</span>
+<span class="sd">        the same size as the list of figures, or a string with a format specifier</span>
+<span class="sd">        accepting the subfigure index.  If not specified, the subfigures will</span>
+<span class="sd">        not be labeled.</span>
+<span class="sd">    subfigure_captions : list, optional</span>
+<span class="sd">        A list of strings the same length as the list of figures to use as</span>
+<span class="sd">        captions for the subfigures.  If not specified, the subfigures will</span>
+<span class="sd">        only be captioned with the subfigure number.</span>
+<span class="sd">    max_subfigures_per_page : int, optional</span>
+<span class="sd">        The maximum number of subfigures on a page.  Longer figures will be</span>
+<span class="sd">        broken up into multiple figures using \ContinuedFloat.  If not specified,</span>
+<span class="sd">        a single figure environment will be generated.</span>
+<span class="sd">    max_subfigures_first_page : int, optional</span>
+<span class="sd">        The maximum number of subfigures on the first page.  Longer figures will be</span>
+<span class="sd">        broken up into multiple figures using \ContinuedFloat.  If not specified,</span>
+<span class="sd">        the max_subfigures_per_page value will be used if specified, otherwise</span>
+<span class="sd">        a single figure environment will be generated.</span>
+<span class="sd">    figure_save_names : str or list of str, optional</span>
+<span class="sd">        File names to save the figures as.  This can be specified as a string</span>
+<span class="sd">        with a format specifier in it that will accept the figure index, or</span>
+<span class="sd">        a list of strings the same length as the list of figures.</span>
+<span class="sd">        If not specified, files will be specified as &#39;figure_0&#39;,</span>
+<span class="sd">        &#39;figure_1&#39;, etc.  If file names are not present, then the file name</span>
+<span class="sd">        will be automatically selected for the type of figure given.</span>
+<span class="sd">    latex_root : str, optional</span>
+<span class="sd">        Directory in which the latex .tex file will be constructed.  This is</span>
+<span class="sd">        used to create relative paths to the save_figure_names within the latex</span>
+<span class="sd">        document.  If not specified, then the current directory will be assumed.</span>
+<span class="sd">     </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    latex_string : str</span>
+<span class="sd">        The latex source code to insert the figures into the document.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The `figures` argument must be a list of figures.  If only one entry</span>
+<span class="sd">    is present in the list, a figure will be made in the latex document.  If</span>
+<span class="sd">    multiple entries are present, a figure will be made and subfigures will be</span>
+<span class="sd">    made for each entry in the list.  If an entry in the list is also a list,</span>
+<span class="sd">    then that figure or subfigure will be made into an animation.</span>
+<span class="sd">    </span>
+<span class="sd">    The list of figures can contain many types of objects that a figure will be</span>
+<span class="sd">    made from, including:</span>
+<span class="sd">        - A 2D numpy array</span>
+<span class="sd">        - A Matplotlib figure</span>
+<span class="sd">        - A pyqtgraph plotitem</span>
+<span class="sd">        - A bytes object that represents an image</span>
+<span class="sd">        - A string to a file name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">subfigures</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">subfigures</span> <span class="o">=</span> <span class="kc">True</span>
+        
+    <span class="k">if</span> <span class="n">max_subfigures_first_page</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span>
+        
+    <span class="k">if</span> <span class="n">figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;figure_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">))]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure_save_names</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">figure_save_names</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">))]</span>
+        
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\begin</span><span class="si">{figure}</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">figure_placement</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    </span><span class="se">\\</span><span class="s1">centering&#39;</span>
+    <span class="c1"># Go through and save all of the files out to disk</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">figure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figures</span><span class="p">):</span>
+        <span class="c1"># Check the type of figure.  If it&#39;s a list of figures, then it&#39;s an</span>
+        <span class="c1"># animation.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">animate</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="c1"># Otherwise it&#39;s just a figure, but we turn it into a list anyways to</span>
+        <span class="c1"># make it so we only have to program this once.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">animate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">num_frames</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">figure</span> <span class="o">=</span> <span class="p">[</span><span class="n">figure</span><span class="p">]</span>
+        <span class="c1"># We need to get the extension of the file name to figure out what</span>
+        <span class="c1"># type of file to save the image to.</span>
+        <span class="n">base</span><span class="p">,</span><span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">figure_save_names</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1"># We also want to get the directory so we can get the relative path to</span>
+        <span class="c1"># the file</span>
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="n">latex_root</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">this_figure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">animate</span><span class="p">:</span>
+                <span class="n">this_filename</span> <span class="o">=</span> <span class="n">base</span><span class="o">+</span><span class="s1">&#39;_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="n">ext</span>
+                <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">this_filename</span> <span class="o">=</span> <span class="n">figure_save_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># Matplotlib Figure</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.pdf&#39;</span>
+                <span class="n">this_figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># Pyqtgraph PlotItem</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="n">pqtg</span><span class="o">.</span><span class="n">PlotItem</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
+                <span class="n">this_figure</span><span class="o">.</span><span class="n">writeImage</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># 2D NumpyArray</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
+                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># ShapePlotter</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">ShapePlotter</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;ShapePlotter is not implemented yet&#39;</span><span class="p">)</span>
+            <span class="c1"># GeometryPlotter</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">GeometryPlotter</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;GeometryPlotter is not implemented yet&#39;</span><span class="p">)</span>
+            <span class="c1"># Bytes object</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
+                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># String to file name</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">copy</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="n">this_filename</span><span class="p">)</span>
+        <span class="c1"># Now we end the figure and create a new one if we are at the right</span>
+        <span class="c1"># subfigure number</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">subfigures</span> <span class="ow">and</span> <span class="n">max_subfigures_per_page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> 
+            <span class="p">((</span><span class="n">i</span><span class="o">-</span><span class="n">max_subfigures_first_page</span><span class="p">)</span><span class="o">%</span><span class="n">max_subfigures_per_page</span> <span class="o">==</span> <span class="mi">0</span>
+              <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">\end</span><span class="si">{figure}</span>
+<span class="s2">\begin</span><span class="si">{figure}</span><span class="s2">[h]</span>
+<span class="s2">    \ContinuedFloat</span>
+<span class="s2">    \centering&quot;&quot;&quot;</span>
+        <span class="c1"># If we have subfigures we need to stick in the subfigure environment</span>
+        <span class="k">if</span> <span class="n">subfigures</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    \begin</span><span class="si">{subfigure}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">+</span><span class="n">subfigure_options</span><span class="o">+</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \centering&quot;&quot;&quot;</span>
+        <span class="c1"># Now we have to insert the includegraphics or animategraphics command</span>
+        <span class="k">if</span> <span class="n">animate</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \animategraphics[</span><span class="si">{graphics_options:}</span><span class="s2">]{{</span><span class="si">{num_frames:}</span><span class="s2">}}{{</span><span class="si">{base_name:}</span><span class="s2">}}{{0}}{{</span><span class="si">{end_frame:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">graphics_options</span><span class="o">=</span><span class="n">animate_graphics_options</span><span class="p">,</span>
+            <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
+            <span class="n">base_name</span><span class="o">=</span><span class="n">relpath</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">num_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \includegraphics[</span><span class="si">{:}</span><span class="s2">]{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">graphics_options</span><span class="p">,</span><span class="n">relpath</span><span class="p">)</span>
+        <span class="c1"># Now add captions and labels if they exist</span>
+        <span class="k">if</span> <span class="n">subfigures</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \caption{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">subfigure_captions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">subfigure_captions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">subfigure_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subfigure_labels</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">subfigure_labels</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">subfigure_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \label{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    \end</span><span class="si">{subfigure}</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="c1"># Add the figure caption and label</span>
+    <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    \caption{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">figure_caption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">figure_caption</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">figure_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    \label{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">figure_label</span><span class="p">)</span>
+    <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">\end</span><span class="si">{figure}</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
+<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.table.html#sdynpy.doc.sdynpy_latex.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">justification_string</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+          <span class="n">table_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">table_caption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">longtable</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+          <span class="n">header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">horizontal_lines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">justification_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">justification_string</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span><span class="o">*</span><span class="n">ncols</span>
+    <span class="k">if</span> <span class="n">longtable</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\begin{{longtable}}{{</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">justification_string</span><span class="p">)</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    \caption{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">table_caption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">table_caption</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">table_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    \label{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_label</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;\begin{{table}}</span>
+<span class="s1">    \centering</span>
+<span class="s1">    \caption{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">table_caption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">table_caption</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">table_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    \label{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_label</span><span class="p">)</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    \begin{{tabular}}{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">justification_string</span><span class="p">)</span>
+    <span class="c1"># Now create the meat of the table</span>
+    <span class="k">if</span> <span class="n">horizontal_lines</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        \hline&#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="s1">&#39;        &#39;</span><span class="o">+</span><span class="s1">&#39; &amp; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">)])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="n">header</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;\hline&#39;</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">row</span>
+        <span class="k">if</span> <span class="n">horizontal_lines</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        \hline&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">longtable</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">\end</span><span class="si">{longtable}</span><span class="s1">&#39;&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    \end</span><span class="si">{tabular}</span>
+<span class="s1">\end</span><span class="si">{table}</span><span class="s1">&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">latex_string</span></div>
 </pre></div>
 
            </div>
@@ -298,7 +554,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f99ebe1edd0>
+<jinja2.runtime.BlockReference object at 0x7f5a26b7e560>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

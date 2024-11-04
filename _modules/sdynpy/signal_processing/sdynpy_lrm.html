@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.signal_processing.sdynpy_lrm &mdash; SDynPy 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.signal_processing.sdynpy_lrm</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.signal_processing.sdynpy_lrm</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<div class="viewcode-block" id="frf_local_model"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_lrm.frf_local_model.html#sdynpy.signal_processing.sdynpy_lrm.frf_local_model">[docs]</a><span class="k">def</span> <span class="nf">frf_local_model</span><span class="p">(</span><span class="n">references</span><span class="p">,</span><span class="n">responses</span><span class="p">,</span><span class="n">abscissa</span><span class="p">,</span><span class="n">f_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">bandwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">transient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">modelset</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span>
+                    <span class="n">export_ratio</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span><span class="n">max_parallel</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span><span class="n">print_time</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Local modeling FRF estimator for MIMO systems.</span>
+<span class="sd">    This function can be called directly or using</span>
+<span class="sd">    frf.timedata2frf(...,method=&#39;LRM&#39;) or frf.fft2frf(...,method=&#39;LRM&#39;).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    references : ndarray (N_in, N_freqs) or (N_in, 1, N_freqs)</span>
+<span class="sd">        REFERENCES FREQUENCY-DOMAIN DATA.</span>
+<span class="sd">    responses : ndarray, shape (N_out, N_freqs) or (N_out, 1, N_freqs)</span>
+<span class="sd">        RESPONSES FREQUENCY-DOMAIN DATA.</span>
+<span class="sd">    abcissa : ndarray (N_freqs,)</span>
+<span class="sd">        INPUT FREQUENCY VECTOR.</span>
+<span class="sd">        </span>
+<span class="sd">    f_out: ndarray (N_freqs_out,), optional</span>
+<span class="sd">        Output frequency vector. Finer resolution increases computational cost,</span>
+<span class="sd">        but only to a finite limit. Compuatational cost will not increase beyond</span>
+<span class="sd">        f_out = f_in, but large interpolation may result in a large export_ratio.</span>
+<span class="sd">        The default is f_in</span>
+<span class="sd">    bandwidth: float, optional</span>
+<span class="sd">        Local model estimation bandwidth in units of f_in. Larger values yield</span>
+<span class="sd">        better noise filtering but risk underfitting and take longer to run.</span>
+<span class="sd">    transient : boolean, optional</span>
+<span class="sd">        whetheter to include transient estimation in local models. Recommend False</span>
+<span class="sd">        for impact testing or burst random, True otherwise. The default is True.</span>
+<span class="sd">    modelset : iterable of numpy (3,) arrays, optional</span>
+<span class="sd">        Arrays contain [num. order, trans. order, denom. order].</span>
+<span class="sd">        Recommend increasing numerator order for nonlinear structures</span>
+<span class="sd">        and complicated FRFs. The default is [[1,1,0],[1,1,1],[1,1,2]].</span>
+<span class="sd">    export_ratio : f;pat, optional</span>
+<span class="sd">        (centered) proportion of local bands that can be stored and exported.</span>
+<span class="sd">        Larger values risk capturing volatile end behavior but yield faster</span>
+<span class="sd">        computation times. The default is 0.1.</span>
+<span class="sd">    max_parallel: int, optional</span>
+<span class="sd">        for very large systems with high frequency resolution and large bandwidths,</span>
+<span class="sd">        system RAM can be a constraint. The default number of parallel processes</span>
+<span class="sd">        is the number of CPU threads. If this causes freezing, max_parallel can</span>
+<span class="sd">        be set to reduce the allowed number of parallel threads. Also, smaller</span>
+<span class="sd">        pools may initialize faster. The default is 512.</span>
+<span class="sd">    print_time: boolean, optional</span>
+<span class="sd">        print remaining time if more than 10 seconds</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f_out: ndarray (N_freqs_out,)</span>
+<span class="sd">        estimated FRM frequency vector</span>
+<span class="sd">    H: ndarray (N_freqs_out, N_out, N_in)</span>
+<span class="sd">        frequency response matrix</span>
+<span class="sd">    model_data: dict</span>
+<span class="sd">        candidate model info and selected model at each frequency in f_out</span>
+<span class="sd">       </span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -------</span>
+<span class="sd">    To improve noise and transient removal, recommend increasing bandwidth</span>
+<span class="sd">    </span>
+<span class="sd">    To reduce computation time, recommend decreasing f_out resolution,</span>
+<span class="sd">    increasing export_ratio, or decreasing bandwidth. For very large systems,</span>
+<span class="sd">    if freezing occurs, reduce max_parallel.</span>
+<span class="sd">    </span>
+<span class="sd">    For more information, see &quot;A practitioner&#39;s guide to local FRF estimation&quot;,</span>
+<span class="sd">    K. Coletti. This function uses the MISO parameterization</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NOTES FOR MAINTAINER</span>
+<span class="sd">    Outline of this function</span>
+<span class="sd">    -------</span>
+<span class="sd">        (1) f_in and f_out are parsed to generate an array of bands at which to</span>
+<span class="sd">            estimate local models (bands) and a list of query points in each</span>
+<span class="sd">            model at which to export solutions (query)</span>
+<span class="sd">        (2) based on the model candidate set and problem size, functional</span>
+<span class="sd">            parameterizations are generated which return linearized coefficient</span>
+<span class="sd">            matrices (for solving) and the FRF matrix (for export)</span>
+<span class="sd">        (3) computation time is estimated, and the LSQ algorithm is selected.</span>
+<span class="sd">            Solving model parameters using interative LLSQ is the majority of</span>
+<span class="sd">            computation time.</span>
+<span class="sd">        (4) in parallel, local models are solved for each model in modelset and</span>
+<span class="sd">            each frequency band. FRFs are exported. CTRL-F &#39;results = Parallel&#39;</span>
+<span class="sd">        (5) the winning model and corresponding FRM is returned in each band</span>
+<span class="sd">        </span>
+<span class="sd">    Notes on variable names</span>
+<span class="sd">    -------</span>
+<span class="sd">    U and Y are input and output data</span>
+<span class="sd">    A,B,D are FRF numerator, transient numerator, and denom., respectively</span>
+<span class="sd">    H is the frequency response matrix.</span>
+<span class="sd">    LR is a function that produces linear coefficients (L) and remainder (R) for the local models</span>
+<span class="sd">    See &quot;A Practitioner’s Guide to Local FRF Estimation&quot;, K. Coletti for more information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#%% Process arguments</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">references</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">responses</span>
+    <span class="n">f_in</span> <span class="o">=</span> <span class="n">abscissa</span>
+    <span class="k">del</span> <span class="n">references</span><span class="p">;</span> <span class="k">del</span> <span class="n">responses</span><span class="p">;</span> <span class="k">del</span> <span class="n">abscissa</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">f_in</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># frequency step size</span>
+    <span class="k">if</span> <span class="n">bandwidth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># local model bandwidth</span>
+        <span class="n">bandwidth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="p">[</span><span class="nb">min</span><span class="p">([</span><span class="mi">300</span><span class="o">*</span><span class="n">df</span><span class="p">,</span><span class="mi">40</span><span class="p">])</span> <span class="p">,</span> <span class="nb">max</span><span class="p">([</span><span class="mi">30</span><span class="o">*</span><span class="n">df</span><span class="p">,</span><span class="mi">10</span><span class="p">])]</span> <span class="p">)</span>
+        <span class="c1"># bounded below by the larger of 30 points and 10 Hz,</span>
+        <span class="c1"># above by the smaller of 300 points and 40 Hz</span>
+    <span class="k">if</span> <span class="n">f_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># spacing between center frequencies for estimation</span>
+        <span class="n">f_out</span> <span class="o">=</span> <span class="n">f_in</span>
+    
+    <span class="c1"># Default parameters, hidden from user</span>
+    <span class="n">NitSK</span> <span class="o">=</span> <span class="mi">50</span> <span class="c1"># max SK iterations</span>
+    <span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">.005</span> <span class="c1"># SK parameter convergence tolerance</span>
+    
+    <span class="c1">#%% Calculate general helper vars</span>
+    <span class="n">Nfreq</span> <span class="o">=</span> <span class="n">f_in</span><span class="o">.</span><span class="n">size</span> <span class="c1"># number of frequencies</span>
+    <span class="n">Nin</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Nout</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Nmod</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">modelset</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nfreq</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># no realizations/frames needed</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nfreq</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+    <span class="n">f_in</span> <span class="o">=</span> <span class="n">f_in</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+    <span class="n">f_out</span> <span class="o">=</span> <span class="n">f_out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">Nfreq</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;input arrays are not correctly sized&#39;</span><span class="p">)</span>
+    
+    <span class="c1">#%% Get estimation bands and query points (STEP 1)</span>
+    <span class="c1"># Estimation bands contain the frequency bins used for parameter estimation,</span>
+    <span class="c1"># and query points are the frequencies at which results are exported</span>
+    <span class="n">Nband</span> <span class="o">=</span> <span class="n">__round_odd</span><span class="p">(</span><span class="n">bandwidth</span><span class="o">/</span><span class="n">df</span><span class="p">)</span> <span class="c1"># number of data points in band</span>
+    <span class="n">N_half_band</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Nband</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># number of data points on either side of center</span>
+    <span class="n">max_from_center</span> <span class="o">=</span> <span class="n">export_ratio</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">bandwidth</span> <span class="c1"># maximum query distance from center point, except at ends</span>
+    
+    <span class="n">bands</span><span class="p">,</span><span class="n">query</span> <span class="o">=</span> <span class="n">__parse_bands</span><span class="p">(</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">max_from_center</span><span class="p">,</span><span class="n">f_in</span><span class="p">,</span><span class="n">f_out</span><span class="p">)</span> <span class="c1"># bands gives indices of f_in, and query gives r values for query. r=Hz/df.</span>
+    <span class="n">Ninds</span> <span class="o">=</span> <span class="n">bands</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>    
+    
+    <span class="c1">#%% Initialize parameterizations (STEP 2)</span>
+    <span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">Nmod</span><span class="p">,[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">Nmod</span><span class="p">,[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">Nmod</span><span class="p">,[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">Nmod</span><span class="p">]</span>
+    <span class="n">Npar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nmod</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nmod</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">transient</span><span class="p">:</span>
+            <span class="n">LR</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">lsq_err</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">H</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">Npar</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">__parameterize</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">modelset</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LR</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">lsq_err</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">H</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">Npar</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">__parameterize_notrans</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">modelset</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            
+        <span class="k">if</span> <span class="n">Npar</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">Nband</span><span class="o">*</span><span class="n">Nout</span><span class="p">:</span> <span class="c1"># remove infeasible models</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;bandwidth too small for &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">modelset</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; model order&#39;</span><span class="p">)</span>
+            <span class="n">modelset</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">Nmod</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">LR</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="n">D</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="n">lsq_err</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="n">H</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="n">Npar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">Npar</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+            
+    <span class="n">dof</span> <span class="o">=</span> <span class="n">Nband</span><span class="o">*</span><span class="n">Nout</span><span class="o">-</span><span class="n">Npar</span>
+        
+    <span class="c1">#%% Compute (STEP 3/4)</span>
+    <span class="c1"># Parallel function. # joblib can&#39;t parse lists (only arrays), so query is a parameter</span>
+    <span class="k">def</span> <span class="nf">__solve_ind</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">inq</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
+        <span class="c1"># Initialize. inq are radii of H to output in this band</span>
+        <span class="n">H_multi_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nmod</span><span class="p">,</span><span class="n">inq</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="c1"># axis (0) output (1) input (2) model (3) frequency</span>
+        <span class="n">mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">Nmod</span><span class="p">,</span><span class="n">inq</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">Uk</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span><span class="n">bands</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        <span class="n">Yk</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span><span class="n">bands</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        
+        <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nmod</span><span class="p">):</span> <span class="c1"># model loop</span>
+            <span class="n">H_multi_model</span><span class="p">[:,:,</span><span class="n">kk</span><span class="p">,:],</span><span class="n">pstar</span> <span class="o">=</span> <span class="n">__solveLRM</span><span class="p">(</span><span class="n">Uk</span><span class="p">,</span><span class="n">Yk</span><span class="p">,</span><span class="n">LR</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span><span class="n">D</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span><span class="n">lsq_err</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span><span class="n">H</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span><span class="n">inq</span><span class="p">,</span><span class="n">conv_tol</span><span class="p">,</span><span class="n">NitSK</span><span class="p">,</span><span class="n">lstsq</span><span class="p">)</span>
+        
+            <span class="c1"># Model selection - MDL (see Pintelon, IEEE, 2021)</span>
+            <span class="n">mdl</span><span class="p">[</span><span class="n">kk</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">pstar</span><span class="o">/</span><span class="n">dof</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span> <span class="o">*</span> <span class="n">mt</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">mt</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">Nband</span><span class="p">)</span><span class="o">*</span><span class="n">Npar</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">dof</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">H_multi_model</span><span class="p">,</span><span class="n">mdl</span>
+    
+    <span class="c1"># Estimate time, choose algorithm - SEE APPENDIX NOTES 1 AND 2</span>
+    <span class="n">memory</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">total</span><span class="o">/</span><span class="mf">1e9</span>
+    <span class="n">n_parallel</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span><span class="mi">61</span><span class="p">,</span><span class="n">max_parallel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory</span><span class="o">/</span><span class="n">n_parallel</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">Nin</span><span class="o">*</span><span class="n">Nout</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Many parallel processes relative to system RAM. For large problems, freezing may occur.&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_lstsq_time</span><span class="p">(</span><span class="n">alg</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">__solve_ind</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span><span class="n">Ninds</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">query</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">Ninds</span><span class="o">/</span><span class="mi">2</span><span class="p">)],</span><span class="n">alg</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span>
+    <span class="k">if</span> <span class="n">Nin</span><span class="o">*</span><span class="n">Nout</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="n">time_numpy</span> <span class="o">=</span> <span class="n">test_lstsq_time</span><span class="p">(</span><span class="n">__lstsq_numpy</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">time_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="c1"># numpy is very slow for large problems</span>
+    <span class="n">time_scipy</span> <span class="o">=</span> <span class="n">test_lstsq_time</span><span class="p">(</span><span class="n">__lstsq_scipy</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">time_numpy</span> <span class="o">&lt;</span> <span class="n">time_scipy</span><span class="p">:</span>
+        <span class="n">lstsq</span> <span class="o">=</span> <span class="n">__lstsq_numpy</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lstsq</span> <span class="o">=</span> <span class="n">__lstsq_scipy</span>
+        
+    <span class="n">time_est</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">time_numpy</span><span class="p">,</span><span class="n">time_scipy</span><span class="p">)</span><span class="o">*</span><span class="n">Ninds</span><span class="o">/</span><span class="n">n_parallel</span>
+    <span class="k">if</span> <span class="n">time_est</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">print_time</span><span class="p">:</span> <span class="c1"># parallel initialization takes 5 seconds</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Estimated time remaining: parallel init. + &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span><span class="mf">1.1</span><span class="o">*</span><span class="n">time_est</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; seconds&#39;</span> <span class="p">)</span>
+    
+    <span class="c1"># Compute and extract results into arrays</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_parallel</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">__solve_ind</span><span class="p">)(</span><span class="n">k</span><span class="p">,</span><span class="n">query</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">lstsq</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ninds</span><span class="p">))</span>
+    <span class="n">H_multi_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nin (2) model (3) Nind</span>
+    <span class="n">mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># axis (0) model (1) Nind</span>
+            
+    <span class="c1">#%% Select winning models and export (STEP 5)</span>
+    <span class="n">msel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">mdl</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># axis. (0) freq. ind</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">H_multi_model</span><span class="p">[:,:,</span><span class="n">msel</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">f_out</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span> <span class="c1"># axis. (0) Nout (1) Nin (2) freq. ind</span>
+    <span class="n">model_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="s1">&#39;Model format is [H num. order, trans. num. order, denom. order].&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;modelset&#39;</span><span class="p">:</span><span class="n">modelset</span><span class="p">,</span>
+                  <span class="s1">&#39;model_selected&#39;</span><span class="p">:</span><span class="n">msel</span><span class="p">}</span>
+                
+    <span class="c1"># Return results</span>
+    <span class="k">return</span> <span class="n">f_out</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">H</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">model_data</span></div>
+  
+<span class="c1">#%% Local model solver</span>
+<span class="k">def</span> <span class="nf">__solveLRM</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">query</span><span class="p">,</span><span class="n">conv_tol</span><span class="p">,</span><span class="n">NitSK</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Local model solver. This function occupies most of the FRF local modeling estimation</span>
+<span class="sd">    time. Inputs are functions that accept parameter values and output local model component</span>
+<span class="sd">    matrices used for least-squares solving and model exporting. Uses Sanathanan-Koerner</span>
+<span class="sd">    iterations to solve the nonlinear rational LSTSQ problem iteratively</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># SK iteration preparations</span>
+    <span class="n">L</span><span class="p">,</span><span class="n">R</span> <span class="o">=</span> <span class="n">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> <span class="c1"># linearized transfer matrix and residual vector. Lin objective = D^{-1}*(L*t-R)</span>
+    <span class="n">Dp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># initial scaling matrix. Axis (0) Nout (1) Nband</span>
+    <span class="n">t0s</span><span class="p">,</span><span class="n">lsq_min</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)]</span><span class="o">*</span><span class="mi">2</span>
+    
+    <span class="c1"># Snathanan-Koererner Iterations</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NitSK</span><span class="o">+</span><span class="mi">5</span><span class="p">):</span>
+        <span class="c1"># Define adjusted LLSQ/GLSQ problem</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">L</span><span class="o">/</span><span class="n">Dp</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># left matrix in LLSQ stacked over r. Axis (0) Nout (1) Nband (2) Npar</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">R</span><span class="o">/</span><span class="n">Dp</span> <span class="c1"># residual vector stacked over r. Axis (0) Nout (1) Nband</span>
+        
+        <span class="c1"># Solve and advance. Vast majority of compution time in all of get_frf</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">lstsq</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">q</span><span class="p">)</span> <span class="c1"># axis. (0) Nout (1) Npar</span>
+    
+        <span class="c1"># Convergence</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">((</span><span class="n">t0</span><span class="o">-</span><span class="n">t0s</span><span class="p">)</span><span class="o">/</span><span class="n">t0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">conv_tol</span><span class="p">:</span>
+            <span class="k">break</span> <span class="c1"># exit if convergence is reached</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Dp</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="n">t0</span><span class="p">)</span> <span class="c1"># store new adjustment matrix</span>
+        <span class="n">t0s</span> <span class="o">=</span> <span class="n">t0</span>
+
+        <span class="c1"># Capture nonconvergence (in my experience, this is very rare)</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">NitSK</span><span class="p">:</span>
+            <span class="n">lsq_t0</span> <span class="o">=</span> <span class="n">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lsq_t0</span> <span class="o">&lt;</span> <span class="n">lsq_min</span><span class="p">:</span>
+                <span class="n">lsq_min</span> <span class="o">=</span> <span class="n">lsq_t0</span>
+                <span class="n">t1</span> <span class="o">=</span> <span class="n">t0</span>
+                
+    <span class="n">t0</span><span class="o">=</span><span class="n">t1</span> <span class="k">if</span> <span class="s1">&#39;t1&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="k">else</span> <span class="n">t0</span>
+    
+    <span class="k">return</span> <span class="n">H</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="n">query</span><span class="p">),</span><span class="o">-</span><span class="n">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t0</span><span class="p">)</span> <span class="c1"># Hstar, pstar (log density)</span>
+
+<span class="c1">#%% Parameterizations. See &quot;A Practitioner’s Guide to Local FRF Estimation&quot;, K. Coletti</span>
+<span class="k">def</span> <span class="nf">__parameterize</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate parameterization functions for estimation including transient removal</span>
+<span class="sd">    Parameterizations are passed into __solveLRM to generate local models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Components of f, because f can be iterated</span>
+    <span class="c1"># Radius and exponent matrices. r is radius, s power, and A/B/D component matrices</span>
+    <span class="n">N_half_band</span> <span class="o">=</span> <span class="p">(</span><span class="n">Nband</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">N_half_band</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">rsA</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># axis. (0) power (1) radius</span>
+    <span class="n">rsB</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">rsD</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># Define theta break points</span>
+    <span class="n">bA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Nout</span><span class="o">*</span><span class="n">Nin</span><span class="o">*</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># transfer numerator</span>
+    <span class="n">bB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># transient numerator</span>
+    <span class="n">bD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># denominator (wrap Nout first, then s)</span>
+    <span class="n">Npar</span> <span class="o">=</span> <span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
+        
+        <span class="c1"># Build matrices</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">[</span><span class="n">bA</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsA</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">[</span><span class="n">bB</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsB</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nfreq</span>
+        <span class="n">catmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">t</span><span class="p">[</span><span class="n">bD</span><span class="p">][:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span><span class="mi">0</span> <span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">catmat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsD</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nfreq</span>
+        
+        <span class="c1"># Compute sum of squared residuals</span>
+        <span class="n">Ysim</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;jkl,kl-&gt;jl&#39;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">U</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">/</span><span class="n">D</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">Ysim</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
+        
+        <span class="c1"># Radius and exponent matrices</span>
+        <span class="n">rsA_inq</span> <span class="o">=</span> <span class="n">r_inq</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># axis. (0) power (1) radius</span>
+        <span class="n">rsD_inq</span> <span class="o">=</span> <span class="n">r_inq</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        
+        <span class="c1"># Build matrices</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">[</span><span class="n">bA</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsA_inq</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nin (3) Nfreq</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Nout</span><span class="p">),</span><span class="n">t</span><span class="p">[</span><span class="n">bD</span><span class="p">])</span> <span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsD_inq</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nfreq</span>
+        
+        <span class="k">return</span> <span class="n">A</span><span class="o">/</span><span class="n">D</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+
+    <span class="c1"># Build linearized (SK) transfer matrix L(U,y)*t + R(U,Y) = Dp^(-1) (D(t)*Y - N(t)*U - M(t))</span>
+    <span class="c1"># Denominator matrix for SK iterations</span>
+    <span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span> <span class="s1">&#39;ij,lj-&gt;li&#39;</span><span class="p">,</span><span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">,</span> <span class="n">t</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">)]</span> <span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband</span>
+    
+    <span class="k">def</span> <span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
+        <span class="c1"># Compute residual</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="o">-</span><span class="n">Y</span> <span class="c1"># axis (0) Nout (1) Nband</span>
+        
+        <span class="c1"># Compute components</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">A1</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="n">r1</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># D(t)*Y. Axis. (1) r (2) s (3) Nout</span>
+        <span class="n">A2</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nband</span><span class="p">,</span><span class="n">Nin</span><span class="o">*</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># A(t)*U. Axis. (1) r (2) Nin*s (3) Nout</span>
+        <span class="n">A3</span> <span class="o">=</span> <span class="p">(</span> <span class="n">r1</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">)[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># B(t). Axis. (1) r (2) s (3) empty</span>
+        
+        <span class="c1"># Assemble into array</span>
+        <span class="k">if</span> <span class="n">order</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">catmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="c1"># A2 and A3 don&#39;t depend on Nout</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="o">-</span><span class="n">A2</span><span class="o">*</span><span class="n">catmat</span><span class="p">,</span><span class="o">-</span><span class="n">A3</span><span class="o">*</span><span class="n">catmat</span><span class="p">,</span><span class="n">A1</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband (2) parameter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="o">-</span><span class="n">A2</span><span class="p">,</span><span class="o">-</span><span class="n">A3</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband (2) parameter</span>
+        
+        <span class="k">return</span> <span class="n">L</span><span class="p">,</span><span class="n">R</span>
+
+    <span class="k">return</span> <span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Npar</span>
+<span class="k">def</span> <span class="nf">__parameterize_notrans</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate parameterization functions for estimation not including transient removal.</span>
+<span class="sd">    Parameterizations are passed into __solveLRM to generate local models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Components of f, because f can be iterated</span>
+    <span class="c1"># Radius and exponent matrices. r is radius, s power, and A/B/D component matrices</span>
+    <span class="n">N_half_band</span> <span class="o">=</span> <span class="p">(</span><span class="n">Nband</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">N_half_band</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">rsA</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># axis. (0) power (1) radius</span>
+    <span class="n">rsD</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># Define theta break points</span>
+    <span class="n">bA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Nout</span><span class="o">*</span><span class="n">Nin</span><span class="o">*</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># transfer numerator</span>
+    <span class="n">bD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># denominator (wrap Nout first, then s)</span>
+    <span class="n">Npar</span> <span class="o">=</span> <span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
+        
+        <span class="c1"># Build matrices</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">[</span><span class="n">bA</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsA</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">))</span> <span class="c1"># axis (0) Nout (1) Nfreq</span>
+        <span class="n">catmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">t</span><span class="p">[</span><span class="n">bD</span><span class="p">][:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span><span class="mi">0</span> <span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">catmat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsD</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nfreq</span>
+        
+        <span class="c1"># Compute sum of squared residuals</span>
+        <span class="n">Ysim</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;jkl,kl-&gt;jl&#39;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">U</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">/</span><span class="n">D</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">Ysim</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
+        
+        <span class="c1"># Radius and exponent matrices</span>
+        <span class="n">rsA_inq</span> <span class="o">=</span> <span class="n">r_inq</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># axis. (0) power (1) radius</span>
+        <span class="n">rsD_inq</span> <span class="o">=</span> <span class="n">r_inq</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        
+        <span class="c1"># Build matrices</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">[</span><span class="n">bA</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsA_inq</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nin (3) Nfreq</span>
+        <span class="n">catmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">t</span><span class="p">[</span><span class="n">bD</span><span class="p">][:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span><span class="mi">0</span> <span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,jk-&gt;ik&#39;</span><span class="p">,</span><span class="n">catmat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nout</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">),</span><span class="n">rsD_inq</span><span class="p">)</span> <span class="c1"># axis. (1) Nout (2) Nfreq</span>
+        
+        <span class="k">return</span> <span class="n">A</span><span class="o">/</span><span class="n">D</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+
+    <span class="c1"># Build linearized (SK) transfer matrix L(U,y)*t + R(U,Y) = Dp^(-1) (D(t)*Y - N(t)*U - M(t))</span>
+    <span class="c1"># Denominator matrix for SK iterations</span>
+    <span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span> <span class="s1">&#39;ij,lj-&gt;li&#39;</span><span class="p">,</span><span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">,</span> <span class="n">t</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">)]</span> <span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband</span>
+    
+    <span class="k">def</span> <span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
+        <span class="c1"># Compute residual</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="o">-</span><span class="n">Y</span> <span class="c1"># axis (0) Nout (1) Nband</span>
+        
+        <span class="c1"># Compute components</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">A1</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="n">r1</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># D(t)*Y. Axis. (1) r (2) s (3) Nout</span>
+        <span class="n">A2</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nband</span><span class="p">,</span><span class="n">Nin</span><span class="o">*</span><span class="p">(</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># A(t)*U. Axis. (1) r (2) Nin*s (3) Nout</span>
+        
+        <span class="c1"># Assemble into array</span>
+        <span class="k">if</span> <span class="n">order</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">catmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="c1"># A2 and A3 don&#39;t depend on Nout</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="o">-</span><span class="n">A2</span><span class="o">*</span><span class="n">catmat</span><span class="p">,</span><span class="n">A1</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband (2) parameter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="o">-</span><span class="n">A2</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband (2) parameter</span>
+        
+        <span class="k">return</span> <span class="n">L</span><span class="p">,</span><span class="n">R</span>
+
+    <span class="k">return</span> <span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Npar</span>
+
+<span class="c1">#%% Frequency parser</span>
+<span class="k">def</span> <span class="nf">__parse_bands</span><span class="p">(</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">max_from_center</span><span class="p">,</span><span class="n">f_in</span><span class="p">,</span><span class="n">f_out</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Local modeling is not constrained to the input frequency vector. This function</span>
+<span class="sd">    processes input parameters and parses f_in into bands to model (bands).</span>
+<span class="sd">    In addition, it returns query points (query) at which to export each</span>
+<span class="sd">    local model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_out</span> <span class="o">=</span> <span class="n">f_out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">f_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># query point step size</span>
+    <span class="n">df_in</span> <span class="o">=</span> <span class="n">f_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">f_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># input frequencies steps size</span>
+    <span class="n">inq_per_band</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">max_from_center</span><span class="o">/</span><span class="n">df_out</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1"># query points per band</span>
+    
+    <span class="c1"># Assign export indices to band numbers</span>
+    <span class="n">n_lo</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_out</span> <span class="o">&lt;=</span> <span class="n">f_in</span><span class="p">[</span><span class="n">N_half_band</span><span class="p">]</span><span class="o">+</span><span class="n">max_from_center</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">n_hi</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_out</span> <span class="o">&gt;=</span> <span class="n">f_in</span><span class="p">[</span><span class="o">-</span><span class="n">N_half_band</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">max_from_center</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">n_mid</span> <span class="o">=</span> <span class="n">f_out</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">n_lo</span> <span class="o">-</span> <span class="n">n_hi</span>
+    
+    <span class="c1"># Parsing is different if n_lo and n_hi &gt; 0</span>
+    <span class="n">is_lo</span> <span class="o">=</span> <span class="n">n_lo</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">is_hi</span> <span class="o">=</span> <span class="n">n_hi</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    
+    <span class="c1"># Get band assignment numbers for each entry in f_out</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">inq_per_band</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">is_lo</span><span class="p">,</span><span class="n">mt</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n_mid</span><span class="o">/</span><span class="n">inq_per_band</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)[:</span><span class="n">n_mid</span><span class="p">]</span>
+    <span class="n">inq_assign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_lo</span><span class="p">)</span> <span class="p">,</span> <span class="n">temp</span> <span class="p">,</span> <span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_hi</span><span class="p">)</span> <span class="p">))</span>
+    <span class="n">inq_assign</span> <span class="o">=</span> <span class="n">inq_assign</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Get indices of center points and build bands</span>
+    <span class="n">c_inds_hz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f_out</span><span class="p">[</span><span class="n">inq_assign</span><span class="o">==</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">is_lo</span><span class="p">,</span><span class="n">inq_assign</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="n">is_hi</span><span class="p">)])</span> <span class="c1"># ideal center locations of each export</span>
+    <span class="n">c_inds</span> <span class="o">=</span> <span class="p">((</span><span class="n">c_inds_hz</span><span class="o">-</span><span class="n">f_in</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">df_in</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span> <span class="c1"># actual center locations of each export on f_in</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c_inds_hz</span> <span class="o">-</span> <span class="n">f_in</span><span class="p">[</span><span class="n">c_inds</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int32&#39;</span><span class="p">)])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">max_from_center</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;f_in is too sparse for f_out specification, resulting in LM extrapolation </span>
+<span class="s2">                      beyond the export_ratio. Consider using default specification or increasing bandwidth.&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="n">lo_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">N_half_band</span><span class="p">])</span> <span class="k">if</span> <span class="n">is_lo</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">hi_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f_in</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">N_half_band</span><span class="p">])</span> <span class="k">if</span> <span class="n">is_hi</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">c_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span> <span class="n">lo_ind</span><span class="p">,</span><span class="n">c_inds</span><span class="p">,</span><span class="n">hi_ind</span> <span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">N_half_band</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">c_inds</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># axis (0) center ind (1) r</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="n">bands</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Get normalized extraction radii</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="p">[(</span><span class="n">f_out</span><span class="p">[</span><span class="n">inq_assign</span><span class="o">==</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">ind</span><span class="p">)</span><span class="o">/</span><span class="n">df_in</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f_in</span><span class="p">[</span><span class="n">c_inds</span><span class="p">])]</span>
+    
+    <span class="k">return</span> <span class="n">bands</span><span class="p">,</span><span class="n">query</span>
+    
+<span class="c1">#%% General functions</span>
+<span class="k">def</span> <span class="nf">__round_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">__lstsq_scipy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span> <span class="p">)</span> <span class="c1"># axis. (0) Nout [1] Npar</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">Ak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span>
+<span class="k">def</span> <span class="nf">__lstsq_numpy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span> <span class="p">)</span> <span class="c1"># axis. (0) Nout [1] Np</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">Ak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">APPENDIX</span>
+<span class="sd">Note 1: Windows OS restricts parallel processes to 61</span>
+
+<span class="sd">Note 2: linalg.lstsq in scipy and numpy vary wildly in relative speed. In some cases,</span>
+<span class="sd">numpy is 10x faster. For other problem sizes, scipy is 20x faster. Both are tested,</span>
+<span class="sd">and the faster algorithm is selected.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f5a270b5f00>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
