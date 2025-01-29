@@ -1055,7 +1055,9 @@ class ShapePlotter(GeometryPlotter):
         super().add_menu_bar()
 
         # Get the file menu
-        file_menu = self.main_menu.findChildren(QMenu)[0]
+        file_menu = [child for child in self.main_menu.children()
+                     if child.__class__.__name__ == 'QMenu'
+                     and child.title() == 'File'][0]
         self.save_animation_action = pvqt.plotting.QAction('Save Animation')
         self.save_animation_action.triggered.connect(self.save_animation_from_action)
         file_menu.insertAction(file_menu.actions()[1], self.save_animation_action)
