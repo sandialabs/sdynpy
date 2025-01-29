@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 02: Basics of Vibrations &mdash; SDynPy 0.14.1 documentation</title>
+  <title>Modal Tutorial 02: Basics of Vibrations &mdash; SDynPy 0.14.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
@@ -131,14 +131,14 @@ itself in the opposite direction, so internal forces develop slowing the spring 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gs</span>
-<span class="kn">from</span> <span class="nn">matplotlib.animation</span> <span class="kn">import</span> <span class="n">FuncAnimation</span> <span class="k">as</span> <span class="n">fa</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.gridspec</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.animation</span><span class="w"> </span><span class="kn">import</span> <span class="n">FuncAnimation</span> <span class="k">as</span> <span class="n">fa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sdynpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sdpy</span>
 
-<span class="k">def</span> <span class="nf">draw_spring_mass</span><span class="p">(</span><span class="n">deflection</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mass_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_spring_mass</span><span class="p">(</span><span class="n">deflection</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mass_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
                      <span class="n">mass_to_ground_length</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span> <span class="n">num_windings</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
                      <span class="n">spring_width</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span><span class="n">arrow_sizes</span><span class="o">=</span><span class="p">[],</span><span class="n">arrow_labels</span><span class="o">=</span><span class="p">[],</span>
                      <span class="n">arrow_colors</span><span class="o">=</span><span class="p">[],</span> <span class="n">arrow_offset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -235,7 +235,7 @@ itself in the opposite direction, so internal forces develop slowing the spring 
 <span class="n">displacement</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="n">acceleration</span> <span class="o">=</span> <span class="n">responses</span>
 
 <span class="c1"># Create a function to plot the response</span>
-<span class="k">def</span> <span class="nf">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="n">acceleration</span><span class="p">,</span><span class="n">force</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_spring_mass_response</span><span class="p">(</span><span class="n">displacement</span><span class="p">,</span><span class="n">velocity</span><span class="p">,</span><span class="n">acceleration</span><span class="p">,</span><span class="n">force</span><span class="p">,</span>
                               <span class="n">displacement_index</span><span class="p">,</span><span class="n">drawing_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                               <span class="n">disp_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">vel_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                               <span class="n">accel_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">force_axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -673,7 +673,7 @@ important to keep track of which degree of freedom is which. Degrees of freedom 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sdynpy</span> <span class="k">as</span> <span class="nn">sdpy</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sdynpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sdpy</span>
 
 <span class="n">degree_of_freedom</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">)</span>
 <span class="n">mass</span> <span class="o">=</span> <span class="mi">5</span>
@@ -877,7 +877,7 @@ Frequency Response Function at 2 Hz: 0.75 Amplitude, 171.44 Phase
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f0106604ac0>
+<jinja2.runtime.BlockReference object at 0x7efefd94d000>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

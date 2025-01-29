@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.14.1 documentation</title>
+  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.14.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -106,22 +106,22 @@
 <span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">TransferFunctionArray</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_shape</span> <span class="kn">import</span> <span class="n">shape_array</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">CoordinateArray</span>
-<span class="kn">from</span> <span class="nn">..signal_processing.sdynpy_complex</span> <span class="kn">import</span> <span class="n">collapse_complex_to_real</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransferFunctionArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">shape_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_complex</span><span class="w"> </span><span class="kn">import</span> <span class="n">collapse_complex_to_real</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 
-<div class="viewcode-block" id="ShapeSelection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.ShapeSelection.html#sdynpy.modal.sdynpy_modeshape.ShapeSelection">[docs]</a><span class="k">class</span> <span class="nc">ShapeSelection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ShapeSelection"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.ShapeSelection.html#sdynpy.modal.sdynpy_modeshape.ShapeSelection">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ShapeSelection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">ALL</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">DRIVE_POINT_COEFFICIENT</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">PARTICIPATION_FACTOR</span> <span class="o">=</span> <span class="mi">2</span></div>
 
 
-<div class="viewcode-block" id="compute_residues"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_residues.html#sdynpy.modal.sdynpy_modeshape.compute_residues">[docs]</a><span class="k">def</span> <span class="nf">compute_residues</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_residues"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_residues.html#sdynpy.modal.sdynpy_modeshape.compute_residues">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">compute_residues</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
                      <span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                      <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                      <span class="n">real_modes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -318,7 +318,7 @@
     <span class="k">return</span> <span class="n">shape_residues</span><span class="p">,</span> <span class="n">output_frf</span><span class="p">,</span> <span class="n">residual_frf</span></div>
 
 
-<div class="viewcode-block" id="compute_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes.html#sdynpy.modal.sdynpy_modeshape.compute_shapes">[docs]</a><span class="k">def</span> <span class="nf">compute_shapes</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes.html#sdynpy.modal.sdynpy_modeshape.compute_shapes">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">compute_shapes</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                    <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                    <span class="n">coordinates</span><span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span>
                    <span class="n">residue_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -369,7 +369,7 @@
     <span class="k">return</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">negative_drive_points</span></div>
 
 
-<div class="viewcode-block" id="compute_shapes_multireference"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference.html#sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference">[docs]</a><span class="k">def</span> <span class="nf">compute_shapes_multireference</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_shapes_multireference"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference.html#sdynpy.modal.sdynpy_modeshape.compute_shapes_multireference">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">compute_shapes_multireference</span><span class="p">(</span><span class="n">experimental_frf</span><span class="p">:</span> <span class="n">TransferFunctionArray</span><span class="p">,</span>
                                   <span class="n">natural_frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                   <span class="n">damping_ratios</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                   <span class="n">participation_factors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -605,7 +605,7 @@
 
     <span class="k">return</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">frfs_resynthesized</span><span class="p">,</span> <span class="n">residual_frfs</span><span class="p">,</span> <span class="n">kernel_frfs</span></div>
 
-<div class="viewcode-block" id="generate_kernel_complex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.generate_kernel_complex.html#sdynpy.modal.sdynpy_modeshape.generate_kernel_complex">[docs]</a><span class="k">def</span> <span class="nf">generate_kernel_complex</span><span class="p">(</span><span class="n">omegas</span><span class="p">,</span> <span class="n">poles</span><span class="p">,</span> <span class="n">participation_factors</span><span class="p">,</span>
+<div class="viewcode-block" id="generate_kernel_complex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.generate_kernel_complex.html#sdynpy.modal.sdynpy_modeshape.generate_kernel_complex">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_kernel_complex</span><span class="p">(</span><span class="n">omegas</span><span class="p">,</span> <span class="n">poles</span><span class="p">,</span> <span class="n">participation_factors</span><span class="p">,</span>
                             <span class="n">lower_residuals</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">upper_residuals</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                             <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -741,7 +741,7 @@
     
     <span class="k">return</span> <span class="n">kernel</span></div>
 
-<div class="viewcode-block" id="generate_kernel_real"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.generate_kernel_real.html#sdynpy.modal.sdynpy_modeshape.generate_kernel_real">[docs]</a><span class="k">def</span> <span class="nf">generate_kernel_real</span><span class="p">(</span><span class="n">omegas</span><span class="p">,</span> <span class="n">poles</span><span class="p">,</span> <span class="n">participation_factors</span><span class="p">,</span>
+<div class="viewcode-block" id="generate_kernel_real"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.generate_kernel_real.html#sdynpy.modal.sdynpy_modeshape.generate_kernel_real">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_kernel_real</span><span class="p">(</span><span class="n">omegas</span><span class="p">,</span> <span class="n">poles</span><span class="p">,</span> <span class="n">participation_factors</span><span class="p">,</span>
                          <span class="n">lower_residuals</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">upper_residuals</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                          <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -858,7 +858,7 @@
     
     <span class="k">return</span> <span class="n">kernel</span></div>
 
-<div class="viewcode-block" id="stack_and_lstsq"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.stack_and_lstsq.html#sdynpy.modal.sdynpy_modeshape.stack_and_lstsq">[docs]</a><span class="k">def</span> <span class="nf">stack_and_lstsq</span><span class="p">(</span><span class="n">frf_matrix</span><span class="p">,</span> <span class="n">kernel_matrix</span><span class="p">,</span> <span class="n">return_reconstruction</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="stack_and_lstsq"><a class="viewcode-back" href="../../../_autosummary/sdynpy.modal.sdynpy_modeshape.stack_and_lstsq.html#sdynpy.modal.sdynpy_modeshape.stack_and_lstsq">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">stack_and_lstsq</span><span class="p">(</span><span class="n">frf_matrix</span><span class="p">,</span> <span class="n">kernel_matrix</span><span class="p">,</span> <span class="n">return_reconstruction</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                     <span class="n">reconstruction_partitions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">reconstruction_kernel</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -936,7 +936,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f010659be80>
+<jinja2.runtime.BlockReference object at 0x7efefe537820>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

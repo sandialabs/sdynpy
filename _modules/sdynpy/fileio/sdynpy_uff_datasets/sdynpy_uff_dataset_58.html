@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58 &mdash; SDynPy 0.14.1 documentation</title>
+  <title>sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58 &mdash; SDynPy 0.14.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
@@ -109,20 +109,20 @@
 <span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">..sdynpy_uff</span> <span class="kn">import</span> <span class="n">parse_uff_line</span><span class="p">,</span> <span class="n">parse_uff_lines</span><span class="p">,</span> <span class="n">write_uff_line</span>
-<span class="kn">from</span> <span class="nn">...core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">parse_coordinate_string</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..sdynpy_uff</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_uff_line</span><span class="p">,</span> <span class="n">parse_uff_lines</span><span class="p">,</span> <span class="n">write_uff_line</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...core.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_coordinate_string</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<div class="viewcode-block" id="is_abscissa_even"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even">[docs]</a><span class="k">def</span> <span class="nf">is_abscissa_even</span><span class="p">(</span><span class="n">abscissa</span><span class="p">):</span>
+<div class="viewcode-block" id="is_abscissa_even"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.is_abscissa_even">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">is_abscissa_even</span><span class="p">(</span><span class="n">abscissa</span><span class="p">):</span>
     <span class="n">abscissa_inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">abscissa</span><span class="p">))</span>
     <span class="n">abscissa_start</span> <span class="o">=</span> <span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span> <span class="n">abscissa_start</span> <span class="o">+</span> <span class="n">abscissa_inc</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">abscissa</span><span class="o">.</span><span class="n">size</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58">[docs]</a><span class="k">class</span> <span class="nc">Sdynpy_UFF_Dataset_58</span><span class="p">:</span>
-<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.__init__"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span>
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Sdynpy_UFF_Dataset_58</span><span class="p">:</span>
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.__init__"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idline1</span><span class="p">,</span> <span class="n">idline2</span><span class="p">,</span> <span class="n">idline3</span><span class="p">,</span> <span class="n">idline4</span><span class="p">,</span> <span class="n">idline5</span><span class="p">,</span>
                  <span class="n">function_type</span><span class="p">,</span> <span class="n">function_id</span><span class="p">,</span> <span class="n">version_number</span><span class="p">,</span> <span class="n">load_case</span><span class="p">,</span>
                  <span class="n">response_entity_name</span><span class="p">,</span> <span class="n">response_node</span><span class="p">,</span> <span class="n">response_direction</span><span class="p">,</span>
                  <span class="n">reference_entity_name</span><span class="p">,</span> <span class="n">reference_node</span><span class="p">,</span> <span class="n">reference_direction</span><span class="p">,</span>
@@ -184,11 +184,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">ordinate</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dataset_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dataset_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">58</span>
 
 <div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.from_uff_data_array"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.from_uff_data_array">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_uff_data_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">block_lines</span><span class="p">,</span> <span class="n">is_binary</span><span class="p">,</span> <span class="n">byte_ordering</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_uff_data_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">block_lines</span><span class="p">,</span> <span class="n">is_binary</span><span class="p">,</span> <span class="n">byte_ordering</span><span class="p">,</span>
                             <span class="n">floating_point_format</span><span class="p">,</span> <span class="n">num_ascii_lines_following</span><span class="p">,</span>
                             <span class="n">num_bytes_following</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -467,10 +467,10 @@
                     <span class="n">abscissa</span><span class="p">,</span> <span class="n">ordinate</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds_58</span></div>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;Sdynpy_UFF_Dataset_58&lt;</span><span class="si">{}</span><span class="s1"> Elements in Function&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.write_string"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Sdynpy_UFF_Dataset_58.write_string"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.Sdynpy_UFF_Dataset_58.write_string">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">return_string</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">idline1</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">idline2</span><span class="p">,</span>
@@ -565,7 +565,7 @@
         <span class="n">return_string</span> <span class="o">+=</span> <span class="n">write_uff_line</span><span class="p">(</span><span class="n">ordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">write_format</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">return_string</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_string</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;Dataset 58: Data</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">])</span>
@@ -573,7 +573,7 @@
             <span class="k">return</span> <span class="s1">&#39;Dataset 58: Data</span><span class="se">\n</span><span class="s1">  &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">is_binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">byte_ordering</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">floating_point_format</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../../_autosummary/sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read.html#sdynpy.fileio.sdynpy_uff_datasets.sdynpy_uff_dataset_58.read">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">is_binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">byte_ordering</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">floating_point_format</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
          <span class="n">num_ascii_lines_following</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_bytes_following</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">Sdynpy_UFF_Dataset_58</span><span class="o">.</span><span class="n">from_uff_data_array</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">is_binary</span><span class="p">,</span> <span class="n">byte_ordering</span><span class="p">,</span> <span class="n">floating_point_format</span><span class="p">,</span>
@@ -587,7 +587,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f0105496170>
+<jinja2.runtime.BlockReference object at 0x7efefde71630>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

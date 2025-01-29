@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fileio.sdynpy_vic &mdash; SDynPy 0.14.1 documentation</title>
+  <title>sdynpy.fileio.sdynpy_vic &mdash; SDynPy 0.14.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -106,19 +106,19 @@
 <span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">zipfile</span>
-<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">et</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_coordinate</span> <span class="kn">import</span> <span class="n">coordinate_array</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_data</span> <span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
-<span class="kn">from</span> <span class="nn">..core.sdynpy_geometry</span> <span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">node_array</span><span class="p">,</span> <span class="n">coordinate_system_array</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">et</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">coordinate_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">node_array</span><span class="p">,</span> <span class="n">coordinate_system_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
 
 <span class="n">REPORT_TIME</span> <span class="o">=</span> <span class="mi">5</span>
 
 
-<div class="viewcode-block" id="extract_vic_cal_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters.html#sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters">[docs]</a><span class="k">def</span> <span class="nf">extract_vic_cal_parameters</span><span class="p">(</span><span class="n">z3d_file</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_vic_cal_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters.html#sdynpy.fileio.sdynpy_vic.extract_vic_cal_parameters">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">extract_vic_cal_parameters</span><span class="p">(</span><span class="n">z3d_file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts camera calibration parameters from a VIC3D .z3d file.</span>
 
@@ -165,7 +165,7 @@
     <span class="k">return</span> <span class="n">out_data</span></div>
 
 
-<div class="viewcode-block" id="vic_angles_from_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix.html#sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix">[docs]</a><span class="k">def</span> <span class="nf">vic_angles_from_matrix</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+<div class="viewcode-block" id="vic_angles_from_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix.html#sdynpy.fileio.sdynpy_vic.vic_angles_from_matrix">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">vic_angles_from_matrix</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Extract Bryant Angles from a rotation matrix.</span>
 
 <span class="sd">    Extracts rotation angles r_x, r_y, r_z for the x,y,z rotation sequence.</span>
@@ -200,7 +200,7 @@
     <span class="k">return</span> <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span></div>
 
 
-<div class="viewcode-block" id="get_vic_camera_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters.html#sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters">[docs]</a><span class="k">def</span> <span class="nf">get_vic_camera_parameters</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">RT</span><span class="p">):</span>
+<div class="viewcode-block" id="get_vic_camera_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters.html#sdynpy.fileio.sdynpy_vic.get_vic_camera_parameters">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_vic_camera_parameters</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">RT</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Computes VIC3D Camera Information for the project.xml file</span>
 
 <span class="sd">    This function computes VIC3D Camera Calibration information from a camera</span>
@@ -240,7 +240,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">fx</span><span class="p">,</span> <span class="n">fy</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">rx</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">ry</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">rz</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">tx</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">ty</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">tz</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="matrix_from_bryant_angles"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles.html#sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles">[docs]</a><span class="k">def</span> <span class="nf">matrix_from_bryant_angles</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span><span class="p">):</span>
+<div class="viewcode-block" id="matrix_from_bryant_angles"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles.html#sdynpy.fileio.sdynpy_vic.matrix_from_bryant_angles">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">matrix_from_bryant_angles</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Computes a rotation matrix from Bryant Angles</span>
 
 <span class="sd">    Parameters</span>
@@ -270,7 +270,7 @@
     <span class="k">return</span> <span class="n">D</span> <span class="o">@</span> <span class="n">C</span> <span class="o">@</span> <span class="n">B</span></div>
 
 
-<div class="viewcode-block" id="camera_matrix_from_vic_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters.html#sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters">[docs]</a><span class="k">def</span> <span class="nf">camera_matrix_from_vic_parameters</span><span class="p">(</span><span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="camera_matrix_from_vic_parameters"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters.html#sdynpy.fileio.sdynpy_vic.camera_matrix_from_vic_parameters">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">camera_matrix_from_vic_parameters</span><span class="p">(</span><span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Computes K and RT Camera matrices from information in the project.xml file</span>
 
 <span class="sd">    This function takes VIC3D Camera Calibration information and makes a camera</span>
@@ -309,7 +309,7 @@
         <span class="k">return</span> <span class="n">K</span></div>
 
 
-<div class="viewcode-block" id="read_vic3D_mat_files"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files.html#sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files">[docs]</a><span class="k">def</span> <span class="nf">read_vic3D_mat_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">read_3D</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_2D</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_quality</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="read_vic3D_mat_files"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files.html#sdynpy.fileio.sdynpy_vic.read_vic3D_mat_files">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">read_vic3D_mat_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">read_3D</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_2D</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_quality</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                          <span class="n">sigma_tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">element_triangulation_condition</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                          <span class="n">element_color_order</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span>
                          <span class="n">allow_dropouts</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -514,7 +514,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f0105495db0>
+<jinja2.runtime.BlockReference object at 0x7efefe4faf50>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_lrm &mdash; SDynPy 0.14.1 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_lrm &mdash; SDynPy 0.14.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -84,15 +84,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sdynpy.signal_processing.sdynpy_lrm</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
-<span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
-<span class="kn">import</span> <span class="nn">psutil</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
 
-<div class="viewcode-block" id="frf_local_model"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_lrm.frf_local_model.html#sdynpy.signal_processing.sdynpy_lrm.frf_local_model">[docs]</a><span class="k">def</span> <span class="nf">frf_local_model</span><span class="p">(</span><span class="n">references</span><span class="p">,</span><span class="n">responses</span><span class="p">,</span><span class="n">abscissa</span><span class="p">,</span><span class="n">f_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">bandwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="frf_local_model"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_lrm.frf_local_model.html#sdynpy.signal_processing.sdynpy_lrm.frf_local_model">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">frf_local_model</span><span class="p">(</span><span class="n">references</span><span class="p">,</span><span class="n">responses</span><span class="p">,</span><span class="n">abscissa</span><span class="p">,</span><span class="n">f_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">bandwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">transient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">modelset</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span>
                     <span class="n">export_ratio</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span><span class="n">max_parallel</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span><span class="n">print_time</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -247,7 +247,7 @@
         
     <span class="c1">#%% Compute (STEP 3/4)</span>
     <span class="c1"># Parallel function. # joblib can&#39;t parse lists (only arrays), so query is a parameter</span>
-    <span class="k">def</span> <span class="nf">__solve_ind</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">inq</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__solve_ind</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">inq</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
         <span class="c1"># Initialize. inq are radii of H to output in this band</span>
         <span class="n">H_multi_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nmod</span><span class="p">,</span><span class="n">inq</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="c1"># axis (0) output (1) input (2) model (3) frequency</span>
         <span class="n">mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">Nmod</span><span class="p">,</span><span class="n">inq</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -267,7 +267,7 @@
     <span class="n">n_parallel</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span><span class="mi">61</span><span class="p">,</span><span class="n">max_parallel</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">memory</span><span class="o">/</span><span class="n">n_parallel</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">Nin</span><span class="o">*</span><span class="n">Nout</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Many parallel processes relative to system RAM. For large problems, freezing may occur.&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_lstsq_time</span><span class="p">(</span><span class="n">alg</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_lstsq_time</span><span class="p">(</span><span class="n">alg</span><span class="p">):</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
         <span class="n">__solve_ind</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span><span class="n">Ninds</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">query</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">Ninds</span><span class="o">/</span><span class="mi">2</span><span class="p">)],</span><span class="n">alg</span> <span class="p">)</span>
         <span class="k">return</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span>
@@ -302,7 +302,7 @@
     <span class="k">return</span> <span class="n">f_out</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">H</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">model_data</span></div>
   
 <span class="c1">#%% Local model solver</span>
-<span class="k">def</span> <span class="nf">__solveLRM</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">query</span><span class="p">,</span><span class="n">conv_tol</span><span class="p">,</span><span class="n">NitSK</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__solveLRM</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">query</span><span class="p">,</span><span class="n">conv_tol</span><span class="p">,</span><span class="n">NitSK</span><span class="p">,</span><span class="n">lstsq</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Local model solver. This function occupies most of the FRF local modeling estimation</span>
 <span class="sd">    time. Inputs are functions that accept parameter values and output local model component</span>
@@ -342,7 +342,7 @@
     <span class="k">return</span> <span class="n">H</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="n">query</span><span class="p">),</span><span class="o">-</span><span class="n">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t0</span><span class="p">)</span> <span class="c1"># Hstar, pstar (log density)</span>
 
 <span class="c1">#%% Parameterizations. See &quot;A Practitioner’s Guide to Local FRF Estimation&quot;, K. Coletti</span>
-<span class="k">def</span> <span class="nf">__parameterize</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__parameterize</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate parameterization functions for estimation including transient removal</span>
 <span class="sd">    Parameterizations are passed into __solveLRM to generate local models</span>
@@ -361,7 +361,7 @@
     <span class="n">bD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># denominator (wrap Nout first, then s)</span>
     <span class="n">Npar</span> <span class="o">=</span> <span class="n">bB</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
     
-    <span class="k">def</span> <span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
         
         <span class="c1"># Build matrices</span>
@@ -374,7 +374,7 @@
         <span class="n">Ysim</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;jkl,kl-&gt;jl&#39;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">U</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">/</span><span class="n">D</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">Ysim</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     
-    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
         
         <span class="c1"># Radius and exponent matrices</span>
@@ -390,10 +390,10 @@
 
     <span class="c1"># Build linearized (SK) transfer matrix L(U,y)*t + R(U,Y) = Dp^(-1) (D(t)*Y - N(t)*U - M(t))</span>
     <span class="c1"># Denominator matrix for SK iterations</span>
-    <span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span> <span class="s1">&#39;ij,lj-&gt;li&#39;</span><span class="p">,</span><span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">,</span> <span class="n">t</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">)]</span> <span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband</span>
     
-    <span class="k">def</span> <span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
+    <span class="k">def</span><span class="w"> </span><span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
         <span class="c1"># Compute residual</span>
         <span class="n">R</span> <span class="o">=</span> <span class="o">-</span><span class="n">Y</span> <span class="c1"># axis (0) Nout (1) Nband</span>
         
@@ -413,7 +413,7 @@
         <span class="k">return</span> <span class="n">L</span><span class="p">,</span><span class="n">R</span>
 
     <span class="k">return</span> <span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Npar</span>
-<span class="k">def</span> <span class="nf">__parameterize_notrans</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__parameterize_notrans</span><span class="p">(</span><span class="n">Nin</span><span class="p">,</span><span class="n">Nout</span><span class="p">,</span><span class="n">Nband</span><span class="p">,</span><span class="n">order</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate parameterization functions for estimation not including transient removal.</span>
 <span class="sd">    Parameterizations are passed into __solveLRM to generate local models</span>
@@ -430,7 +430,7 @@
     <span class="n">bD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># denominator (wrap Nout first, then s)</span>
     <span class="n">Npar</span> <span class="o">=</span> <span class="n">bA</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">Nout</span><span class="o">*</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
     
-    <span class="k">def</span> <span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lsq_err</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
         
         <span class="c1"># Build matrices</span>
@@ -443,7 +443,7 @@
         <span class="n">Ysim</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;jkl,kl-&gt;jl&#39;</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">U</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">/</span><span class="n">D</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">Ysim</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     
-    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">H</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">r_inq</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span> <span class="c1"># transform from SO format to MO</span>
         
         <span class="c1"># Radius and exponent matrices</span>
@@ -459,10 +459,10 @@
 
     <span class="c1"># Build linearized (SK) transfer matrix L(U,y)*t + R(U,Y) = Dp^(-1) (D(t)*Y - N(t)*U - M(t))</span>
     <span class="c1"># Denominator matrix for SK iterations</span>
-    <span class="k">def</span> <span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">D</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span> <span class="s1">&#39;ij,lj-&gt;li&#39;</span><span class="p">,</span><span class="n">r</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">,</span> <span class="n">t</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">order</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">)]</span> <span class="p">)</span> <span class="c1"># axis (0) Nout (1) Nband</span>
     
-    <span class="k">def</span> <span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
+    <span class="k">def</span><span class="w"> </span><span class="nf">LR</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">Y</span><span class="p">):</span>        
         <span class="c1"># Compute residual</span>
         <span class="n">R</span> <span class="o">=</span> <span class="o">-</span><span class="n">Y</span> <span class="c1"># axis (0) Nout (1) Nband</span>
         
@@ -483,7 +483,7 @@
     <span class="k">return</span> <span class="n">LR</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">lsq_err</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="n">Npar</span>
 
 <span class="c1">#%% Frequency parser</span>
-<span class="k">def</span> <span class="nf">__parse_bands</span><span class="p">(</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">max_from_center</span><span class="p">,</span><span class="n">f_in</span><span class="p">,</span><span class="n">f_out</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__parse_bands</span><span class="p">(</span><span class="n">N_half_band</span><span class="p">,</span><span class="n">max_from_center</span><span class="p">,</span><span class="n">f_in</span><span class="p">,</span><span class="n">f_out</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Local modeling is not constrained to the input frequency vector. This function</span>
 <span class="sd">    processes input parameters and parses f_in into bands to model (bands).</span>
@@ -527,15 +527,15 @@
     <span class="k">return</span> <span class="n">bands</span><span class="p">,</span><span class="n">query</span>
     
 <span class="c1">#%% General functions</span>
-<span class="k">def</span> <span class="nf">__round_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__round_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">y</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">__lstsq_scipy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__lstsq_scipy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span> <span class="p">)</span> <span class="c1"># axis. (0) Nout [1] Npar</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">Ak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
         <span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">X</span>
-<span class="k">def</span> <span class="nf">__lstsq_numpy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__lstsq_numpy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">):</span> <span class="c1"># extension of np.linalg.lstsq to 3-D arrays. Not vectorized.</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span> <span class="p">)</span> <span class="c1"># axis. (0) Nout [1] Np</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">Ak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
         <span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">Ak</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -558,7 +558,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f010624a290>
+<jinja2.runtime.BlockReference object at 0x7efefda7a3b0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>
