@@ -1105,6 +1105,44 @@ class System:
         geometry = Geometry(nodelist, coordinate_systems, tracelines)
         return system, geometry
 
+    @classmethod
+    def beam_from_arrays(cls, node_positions, node_connectivity, bend_direction_1, mat_props):
+        """
+        Create a beam mass and stiffness matrix from given arrays
+
+        Parameters
+        ----------
+        node_positions : np.ndarray
+            Array of node positions.
+        node_connectivity : np.ndarray
+            Array defining the connectivity between nodes.
+        bend_direction_1 : np.ndarray
+            Array defining the bending direction.
+        mat_props : dict
+            Dictionary containing material properties.
+
+        Returns
+        -------
+        system : System
+            A system object consisting of the beam mass and stiffness matrices.
+        geometry : Geometry
+            A Geometry consisting of the beam geometry.
+
+        """
+        from .sdynpy_geometry import (Geometry, coordinate_system_array, node_array,
+                                      traceline_array)
+
+        num_nodes = node_positions.shape[0]
+
+        K, M = beamkm(node_positions, node_connectivity, bend_direction_1, **mat_props)
+        coordinates = from_nodelist(np.arange(num_nodes) + 1, directions=[1, 2, 3, 4, 5, 6])
+        system = cls(coordinates, M, K)
+        nodelist = node_array(np.arange(num_nodes) + 1, node_positions)
+        tracelines = traceline_array(connectivity=np.arange(num_nodes) + 1)
+        coordinate_systems = coordinate_system_array()
+        geometry = Geometry(nodelist, coordinate_systems, tracelines)
+        return system, geometry
+
     def get_indices_by_coordinate(self, coordinates, ignore_sign=False):
         """
         Gets the indices in the transformation matrix corresponding coordinates
