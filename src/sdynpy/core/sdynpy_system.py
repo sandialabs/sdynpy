@@ -25,24 +25,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import copy
+import warnings
+
+import matplotlib.pyplot as plt
+import netCDF4 as nc4
 import numpy as np
-from .sdynpy_coordinate import CoordinateArray, from_nodelist, outer_product, coordinate_array
-from ..fem.sdynpy_beam import beamkm, rect_beam_props
-from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces
+from scipy.linalg import block_diag, eig, eigh, null_space
+from scipy.signal import StateSpace, butter, filtfilt, lsim, resample
+
+from ..fem.sdynpy_beam import beamkm, cylindrical_pipe_props, rect_beam_props
+from ..fem.sdynpy_exodus import (Exodus, ExodusInMemory, reduce_exodus_to_surfaces)
 from ..signal_processing import frf as spfrf
 from ..signal_processing import generator
-from scipy.linalg import eigh, block_diag, null_space, eig
-from scipy.signal import lsim, StateSpace, resample, butter, filtfilt
-import copy
-import netCDF4 as nc4
-import matplotlib.pyplot as plt
-import warnings
+from .sdynpy_coordinate import (CoordinateArray, coordinate_array, from_nodelist, outer_product)
 
 
 class System:
     """Matrix Equations representing a Structural Dynamics System"""
 
-    def __init__(self, coordinate: CoordinateArray, mass, stiffness, damping=None,
+    def __init__(self,
+                 coordinate: CoordinateArray,
+                 mass,
+                 stiffness,
+                 damping=None,
                  transformation=None):
         """
         Create a system representation including mass, stiffness, damping, and
@@ -98,17 +104,19 @@ class System:
             raise ValueError('transformation must be 2D')
         if not transformation.shape[-1] == mass.shape[0]:
             raise ValueError(
-                'transformation must have number of columns equal to the number of rows in the mass matrix')
+                'transformation must have number of columns equal to the number of rows in the mass matrix'
+            )
         coordinate = np.atleast_1d(coordinate)
         if not isinstance(coordinate, CoordinateArray):
             raise ValueError('coordinate must be a CoordinateArray object')
         if not coordinate.ndim == 1 or coordinate.shape[0] != transformation.shape[0]:
             raise ValueError(
-                'coordinate must be 1D and have the same size as transformation.shape[0] or mass.shape[0] if no transformation is specified')
+                'coordinate must be 1D and have the same size as transformation.shape[0] or mass.shape[0] if no transformation is specified'
+            )
         # Check symmetry
         if not np.allclose(mass, mass.T):
             raise ValueError('mass matrix must be symmetric')
-        if not np.allclose(stiffness, stiffness.T, atol=1e-6*stiffness.max()):
+        if not np.allclose(stiffness, stiffness.T, atol=1e-6 * stiffness.max()):
             raise ValueError('stiffness matrix must be symmetric')
         if not np.allclose(damping, damping.T):
             raise ValueError('damping matrix must be symmetric')
@@ -181,7 +189,8 @@ class System:
             raise ValueError('transformation must be 2D')
         if not value.shape[-1] == self.mass.shape[0]:
             raise ValueError(
-                'transformation must have number of columns equal to the number of rows in the mass matrix')
+                'transformation must have number of columns equal to the number of rows in the mass matrix'
+            )
         self._transformation = value
 
     @property
@@ -260,8 +269,13 @@ class System:
         """Get the number of physical degrees of freedom of the system"""
         return self.transformation.shape[0]
 
-    def to_state_space(self, output_displacement=True, output_velocity=True, output_acceleration=True, output_force=True,
-                       response_coordinates=None, input_coordinates=None):
+    def to_state_space(self,
+                       output_displacement=True,
+                       output_velocity=True,
+                       output_acceleration=True,
+                       output_force=True,
+                       response_coordinates=None,
+                       input_coordinates=None):
         """
         Compute the state space representation of the system
 
@@ -319,18 +333,19 @@ class System:
         # B = [[     0],
         #      [  M^-1]]
 
-        B_state = np.block([[np.zeros((ndofs, tdofs_input))],
-                            [np.linalg.solve(M, phi_input.T)]])
+        B_state = np.block([[np.zeros((ndofs, tdofs_input))], [np.linalg.solve(M, phi_input.T)]])
 
         # C = [[     I,     0],   # Displacements
         #      [     0,     I],   # Velocities
         #      [M^-1*K,M^-1*C],   # Accelerations
         #      [     0,     0]]   # Forces
 
-        C_state = np.block([[phi_response, np.zeros((tdofs_response, ndofs))],
-                            [np.zeros((tdofs_response, ndofs)), phi_response],
-                            [-phi_response @ np.linalg.solve(M, K), -phi_response @ np.linalg.solve(M, C)],
-                            [np.zeros((tdofs_input, ndofs)), np.zeros((tdofs_input, ndofs))]])
+        C_state = np.block(
+            [[phi_response, np.zeros((tdofs_response, ndofs))],
+             [np.zeros((tdofs_response, ndofs)), phi_response],
+             [-phi_response @ np.linalg.solve(M, K), -phi_response @ np.linalg.solve(M, C)],
+             [np.zeros((tdofs_input, ndofs)),
+              np.zeros((tdofs_input, ndofs))]])
 
         # D = [[     0],   # Displacements
         #      [     0],   # Velocities
@@ -358,8 +373,13 @@ class System:
         D_state = D_state[output_indices]
         return A_state, B_state, C_state, D_state
 
-    def time_integrate(self, forces, dt=None, responses=None, references=None,
-                       displacement_derivative=2, initial_state=None,
+    def time_integrate(self,
+                       forces,
+                       dt=None,
+                       responses=None,
+                       references=None,
+                       displacement_derivative=2,
+                       initial_state=None,
                        integration_oversample=1):
         """
         Integrate a system to produce responses to an excitation
@@ -404,7 +424,7 @@ class System:
             The forces applied to the system as a TimeHistoryArray
 
         """
-        from .sdynpy_data import data_array, FunctionTypes, TimeHistoryArray
+        from .sdynpy_data import FunctionTypes, TimeHistoryArray, data_array
         if isinstance(forces, TimeHistoryArray):
             dt = forces.abscissa_spacing
             references = forces.coordinate[..., 0]
@@ -416,12 +436,8 @@ class System:
             responses = np.atleast_1d(responses)
         if references is not None:
             references = np.atleast_1d(references)
-        A, B, C, D = self.to_state_space(displacement_derivative == 0,
-                                         displacement_derivative == 1,
-                                         displacement_derivative == 2,
-                                         False,
-                                         responses, references
-                                         )
+        A, B, C, D = self.to_state_space(displacement_derivative == 0, displacement_derivative == 1,
+                                         displacement_derivative == 2, False, responses, references)
         forces = np.atleast_2d(forces)
         times = np.arange(forces.shape[-1]) * dt
         linear_system = StateSpace(A, B, C, D)
@@ -436,12 +452,10 @@ class System:
             response_coordinate = coordinate_array(np.arange(self.ndof), 0)
         else:
             response_coordinate = responses
-        response_array = data_array(FunctionTypes.TIME_RESPONSE,
-                                    times, time_response.T,
+        response_array = data_array(FunctionTypes.TIME_RESPONSE, times, time_response.T,
                                     response_coordinate[:, np.newaxis])
         reference_coordinate = self.coordinate.copy() if references is None else references
-        reference_array = data_array(FunctionTypes.TIME_RESPONSE,
-                                     times, np.atleast_2d(forces),
+        reference_array = data_array(FunctionTypes.TIME_RESPONSE, times, np.atleast_2d(forces),
                                      reference_coordinate[:, np.newaxis])
         if integration_oversample != 1:
             response_array = response_array.extract_elements(
@@ -450,7 +464,11 @@ class System:
                 slice(None, None, integration_oversample))
         return response_array, reference_array
 
-    def eigensolution(self, num_modes=None, maximum_frequency=None, complex_modes=False, return_shape=True):
+    def eigensolution(self,
+                      num_modes=None,
+                      maximum_frequency=None,
+                      complex_modes=False,
+                      return_shape=True):
         """
         Computes the eigensolution of the system
 
@@ -486,7 +504,9 @@ class System:
             if maximum_frequency is not None:
                 maximum_frequency = (2 * np.pi * maximum_frequency)**2
                 maximum_frequency = [-maximum_frequency, maximum_frequency]  # Convert to eigenvalue
-            lam, phi = eigh(self.K, self.M, subset_by_index=num_modes,
+            lam, phi = eigh(self.K,
+                            self.M,
+                            subset_by_index=num_modes,
                             subset_by_value=maximum_frequency)
             # Mass normalize the mode shapes
             lam[lam < 0] = 0
@@ -504,73 +524,76 @@ class System:
                 from .sdynpy_shape import shape_array
                 return shape_array(self.coordinate, phi.T, freq, damping)
             else:
-                return System(self.coordinate, np.eye(freq.size), np.diag((2 * np.pi * freq)**2), np.diag(2 * (2 * np.pi * freq) * damping), phi)
+                return System(self.coordinate, np.eye(freq.size), np.diag((2 * np.pi * freq)**2),
+                              np.diag(2 * (2 * np.pi * freq) * damping), phi)
         else:
             if self.ndof > 1000:
-                warnings.warn('The complex mode implementation currently computes all eigenvalues and eigenvectors, which may take a long time for large systems.')
+                warnings.warn(
+                    'The complex mode implementation currently computes all eigenvalues and eigenvectors, which may take a long time for large systems.'
+                )
             # For convenience, assign a zeros matrix
             Z = np.zeros(self.M.shape)
-            A = np.block([[     Z, self.M],
-                          [self.M, self.C]])
-            B = np.block([[-self.M,      Z],
-                          [      Z, self.K]])
-            lam, E = eig(-B,A)
+            A = np.block([[Z, self.M], [self.M, self.C]])
+            B = np.block([[-self.M, Z], [Z, self.K]])
+            lam, E = eig(-B, A)
             # Sort the eigenvalues such that they are increasing in frequency
             isort = np.argsort(np.abs(lam))
             lam = lam[isort]
-            E = E[:,isort]
+            E = E[:, isort]
             # Eigenvalues will be in complex conjugate pairs.  Let's only keep
             # the ones that are greater than zero.
             keep = lam.imag > 0
             lam = lam[keep]
-            E = E[:,keep]
-            if A.shape[0]//2 != lam.size:
-                warnings.warn('The complex mode implementation currently does not do well with rigid body modes (0 Hz frequencies).  Compute them from a real-modes solution then transform to complex.')
+            E = E[:, keep]
+            if A.shape[0] // 2 != lam.size:
+                warnings.warn(
+                    'The complex mode implementation currently does not do well with rigid body modes (0 Hz frequencies).  Compute them from a real-modes solution then transform to complex.'
+                )
             # Cull values we don't want
             if num_modes is not None:
                 lam = lam[:num_modes]
-                E = E[:,:num_modes]
+                E = E[:, :num_modes]
             if maximum_frequency is not None:
-                keep = np.abs(lam) <= maximum_frequency*2*np.pi
+                keep = np.abs(lam) <= maximum_frequency * 2 * np.pi
                 lam = lam[keep]
-                E = E[:,keep]
+                E = E[:, keep]
             # Mass normalize the mode shapes
-            E = E/np.sqrt(np.einsum('ji,jk,ki->i',E,A,E))
+            E = E / np.sqrt(np.einsum('ji,jk,ki->i', E, A, E))
             # Find repeated eigenvalues where the eigenvectors are not orthogonal
             # TODO: Might have to do some orthogonalization for repeated
             # eigenvalues
             # A_modal = np.einsum('ji,jk,kl->il',E,A,E)
             # Extract just the displacement partition
-            psi = E[E.shape[0]//2:,:]
+            psi = E[E.shape[0] // 2:, :]
             # Add in a transformation to get to physical dofs
             psi_t = self.transformation @ psi
-            frequency = np.abs(lam)/(2*np.pi)
-            damping = -np.real(lam)/np.abs(lam)
+            frequency = np.abs(lam) / (2 * np.pi)
+            damping = -np.real(lam) / np.abs(lam)
             if return_shape:
                 from .sdynpy_shape import shape_array
                 return shape_array(self.coordinate, psi.T, frequency, damping)
             else:
-                warnings.warn('Complex Modes will in general not diagonalize the system M, C, and K, matrices.')
-                return System(self.coordinate,
-                              psi.T@self.M@psi,
-                              psi.T@self.K@psi.T,
-                              psi.T@self.C@psi.T,
-                              psi_t)
-            
+                warnings.warn(
+                    'Complex Modes will in general not diagonalize the system M, C, and K, matrices.'
+                )
+                return System(self.coordinate, psi.T @ self.M @ psi, psi.T @ self.K @ psi.T,
+                              psi.T @ self.C @ psi.T, psi_t)
 
     def transformation_shapes(self, shape_indices=None):
         from .sdynpy_shape import shape_array
         if shape_indices is None:
             shape_indices = slice(None)
         shape_matrix = self.transformation[:, shape_indices]
-        return shape_array(self.coordinate, shape_matrix.T,
-                           frequency=0, damping=0)
+        return shape_array(self.coordinate, shape_matrix.T, frequency=0, damping=0)
 
     def remove_transformation(self):
-        return System(coordinate_array(np.arange(self.ndof)+1,0),
-                      self.mass.copy(),self.stiffness.copy(),self.damping.copy())
+        return System(coordinate_array(np.arange(self.ndof) + 1, 0), self.mass.copy(),
+                      self.stiffness.copy(), self.damping.copy())
 
-    def frequency_response(self, frequencies, responses=None, references=None,
+    def frequency_response(self,
+                           frequencies,
+                           responses=None,
+                           references=None,
                            displacement_derivative=0):
         """
         Computes frequency response functions at the specified frequency lines.
@@ -617,10 +640,10 @@ class System:
             input_coordinates = references
         H = output_transform @ H @ input_transform.T
         # Put it into a transfer function array
-        from .sdynpy_data import data_array, FunctionTypes
+        from .sdynpy_data import FunctionTypes, data_array
         frf = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION, frequencies,
-                         np.moveaxis(H, 0, -1),
-                         outer_product(output_coordinates, input_coordinates))
+                         np.moveaxis(H, 0, -1), outer_product(output_coordinates,
+                                                              input_coordinates))
         return frf
 
     def assign_modal_damping(self, damping_ratios):
@@ -647,7 +670,7 @@ class System:
         # Compute the damping matrix
         modal_system = shapes.system()
         shape_pinv = np.linalg.pinv(modal_system.transformation.T)
-        full_damping_matrix = shape_pinv@modal_system.damping@shape_pinv.T
+        full_damping_matrix = shape_pinv @ modal_system.damping @ shape_pinv.T
         self.damping[:] = full_damping_matrix
 
     def save(self, filename):
@@ -664,8 +687,12 @@ class System:
         None.
 
         """
-        np.savez(filename, mass=self.mass, stiffness=self.stiffness, damping=self.damping,
-                 transformation=self.transformation, coordinate=self.coordinate.view(np.ndarray))
+        np.savez(filename,
+                 mass=self.mass,
+                 stiffness=self.stiffness,
+                 damping=self.damping,
+                 transformation=self.transformation,
+                 coordinate=self.coordinate.view(np.ndarray))
 
     @classmethod
     def load(cls, filename):
@@ -685,8 +712,8 @@ class System:
 
         """
         data = np.load(filename)
-        return cls(data['coordinate'].view(CoordinateArray), data['mass'],
-                   data['stiffness'], data['damping'], data['transformation'])
+        return cls(data['coordinate'].view(CoordinateArray), data['mass'], data['stiffness'],
+                   data['damping'], data['transformation'])
 
     def __neg__(self):
         new_system = copy.deepcopy(self)
@@ -720,8 +747,7 @@ class System:
             for i in range(len(coordinates)):
                 coordinates[i].node += coordinate_node_offset * (i + 1)
         all_coordinates = np.concatenate(coordinates)
-        return cls(all_coordinates,
-                   block_diag(*[system.mass for system in systems]),
+        return cls(all_coordinates, block_diag(*[system.mass for system in systems]),
                    block_diag(*[system.stiffness for system in systems]),
                    block_diag(*[system.damping for system in systems]),
                    block_diag(*[system.transformation for system in systems]))
@@ -753,15 +779,18 @@ class System:
 
         """
         from .sdynpy_geometry import Geometry
-        combined_geometry, node_offset = Geometry.overlay_geometries(
-            geometries, return_node_id_offset=True)
+        combined_geometry, node_offset = Geometry.overlay_geometries(geometries,
+                                                                     return_node_id_offset=True)
         combined_system = cls.concatenate(systems, node_offset)
         global_coords = combined_geometry.global_node_coordinate()
-        node_distances = np.linalg.norm(
-            global_coords[:, np.newaxis, :] - global_coords[np.newaxis, :, :], axis=-1)
+        node_distances = np.linalg.norm(global_coords[:, np.newaxis, :] -
+                                        global_coords[np.newaxis, :, :],
+                                        axis=-1)
         # Find locations where the value is less than the tolerances, except for on the centerline
-        node_pairs = [[combined_geometry.node.id[index] for index in pair]
-                      for pair in zip(*np.where(node_distances < distance_threshold)) if pair[0] < pair[1]]
+        node_pairs = [[combined_geometry.node.id[index]
+                       for index in pair]
+                      for pair in zip(*np.where(node_distances < distance_threshold))
+                      if pair[0] < pair[1]]
         # Find matching DoF pairs
         constraint_matrix = []
         for node1, node2 in node_pairs:
@@ -775,18 +804,17 @@ class System:
             system_2_transformation = combined_system.transformation[system_2_dof_indices]
             global_deflections_2 = combined_geometry.global_deflection(system_2_dofs)
             # Split between translations and rotations
-            translation_map_1 = np.where((abs(system_1_dofs.direction) <= 3)
-                                         & (abs(system_1_dofs.direction) > 0))
+            translation_map_1 = np.where((abs(system_1_dofs.direction) <= 3) &
+                                         (abs(system_1_dofs.direction) > 0))
             rotation_map_1 = np.where(abs(system_1_dofs.direction) > 3)
-            translation_map_2 = np.where((abs(system_2_dofs.direction) <= 3)
-                                         & (abs(system_2_dofs.direction) > 0))
+            translation_map_2 = np.where((abs(system_2_dofs.direction) <= 3) &
+                                         (abs(system_2_dofs.direction) > 0))
             rotation_map_2 = np.where(abs(system_2_dofs.direction) > 3)
             neutral_map_1 = np.where(abs(system_1_dofs.direction) == 0)
             neutral_map_2 = np.where(abs(system_2_dofs.direction) == 0)
             # Do translations and rotations separately
             for map_1, map_2 in [[translation_map_1, translation_map_2],
-                                 [rotation_map_1, rotation_map_2],
-                                 [neutral_map_1, neutral_map_2]]:
+                                 [rotation_map_1, rotation_map_2], [neutral_map_1, neutral_map_2]]:
                 deflections_1 = global_deflections_1[map_1].T
                 deflections_2 = global_deflections_2[map_2].T
                 transform_1 = system_1_transformation[map_1]
@@ -843,16 +871,20 @@ class System:
             coordinates input to the function.
 
         """
-        consistent_arrays, shape_indices, request_indices = np.intersect1d(
-            abs(self.coordinate), abs(coordinates), assume_unique=False, return_indices=True)
+        consistent_arrays, shape_indices, request_indices = np.intersect1d(abs(self.coordinate),
+                                                                           abs(coordinates),
+                                                                           assume_unique=False,
+                                                                           return_indices=True)
         # Make sure that all of the keys are actually in the consistent array matrix
         if consistent_arrays.size != coordinates.size:
             extra_keys = np.setdiff1d(abs(coordinates), abs(self.coordinate))
             if extra_keys.size == 0:
                 raise ValueError(
-                    'Duplicate coordinate values requested.  Please ensure coordinate indices are unique.')
+                    'Duplicate coordinate values requested.  Please ensure coordinate indices are unique.'
+                )
             raise ValueError(
-                'Not all indices in requested coordinate array exist in the system\n{:}'.format(str(extra_keys)))
+                'Not all indices in requested coordinate array exist in the system\n{:}'.format(
+                    str(extra_keys)))
         # Handle sign flipping
         multiplications = coordinates.flatten()[request_indices].sign(
         ) * self.coordinate[shape_indices].sign()
@@ -863,8 +895,7 @@ class System:
         return_value = return_value[inverse_indices]
         return return_value
 
-    def substructure_by_coordinate(self, dof_pairs, rcond=None,
-                                   return_constrained_system=True):
+    def substructure_by_coordinate(self, dof_pairs, rcond=None, return_constrained_system=True):
         """
         Constrain the system by connecting the specified degree of freedom pairs
 
@@ -901,8 +932,11 @@ class System:
         else:
             return constraint_matrix
 
-    def substructure_by_shape(self, constraint_shapes, connection_dofs_0,
-                              connection_dofs_1=None, rcond=None,
+    def substructure_by_shape(self,
+                              constraint_shapes,
+                              connection_dofs_0,
+                              connection_dofs_1=None,
+                              rcond=None,
                               return_constrained_system=True):
         """
         Constrain the system using a set of shapes in a least-squares sense.
@@ -979,7 +1013,16 @@ class System:
         self.damping = self.mass * mass_fraction + self.stiffness * stiffness_fraction
 
     @classmethod
-    def beam(cls, length, width, height, num_nodes, E=None, rho=None, nu=None, material=None):
+    def beam(cls,
+             length,
+             param1,
+             param2,
+             num_nodes,
+             E=None,
+             rho=None,
+             nu=None,
+             material=None,
+             cross_section="rect"):
         """
         Create a beam mass and stiffness matrix
 
@@ -987,10 +1030,12 @@ class System:
         ----------
         length : float
             Lenghth of the beam
-        width : float
-            Width of the beam
-        height : float
-            Height of the beam
+        param1 : float
+            param1 of the beam. if `cross_section` is "rect", then this is the width.
+            If `cross_section` is "cylindrical", then this is the outer diameter.
+        param2 : float
+            param2 of the beam. if `cross_section` is "rect", then this is the height.
+            If `cross_section` is "cylindrical", then this is the inner diameter.
         num_nodes : int
             Number of nodes in the beam.
         E : float, optional
@@ -1006,6 +1051,9 @@ class System:
             A specific material can be specified instead of `E`, `rho`, and `nu`.
             Should be a string 'steel' or 'aluminum'.  If not specified, then
             options `E`, `rho`, and `nu` must be specified instead.
+        cross_section : str, optional
+            The shape of the cross section.  The default is "rect".
+            Available options are "rect" and "cylindrical".
 
         Raises
         ------
@@ -1020,14 +1068,13 @@ class System:
             A Geometry consisting of the beam geometry.
 
         """
-        from .sdynpy_geometry import Geometry, node_array, traceline_array, coordinate_system_array
-        node_positions = np.array((np.linspace(0, length, num_nodes),
-                                   np.zeros(num_nodes),
-                                   np.zeros(num_nodes))).T
+        from .sdynpy_geometry import (Geometry, coordinate_system_array, node_array,
+                                      traceline_array)
+        node_positions = np.array(
+            (np.linspace(0, length, num_nodes), np.zeros(num_nodes), np.zeros(num_nodes))).T
         node_connectivity = np.array((np.arange(num_nodes - 1), np.arange(1, num_nodes))).T
-        bend_direction_1 = np.array((np.zeros(num_nodes - 1),
-                                     np.zeros(num_nodes - 1),
-                                     np.ones(num_nodes - 1))).T
+        bend_direction_1 = np.array(
+            (np.zeros(num_nodes - 1), np.zeros(num_nodes - 1), np.ones(num_nodes - 1))).T
         if material is None:
             if E is None or rho is None or nu is None:
                 raise ValueError('Must specify material or E, nu, and rho')
@@ -1041,7 +1088,14 @@ class System:
             rho = 2830  # [kg/m^3]
         else:
             raise ValueError('Unknown Material {:}'.format(material))
-        mat_props = rect_beam_props(E, rho, nu, width, height, num_nodes - 1)
+
+        if cross_section == "rect":
+            mat_props = rect_beam_props(E, rho, nu, param1, param2, num_nodes - 1)
+        elif cross_section == "cylindrical":
+            mat_props = cylindrical_pipe_props(E, rho, nu, param1, param2, num_nodes - 1)
+        else:
+            raise ValueError('Must specify cross section as "rect" or "cylindrical"')
+
         K, M = beamkm(node_positions, node_connectivity, bend_direction_1, **mat_props)
         coordinates = from_nodelist(np.arange(num_nodes) + 1, directions=[1, 2, 3, 4, 5, 6])
         system = cls(coordinates, M, K)
@@ -1076,19 +1130,25 @@ class System:
 
         """
         if ignore_sign:
-            consistent_arrays, shape_indices, request_indices = np.intersect1d(
-                abs(self.coordinate), abs(coordinates), assume_unique=False, return_indices=True)
+            consistent_arrays, shape_indices, request_indices = np.intersect1d(abs(self.coordinate),
+                                                                               abs(coordinates),
+                                                                               assume_unique=False,
+                                                                               return_indices=True)
         else:
-            consistent_arrays, shape_indices, request_indices = np.intersect1d(
-                self.coordinate, coordinates, assume_unique=False, return_indices=True)
+            consistent_arrays, shape_indices, request_indices = np.intersect1d(self.coordinate,
+                                                                               coordinates,
+                                                                               assume_unique=False,
+                                                                               return_indices=True)
         # Make sure that all of the keys are actually in the consistent array matrix
         if consistent_arrays.size != coordinates.size:
             extra_keys = np.setdiff1d(abs(coordinates), abs(self.coordinate))
             if extra_keys.size == 0:
                 raise ValueError(
-                    'Duplicate coordinate values requested.  Please ensure coordinate indices are unique.')
+                    'Duplicate coordinate values requested.  Please ensure coordinate indices are unique.'
+                )
             raise ValueError(
-                'Not all indices in requested coordinate array exist in the system\n{:}'.format(str(extra_keys)))
+                'Not all indices in requested coordinate array exist in the system\n{:}'.format(
+                    str(extra_keys)))
         # Handle sign flipping
         return_value = shape_indices
         # Invert the indices to return the dofs in the correct order as specified in keys
@@ -1144,16 +1204,15 @@ class System:
         if isinstance(coordinates, CoordinateArray):
             if not np.allclose(self.transformation, np.eye(*self.transformation.shape)):
                 raise ValueError(
-                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity')
+                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity'
+                )
             keep_dofs = self.get_indices_by_coordinate(coordinates)
         else:
             keep_dofs = np.array(coordinates)
         discard_dofs = np.array([i for i in range(self.ndof) if i not in keep_dofs])
         I_a = np.eye(keep_dofs.size)
-        K_dd = self.stiffness[discard_dofs[:, np.newaxis],
-                              discard_dofs]
-        K_da = self.stiffness[discard_dofs[:, np.newaxis],
-                              keep_dofs]
+        K_dd = self.stiffness[discard_dofs[:, np.newaxis], discard_dofs]
+        K_da = self.stiffness[discard_dofs[:, np.newaxis], keep_dofs]
         T_guyan = np.concatenate((I_a, -np.linalg.solve(K_dd, K_da)), axis=0)
         T_guyan[np.concatenate((keep_dofs, discard_dofs)), :] = T_guyan.copy()
         return self.reduce(T_guyan)
@@ -1183,22 +1242,22 @@ class System:
         if isinstance(coordinates, CoordinateArray):
             if not np.allclose(self.transformation, np.eye(*self.transformation.shape)):
                 raise ValueError(
-                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity')
+                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity'
+                )
             keep_dofs = self.get_indices_by_coordinate(coordinates)
         else:
             keep_dofs = np.array(coordinates)
         discard_dofs = np.array([i for i in range(self.ndof) if i not in keep_dofs])
         I_a = np.eye(keep_dofs.size)
         D = self.stiffness - (2 * np.pi * frequency)**2 * self.mass
-        D_dd = D[discard_dofs[:, np.newaxis],
-                 discard_dofs]
-        D_da = D[discard_dofs[:, np.newaxis],
-                 keep_dofs]
+        D_dd = D[discard_dofs[:, np.newaxis], discard_dofs]
+        D_da = D[discard_dofs[:, np.newaxis], keep_dofs]
         T_dynamic = np.concatenate((I_a, -np.linalg.solve(D_dd, D_da)), axis=0)
         T_dynamic[np.concatenate((keep_dofs, discard_dofs)), :] = T_dynamic.copy()
         return self.reduce(T_dynamic)
 
-    def reduce_craig_bampton(self, connection_degrees_of_freedom: CoordinateArray,
+    def reduce_craig_bampton(self,
+                             connection_degrees_of_freedom: CoordinateArray,
                              num_fixed_base_modes: int,
                              return_shape_matrix: bool = False):
         """
@@ -1232,7 +1291,8 @@ class System:
         if isinstance(connection_degrees_of_freedom, CoordinateArray):
             if not np.allclose(self.transformation, np.eye(*self.transformation.shape)):
                 raise ValueError(
-                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity')
+                    'Coordinates can only be specified with a CoordinateArray if the transformation is identity'
+                )
             connection_indices = self.get_indices_by_coordinate(connection_degrees_of_freedom)
         else:
             connection_indices = np.array(connection_degrees_of_freedom)
@@ -1253,23 +1313,32 @@ class System:
         # Compute constraint modes
         Psi_ib = -np.linalg.solve(K_ii, K_ib)
         I_bb = np.eye(connection_indices.size)
-        T_cb = np.block([[Phi_ii, Psi_ib],
-                         [Z_bi, I_bb]])
+        T_cb = np.block([[Phi_ii, Psi_ib], [Z_bi, I_bb]])
         T_cb[np.concatenate((other_indices, connection_indices)), :] = T_cb.copy()
         if return_shape_matrix:
             from .sdynpy_shape import shape_array
             freq = np.sqrt(lam) / (2 * np.pi)
             all_freqs = np.concatenate((freq, np.zeros(connection_indices.size)))
-            shapes = shape_array(self.coordinate, T_cb.T, all_freqs, comment1=['Fixed Base Mode {:}'.format(
-                i + 1) for i in range(num_fixed_base_modes)] + ['Constraint Mode {:}'.format(str(dof)) for dof in connection_degrees_of_freedom])
+            shapes = shape_array(
+                self.coordinate,
+                T_cb.T,
+                all_freqs,
+                comment1=['Fixed Base Mode {:}'.format(i + 1) for i in range(num_fixed_base_modes)]
+                + ['Constraint Mode {:}'.format(str(dof)) for dof in connection_degrees_of_freedom])
             return self.reduce(T_cb), shapes
         else:
             return self.reduce(T_cb)
 
     @classmethod
-    def from_exodus_superelement(cls, superelement_nc4, transformation_exodus_file=None,
-                                 x_disp='DispX', y_disp='DispY', z_disp='DispZ',
-                                 x_rot=None, y_rot=None, z_rot=None,
+    def from_exodus_superelement(cls,
+                                 superelement_nc4,
+                                 transformation_exodus_file=None,
+                                 x_disp='DispX',
+                                 y_disp='DispY',
+                                 z_disp='DispZ',
+                                 x_rot=None,
+                                 y_rot=None,
+                                 z_rot=None,
                                  reduce_to_external_surfaces=False):
         """
         Creates a system from a superelement from Sierra/SD
@@ -1318,7 +1387,7 @@ class System:
             Degrees of freedom that can be used to constrain the test article.
 
         """
-        from .sdynpy_geometry import node_array, coordinate_system_array, Geometry
+        from .sdynpy_geometry import (Geometry, coordinate_system_array, node_array)
         if isinstance(superelement_nc4, str):
             ds = nc4.Dataset(superelement_nc4)
         elif isinstance(superelement_nc4, nc4.Dataset):
@@ -1339,8 +1408,8 @@ class System:
             coordinate_nodes[coordinate_nodes == 0] = np.arange(num_fixed_base_modes) + 1
             coordinates = coordinate_array(coordinate_nodes, coordinate_dirs)
             cs_array = coordinate_system_array()
-            n_array = node_array(ds['node_num_map'][:], np.array(
-                [ds['coord{:}'.format(d)][:] for d in 'xyz']).T)
+            n_array = node_array(ds['node_num_map'][:],
+                                 np.array([ds['coord{:}'.format(d)][:] for d in 'xyz']).T)
             geometry = Geometry(node=n_array, coordinate_system=cs_array)
         else:
             if isinstance(transformation_exodus_file, str):
@@ -1352,7 +1421,12 @@ class System:
             else:
                 raise ValueError('transformation_exodus_file must be a string or a sdpy.Exodus')
             if reduce_to_external_surfaces:
-                exo = reduce_exodus_to_surfaces(exo, variables_to_transform=[var for var in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot] if var is not None])
+                exo = reduce_exodus_to_surfaces(
+                    exo,
+                    variables_to_transform=[
+                        var for var in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot]
+                        if var is not None
+                    ])
             from .sdynpy_shape import ShapeArray
             shapes = ShapeArray.from_exodus(exo, x_disp, y_disp, z_disp, x_rot, y_rot, z_rot)
             transformation = shapes.shape_matrix.T
@@ -1381,10 +1455,10 @@ class System:
             displacement_derivative=2,
             antialias_filter_cutoff_factor=3,
             antialias_filter_order=4,
-            **generator_kwargs
-    ):
-        available_excitations = ['pseudorandom', 'random',
-                                 'burst random', 'chirp', 'hammer', 'multi-hammer', 'sine']
+            **generator_kwargs):
+        available_excitations = [
+            'pseudorandom', 'random', 'burst random', 'chirp', 'hammer', 'multi-hammer', 'sine'
+        ]
         if not excitation.lower() in available_excitations:
             raise ValueError('Excitation must be one of {:}'.format(available_excitations))
         # Create the input signal
@@ -1396,37 +1470,55 @@ class System:
         # Create the signals
         if excitation.lower() == 'pseudorandom':
             if num_signals > 1:
-                print('Warning: Pseudorandom generally not recommended for multi-reference excitation.')
-            kwargs = {'fft_lines': frame_length // 2,
-                      'f_nyq': bandwidth,
-                      'signal_rms': excitation_level,
-                      'min_freq': excitation_min_frequency,
-                      'max_freq': excitation_max_frequency,
-                      'integration_oversample': integration_oversample,
-                      'averages': num_averages + int(np.ceil(steady_state_time / frame_time))}
+                print(
+                    'Warning: Pseudorandom generally not recommended for multi-reference excitation.'
+                )
+            kwargs = {
+                'fft_lines': frame_length // 2,
+                'f_nyq': bandwidth,
+                'signal_rms': excitation_level,
+                'min_freq': excitation_min_frequency,
+                'max_freq': excitation_max_frequency,
+                'integration_oversample': integration_oversample,
+                'averages': num_averages + int(np.ceil(steady_state_time / frame_time))
+            }
             kwargs.update(generator_kwargs)
-            signals = np.array([
-                generator.pseudorandom(**kwargs)[1]
-                for i in range(num_signals)
-            ])
+            signals = np.array([generator.pseudorandom(**kwargs)[1] for i in range(num_signals)])
         elif excitation.lower() == 'random':
-            kwargs = {'shape': (num_signals,),
-                      'n_samples': frame_length * integration_oversample * num_averages + int(steady_state_time * sample_rate),
-                      'rms': excitation_level,
-                      'dt': dt,
-                      'low_frequency_cutoff': excitation_min_frequency,
-                      'high_frequency_cutoff': bandwidth if excitation_max_frequency is None else excitation_max_frequency}
+            kwargs = {
+                'shape': (num_signals,),
+                'n_samples':
+                    frame_length * integration_oversample * num_averages +
+                    int(steady_state_time * sample_rate),
+                'rms':
+                    excitation_level,
+                'dt':
+                    dt,
+                'low_frequency_cutoff':
+                    excitation_min_frequency,
+                'high_frequency_cutoff':
+                    bandwidth if excitation_max_frequency is None else excitation_max_frequency
+            }
             kwargs.update(generator_kwargs)
             signals = generator.random(**kwargs)
         elif excitation.lower() == 'burst random':
-            kwargs = {'shape': (num_signals,),
-                      'n_samples': frame_length * integration_oversample,
-                      'on_fraction': signal_fraction,
-                      'delay_fraction': 0,
-                      'rms': excitation_level,
-                      'dt': dt,
-                      'low_frequency_cutoff': excitation_min_frequency,
-                      'high_frequency_cutoff': bandwidth if excitation_max_frequency is None else excitation_max_frequency}
+            kwargs = {
+                'shape': (num_signals,),
+                'n_samples':
+                    frame_length * integration_oversample,
+                'on_fraction':
+                    signal_fraction,
+                'delay_fraction':
+                    0,
+                'rms':
+                    excitation_level,
+                'dt':
+                    dt,
+                'low_frequency_cutoff':
+                    excitation_min_frequency,
+                'high_frequency_cutoff':
+                    bandwidth if excitation_max_frequency is None else excitation_max_frequency
+            }
             kwargs.update(generator_kwargs)
             signal_list = [generator.burst_random(**kwargs) for i in range(num_averages)]
             full_list = []
@@ -1438,38 +1530,48 @@ class System:
         elif excitation.lower() == 'chirp':
             if num_signals > 1:
                 print('Warning: Chirp generally not recommended for multi-reference excitation.')
-            kwargs = {'frequency_min': 0 if excitation_min_frequency is None else excitation_min_frequency,
-                      'frequency_max': bandwidth if excitation_max_frequency is None else excitation_max_frequency,
-                      'signal_length': frame_time,
-                      'dt': dt}
+            kwargs = {
+                'frequency_min':
+                    0 if excitation_min_frequency is None else excitation_min_frequency,
+                'frequency_max':
+                    bandwidth if excitation_max_frequency is None else excitation_max_frequency,
+                'signal_length':
+                    frame_time,
+                'dt':
+                    dt
+            }
             kwargs.update(generator_kwargs)
-            signals = np.array([
-                generator.chirp(**kwargs)
-                for i in range(num_signals)
-            ]) * excitation_level
-            signals = np.tile(signals, [1, num_averages +
-                              int(np.ceil(steady_state_time / frame_time))])
+            signals = np.array([generator.chirp(**kwargs) for i in range(num_signals)
+                               ]) * excitation_level
+            signals = np.tile(signals,
+                              [1, num_averages + int(np.ceil(steady_state_time / frame_time))])
         elif excitation.lower() == 'hammer':
             if num_signals > 1:
                 print(
-                    'Warning: Hammer impact generally not recommended for multi-reference excitation, consider multi-hammer instead')
-            pulse_width = 2 / (bandwidth if excitation_max_frequency is None else excitation_max_frequency)
-            signal_length = int(frame_length * integration_oversample * num_averages + (num_averages + 1)
-                                * extra_time_between_frames * sample_rate + 2 * pulse_width * sample_rate)
-            pulse_times = np.arange(num_averages)[
-                :, np.newaxis] * (frame_time + extra_time_between_frames) + pulse_width + extra_time_between_frames
-            kwargs = {'signal_length': signal_length,
-                      'pulse_time': pulse_times,
-                      'pulse_width': pulse_width,
-                      'pulse_peak': excitation_level,
-                      'dt': dt,
-                      'sine_exponent': 2}
+                    'Warning: Hammer impact generally not recommended for multi-reference excitation, consider multi-hammer instead'
+                )
+            pulse_width = 2 / (bandwidth
+                               if excitation_max_frequency is None else excitation_max_frequency)
+            signal_length = int(frame_length * integration_oversample * num_averages +
+                                (num_averages + 1) * extra_time_between_frames * sample_rate +
+                                2 * pulse_width * sample_rate)
+            pulse_times = np.arange(num_averages)[:, np.newaxis] * (
+                frame_time + extra_time_between_frames) + pulse_width + extra_time_between_frames
+            kwargs = {
+                'signal_length': signal_length,
+                'pulse_time': pulse_times,
+                'pulse_width': pulse_width,
+                'pulse_peak': excitation_level,
+                'dt': dt,
+                'sine_exponent': 2
+            }
             kwargs.update(generator_kwargs)
             signals = generator.pulse(**kwargs)
             signals = np.tile(signals, [num_signals, 1])
         elif excitation.lower() == 'multi-hammer':
             signal_length = frame_length * integration_oversample
-            pulse_width = 2 / (bandwidth if excitation_max_frequency is None else excitation_max_frequency)
+            pulse_width = 2 / (bandwidth
+                               if excitation_max_frequency is None else excitation_max_frequency)
             signals = []
             for i in range(num_signals):
                 signals.append([])
@@ -1481,14 +1583,16 @@ class System:
                         pulse_times.append(next_pulse)
                         last_pulse = next_pulse
                     pulse_times = np.array(pulse_times)
-                    pulse_times = pulse_times[pulse_times <
-                                              frame_time * signal_fraction, np.newaxis]
-                    kwargs = {'signal_length': signal_length,
-                              'pulse_time': pulse_times,
-                              'pulse_width': pulse_width,
-                              'pulse_peak': excitation_level,
-                              'dt': dt,
-                              'sine_exponent': 2}
+                    pulse_times = pulse_times[pulse_times < frame_time * signal_fraction,
+                                              np.newaxis]
+                    kwargs = {
+                        'signal_length': signal_length,
+                        'pulse_time': pulse_times,
+                        'pulse_width': pulse_width,
+                        'pulse_peak': excitation_level,
+                        'dt': dt,
+                        'sine_exponent': 2
+                    }
                     kwargs.update(generator_kwargs)
                     signal = generator.pulse(**kwargs)
                     signals[-1].append(np.zeros(int(extra_time_between_frames * sample_rate)))
@@ -1501,23 +1605,27 @@ class System:
                 print(
                     'Warning: Sine signal generally not recommended for multi-reference excitation')
             frequencies = excitation_max_frequency if excitation_min_frequency is None else excitation_min_frequency
-            num_samples = frame_length * integration_oversample * num_averages + int(steady_state_time * sample_rate)
-            kwargs = {'frequencies': frequencies,
-                      'dt': dt,
-                      'num_samples': num_samples,
-                      'amplitudes': excitation_level}
+            num_samples = frame_length * integration_oversample * num_averages + int(
+                steady_state_time * sample_rate)
+            kwargs = {
+                'frequencies': frequencies,
+                'dt': dt,
+                'num_samples': num_samples,
+                'amplitudes': excitation_level
+            }
             kwargs.update(generator_kwargs)
             signals = np.tile(generator.sine(**kwargs), (num_signals, 1))
         # Set up the integration
-        responses, references = self.time_integrate(
-            signals, dt, responses, references, displacement_derivative)
+        responses, references = self.time_integrate(signals, dt, responses, references,
+                                                    displacement_derivative)
         # Now add noise
         responses.ordinate += response_noise_level * np.random.randn(*responses.ordinate.shape)
         references.ordinate += excitation_noise_level * np.random.randn(*references.ordinate.shape)
         # Filter with antialiasing filters, divide filter order by 2 because of filtfilt
         if antialias_filter_order > 0:
             lowpass_b, lowpass_a = butter(antialias_filter_order // 2,
-                                          antialias_filter_cutoff_factor * bandwidth, fs=sample_rate)
+                                          antialias_filter_cutoff_factor * bandwidth,
+                                          fs=sample_rate)
             responses.ordinate = filtfilt(lowpass_b, lowpass_a, responses.ordinate)
             references.ordinate = filtfilt(lowpass_b, lowpass_a, references.ordinate)
         if integration_oversample > 1:
