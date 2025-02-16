@@ -24,8 +24,8 @@ import numpy as np
 import scipy.linalg as la
 
 
-def beamkm(node_coords, element_connectivity, bend_direction_1,
-           ae, jg, ei1, ei2, mass_per_length, tmmi_per_length):
+def beamkm(node_coords, element_connectivity, bend_direction_1, ae, jg, ei1, ei2, mass_per_length,
+           tmmi_per_length):
     '''Compute mass and stiffness matrices for the given beam model
 
     This function computes the mass and stiffness matrices for the beam model
@@ -104,7 +104,8 @@ def beamkm(node_coords, element_connectivity, bend_direction_1,
         number_of_nodes = node_coords.shape[0]
         if node_coords.ndim != 2:
             raise ValueError(
-                'node_coords should be a 2D array with shape nx3 where n is the number of nodes in the model')
+                'node_coords should be a 2D array with shape nx3 where n is the number of nodes in the model'
+            )
         if node_coords.shape[1] != 3:
             raise ValueError(
                 'node_coords should have shape nx3 where n is the number of nodes in the model')
@@ -114,10 +115,12 @@ def beamkm(node_coords, element_connectivity, bend_direction_1,
         number_of_elements = element_connectivity.shape[0]
         if element_connectivity.ndim != 2:
             raise ValueError(
-                'element_connectivity should be a 2D array with shape nx2 where n is the number of elements in the model')
+                'element_connectivity should be a 2D array with shape nx2 where n is the number of elements in the model'
+            )
         if element_connectivity.shape[1] != 2:
             raise ValueError(
-                'element_connectivity should have shape nx2 where n is the number of elements in the model')
+                'element_connectivity should have shape nx2 where n is the number of elements in the model'
+            )
     except AttributeError:
         raise ValueError('element_connectivity should be a numpy.ndarray')
     # Check that the element properties that have been passed are the correct
@@ -125,72 +128,61 @@ def beamkm(node_coords, element_connectivity, bend_direction_1,
     try:
         if bend_direction_1.shape != (number_of_elements, 3):
             raise ValueError(
-                'bend_direction_1 should be a 2D array with shape (element_connectivity.shape[0],3)')
+                'bend_direction_1 should be a 2D array with shape (element_connectivity.shape[0],3)'
+            )
     except AttributeError:
         raise ValueError('bend_direction_1 should be a numpy.ndarray')
     for val in [ae, jg, ei1, ei2, mass_per_length, tmmi_per_length]:
         try:
             if val.shape != (number_of_elements,):
                 raise ValueError(
-                    'Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be 1D arrays with length element_connectivity.shape[0]')
+                    'Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be 1D arrays with length element_connectivity.shape[0]'
+                )
         except AttributeError:
             raise ValueError(
-                'Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be numpy.ndarray')
+                'Element Properties (ae,jg,ei1,ei2,mass_per_length,tmmi_per_length) should be numpy.ndarray'
+            )
     # Initialize
     K = np.zeros((6 * number_of_nodes, 6 * number_of_nodes))
     M = np.zeros((6 * number_of_nodes, 6 * number_of_nodes))
 
     # Initialize Element Matrices
-    PA = np.array(
-        [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
-    PT = np.array(
-        [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
-    PB1 = np.array(
-        [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
-    PB2 = np.array(
-        [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0]])
+    PA = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
+    PT = np.array([[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
+    PB1 = np.array([[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+    PB2 = np.array([[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0]])
     # Loop through all elements and assemble mass and stiffness matrices
-    for i, (node_indices, bd1, AE, JG, EI1, EI2, rho, rhoT) in enumerate(zip(element_connectivity,
-                                                                             bend_direction_1, ae, jg, ei1, ei2,
-                                                                             mass_per_length, tmmi_per_length)):
+    for i, (node_indices, bd1, AE, JG, EI1, EI2, rho, rhoT) in enumerate(
+            zip(element_connectivity, bend_direction_1, ae, jg, ei1, ei2, mass_per_length,
+                tmmi_per_length)):
         # Get element length
         dx = node_coords[node_indices[1], :] - node_coords[node_indices[0], :]
         L = np.linalg.norm(dx)
         # Compute Element Matrices
-        KelemA = AE / L * np.array([[1, -1],
-                                    [-1, 1]])
-        KelemT = JG / L * np.array([[1, -1],
-                                    [-1, 1]])
-        KelemB1 = EI1 / L**3 * np.array([[12, 6 * L, -12, 6 * L],
-                                         [6 * L, 4 * L**2, -6 * L, 2 * L**2],
-                                         [-12, -6 * L, 12, -6 * L],
-                                         [6 * L, 2 * L**2, -6 * L, 4 * L**2]])
-        KelemB2 = EI2 / L**3 * np.array([[12, 6 * L, -12, 6 * L],
-                                         [6 * L, 4 * L**2, -6 * L, 2 * L**2],
-                                         [-12, -6 * L, 12, -6 * L],
-                                         [6 * L, 2 * L**2, -6 * L, 4 * L**2]])
+        KelemA = AE / L * np.array([[1, -1], [-1, 1]])
+        KelemT = JG / L * np.array([[1, -1], [-1, 1]])
+        KelemB1 = EI1 / L**3 * np.array([[12, 6 * L, -12, 6 * L], [
+            6 * L, 4 * L**2, -6 * L, 2 * L**2
+        ], [-12, -6 * L, 12, -6 * L], [6 * L, 2 * L**2, -6 * L, 4 * L**2]])
+        KelemB2 = EI2 / L**3 * np.array([[12, 6 * L, -12, 6 * L], [
+            6 * L, 4 * L**2, -6 * L, 2 * L**2
+        ], [-12, -6 * L, 12, -6 * L], [6 * L, 2 * L**2, -6 * L, 4 * L**2]])
         Kelem = PA.T @ KelemA @ PA + PT.T @ KelemT @ PT + PB1.T @ KelemB1 @ PB1 + PB2.T @ KelemB2 @ PB2
 
-        MelemA = rho * L * np.array([[1 / 3, 1 / 6],
-                                    [1 / 6, 1 / 3]])
-        MelemT = rhoT * L * np.array([[1 / 3, 1 / 6],
-                                     [1 / 6, 1 / 3]])
-        MelemB1 = rho * L * np.array([[13 / 35, 11 / 210 * L, 9 / 70, -13 / 420 * L],
-                                      [11 / 210 * L, 1 / 105 * L**2, 13 / 420 * L, -1 / 140 * L**2],
-                                      [9 / 70, 13 / 420 * L, 13 / 35, -11 / 210 * L],
-                                      [-13 / 420 * L, -1 / 140 * L**2, -11 / 210 * L, 1 / 105 * L**2]])
-        MelemB2 = rho * L * np.array([[13 / 35, 11 / 210 * L, 9 / 70, -13 / 420 * L],
-                                      [11 / 210 * L, 1 / 105 * L**2, 13 / 420 * L, -1 / 140 * L**2],
-                                      [9 / 70, 13 / 420 * L, 13 / 35, -11 / 210 * L],
-                                      [-13 / 420 * L, -1 / 140 * L**2, -11 / 210 * L, 1 / 105 * L**2]])
+        MelemA = rho * L * np.array([[1 / 3, 1 / 6], [1 / 6, 1 / 3]])
+        MelemT = rhoT * L * np.array([[1 / 3, 1 / 6], [1 / 6, 1 / 3]])
+        MelemB1 = rho * L * np.array(
+            [[13 / 35, 11 / 210 * L, 9 / 70, -13 / 420 * L],
+             [11 / 210 * L, 1 / 105 * L**2, 13 / 420 * L, -1 / 140 * L**2],
+             [9 / 70, 13 / 420 * L, 13 / 35, -11 / 210 * L],
+             [-13 / 420 * L, -1 / 140 * L**2, -11 / 210 * L, 1 / 105 * L**2]])
+        MelemB2 = rho * L * np.array(
+            [[13 / 35, 11 / 210 * L, 9 / 70, -13 / 420 * L],
+             [11 / 210 * L, 1 / 105 * L**2, 13 / 420 * L, -1 / 140 * L**2],
+             [9 / 70, 13 / 420 * L, 13 / 35, -11 / 210 * L],
+             [-13 / 420 * L, -1 / 140 * L**2, -11 / 210 * L, 1 / 105 * L**2]])
         Melem = PA.T @ MelemA @ PA + PT.T @ MelemT @ PT + PB1.T @ MelemB1 @ PB1 + PB2.T @ MelemB2 @ PB2
         # Compute Directions
         d0 = dx / np.linalg.norm(dx)
@@ -371,3 +363,83 @@ def beamkm_2d(length, width, height, nnodes, E, rho, nu, axial=True):
     K = K[keep_dofs[:, np.newaxis], keep_dofs[np.newaxis, :]]
     M = M[keep_dofs[:, np.newaxis], keep_dofs[np.newaxis, :]]
     return (K, M)
+
+
+def cylindrical_pipe_props(E,
+                           rho,
+                           nu,
+                           D_outer,
+                           D_inner,
+                           nelem=1,
+                           D_outer_std=0.,
+                           D_inner_std=0.,
+                           seed=0):
+    """
+    Function to calculate the properties of a cylindrical pipe beam
+    
+    Parameters
+    -----------
+    E : float
+        Young's modulus [Pa]
+    rho : float
+        Density [kg/m^3]
+    nu : float
+        Poisson's ratio [-]
+    D_outer : float
+        Outer diameter [m]
+    D_inner : float
+        Inner diameter [m]
+    nelem : int, optional
+        Number of elements. If specified, generate each property for nelem elements
+    D_outer_std : float, optional
+        Standard deviation of the outer diameter [m]
+    D_inner_std : float, optional
+        Standard deviation of the inner diameter [m]
+    seed: int, optional
+        Seed value for random generation of D_outer and D_inner
+            
+    Returns:
+    --------
+    props : dict
+        Dictionary of properties for the beamkm function
+    """
+    # Minimum wall thickness considering the standard deviation of outer and inner diameters
+    min_t = (D_outer - D_outer_std * 6) - (D_inner + D_inner_std * 6)
+    if min_t < 0:
+        raise ValueError('Outer diameter is too small compared to the inner diameter')
+
+    # Minimum inner diameter considering the standard deviation of inner diameters
+    if D_inner - D_inner_std * 6 < 0:
+        raise ValueError('Inner diameter is too small')
+
+    # Set random seed
+    rng = np.random.default_rng(seed=seed)
+    dD_outer = D_outer_std * rng.standard_normal((nelem,), float)
+    dD_inner = D_inner_std * rng.standard_normal((nelem,), float)
+
+    # Calculate cross-sectional properties
+    D_outers = D_outer * np.ones((nelem,), float)
+    D_inners = D_inner * np.ones((nelem,), float)
+    R_outer = (D_outers + dD_outer) * 0.5
+    R_inner = (D_inners + dD_inner) * 0.5
+
+    A = np.pi * (R_outer**2 - R_inner**2)
+    I = np.pi / 4 * (R_outer**4 - R_inner**4)
+    J = 2 * I
+    G = E / (2 * (1 + nu))
+    Ixx_per_L = rho * J / 2
+
+    props = {
+        'ae': A * E,
+        'jg': J * G,
+        'ei1': E * I,
+        'ei2': E * I,
+        'mass_per_length': rho * A,
+        'tmmi_per_length': Ixx_per_L
+    }
+
+    if not (D_outer_std == 0. and D_inner_std == 0.):
+        props['dD_outer'] = R_outer * 2.
+        props['dD_inner'] = R_inner * 2.
+
+    return props
