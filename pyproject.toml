@@ -4,3 +4,107 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ['src']
+
+[tool.setuptools.package-data]
+sdynpy = ["*.ui"]
+
+[project]
+name = 'sdynpy'
+authors = [
+  {email = 'dprohe@sandia.gov'},
+  {name = 'Daniel P. Rohe'}
+]
+license = { file = "LICENSE" }
+description = 'A Structural Dynamics Library for Python'
+readme = 'README.rst'
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "qtpy",
+    "PyQt5",
+    "pyqtgraph",
+    "netCDF4",
+    "pandas",
+    "python-pptx",
+    "Pillow",
+    "pyvista",
+    "pyvistaqt",
+    "openpyxl",
+    "vtk",
+    "h5py",
+    ]
+
+requires-python = '>=3.8'
+version = '0.18.2'
+classifiers = [
+    'Natural Language :: English',
+    'Operating System :: Microsoft :: Windows :: Windows 10',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: 3.8',
+    'Framework :: Pytest',
+    'License :: Other/Proprietary License'
+    ]
+
+[project.optional-dependencies]
+lrm = [
+    'joblib','psutils'
+]
+pdf3d = [
+    'vtk-u3dexporter'
+]
+tshaker = [
+    'npTDMS'
+]
+docs = [
+    'docutils<0.18,>=0.14', 'ipykernel', 'ipython',
+    'jinja2>=3.0', 'nbsphinx',
+    'sphinx', 'sphinx-rtd-theme', 'sphinxcontrib-bibtex',
+    'sphinx-copybutton'
+]
+testing = [
+    'pytest', 'coverage'
+]
+all = [
+    'docutils<0.18,>=0.14', 'ipykernel', 'ipython',
+    'jinja2>=3.0', 'nbsphinx', 'pytest', 'coverage',
+    'sphinx', 'sphinx-rtd-theme', 'sphinxcontrib-bibtex'
+]
+
+[project.urls]
+Documentation = 'http://structmechtools.cee-gitlab.lan/structural-dynamics-python-libraries/'
+Repository = 'https://cee-gitlab.sandia.gov/structMechTools/structural-dynamics-python-libraries'
+
+[tool.pytest.ini_options]
+junit_family = 'xunit2'
+addopts = '--doctest-modules --doctest-continue-on-failure --doctest-glob="*.rst" --verbose --junitxml=report.xml'
+testpaths = 'tests'
+
+[tool.coverage.run]
+omit = [
+    "setup.py",
+    "*__main__.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no coverage",
+    "if __name__ == '__main__'",
+    "def main",
+    "def __repr__"
+]
+
+[tool.coverage.html]
+directory = "coverage_html"
+
+[tool.flake8]
+max-line-length = 100
+
+[tool.pycodestyle]
+count = true
+max-line-length = 160
+statistics = true

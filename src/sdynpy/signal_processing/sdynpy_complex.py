@@ -49,3 +49,13 @@ def collapse_complex_to_real(vector, axis=-1, preserve_magnitude=False, plot=Fal
         return np.sign(np.real(rotated_vector)) * np.abs(rotated_vector)
     else:
         return np.real(rotated_vector)
+    
+def fit_complex_angle(vector,axis=-1):
+    x = np.real(vector)
+    y = np.imag(vector)
+    slope = np.sum(x * y, axis=axis, keepdims=True) / np.sum(x * x, axis=axis, keepdims=True)
+    angle = np.arctan(slope)
+    return angle
+    
+def rotate_vector(vector,angle):
+    return vector * np.exp(1j * angle)

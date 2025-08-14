@@ -48,7 +48,7 @@ def cross_mat(v):
 
 def R(axis, angle, degrees=False):
     """
-    Create a rotation matrix consisting of a rotatoin about an axis
+    Create a rotation matrix consisting of a rotation about an axis
 
     Parameters
     ----------

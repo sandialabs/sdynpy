@@ -396,7 +396,7 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
             else:
                 low_freq_indices = np.arange(frequency_lines_for_residuals)
         else:
-            low_freq_indices = []
+            low_freq_indices = np.array([],dtype=int)
         if upper_residuals:
             if frequency_lines_for_residuals is None:
                 high_freq_indices = angular_frequencies.size - \
@@ -405,9 +405,10 @@ def compute_shapes_multireference(experimental_frf: TransferFunctionArray,
                 high_freq_indices = angular_frequencies.size - \
                     np.arange(frequency_lines_for_residuals) - 1
         else:
-            high_freq_indices = []
+            high_freq_indices = np.array([],dtype=int)
         solve_indices = np.unique(np.concatenate(
             (solve_indices, low_freq_indices, high_freq_indices)))
+        print(solve_indices)
         frf_matrix = frf_matrix[..., solve_indices]
         angular_frequencies = angular_frequencies[solve_indices]
 

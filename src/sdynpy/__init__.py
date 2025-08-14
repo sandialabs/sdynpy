@@ -18,20 +18,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod
-from .fileio import unv, uff, rattlesnake, vic, tshaker
+from .fileio import unv, uff, rattlesnake, vic, tshaker, pdf3D, escdf
 from .fem.sdynpy_exodus import Exodus, ExodusInMemory
 from .fem import sdynpy_beam as beam
 from .fem import sdynpy_shaker as shaker
 from .fem import sdynpy_dof as dof
 from .signal_processing import (frf, cpsd, integration, correlation, complex,
                                 rotation, generator, camera, harmonic,
-                                geometry_fitting, srs, lrm)
+                                geometry_fitting, srs, lrm, frf_inverse, buffer)
 from .modal import (PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues,
                     compute_shapes, SignalProcessingGUI, ColoredCMIF,
                     read_modal_fit_data, ModalTest)
 from . import doc
-
-__version__ = "0.14.2"
 
 # Pull things in for easier access
 SdynpyArray = array.SdynpyArray
@@ -50,11 +48,17 @@ shape_array = shape.shape_array
 ShapeArray = shape.ShapeArray
 data_array = data.data_array
 NDDataArray = data.NDDataArray
+time_history_array = data.time_history_array
 TimeHistoryArray = data.TimeHistoryArray
+transfer_function_array = data.transfer_function_array
 TransferFunctionArray = data.TransferFunctionArray
+coherence_array = data.coherence_array
 CoherenceArray = data.CoherenceArray
+multiple_coherence_array = data.multiple_coherence_array
 MultipleCoherenceArray = data.MultipleCoherenceArray
+power_spectral_density_array = data.power_spectral_density_array
 PowerSpectralDensityArray = data.PowerSpectralDensityArray
+spectrum_array = data.spectrum_array
 SpectrumArray = data.SpectrumArray
 GUIPlot = data.GUIPlot
 CPSDPlot = data.CPSDPlot

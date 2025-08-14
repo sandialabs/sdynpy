@@ -1,8 +1,15 @@
 import numpy as np
 import scipy as sp
 import math as mt
-from joblib import Parallel, delayed
-import psutil
+try:
+    from joblib import Parallel, delayed
+except ImportError:
+    Parallel = None
+    delayed = None
+try:
+    import psutil
+except ImportError:
+    psutil = None
 import warnings
 from time import time
 
@@ -100,6 +107,13 @@ def frf_local_model(references,responses,abscissa,f_out=None,bandwidth=None,
     See "A Practitioner’s Guide to Local FRF Estimation", K. Coletti for more information
     """
     
+    if psutil is None and Parallel is None:
+        raise ValueError('frf_local_model requires modules psutil and joblib.\nPlease install these modules prior to using this function.')
+    elif psutil is None:
+        raise ValueError('frf_local_model requires the module psutil.\nPlease install this module prior to using this function.')
+    elif Parallel is None:
+        raise ValueError('frf_local_model requires the module joblib.\nPlease install this module prior to using this function.')
+
     #%% Process arguments
     U = references
     Y = responses

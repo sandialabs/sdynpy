@@ -170,7 +170,9 @@ def pulse(signal_length, pulse_time, pulse_width, pulse_peak=1, dt=1, sine_expon
         signal += peak * np.cos(argument)**sine_exponent * (np.abs(argument) < np.pi / 2)
     return signal
 
-def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases = 0):
+def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases = 0,
+               return_argument = False, return_frequency = False,
+               return_amplitude = False, return_phase = False):
     """
     Generates a sweeping sine wave with linear or logarithmic sweep rate
 
@@ -193,15 +195,23 @@ def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases
         breakpoints.  Otherwise it should be an array containing strings with
         one fewer element than that of the `frequencies` array.
     amplitudes : iterable or float, optional
-        Amplitude of the sine wave at each of the frequency breakpoints.  Can
+        Amplitude of the cosine wave at each of the frequency breakpoints.  Can
         be specified as a single floating point value, or as an array with a
         value specified for each breakpoint. The default is 1.
     phases : iterable or float, optional
-        Phases of the sine wave at each of the frequency breakpoints.  Can
+        Phases of the cosine wave at each of the frequency breakpoints.  Can
         be specified as a single floating point value, or as an array with a
         value specified for each breakpoint. Be aware that modifying the phase
         between breakpoints will effectively change the frequency of the signal,
         because the phase will change over time.  The default is 0.
+    return_argument : bool
+        If True, return cosine argument over time
+    return_frequency : bool
+        If True, return the instantaneous frequency over time
+    return_amplitude : bool
+        If True, return the instantaneous amplitude over time
+    return_phase : bool
+        If True, return the instantaneous phase over time
 
     Raises
     ------
@@ -216,11 +226,24 @@ def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases
         A numpy array consisting of the generated sine sweep signal.  The length
         of the signal will be determined by the frequency breakpoints and sweep
         rates.
+    arg_over_time : np.ndarray
+        A numpy array consisting of the argument to the cosine wave over time.
+    freq_over_time : np.ndarray
+        A numpy array consisting of the frequency of the cosine wave over time.    
+    amp_over_time : np.ndarray
+        A numpy array consistsing of the amplitude of the cosine wave over time.
+    phs_over_time : np.ndarray
+        A numpy array consisting of the added phase of the cosine wave over time.
 
     """
     last_phase = 0
     abscissa = []
     ordinate = []
+    arg_over_time = []
+    freq_over_time = []
+    amp_over_time = []
+    phs_over_time = []
+    
     # Go through each section
     for i in range(len(frequencies)-1):
         # Extract the terms
@@ -243,7 +266,7 @@ def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases
             end_amplitude = amplitudes
         try:
             start_phase = phases[i]*np.pi/180
-            end_phase = phases[i-1]*np.pi/180
+            end_phase = phases[i+1]*np.pi/180
         except TypeError:
             start_phase = phases*np.pi/180
             end_phase = phases*np.pi/180
@@ -274,11 +297,32 @@ def sine_sweep(dt, frequencies, sweep_rates, sweep_types, amplitudes = 1, phases
             phase_interp = [end_phase,start_phase]
             amp_interp = [end_amplitude,start_amplitude]
         this_phases = np.interp(this_frequency,freq_interp,phase_interp)
+        # if sweep_type in ['lin','linear']:
+        #     this_phases = np.interp(this_frequency,freq_interp,phase_interp)
+        # elif sweep_type in ['log','logarithmic']:
+        #     this_phase = np.interp(np.log(this_frequency),np.log(freq_interp),np.log(phase_interp))
         # Compute the amplitude at each time step
         this_amplitudes = np.interp(this_frequency,freq_interp,amp_interp)
-        this_ordinate = this_amplitudes*np.sin(this_argument+this_phases+last_phase)
+        this_ordinate = this_amplitudes*np.cos(this_argument+this_phases+last_phase)
+        arg_over_time.append(this_argument[:-1] + last_phase)
         last_phase += this_argument[-1]
         abscissa.append(this_abscissa[:-1])
         ordinate.append(this_ordinate[:-1])
+        freq_over_time.append(this_frequency[:-1])
+        amp_over_time.append(this_amplitudes[:-1])
+        phs_over_time.append(this_phases[:-1])
     ordinate = np.concatenate(ordinate)
-    return ordinate
+    return_vals = [ordinate]
+    if return_argument:
+        return_vals.append(np.concatenate(arg_over_time))
+    if return_frequency:
+        return_vals.append(np.concatenate(freq_over_time))
+    if return_amplitude:
+        return_vals.append(np.concatenate(amp_over_time))
+    if return_phase:
+        return_vals.append(np.concatenate(phs_over_time))
+    if len(return_vals) == 1:
+        return_vals = return_vals[0]
+    else:
+        return_vals = tuple(return_vals)
+    return return_vals

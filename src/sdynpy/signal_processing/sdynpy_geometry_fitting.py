@@ -142,3 +142,18 @@ def fit_line_point_cloud(points):
     direction = evects[:, np.argmax(evals)]
     direction /= np.linalg.norm(direction)
     return lambda t: center+t*direction
+
+def intersection_point_multiple_lines(P0,P1):
+    """Computes the intersection point of multiple lines in a least squares sense
+    
+    P0 and P1 are points on a line.  Each are NxD where N is the number of lines
+    and D is the dimensionality of the space (D=2 corresponds to lines on a plane,
+    D=3 is points in 3D space).
+    """
+    n = (P1-P0)/np.linalg.norm(P1-P0,axis=1)[:,np.newaxis]
+    projectors = np.eye(n.shape[1]) - n[:,:,np.newaxis]*n[:,np.newaxis]  # I - n*n.T
+    R = projectors.sum(axis=0)
+    q = (projectors @ P0[:,:,np.newaxis]).sum(axis=0)
+    p = np.linalg.lstsq(R,q,rcond=None)[0]
+
+    return p

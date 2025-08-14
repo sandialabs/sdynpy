@@ -41,6 +41,7 @@ Information
     
    usage
    sdynpy_showcase
+   core_functionality
    examples
    modal_tutorials
    modules
