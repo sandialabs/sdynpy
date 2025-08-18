@@ -31,22 +31,22 @@ import numpy as np
 class Sdynpy_UFF_Dataset_2412:
     def __init__(self, element_labels=[1],
                  fe_descriptor_ids=[161],
-                 physical_property_table_numbers=[1],
-                 material_property_table_numbers=[1],
+                 physical_property_table_numbers=None, # [1],
+                 material_property_table_numbers=None, # [1],
                  colors=[1],
                  connectivities=[[1]],
-                 beam_orientations=[None],
-                 beam_fore_cross_section_numbers=[None],
-                 beam_aft_cross_section_numbers=[None]):
+                 beam_orientations=None, # [None],
+                 beam_fore_cross_section_numbers=None, #[None],
+                 beam_aft_cross_section_numbers=None): #[None]):
         self.element_labels = element_labels
         self.fe_descriptor_ids = fe_descriptor_ids
-        self.physical_property_table_numbers = physical_property_table_numbers
-        self.material_property_table_numbers = material_property_table_numbers
+        self.physical_property_table_numbers = physical_property_table_numbers if physical_property_table_numbers is not None else [1 for conn in connectivities]
+        self.material_property_table_numbers = material_property_table_numbers if material_property_table_numbers is not None else [1 for conn in connectivities]
         self.colors = colors
         self.connectivities = connectivities
-        self.beam_orientations = beam_orientations
-        self.beam_fore_cross_section_numbers = beam_fore_cross_section_numbers
-        self.beam_aft_cross_section_numbers = beam_aft_cross_section_numbers
+        self.beam_orientations = beam_orientations if beam_orientations is not None else [None for conn in connectivities]
+        self.beam_fore_cross_section_numbers = beam_fore_cross_section_numbers if beam_fore_cross_section_numbers is not None else [None for conn in connectivities]
+        self.beam_aft_cross_section_numbers = beam_aft_cross_section_numbers if beam_aft_cross_section_numbers is not None else [None for conn in connectivities]
 
     @property
     def dataset_number(self):

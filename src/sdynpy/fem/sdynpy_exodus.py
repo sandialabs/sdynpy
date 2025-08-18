@@ -2429,8 +2429,10 @@ class ExodusInMemory:
         global_positions = global_coord(definition_coordinate_systems, node_data.coordinate)
         fexo.nodes.coordinates = global_positions
         fexo.nodes.node_num_map = node_data.id
+        node_map_dict = {node_id: node_index for node_index, node_id in enumerate(node_data.id)}
+        node_map_dict[0] = -1 # For tracelines, map 0 (pick up pen) to -1 (something easy to throw out)
         node_index_map = np.vectorize(
-            {node_id: node_index for node_index, node_id in enumerate(node_data.id)}.__getitem__)
+            node_map_dict.__getitem__)
         # Now go through and add in the elements
         element_data = geometry.element
         element_types = np.unique(element_data.type)
@@ -2455,7 +2457,7 @@ class ExodusInMemory:
             connectivity_1d = node_index_map(np.stack(traceline.connectivity))
             connectivity = np.concatenate((connectivity_1d[:-1, np.newaxis],
                                            connectivity_1d[1:, np.newaxis]), axis=-1)
-            connectivity = connectivity[~np.any(connectivity == 0, axis=1)]
+            connectivity = connectivity[~np.any(connectivity == -1, axis=1)] # We mapped 0s to -1, so we want to throw those out
             blk_dict = {}
             blk_dict['id'] = i + 500
             blk_dict['name'] = traceline.description
@@ -2892,11 +2894,11 @@ class ExodusInMemory:
     #                                             **point_kwargs))
     #     return meshes
 
-    # def reduce_to_surfaces(self,*args,**kwargs):
-    #     return reduce_exodus_to_surfaces(self,*args,**kwargs)
+    def reduce_to_surfaces(self,*args,**kwargs):
+        return reduce_exodus_to_surfaces(self,*args,**kwargs)
 
-    # def extract_sharp_edges(self,*args,**kwargs):
-    #     return extract_sharp_edges(self, *args,**kwargs)
+    def extract_sharp_edges(self,*args,**kwargs):
+        return extract_sharp_edges(self, *args,**kwargs)
 
 
 def reduce_exodus_to_surfaces(fexo, blocks_to_transform=None, variables_to_transform=None, keep_midside_nodes=False, verbose=False):

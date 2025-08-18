@@ -37,6 +37,7 @@ from ..signal_processing.sdynpy_complex import collapse_complex_to_real
 from ..signal_processing.sdynpy_rotation import unit_magnitude_constraint, quaternion_to_rotation_matrix
 from ..fem.sdynpy_exodus import Exodus
 from ..fem.sdynpy_dof import by_condition_number, by_effective_independence
+from ..core.sdynpy_matrix import matrix
 from copy import deepcopy
 import pandas as pd
 from qtpy.QtWidgets import QDialog, QTableWidget, QDialogButtonBox, QVBoxLayout, QTableWidgetItem, QAbstractItemView
@@ -244,7 +245,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
 
     @modeshape.setter
     def modeshape(self, value):
-        value = np.ndarray(value)
+        value = np.array(value)
         if value.ndim > 1:
             self.shape_matrix = value.swapaxes(-2, -1)
         else:
@@ -507,8 +508,13 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             dim = all_coords.ndim
             index = (0,) * (dim - 1)
             responses = all_coords[index]
+        else:
+            
+            responses = responses.flatten()
         if references is None:
             references = responses
+        else:
+            references = references.flatten()
         damping_ratios = flat_self.damping
         angular_natural_frequencies = flat_self.frequency*2*np.pi
         angular_frequencies = frequencies*2*np.pi
@@ -1175,7 +1181,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         ----------
         table_format : str, optional
             The type of table to generate.  Can be 'csv', 'rst', 'markdown',
-            'latex', or 'ascii'. The default is 'csv'.
+            'latex', 'pandas', or 'ascii'. The default is 'csv'.
         frequency_format : str, optional
             Format specifier for frequency. The default is '{:0.2f}'.
         damping_format : str, optional
@@ -1192,12 +1198,12 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             String representation of the mode table
 
         """
-        available_formats = ['csv', 'rst', 'markdown', 'latex', 'ascii']
+        available_formats = ['csv', 'rst', 'markdown', 'latex', 'ascii','pandas']
         if not table_format.lower() in available_formats:
             raise ValueError('`table_format` must be one of {:}'.format(available_formats))
         if table_format.lower() == 'ascii':
             return repr(self)
-        elif table_format.lower() in ['csv', 'latex']:
+        elif table_format.lower() in ['csv', 'latex','pandas']:
             # Create a Pandas dataframe
             sorted_flat_self = np.sort(self.flatten())
             data_dict = {'Mode': np.arange(sorted_flat_self.size) + 1,
@@ -1212,6 +1218,10 @@ class ShapeArray(sdynpy_array.SdynpyArray):
                 return df.to_csv(index=False)
             elif table_format.lower() == 'latex':
                 return df.to_latex(index=False)
+            elif table_format.lower() == 'pandas':
+                return df
+            else:
+                raise ValueError('Unknown Table Format: {:}'.format(table_format))
             
     def edit_comments(self, geometry = None):
         """
@@ -1246,6 +1256,54 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         if geometry is not None:
             plotter = geometry.plot_shape(self)
         return ShapeCommentTable(self, plotter)
+    
+    def transformation_matrix(self, physical_coordinates, inversion=True, normalized = True):
+        """
+        Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.
+
+        Parameters
+        ----------
+        coordinates : CoordinateArray
+            The "physical" force coordinates for the transformation.
+            
+        inversion : bool, optional
+            If True, the pseudo inverse of the mode shape matrix will be performed. If False, the mode shape matrix will not be inverted.
+
+        normalized : bool, optional
+            If True, the rows of the transformation matrix will be normalized to unit magnitude.
+
+        Returns
+        -------
+        transformation : Matrix
+            The transformation matrix as a matrix object. It is organized with
+            the modal CoordinateArray on the rows and the physical 
+            force CoordinateArray on the columns.
+            
+        Notes
+        -----
+        The transformation automatically handles polarity differences in the geometry 
+        and force_coordinate.
+        
+        The returned transformation matrix is intended to be used as an output transformation matrix for MIMO vibration control.
+
+        """
+        # Generate Modal Coordinates
+        modal_coordinates = sdynpy_coordinate.coordinate_array(node=np.arange(len(self)), direction=0)
+
+        # Truncate Shapes to Physical Coordinates
+        self = self.reduce(physical_coordinates)
+        
+        # Invert Matrix (if desired)
+        if inversion:
+            transformation_matrix = np.linalg.pinv(self.shape_matrix.T)
+        else:
+            transformation_matrix = self.shape_matrix
+            
+        # Normalize Matrix (if desired)
+        if normalized:
+            transformation_matrix = (transformation_matrix.T / np.abs(transformation_matrix).max(axis=1)).T
+
+        return matrix(transformation_matrix, modal_coordinates, physical_coordinates)
         
 class ShapeCommentTable(QDialog):
     def __init__(self, shapes, plotter = None, parent = None):
@@ -1510,7 +1568,7 @@ def rigid_body_error(geometry, rigid_shapes, **rigid_shape_kwargs):
     return coordinates, residual
 
 
-def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, distance_yscale=20, residuals_to_label=5,
+def rigid_body_check(geometry, rigid_shapes, distance_number=5, residuals_to_label=5,
                      return_shape_diagnostics=False, plot=True, return_figures = False, **rigid_shape_kwargs):
     """
     Performs rigid body checks, both looking at the complex plane and residuals
@@ -1522,14 +1580,8 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
     rigid_shapes : ShapeArray
         ShapeArray consisting of nominally rigid shapes from which errors are
         to be computed
-    distance : float, optional
-        Threshold for computing distance from other points to find outliers.
-        The default is 0.25.
     distance_number : int, optional
         Threshold for number of neighbors to find outliers. The default is 5.
-    distance_yscale : float, optional
-        Penalty factor applied to the complex portion of the shape when
-        computing distances. The default is 20.
     residuals_to_label : int, optional
         The top `residuals_to_label` residuals will be highlighted in the
         residual plots. The default is 5.
@@ -1562,7 +1614,7 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
     shape_matrix_exp = rigid_shapes[coordinates].T
     shape_matrix_true = true_rigid_shapes[coordinates].T
     projection = shape_matrix_true @ np.linalg.lstsq(shape_matrix_true, shape_matrix_exp)[0]
-    residual = np.abs(shape_matrix_exp - projection)
+    residual = np.abs(shape_matrix_exp - projection)/np.max(np.abs(projection),axis=0) # Normalize to the largest dof in each shape
     suspicious_channels = []
     # Plot the complex plane for each shape
     figs = []
@@ -1574,10 +1626,16 @@ def rigid_body_check(geometry, rigid_shapes, distance=0.25, distance_number=5, d
             ax.set_xlabel('Real Part')
             ax.set_ylabel('Imag Part')
             ax.set_title('Shape {:}\nComplex Plane'.format(
-                i if shape.comment1 == '' else shape.comment1))
-            shape_points = np.array((np.real(data), np.imag(data) * distance_yscale)).T
-            point_distances = np.linalg.norm(shape_points - shape_points[:, np.newaxis, :], axis=-1)
-            outliers = np.where(np.sum((point_distances < distance), axis=0) < distance_number)[0]
+                i+1 if shape.comment1 == '' else shape.comment1))
+            x = np.real(data)
+            y = np.imag(data)
+            # Fit line through the origin (y = mx)
+            m, residuals, rank, singular_values = np.linalg.lstsq(x[:, np.newaxis], y)
+            m = m[0]  # Get the slope
+            point_distances = np.abs(m * x - y) / np.sqrt(m**2 + 1)
+            # Plot the line fit on the plot
+            ax.axline((0,0),slope=m,color='k',linestyle='--')
+            outliers = np.argsort(point_distances)[-5:]
             for outlier in outliers:
                 ax.text(data[outlier].real, data[outlier].imag, str(coordinates[outlier]))
                 suspicious_channels.append(coordinates[outlier])

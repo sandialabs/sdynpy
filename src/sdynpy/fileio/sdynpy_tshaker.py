@@ -26,7 +26,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-import nptdms as tdms
+try:
+    import nptdms as tdms
+except ImportError:
+    tdms = None
+
 from ..core.sdynpy_coordinate import (coordinate_array, outer_product,
                                       CoordinateArray, _string_map)
 from ..core.sdynpy_data import data_array, FunctionTypes
@@ -38,6 +42,8 @@ from scipy.io import loadmat
 def read_tdms(file, coordinate_property="Ch_Location",
               coordinate_string_map=None, invalid_coordinate_value='999999',
               min_time=None, max_time=None, channel_indices=None):
+    if tdms is None:
+        raise ValueError('Must have npTDMS installed to import T-shaker files')
     # Read in the file if we've passed a string.
     if not isinstance(file, tdms.TdmsFile):
         file = tdms.TdmsFile.read(file)

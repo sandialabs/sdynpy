@@ -76,22 +76,22 @@ class Sdynpy_UFF_Dataset_164:
         #                the appropriate factor listed below.
         # Field 1      -- length
         try:
-            ds_164.length_conv = float(data[1][0:25])
+            ds_164.length_conv = float(data[1][0:25].replace('D','E'))
         except ValueError:
             return UFFReadError('Length Conversion Factor (record 2 field 1) must be a floating point number')
         # Field 2      -- force
         try:
-            ds_164.force_conv = float(data[1][25:50])
+            ds_164.force_conv = float(data[1][25:50].replace('D','E'))
         except ValueError:
             return UFFReadError('Force Conversion Factor (record 2 field 2) must be a floating point number')
         # Field 3      -- temperature
         try:
-            ds_164.temp_conv = float(data[1][50:75])
+            ds_164.temp_conv = float(data[1][50:75].replace('D','E'))
         except ValueError:
             return UFFReadError('Temperature Conversion Factor (record 2 field 3) must be a floating point number')
         # Field 4      -- temperature offset <-- Actually Record 3 field 1!
         try:
-            ds_164.temp_offset = float(data[2][0:25])
+            ds_164.temp_offset = float(data[2][0:25].replace('D','E'))
         except ValueError:
             return UFFReadError('Temperature offset (record 4 field 1) must be a floating point number')
         return ds_164

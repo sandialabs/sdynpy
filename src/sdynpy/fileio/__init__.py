@@ -20,5 +20,8 @@ from . import sdynpy_uff as uff
 from . import sdynpy_rattlesnake as rattlesnake
 from . import sdynpy_vic as vic
 from . import sdynpy_tshaker as tshaker
+from . import sdynpy_pdf3D as pdf3D
+from . import sdynpy_escdf as escdf
+from .sdynpy_dataphysics import read_dataphysics_output
 
 unv = uff

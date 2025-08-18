@@ -256,3 +256,18 @@ def test_force_broadcast():
     equals_array = sdpy.coordinate_array(broadcast_nodes,
                                          broadcast_directions).flatten()
     assert np.all(coord_array == equals_array)
+    
+def test_direction_string_array():
+    nodes = [101]
+    directions = np.array(['X+','X-','Y+','Y-','Z+','Z-','RX+','RX-','RY+','RY-','RZ+','RZ-',''])
+    coord = sdpy.coordinate_array(nodes,directions)
+    assert np.all(coord.direction == np.array([ 1, -1,  2, -2,  3, -3,  4, -4,  5, -5,  6, -6,  0]))
+    assert np.all(coord.direction_string_array() == directions)
+    
+def test_offset_node_ids():
+    nodes = np.arange(100)+1
+    directions = [1]
+    offset = 11
+    coord = sdpy.coordinate_array(nodes,directions)
+    offset_coord = coord.offset_node_ids(offset)
+    assert np.all(coord.node + offset == offset_coord.node)

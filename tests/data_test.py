@@ -13,6 +13,8 @@ import pytest
 import os
 import numpy as np
 from scipy.signal.windows import get_window
+import matplotlib
+import matplotlib.pyplot as plt
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture
@@ -40,7 +42,7 @@ def plate_transfer_function():
     modes = demo.beam_plate.system.eigensolution()
     modes.damping = 0.01
     modes[:6].frequency = 0.5
-    frequencies = np.arange(501)
+    frequencies = np.arange(1001)*0.5
     transfer_function = modes.compute_frf(
         frequencies,
         references = sdpy.coordinate_array(
@@ -49,12 +51,25 @@ def plate_transfer_function():
     return transfer_function
 
 @pytest.fixture
+def plate_transfer_function_negative_coords():
+    modes = demo.beam_plate.system.eigensolution()
+    modes.damping = 0.01
+    modes[:6].frequency = 0.5
+    frequencies = np.arange(1001)*0.5
+    transfer_function = modes.compute_frf(
+        frequencies,
+        references = sdpy.coordinate_array(
+            string_array=['1Z-','25Z+','42Z-']),
+        responses=sdpy.coordinate_array(demo.beam_plate.geometry.node.id,'Z+'))
+    return transfer_function
+
+@pytest.fixture
 def impulse_response_medium():
-    num_samples = 1000
+    num_samples = 2000
     ordinate = np.zeros(num_samples)
     ordinate[0] = 1.0
     return sdpy.data_array(sdpy.data.FunctionTypes.TIME_RESPONSE,
-                           np.arange(num_samples)/num_samples,
+                           2*np.arange(num_samples)/num_samples,
                            ordinate,
                            coordinate = sdpy.coordinate_array(string_array=['1X+']))
 
@@ -236,7 +251,7 @@ def test_frf_irf_compatibility(plate_transfer_function):
     # Number of elements is correct
     assert (frf.num_elements-1)*2 == irf.num_elements
     # Abscissa spacing is correct
-    assert np.allclose(frf.abscissa_spacing, irf.abscissa_spacing*irf.num_elements)
+    assert np.allclose(1/frf.abscissa_spacing, irf.abscissa_spacing*irf.num_elements)
     # Round-trip checks
     frf_check = irf.fft()
     assert frf.shape == frf_check.shape
@@ -274,4 +289,184 @@ def test_interpolate(impulse_response_medium):
     assert np.allclose(interpolated_fn.ordinate[0,0], test_fn.ordinate[0,0])
     # Check that the second signal was interpolated differently
     assert np.allclose(interpolated_fn.ordinate[1,0], test_fn.ordinate[1,0]*3/4)
+    
+def test_fft_ifft(sine_time_history):
+    even_length_signal = sine_time_history.copy()
+    odd_length_signal = sine_time_history.idx_by_el[:-1].copy()
+    even_length_fft = even_length_signal.fft()
+    odd_length_fft = odd_length_signal.fft()
+    dt = even_length_signal.abscissa_spacing
+    fs = 1/dt
+    # Shape is preserved
+    assert even_length_signal.shape == even_length_fft.shape
+    assert odd_length_signal.shape == odd_length_fft.shape
+    # Coordinates are preserved
+    assert np.all(even_length_signal.coordinate == even_length_fft.coordinate)
+    assert np.all(odd_length_signal.coordinate == odd_length_fft.coordinate)
+    # Number of elements is correct
+    assert even_length_fft.num_elements == even_length_signal.num_elements//2 + 1
+    assert odd_length_fft.num_elements == odd_length_signal.num_elements//2 + 1 # Note floor division
+    # Abscissa spacing is correct
+    assert np.allclose(1/even_length_fft.abscissa_spacing, dt*even_length_signal.num_elements)
+    assert np.allclose(1/odd_length_fft.abscissa_spacing, dt*odd_length_signal.num_elements)
+    # Maximum Frequency is correct
+    assert np.allclose(even_length_fft.abscissa.max(), fs/2)
+    assert np.allclose(odd_length_fft.abscissa.max(), fs/2*(odd_length_signal.num_elements-1)/odd_length_signal.num_elements)
+    # Round trip equivalence
+    even_length_signal_check = even_length_fft.ifft()
+    assert even_length_signal.shape == even_length_signal_check.shape
+    assert np.all(even_length_signal.coordinate == even_length_signal_check.coordinate)
+    assert even_length_signal.num_elements == even_length_signal_check.num_elements
+    assert np.allclose(even_length_signal.abscissa_spacing, even_length_signal_check.abscissa_spacing)
+    # Make sure you get the same thing back when you do a round-trip calculation
+    assert np.allclose(even_length_signal.ordinate,even_length_signal_check.ordinate)
+    odd_length_signal_check = odd_length_fft.ifft(odd_num_samples = True)
+    assert odd_length_signal.shape == odd_length_signal_check.shape
+    assert np.all(odd_length_signal.coordinate == odd_length_signal_check.coordinate)
+    assert odd_length_signal.num_elements == odd_length_signal_check.num_elements
+    assert np.allclose(odd_length_signal.abscissa_spacing, odd_length_signal_check.abscissa_spacing)
+    # Make sure you get the same thing back when you do a round-trip calculation
+    assert np.allclose(odd_length_signal.ordinate,odd_length_signal_check.ordinate)
+    
+def test_downsample(sine_time_history):
+    factor = 8
+    downsampled_signal = sine_time_history.downsample(factor)
+    assert np.allclose(downsampled_signal.abscissa, sine_time_history.abscissa[...,::factor])
+    assert np.allclose(downsampled_signal.ordinate, sine_time_history.ordinate[...,::factor])
+    
+def test_min_max(sine_time_history):
+    assert sine_time_history.min() == -1
+    assert sine_time_history.max() == 1
+    
+def test_min_max_reduction(plate_transfer_function):
+    reductions = [np.min,np.max,np.abs,np.angle,np.real,np.imag]
+    ordinate = plate_transfer_function.ordinate
+    for reduction in reductions:
+        assert reduction(ordinate).min() == plate_transfer_function.min(reduction)
+        assert reduction(ordinate).max() == plate_transfer_function.max(reduction)
+        
+def test_drive_points(plate_transfer_function_negative_coords):
+    drive_point_indices = plate_transfer_function_negative_coords.get_drive_points(True)
+    drive_points = plate_transfer_function_negative_coords.get_drive_points(False)
+    drive_points_from_indices = plate_transfer_function_negative_coords[drive_point_indices]
+    assert np.all(drive_points == drive_points_from_indices)
+    assert np.all(abs(drive_points.coordinate) == abs(drive_points.coordinate[:,[0]]))
+
+def test_reciprocal_data(plate_transfer_function_negative_coords):
+    reciprocal_indices = plate_transfer_function_negative_coords.get_reciprocal_data(True)
+    reciprocal_data = plate_transfer_function_negative_coords.get_reciprocal_data(False)
+    reciprocal_data_from_indices = plate_transfer_function_negative_coords[reciprocal_indices]
+    assert np.all(reciprocal_data == reciprocal_data_from_indices)
+    assert np.all(abs(reciprocal_data.coordinate[0]) == abs(reciprocal_data.coordinate[1,...,::-1])) # Response and reference should be flipped
+    
+def test_plotting(sine_time_history):
+    # Single plot
+    ax = sine_time_history.plot()
+    children = ax.get_children()
+    lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+    for line,signal in zip(lines,sine_time_history):
+        assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+    # Existing Plot
+    fig,ax = plt.subplots()
+    ax = sine_time_history.plot(ax)
+    children = ax.get_children()
+    lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+    for line,signal in zip(lines,sine_time_history):
+        assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+    # Multiple Plots
+    axes = sine_time_history.plot(False)
+    for ax,signal in zip(axes,sine_time_history):
+        children = ax.get_children()
+        lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+        assert len(lines) == 1
+        line = lines[0]
+        assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+    # Test adding markers
+    markers = [0,0.25,0.5,0.75,1.0]
+    marker_labels = ['a','b','c','d','e']
+    for marker_style in ['x','.','o','vline']:
+        # Single plot
+        ax = sine_time_history.plot(abscissa_markers = markers,
+                                    abscissa_marker_type = marker_style,
+                                    abscissa_marker_labels = marker_labels)
+        children = ax.get_children()
+        lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+        if marker_style == 'vline':
+            annotations = [child for child in children if isinstance(child,matplotlib.text.Annotation)]
+            annotation_lines = lines[sine_time_history.size:]
+            for annotation,annotation_line,marker,label in zip(annotations,annotation_lines,
+                                                               markers,marker_labels):
+                assert annotation.get_text() == label
+                xydata = annotation_line.get_xydata()
+                assert np.allclose(xydata[:,0], marker)
+                assert np.allclose(xydata[:,1], [0,1])
+        else:
+            annotations = np.reshape([child for child in children if isinstance(child,matplotlib.text.Annotation)],(sine_time_history.size,-1))
+            annotation_lines = lines[sine_time_history.size:]
+            for signal,annotation_line,annotation_text in zip(sine_time_history,annotation_lines,annotations):
+                annotation_line_data = annotation_line.get_xydata()
+                assert annotation_line_data.shape[0] == len(markers)
+                assert np.allclose(markers,annotation_line_data[:,0])
+                assert np.allclose(annotation_line_data[:,1],np.interp(markers,signal.abscissa,signal.ordinate))
+                assert np.all([marker_label == annotation.get_text() for marker_label,annotation in zip(marker_labels,annotation_text)])
+        for line,signal in zip(lines,sine_time_history):
+            assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+        # Existing Plot
+        fig,ax = plt.subplots()
+        ax = sine_time_history.plot(ax,abscissa_markers = markers,
+                                    abscissa_marker_type = marker_style,
+                                    abscissa_marker_labels = marker_labels)
+        children = ax.get_children()
+        lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+        if marker_style == 'vline':
+            annotations = [child for child in children if isinstance(child,matplotlib.text.Annotation)]
+            annotation_lines = lines[sine_time_history.size:]
+            for annotation,annotation_line,marker,label in zip(annotations,annotation_lines,
+                                                               markers,marker_labels):
+                assert annotation.get_text() == label
+                xydata = annotation_line.get_xydata()
+                assert np.allclose(xydata[:,0], marker)
+                assert np.allclose(xydata[:,1], [0,1])
+        else:
+            annotations = np.reshape([child for child in children if isinstance(child,matplotlib.text.Annotation)],(sine_time_history.size,-1))
+            annotation_lines = lines[sine_time_history.size:]
+            for signal,annotation_line,annotation_text in zip(sine_time_history,annotation_lines,annotations):
+                annotation_line_data = annotation_line.get_xydata()
+                assert annotation_line_data.shape[0] == len(markers)
+                assert np.allclose(markers,annotation_line_data[:,0])
+                assert np.allclose(annotation_line_data[:,1],np.interp(markers,signal.abscissa,signal.ordinate))
+                assert np.all([marker_label == annotation.get_text() for marker_label,annotation in zip(marker_labels,annotation_text)])
+        for line,signal in zip(lines,sine_time_history):
+            assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+        # Multiple Plots
+        axes = sine_time_history.plot(False,abscissa_markers = markers,
+                                      abscissa_marker_type = marker_style,
+                                      abscissa_marker_labels = marker_labels)
+        for ax,signal in zip(axes,sine_time_history):
+            children = ax.get_children()
+            lines = [child for child in children if isinstance(child,matplotlib.lines.Line2D)]
+            annotations = [child for child in children if isinstance(child,matplotlib.text.Annotation)]
+            if marker_style == 'vline':
+                assert len(lines) == 1+len(marker_labels)
+                line = lines[0]
+                annotation_lines = lines[1:]
+                for annotation,annotation_line,marker,label in zip(annotations,annotation_lines,
+                                                                   markers,marker_labels):
+                    assert annotation.get_text() == label
+                    xydata = annotation_line.get_xydata()
+                    assert np.allclose(xydata[:,0], marker)
+                    assert np.allclose(xydata[:,1], [0,1])
+            else:
+                assert len(lines) == 2
+                line,annotation_line = lines
+                annotation_line_data = annotation_line.get_xydata()
+                assert annotation_line_data.shape[0] == len(markers)
+                assert np.allclose(markers,annotation_line_data[:,0])
+                assert np.allclose(annotation_line_data[:,1],np.interp(markers,signal.abscissa,signal.ordinate))
+                assert np.all([marker_label == annotation.get_text() for marker_label,annotation in zip(marker_labels,annotation_text)])
+            assert np.allclose(line.get_xydata(), np.array((signal.abscissa,signal.ordinate)).T)
+
+def test_plotting_image(sine_time_history):
+    ax = sine_time_history.plot_image()
+    
     

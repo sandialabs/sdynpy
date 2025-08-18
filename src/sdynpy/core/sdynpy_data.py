@@ -467,7 +467,7 @@ class NDDataArray(SdynpyArray):
                             kwargs.update(abscissa_marker_plot_kwargs)
                             ax.plot(abscissa_markers,marker_y,**kwargs)
                             for label,mx,my in zip(abscissa_marker_labels,abscissa_markers,marker_y):
-                                axis.annotate(label, xy=(mx,my), textcoords='offset pixels', xytext=(4,4), ha='left', va='bottom')
+                                ax.annotate(label, xy=(mx,my), textcoords='offset pixels', xytext=(4,4), ha='left', va='bottom')
             for ax in axis.flatten()[i + 1:]:
                 ax.remove()
         else:
@@ -492,6 +492,48 @@ class NDDataArray(SdynpyArray):
                         for label,mx,my in zip(abscissa_marker_labels,abscissa_markers,marker_y):
                             axis.annotate(label, xy=(mx,my), textcoords='offset pixels', xytext=(4,4), ha='left', va='bottom')
         return axis
+
+    def gui_plot(self,abscissa_markers = None,abscissa_marker_labels = None,
+                 abscissa_marker_type = None, legend_label = None):
+        """
+        Create a GUIPlot window to visualize data.
+
+        Parameters
+        ----------
+        abscissa_markers : np.ndarray
+            Abscissa values at which markers will be placed.  If not specified,
+            no markers will be added.  Markers will be added to all plotted
+            curves if this argument is passed.
+        abscissa_marker_labels : str or iterable
+            Labels that will be applied to the markers.  If not specified, no
+            label will be applied.  If a single string is passed, it will be
+            passed to the `.format` method with keyword arguments `index` and
+            `abscissa`.  Otherwise there should be one string for each marker.
+        abscissa_marker_type : str:
+            The type of marker that will be applied.  Can be 'vline' for a
+            vertical line across the axis, or it can be a pyqtgraph symbol specifier
+            (e.g. 'x', 'o', 'star', etc.) which will be placed on the plotted curves.
+            If not specified, a vertical line will be used.
+
+        Returns
+        -------
+        GUIPlot
+
+        """
+        args = []
+        kwargs = {}
+        if legend_label is not None:
+            kwargs[legend_label] = self
+        else:
+            args.append(self)
+        if abscissa_markers is not None:
+            kwargs['abscissa_markers'] = abscissa_markers
+        if abscissa_marker_labels is not None:
+            kwargs['abscissa_marker_labels'] = abscissa_marker_labels
+        if abscissa_marker_type is not None:
+            kwargs['abscissa_marker_type'] = abscissa_marker_type
+        return GUIPlot(*args,**kwargs)
+        
 
     def plot_image(self,ax = None, reduction_function = None, colorbar_scale = 'linear',
                    colorbar_min = None, colorbar_max = None):
@@ -860,7 +902,8 @@ class NDDataArray(SdynpyArray):
             and 'next' simply return the previous or next value of the point;
             'nearest-up' and 'nearest' differ when interpolating half-integers
             (e.g. 0.5, 1.5) in that 'nearest-up' rounds up and 'nearest' rounds
-            down. Default is 'linear'.
+            down. 'logx', 'logy', and 'loglog' use linear interpolation on 
+            the values converted to log scale.  Default is 'linear'.
         **kwargs :
             Additional arguments to scipy.interpolate.interp1d.
 
@@ -880,19 +923,34 @@ class NDDataArray(SdynpyArray):
         output.comment4 = self.comment4
         output.comment5 = self.comment5
         output.abscissa = interpolated_abscissa
+        if kind == 'logx':
+            logx = True
+            logy = False
+            kind = 'linear'
+        elif kind == 'logy':
+            logx = False
+            logy = True
+            kind = 'linear'
+        elif kind == 'loglog':
+            logx=True
+            logy=True
+            kind = 'linear'
+        else:
+            logx = False
+            logy = False
         if self.validate_common_abscissa():
-            x = self.flatten()[0].abscissa
-            y = self.ordinate
+            x = np.log(self.flatten()[0].abscissa) if logx else self.flatten()[0].abscissa
+            y = np.log(self.ordinate) if logy else self.ordinate
             interp = interp1d(x, y, kind=kind, axis=-1, **kwargs)
-            interpolated_ordinate = interp(interpolated_abscissa)
-            output.ordinate = interpolated_ordinate
+            interpolated_ordinate = interp(np.log(interpolated_abscissa) if logx else interpolated_abscissa)
+            output.ordinate = np.exp(interpolated_ordinate) if logy else interpolated_ordinate
         else:
             for key, function in self.ndenumerate():
-                x = function.abscissa
-                y = function.ordinate
+                x = np.log(function.abscissa) if logx else function.abscissa
+                y = np.log(function.ordinate) if logy else function.ordinate
                 interp = interp1d(x, y, kind=kind, axis=-1, **kwargs)
-                interpolated_ordinate = interp(interpolated_abscissa)
-                output[key].ordinate = interpolated_ordinate
+                interpolated_ordinate = interp(np.log(interpolated_abscissa) if logx else interpolated_abscissa)
+                output[key].ordinate = np.exp(interpolated_ordinate) if logy else interpolated_ordinate
         return output
 
     def __getitem__(self, key):
@@ -1832,6 +1890,84 @@ class NDDataArray(SdynpyArray):
             return equal_indices
         else:
             return self[equal_logical]
+        
+    def shape_filter(self,shape, filter_responses = True, filter_references = False,
+                     rcond=None):
+        """
+        Spatially filters the data using the specified ShapeArray.
+
+        Parameters
+        ----------
+        shape : ShapeArray
+            A set of shapes used to filter the data
+        filter_responses : bool, optional
+            If True, will filter the response degrees of freedom. The default
+            is True.
+        filter_references : bool, optional
+            If True, will filter the reference degrees of freedom.  The default
+            is False.
+        rcond : float, optional
+            Condition number threshold used in the pseudoinverse to compute the
+            inverse of the specified shape arrays. The default is None.
+
+        Raises
+        ------
+        ValueError
+            Raised if the abscissa are not consistent across all data.
+
+        Returns
+        -------
+        filtered_data : NDDataArray or subclass
+            The type of the output will be the same type as the input, but
+            filtered such that the degrees of freedom correspond to the shapes
+            in the provided ShapeArray
+
+        """
+        if not self.validate_common_abscissa():
+            raise ValueError('Abscissa must be consistent between data to filter.')
+        # Reshape data into matrix form if multidimensional
+        if self.coordinate.shape[-1] > 1:
+            response_coords = np.unique(self.response_coordinate)
+            reference_coords = np.unique(self.reference_coordinate)
+            coords = outer_product(response_coords,reference_coords)
+            data = self[coords]
+        else:
+            response_coords = np.unique(self.response_coordinate)
+            reference_coords = None
+            coords = response_coords[:,np.newaxis]
+            data = self[coords]
+        data_type=data.function_type
+        
+        if filter_responses:
+            response_shape_matrix = np.linalg.pinv(shape[response_coords].T,rcond=rcond)
+            output_response_coords = coordinate_array(np.arange(response_shape_matrix.shape[0])+1,0)
+        else:
+            response_shape_matrix = None
+            output_response_coords = response_coords
+        if reference_coords is not None and filter_references:
+            reference_shape_matrix = np.linalg.pinv(shape[reference_coords].T,rcond=rcond)
+            output_reference_coords = coordinate_array(np.arange(reference_shape_matrix.shape[0])+1,0)
+        else:
+            reference_shape_matrix = None
+            output_reference_coords = reference_coords
+            
+        if output_reference_coords is not None:
+            output_coords = outer_product(output_response_coords,output_reference_coords)
+        else:
+            output_coords = output_response_coords[:,np.newaxis]
+            
+        ordinate = data.ordinate
+        if response_shape_matrix is not None:
+            ordinate = np.einsum('mi,i...s->m...s',response_shape_matrix,ordinate)
+        if reference_shape_matrix is not None:
+            ordinate = np.einsum('mj,...js->...ms',reference_shape_matrix,ordinate)
+        
+        filtered_data = data_array(data_type=data_type,
+                                   abscissa=data.reshape(-1)[0].abscissa,
+                                   ordinate=ordinate,
+                                   coordinate=output_coords)
+
+        return filtered_data
 
 class TimeHistoryArray(NDDataArray):
     """Data array used to store time history data"""
@@ -1948,9 +2084,9 @@ class TimeHistoryArray(NDDataArray):
             ordinate = ordinate[..., frame_indices]
         dt = np.mean(diffs)
         n = ordinate.shape[-1]
-        # frequencies = np.fft.rfftfreq(n, dt)
+        # frequencies = scipyfft.rfftfreq(n, dt)
         frequencies = scipyfft.rfftfreq(n, dt)
-        # ordinate = np.fft.rfft(ordinate, axis=-1)
+        # ordinate = scipyfft.rfft(ordinate, axis=-1)
         ordinate = scipyfft.rfft(ordinate, axis=-1, norm=norm,
                                  **scipy_rfft_kwargs)
         if samples_per_frame is not None:
@@ -2085,6 +2221,50 @@ class TimeHistoryArray(NDDataArray):
                          self.comment1.copy(), self.comment2.copy(), self.comment3.copy(), self.comment4.copy(),
                          self.comment5.copy())
         return srs
+
+    def filter(self,filter_order, frequency, filter_type = 'low',
+               filter_method = 'filtfilt', filter_kwargs = None):
+        """
+        Filter the signal using a butterworth filter of the specified order
+
+        Parameters
+        ----------
+        filter_order : int
+            Order of the butterworth filter
+        frequency : array_like
+            The critical frequency or frequencies.  For lowpass and highpass
+            filters, this is a scalar; for bandpass and bandstop filters, this
+            is a length-2 sequence (low,high).
+        filter_type : str, optional
+            Type of filter.  Must be one of 'low','high','bandpass', or
+            'bandstop'.  The default is 'low'.
+        filter_method : str, optional
+            Method of filter application. Must be one of 'filtfilt' or 'lfilter'.
+            The default is 'filtfilt'.
+        filter_kwargs: dict, optional
+            Optional keyword arguments to be passed to filtfilt or lfilter.
+
+        Returns
+        -------
+        TimeHistoryArray
+            The filtered time history array.
+
+        """
+        fs = 1/self.abscissa_spacing
+        b,a = sig.butter(filter_order,frequency,filter_type,fs=fs)
+        if filter_kwargs is None:
+            filter_kwargs = {}
+        if filter_method == 'filtfilt':
+            filtered_ordinate = sig.filtfilt(b,a,self.ordinate,axis=-1,
+                                             **filter_kwargs)
+        elif filter_method == 'lfilter':
+            filtered_ordinate = sig.lfilter(b,a,self.ordinate,axis=-1,
+                                            **filter_kwargs)
+        else:
+            raise ValueError('filter_type must be one of filtfilt or lfilter')
+        return_val = self.copy()
+        return_val.ordinate = filtered_ordinate
+        return return_val
 
     def split_into_frames(self, samples_per_frame=None, frame_length=None,
                           overlap=None, overlap_samples=None, window=None,
@@ -2234,7 +2414,9 @@ class TimeHistoryArray(NDDataArray):
 
         # Checking to see if the sampling rates are the same for both data sets
         if not np.isclose(self.abscissa_spacing, transfer_function.abscissa_spacing):
-            raise ValueError('The transfer function sampling rate does not match the time data.')
+            raise ValueError('The transfer function sampling rate {:} does not match the time data {:}.'.format(
+                1/transfer_function.abscissa_spacing,1/self.abscissa_spacing
+            ))
 
         # Setting up and doing the convolution
         convolved_response = np.zeros((number_responses, signal_length), dtype=np.float64)
@@ -2255,7 +2437,8 @@ class TimeHistoryArray(NDDataArray):
                      regularization_weighting_matrix=None,
                      regularization_parameter=None,
                      cond_num_threshold=None,
-                     num_retained_values=None):
+                     num_retained_values=None,
+                     transfer_function_odd_samples = False):
         """
         Performs the inverse source estimation for time domain (transient) problems
         using Fourier deconvolution. The response nodes used in the inverse source
@@ -2320,6 +2503,14 @@ class TimeHistoryArray(NDDataArray):
             method is chosen. A vector of can be provided so the number of retained values
             can change as a function of frequency. The vector must match the length of the
             FRF abscissa in this case (either be size [num_lines,] or [num_lines, 1]).
+        transfer_function_odd_samples : bool, optional
+            If True, then it is assumed that the spectrum has been constructed
+            from a signal with an odd number of samples.  Note that this
+            function uses the rfft function from scipy to compute the
+            inverse fast fourier transform.  The irfft function is not round-trip
+            equivalent for odd functions, because by default it assumes an even
+            signal length.  For an odd signal length, the user must either specify
+            transfer_function_odd_samples = True to make it round-trip equivalent.
 
         Raises
         ------
@@ -2348,6 +2539,9 @@ class TimeHistoryArray(NDDataArray):
         PowerSpectralDensityArray class. The input spectrum is then converted back to the time
         domain via a inverse fourier transform.
 
+        The 0 Hz component is explicitly rejected from the FRFs, so the estimated forces cannot
+        include a 0 Hz component. 
+        
         References
         ----------
         .. [1] Wikipedia, "Moore-Penrose inverse".
@@ -2366,18 +2560,17 @@ class TimeHistoryArray(NDDataArray):
 
         # Initial orginization of the data
         indexed_transfer_function = transfer_function.reshape_to_matrix()
-        irf = indexed_transfer_function.ifft()
         response_dofs = indexed_transfer_function[:, 0].response_coordinate
         reference_dofs = indexed_transfer_function[0, :].reference_coordinate
 
         indexed_response_data = self[response_dofs[..., np.newaxis]]
 
-        number_responses, number_references = indexed_transfer_function.shape
-        model_order = irf.num_elements
+        indexed_irf = indexed_transfer_function.ifft()
+        model_order = indexed_irf.num_elements
 
         # Checking to see if the sampling rates are the same for both data sets
         fs_inputs = 1/indexed_response_data.abscissa_spacing
-        fs_frf = 1/irf.abscissa_spacing
+        fs_frf = indexed_transfer_function.flatten()[0].abscissa[-1]*2
         if not np.isclose(fs_frf, fs_inputs):
             raise ValueError('The transfer function sampling rate does not match the time data.')
 
@@ -2385,17 +2578,19 @@ class TimeHistoryArray(NDDataArray):
         if time_method == 'single_frame':
             # Zero pad for convolution wrap-around
             if zero_pad_length is None:
-                padded_response = indexed_response_data.zero_pad(2*model_order, left=True, right=True,
-                                                                 use_next_fast_len=True)
+                padded_response = indexed_response_data.zero_pad(2*model_order, left=True, right = True,
+                                                                 use_next_fast_len = True)
             else:
                 padded_response = indexed_response_data.zero_pad(zero_pad_length, left=True, right=True)
             actual_zero_pad = padded_response.num_elements - indexed_response_data.num_elements
             # Now make the FRFs the same size
-            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(padded_response.num_elements)
+            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(padded_response.num_elements,odd_num_samples = transfer_function_odd_samples)
+            modified_frfs.ordinate[...,0] = 0
             padded_frequency_domain_data = padded_response.fft(norm='backward')
+            irfft_num_samples = padded_response.num_elements
         elif time_method == 'cola':
             if cola_frame_length is None:
-                cola_frame_length = int(fs_frf/indexed_transfer_function.abscissa_spacing)
+                cola_frame_length = int(model_order + model_order % 2) # This is a slightly strange operation to gaurantee an even frame length
             if cola_overlap is None:
                 cola_overlap = cola_frame_length//2
             # Split into measurement frames
@@ -2413,8 +2608,10 @@ class TimeHistoryArray(NDDataArray):
                 zero_padded_data = segmented_data.zero_pad(
                     zero_pad_length, left=True, right=True)
             actual_zero_pad = zero_padded_data.num_elements - segmented_data.num_elements
-            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(zero_padded_data.num_elements)
+            modified_frfs = indexed_transfer_function.interpolate_by_zero_pad(zero_padded_data.num_elements,odd_num_samples = transfer_function_odd_samples)
+            modified_frfs.ordinate[...,0] = 0
             padded_frequency_domain_data = zero_padded_data.fft(norm='backward')
+            irfft_num_samples = zero_padded_data.num_elements
         else:
             raise NameError('The selected time method is not available')
 
@@ -2479,7 +2676,7 @@ class TimeHistoryArray(NDDataArray):
         padded_frequency_domain_data = np.moveaxis(padded_frequency_domain_data.ordinate, -1, -2)[..., np.newaxis]
         forces_frequency_domain = frf_pinv@padded_frequency_domain_data
         forces_frequency_domain[..., :inverse_start_index, :, 0] = 0
-        forces_time_domain_with_padding = scipyfft.irfft(forces_frequency_domain[..., 0], axis=-2, norm='backward')
+        forces_time_domain_with_padding = scipyfft.irfft(forces_frequency_domain[..., 0], n = irfft_num_samples, axis=-2, norm='backward')
         # Compute the zero padding used
         pre_pad_length = actual_zero_pad//2
         post_pad_length = actual_zero_pad - pre_pad_length
@@ -2574,7 +2771,7 @@ class TimeHistoryArray(NDDataArray):
         this_ordinate = this_fft.ordinate
         other_ordinate = other_signal.fft().ordinate
 
-        correlation = np.fft.irfft(this_ordinate*other_ordinate.conj())
+        correlation = scipyfft.irfft(this_ordinate*other_ordinate.conj())
         time_shift_indices = int(np.mean(np.argmax(correlation, axis=-1)))
 
         # Roll the arrays to get them to align
@@ -2786,6 +2983,81 @@ class TimeHistoryArray(NDDataArray):
         stft = split_frames.fft(norm=norm)
         return frame_abscissa, stft
 
+    def upsample(self, factor):
+        """
+        Upsamples a time history using frequency domain zero padding.
+
+        Parameters
+        ----------
+        factor : int
+            The upsample factor.
+
+        Returns
+        -------
+        TimeHistoryArray
+            A time history with a sample rate that is factor larger than the
+            original signal
+
+        """
+        fft = self.fft()
+        fft_zp = fft.zero_pad(fft.num_elements*(factor-1))
+        return fft_zp.ifft()*factor
+
+    def apply_transformation(self, transformation, invert_transformation=False):
+        """
+        Applies a transformations to the time traces.
+
+        Parameters
+        ----------
+        transformation : Matrix
+            The transformation to apply to the time traces. It should be a 
+            SDynPy matrix object with the "transformed" coordinates on the 
+            rows and the "physical" coordinates on the columns. The matrix 
+            can only be be 2D.
+        invert_reference_transformation : bool, optional
+            Whether or not to invert the transformation when applying it to 
+            the time traces. The default is False, which is standard practice. 
+            The row/column ordering in the transformation should be flipped 
+            if this is set to true.
+
+        Raises
+        ------
+        ValueError
+            If the transformation array has more than two dimensions.
+        ValueError
+            If the physical degrees of freedom in the transformation does not 
+            match the spectra.
+        
+        Returns
+        -------
+        transformed_data : TimeHistoryArray
+            The time traces with the transformations applied.
+        """
+        if not self.validate_common_abscissa():
+            raise ValueError('The abscissa must be consistent accross all functions in the NDDataArray')
+
+        physical_coordinate = np.unique(self.response_coordinate)
+        original_data_ordinate = np.moveaxis(self[physical_coordinate[...,np.newaxis]].ordinate, -1, 0)[..., np.newaxis]
+        
+        if invert_transformation:
+            if not np.all(np.unique(transformation.row_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.column_coordinate)
+            transformation_matrix = np.linalg.pinv(transformation[physical_coordinate, transformed_coordinate])
+        elif not invert_transformation:
+            if not np.all(np.unique(transformation.column_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.row_coordinate)
+            transformation_matrix = transformation[transformed_coordinate, physical_coordinate]
+        
+        if transformation_matrix.ndim != 2:
+            raise ValueError('The transformation array must be two dimensional')
+
+        transformed_data_ordinate = (transformation_matrix @ original_data_ordinate)[...,0]
+
+        return data_array(FunctionTypes.TIME_RESPONSE, self.ravel().abscissa[0], np.moveaxis(transformed_data_ordinate, 0, -1), 
+                          transformed_coordinate[...,np.newaxis])
+
     @classmethod
     def pseudorandom_signal(cls, dt, signal_length, coordinates,
                             min_frequency=None, max_frequency=None,
@@ -2947,8 +3219,8 @@ class TimeHistoryArray(NDDataArray):
         if (min_frequency is not None or max_frequency is not None or frequency_shape is not None):
             if frequency_shape is None:
                 frequency_shape = _flat_frequency_shape
-            frequencies = np.fft.rfftfreq(signal_length*frames, dt)
-            fft = np.fft.rfft(ordinate, axis=-1)
+            frequencies = scipyfft.rfftfreq(signal_length*frames, dt)
+            fft = scipyfft.rfft(ordinate, axis=-1)
             for index, frequency in enumerate(frequencies):
                 if min_frequency is not None and frequency < min_frequency:
                     fft[..., index] = 0
@@ -2956,7 +3228,7 @@ class TimeHistoryArray(NDDataArray):
                     fft[..., index] = 0
                 else:
                     fft[..., index] *= frequency_shape(frequency)
-            ordinate = np.fft.irfft(fft, axis=-1)
+            ordinate = scipyfft.irfft(fft, n = signal_length*frames, axis=-1)
         # Now set RMS
         current_rms = np.sqrt(np.mean(ordinate**2, axis=-1))
         ordinate *= np.array(signal_rms)[..., np.newaxis]/current_rms[..., np.newaxis]
@@ -3110,8 +3382,8 @@ class TimeHistoryArray(NDDataArray):
         if (min_frequency is not None or max_frequency is not None or frequency_shape is not None):
             if frequency_shape is None:
                 frequency_shape = _flat_frequency_shape
-            frequencies = np.fft.rfftfreq(signal_length*frames, dt)
-            fft = np.fft.rfft(ordinate, axis=-1)
+            frequencies = scipyfft.rfftfreq(signal_length*frames, dt)
+            fft = scipyfft.rfft(ordinate, axis=-1)
             for index, frequency in enumerate(frequencies):
                 if min_frequency is not None and frequency < min_frequency:
                     fft[..., index] = 0
@@ -3119,7 +3391,7 @@ class TimeHistoryArray(NDDataArray):
                     fft[..., index] = 0
                 else:
                     fft[..., index] *= frequency_shape(frequency)
-            ordinate = np.fft.irfft(fft, axis=-1)
+            ordinate = scipyfft.irfft(fft, n = signal_length*frames, axis=-1)
         # Now set RMS
         current_rms = np.sqrt(np.mean(ordinate**2, axis=-1))
         ordinate *= np.array(signal_rms)[..., np.newaxis]/current_rms[..., np.newaxis]
@@ -3405,8 +3677,39 @@ class TimeHistoryArray(NDDataArray):
         
         
 
-# def time_history_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def time_history_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a TimeHistoryArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the TimeHistoryArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : TimeHistoryArray
+        The constructed TimeHistoryArray object
+    """
+    return data_array(FunctionTypes.TIME_RESPONSE,abscissa,ordinate,coordinate,
+                      comment1,comment2,comment3,comment4,comment5)
 
 
 class SpectrumArray(NDDataArray):
@@ -3423,7 +3726,8 @@ class SpectrumArray(NDDataArray):
         """
         return FunctionTypes.SPECTRUM
 
-    def ifft(self, norm="backward", rtol=1, atol=1e-8, **scipy_irfft_kwargs):
+    def ifft(self, norm="backward", rtol=1, atol=1e-8, odd_num_samples = False,
+             **scipy_irfft_kwargs):
         """
         Computes a time signal from the frequency spectrum
 
@@ -3438,6 +3742,12 @@ class SpectrumArray(NDDataArray):
         atol : float, optional
             Relative tolerance used in the abscissa spacing check.
             The default is 1e-8.
+        odd_num_samples : bool, optional
+            If True, then it is assumed that the output signal has an odd
+            number of samples, meaning the signal will have a length of 
+            2*(m-1)+1 where m is the number of frequency lines.  Otherwise, the
+            default value of 2*(m-1) is used, assuming an even signal.  This is
+            ignored if num_samples is specified.
         scipy_irfft_kwargs :
             Additional keywords that will be passed to SciPy's irfft function.
 
@@ -3454,19 +3764,51 @@ class SpectrumArray(NDDataArray):
         TimeHistoryArray
             The time history of the SpectrumArray.
 
+
+        Notes
+        -----
+        Note that the ifft uses the rfft function from scipy to compute the
+        inverse fast fourier transform.  This function is not round-trip
+        equivalent for odd functions, because by default it assumes an even
+        signal length.  For an odd signal length, the user must either specify
+        odd_num_samples = True or set num_samples to the correct number of
+        samples.
         """
-        diffs = np.diff(self.abscissa, axis=-1).flatten()
-        if not np.allclose(diffs, diffs[0], rtol, atol):
-            raise ValueError('Abscissa must have identical spacing to perform the FFT')
-        ordinate = self.ordinate
-        ordinate = np.fft.irfft(ordinate, axis=-1, norm=norm, **scipy_irfft_kwargs)
-        dt = 1 / (self.abscissa.max() * 2)
-        abscissa = np.arange(ordinate.shape[-1]) * dt
-        return data_array(FunctionTypes.TIME_RESPONSE, abscissa, ordinate, self.coordinate,
+        
+        df = self.abscissa_spacing
+        min_freq = self.abscissa.min()
+        if min_freq % df > 0.01*df:
+            raise ValueError('Frequency bins do not line up with zero.  Cannot compute rfft bins.')
+        first_frequency_bin = int(np.round(self.abscissa.min()/df))
+        padding = np.zeros(self.ordinate.shape[:-1]+(first_frequency_bin,),self.ordinate.dtype)
+        if padding.shape[-1] > 0:
+            warnings.warn(
+                'The FRFs are missing some low frequency data'
+                + ' and it is assumed that this is due to some high pass cut-off.'
+                + ' The data is being zero padded at low frequencies.')
+        num_elements = first_frequency_bin+self.num_elements
+        
+        if odd_num_samples:
+            num_samples = 2*(num_elements-1)+1
+        else:
+            num_samples = 2*(num_elements-1)
+
+        # Organizing the FRFs for the ifft, this handles the zero padding if low frequency
+        # data is missing
+        ordinate = np.concatenate((padding,self.ordinate),axis=-1)
+        irfft = scipyfft.irfft(ordinate, axis=-1, n=num_samples, norm=norm,
+                               **scipy_irfft_kwargs)
+
+        # Building the time vectors
+        dt = 1 / (self.abscissa.max()*num_samples/np.floor(num_samples/2))
+        time_vector = dt * np.arange(num_samples)
+        
+        return data_array(FunctionTypes.TIME_RESPONSE, time_vector, irfft, self.coordinate,
                           self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
 
     def interpolate_by_zero_pad(self, time_response_padded_length,
-                                return_time_response=False):
+                                return_time_response=False,
+                                odd_num_samples = False):
         """
         Interpolates a spectrum by zero padding or truncating its
         time response
@@ -3479,6 +3821,14 @@ class SpectrumArray(NDDataArray):
             If True, the zero-padded impulse response function will be returned.
             If False, it will be transformed back to a transfer function prior
             to being returned.
+        odd_num_samples : bool, optional
+            If True, then it is assumed that the spectrum has been constructed
+            from a signal with an odd number of samples.  Note that this
+            function uses the rfft function from scipy to compute the
+            inverse fast fourier transform.  The irfft function is not round-trip
+            equivalent for odd functions, because by default it assumes an even
+            signal length.  For an odd signal length, the user must either specify
+            odd_num_samples = True to make it round-trip equivalent.
 
         Returns
         -------
@@ -3492,7 +3842,7 @@ class SpectrumArray(NDDataArray):
         If `time_response_padded_length` is less than the current function's
         `num_elements`, then it will be truncated instead of zero-padded.
         """
-        time_response = self.ifft()
+        time_response = self.ifft(odd_num_samples=odd_num_samples)
         if time_response_padded_length < time_response.num_elements:
             time_response = time_response.idx_by_el[:time_response_padded_length]
         else:
@@ -3502,8 +3852,59 @@ class SpectrumArray(NDDataArray):
             return time_response
         else:
             spectrum = time_response.fft()
-            spectrum.ordinate[..., -1] = 0
+            if time_response_padded_length % 2 == 0:
+                spectrum.ordinate[..., -1] = 0
             return spectrum
+
+    def apply_transformation(self, transformation, invert_transformation=False):
+        """
+        Applies response transformations spectra.
+
+        Parameters
+        ----------
+        transformation : Matrix
+            The transformation to apply to the spectra. It should be a 
+            SDynPy matrix object with the "transformed" coordinates on the 
+            rows and the "physical" coordinates on the columns. The matrix 
+            can be either 2D or 3D (for a frequency dependent transform).
+        invert_reference_transformation : bool, optional
+            Whether or not to invert the transformation when applying it to 
+            the spectra. The default is False, which is standard practice. 
+            The row/column ordering in the transformation should be flipped 
+            if this is set to true.
+
+        Raises
+        ------
+        ValueError
+            If the physical degrees of freedom in the transformation does not 
+            match the spectra.
+        
+        Returns
+        -------
+        transformed_spectra : SpectrumArray
+            The spectra with the transformation applied.
+        """
+        if not self.validate_common_abscissa():
+            raise ValueError('The abscissa must be consistent accross all functions in the NDDataArray')
+
+        physical_coordinate = np.unique(self.response_coordinate)
+        original_spectra_ordinate = np.moveaxis(self[physical_coordinate[...,np.newaxis]].ordinate, -1, 0)[..., np.newaxis]
+
+        if invert_transformation:
+            if not np.all(np.unique(transformation.row_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.column_coordinate)
+            transformation_matrix = np.linalg.pinv(transformation[physical_coordinate, transformed_coordinate])
+        elif not invert_transformation:
+            if not np.all(np.unique(transformation.column_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.row_coordinate)
+            transformation_matrix = transformation[transformed_coordinate, physical_coordinate]
+                
+        transformed_spectra_ordinate = (transformation_matrix @ original_spectra_ordinate)[...,0]
+
+        return data_array(FunctionTypes.SPECTRUM, self.ravel().abscissa[0], np.moveaxis(transformed_spectra_ordinate, 0, -1), 
+                          transformed_coordinate[...,np.newaxis])
 
     def plot(self, one_axis=True, subplots_kwargs={}, plot_kwargs={},
              abscissa_markers = None, 
@@ -3691,8 +4092,40 @@ class SpectrumArray(NDDataArray):
         return axis
 
 
-# def spectrum_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def spectrum_array(abscissa,ordinate,coordinate,comment1='',comment2='',
+                   comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a SpectrumArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the SpectrumArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : SpectrumArray
+        The constructed SpectrumArray object
+    """
+    return data_array(FunctionTypes.SPECTRUM,abscissa,ordinate,coordinate,
+                      comment1,comment2,comment3,comment4,comment5)
 
 
 class PowerSpectralDensityArray(NDDataArray):
@@ -3828,7 +4261,7 @@ class PowerSpectralDensityArray(NDDataArray):
         # Do constant overlap and add
         final_signals = np.zeros((coordinates.size, (realizations+1) *
                                  (self.num_elements - 1)*output_oversample))
-        window_function = sig.hann(2 * (self.num_elements - 1)*output_oversample, sym=False)**0.5
+        window_function = sig.windows.hann(2 * (self.num_elements - 1)*output_oversample, sym=False)**0.5
         window_first_half = window_function.copy()
         window_first_half[window_first_half.size // 2:] = 1
         window_second_half = window_function.copy()
@@ -4417,6 +4850,28 @@ class PowerSpectralDensityArray(NDDataArray):
                             asds[0].abscissa, np.moveaxis(cpsd_matrix, 0, -1),
                             dofs)[dofs]
         return output
+    
+    def get_cpsd_from_asds(self):
+        """
+        Transforms ASDs to a full CPSD matrix with zeros on the off-diagonals
+
+        Returns
+        -------
+        output : PowerSpectralDensityArray
+            CPSD matrix with the inputs on the diagonals and the off-diagonals
+            as zeros.
+
+        """
+        asds = self.get_asd()
+        dofs = outer_product(asds.response_coordinate, asds.reference_coordinate)
+        asd_matrix = np.moveaxis(asds.ordinate, -1, 0)
+        coherence_matrix = np.tile(np.eye(dofs.shape[0]),(asd_matrix.shape[0],1,1))
+        phase_matrix = 0
+        cpsd_matrix = cpsd_from_coh_phs(asd_matrix, coherence_matrix, phase_matrix)
+        output = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                            asds[0].abscissa, np.moveaxis(cpsd_matrix, 0, -1),
+                            dofs)[dofs]
+        return output
 
     @classmethod
     def eye(cls, frequencies, coordinates, rms=None, full_matrix=False,
@@ -4497,6 +4952,64 @@ class PowerSpectralDensityArray(NDDataArray):
 
         return data_array(FunctionTypes.POWER_SPECTRAL_DENSITY, frequencies,
                           full_cpsd, cpsd_coordinates)
+
+    def apply_transformation(self, transformation, invert_transformation=False):
+        """
+        Applies a transformation to a cross power spectral density matrix.
+
+        Parameters
+        ----------
+        transformation : Matrix
+            The transformation to apply to the spectra. It should be a 
+            SDynPy matrix object with the "transformed" coordinates on the 
+            rows and the "physical" coordinates on the columns. The matrix 
+            can be either 2D or 3D (for a frequency dependent transform).
+        invert_reference_transformation : bool, optional
+            Whether or not to invert the transformation when applying it to 
+            the spectra. The default is False, which is standard practice. 
+            The row/column ordering in the transformation should be flipped 
+            if this is set to true.
+
+        Raises
+        ------
+        ValueError
+            If the cross power spectral density matrix is not square.
+        ValueError
+            If the physical degrees of freedom in the transformation does not 
+            match the spectra.
+        
+        Returns
+        -------
+        transformed_spectra : PowerSpectralDensityArray
+            The cross power spectral density with the transformation applied.
+        """
+        if not self.validate_common_abscissa():
+            raise ValueError('The abscissa must be consistent accross all functions in the NDDataArray')
+
+        if self.ordinate.size != (np.unique(self.response_coordinate).shape[0]*np.unique(self.reference_coordinate).shape[0]*np.unique(self.abscissa).shape[0]):
+            raise ValueError('The supplied array must be a full cross power spectral density matrix')
+
+        physical_coordinate = np.unique(self.response_coordinate)
+        original_spectra_ordinate = np.moveaxis(self[outer_product(physical_coordinate, physical_coordinate)].ordinate, -1, 0)
+
+        if invert_transformation:
+            if not np.all(np.unique(transformation.row_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.column_coordinate)
+            transformation_matrix = np.linalg.pinv(transformation[physical_coordinate, transformed_coordinate])
+        elif not invert_transformation:
+            if not np.all(np.unique(transformation.column_coordinate) == physical_coordinate):
+                raise ValueError('The physical coordinates in the transformation do no match the spectra')
+            transformed_coordinate = np.unique(transformation.row_coordinate)
+            transformation_matrix = transformation[transformed_coordinate, physical_coordinate]
+        
+        if transformation_matrix.ndim == 2:
+            transformation_matrix = transformation_matrix[np.newaxis,...] # this ensures the transpose in the next line works
+
+        transformed_spectra_ordinate = transformation_matrix @ original_spectra_ordinate @ np.transpose(transformation_matrix.conj(), (0, 2, 1))
+
+        return data_array(FunctionTypes.POWER_SPECTRAL_DENSITY, self.ravel().abscissa[0], np.moveaxis(transformed_spectra_ordinate, 0, -1), 
+                          outer_product(transformed_coordinate, transformed_coordinate))
 
     def plot_magnitude_coherence_phase(self, compare_data=None, plot_axes=False,
                                        sharex=True, sharey=True, logx=False,
@@ -4747,6 +5260,43 @@ class PowerSpectralDensityArray(NDDataArray):
                          psd_ave,self.coordinate,self.comment1,self.comment2,self.comment3,
                          self.comment4,self.comment5)
 
+
+def power_spectral_density_array(abscissa,ordinate,coordinate,
+                                 comment1='',comment2='',
+                                 comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a PowerSpectralDensityArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the PowerSpectralDensityArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : PowerSpectralDensityArray
+        The constructed PowerSpectralDensityArray object
+    """
+    return data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
+
 class PowerSpectrumArray(NDDataArray):
     """Data array used to store power spectra arrays"""
     def __new__(subtype, shape, nelements, buffer=None, offset=0,
@@ -4760,9 +5310,43 @@ class PowerSpectrumArray(NDDataArray):
         Returns the function type of the data array
         """
         return FunctionTypes.AUTOSPECTRUM
-# def power_spectrum_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
 
+
+def power_spectrum_array(abscissa,ordinate,coordinate,
+                         comment1='',comment2='',
+                         comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a PowerSpectrumArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the PowerSpectrumArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : PowerSpectrumArray
+        The constructed PowerSpectrumArray object
+    """
+    return data_array(FunctionTypes.AUTOSPECTRUM,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 class TransferFunctionArray(NDDataArray):
     """Data array used to store transfer functions (for example FRFs)"""
@@ -4851,7 +5435,8 @@ class TransferFunctionArray(NDDataArray):
                               freq, np.moveaxis(frf, 0, -1), coordinate)
 
 
-    def ifft(self, norm="backward", **scipy_irfft_kwargs):
+    def ifft(self, norm="backward",  odd_num_samples = False,
+             **scipy_irfft_kwargs):
         """
         Converts frequency response functions to impulse response functions via an
         inverse fourier transform.
@@ -4860,6 +5445,12 @@ class TransferFunctionArray(NDDataArray):
         ---------
         norm : str, optional
             The type of normalization applied to the fft computation.
+        odd_num_samples : bool, optional
+            If True, then it is assumed that the output signal has an odd
+            number of samples, meaning the signal will have a length of 
+            2*(m-1)+1 where m is the number of frequency lines.  Otherwise, the
+            default value of 2*(m-1) is used, assuming an even signal.  This is
+            ignored if num_samples is specified.
         scipy_irfft_kwargs :
             Additional keywords that will be passed to SciPy's irfft function.
 
@@ -4881,43 +5472,36 @@ class TransferFunctionArray(NDDataArray):
             array.
         """
 
-        frfs = self.reshape_to_matrix()
-
-        # Getting some initial sampling parameters for the transform
-        number_spectral_lines = len(frfs[0, 0].ordinate) - 1
-        df = frfs[0, 0].abscissa[1] - frfs[0, 0].abscissa[0]
-        number_samples = int(2 * (frfs[0, 0].abscissa[-1]/df))
-        number_lines = int(number_samples / 2 + 1)
-        start_freq = frfs[0, 0].abscissa[0]
-        dt = 1/(2 * frfs[0, 0].abscissa[-1])
-
-        # Determining if the data needs to be zero padded at low frequencies
-        if number_spectral_lines*2 != number_samples and start_freq != 0:
+        df = self.abscissa_spacing
+        min_freq = self.abscissa.min()
+        if min_freq % df > 0.01*df:
+            raise ValueError('Frequency bins do not line up with zero.  Cannot compute rfft bins.')
+        first_frequency_bin = int(np.round(self.abscissa.min()/df))
+        padding = np.zeros(self.ordinate.shape[:-1]+(first_frequency_bin,),self.ordinate.dtype)
+        if padding.shape[-1] > 0:
             warnings.warn(
-                'The FRFs are missing some frequency data'
+                'The FRFs are missing some low frequency data'
                 + ' and it is assumed that this is due to some high pass cut-off.'
                 + ' The data is being zero padded at low frequencies.')
-            start_index = int(start_freq/df)  # need to check that this indexing makes sense
-        elif number_spectral_lines*2 != number_samples and start_freq == 0:
-            raise ValueError(
-                'The FRFs are missing some frequency data and it cannot be determined what is missing.'
-                + ' The frequency data should be in the 0-Fs/2 range.')
+        num_elements = first_frequency_bin+self.num_elements
+        
+        if odd_num_samples:
+            num_samples = 2*(num_elements-1)+1
         else:
-            start_index = 0
+            num_samples = 2*(num_elements-1)
 
         # Organizing the FRFs for the ifft, this handles the zero padding if low frequency
         # data is missing
-        frfs_ordinate = np.moveaxis(frfs.ordinate, -1, 0)
-        frf_ordinate_for_transform = np.zeros((number_lines, frfs_ordinate.shape[1], frfs_ordinate.shape[2]), dtype=np.complex128)
-        frf_ordinate_for_transform[start_index:, :, :] = frfs_ordinate
-
-        irfs = scipyfft.irfft(frf_ordinate_for_transform, axis=0, n=number_samples, norm=norm, **scipy_irfft_kwargs)
+        ordinate = np.concatenate((padding,self.ordinate),axis=-1)
+        irfft = scipyfft.irfft(ordinate, axis=-1, n=num_samples, norm=norm,
+                               **scipy_irfft_kwargs)
 
         # Building the time vectors
-        time_vector = (dt * np.arange(number_samples)) + dt
-        abscissa = np.broadcast_to(time_vector[..., np.newaxis, np.newaxis], irfs.shape)
+        dt = 1 / (self.abscissa.max()*num_samples/np.floor(num_samples/2))
+        time_vector = dt * np.arange(num_samples)
 
-        return data_array(FunctionTypes.IMPULSE_RESPONSE_FUNCTION, np.moveaxis(abscissa, 0, -1), np.moveaxis(np.real(irfs), 0, -1), frfs.coordinate)
+        return data_array(FunctionTypes.IMPULSE_RESPONSE_FUNCTION, time_vector, irfft, self.coordinate,
+                          self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
 
     def enforce_causality(self, method='exponential_taper',
                           window_parameter=None,
@@ -5678,7 +6262,109 @@ class TransferFunctionArray(NDDataArray):
         """
         return FunctionTypes.FREQUENCY_RESPONSE_FUNCTION
 
-    def interpolate_by_zero_pad(self, irf_padded_length, return_irf=False):
+    def apply_transformation(self, response_transformation=None, reference_transformation=None, 
+                             invert_response_transformation=False, invert_reference_transformation=True):
+        """
+        Applies reference and response transformations to the transfer 
+        functions.
+
+        Parameters
+        ----------
+        response_transformation : Matrix, optional
+            The response transformation to apply to the (rows of the)
+            transfer functions. It should be a SDynPy matrix object with 
+            the "transformed" coordinates on the rows and the "physical" 
+            coordinates on the columns. The matrix can be either 2D or 3D
+            (for a frequency dependent transform).
+        reference_transformation : Matrix, optional
+            The reference transformation to apply to the (columns of the)
+            transfer functions. It should be a SDynPy matrix object with 
+            the "transformed" coordinates on the rows and the "physical" 
+            coordinates on the columns. The matrix can be either 2D or 3D
+            (for a frequency dependent transform).
+        invert_response_transformation : bool, optional
+            Whether or not to invert the response transformation when 
+            applying it to the transfer functions. The default is false, 
+            which is standard practice. The row/column ordering in the 
+            reference transformation should be flipped if this is set to
+            true.
+        invert_reference_transformation : bool, optional
+            Whether or not to invert the reference transformation when 
+            applying it to the transfer functions. The default is true, 
+            which is standard practice. The row/column ordering in the 
+            reference transformation should be flipped if this is set to
+            false.
+
+        Raises
+        ------
+        ValueError
+            If the physical degrees of freedom in the transformations don't
+            match the transfer functions
+        
+        Returns
+        -------
+        transformed_transfer_function : TransferFunctionArray
+            The transfer functions with the transformations applied.
+
+        Notes
+        -----
+        This method can be used with just a response transformation, just a reference
+        transformation, or both a response and reference transformation. The 
+        transformation will be set to identity if it is not supplied. 
+
+        References
+        ----------
+        .. [1] M. Van der Seijs, D. van den Bosch, D. Rixen, and D. Klerk, "An improved 
+               methodology for the virtual point transformation of measured frequency 
+               response functions in dynamic substructuring," in Proceedings of the 4th 
+               International Conference on Computational Methods in Structural Dynamics 
+               and Earthquake Engineering, Kos Island, 2013, pp. 4334-4347, 
+               doi: 10.7712/120113.4816.C1539. 
+        """
+        if not self.validate_common_abscissa():
+            raise ValueError('The abscissa must be consistent accross all functions in the NDDataArray')
+
+        physical_response_coordinate = np.unique(self.response_coordinate)
+        physical_reference_coordinate = np.unique(self.reference_coordinate)
+        original_frf_ordinate = np.moveaxis(self[outer_product(physical_response_coordinate, physical_reference_coordinate)].ordinate, -1, 0)
+
+        if reference_transformation is None:
+            transformed_reference_coordinate = physical_reference_coordinate
+            reference_transformation_matrix = np.eye(physical_reference_coordinate.shape[0])
+        else:
+            if invert_reference_transformation:
+                if not np.all(np.unique(reference_transformation.column_coordinate) == physical_reference_coordinate):
+                    raise ValueError('The physical coordinates in the reference transformation do no match the transfer functions')
+                transformed_reference_coordinate = np.unique(reference_transformation.row_coordinate)
+                reference_transformation_matrix = np.linalg.pinv(reference_transformation[transformed_reference_coordinate, physical_reference_coordinate])
+            elif not invert_reference_transformation:
+                if not np.all(np.unique(reference_transformation.row_coordinate) == physical_reference_coordinate):
+                    raise ValueError('The physical coordinates in the reference transformation do no match the transfer functions')
+                transformed_reference_coordinate = np.unique(reference_transformation.column_coordinate)
+                reference_transformation_matrix = reference_transformation[physical_reference_coordinate, transformed_reference_coordinate]
+
+        if response_transformation is None:
+            transformed_response_coordinate = physical_response_coordinate
+            response_transformation_matrix = np.eye(physical_response_coordinate.shape[0])
+        else:
+            if invert_response_transformation:
+                if not np.all(np.unique(response_transformation.row_coordinate) == physical_response_coordinate):
+                    raise ValueError('The physical coordinates in the response transformation do no match the transfer functions')
+                transformed_response_coordinate = np.unique(response_transformation.row_coordinate)
+                response_transformation_matrix = np.linalg.pinv(response_transformation[transformed_response_coordinate, physical_response_coordinate])
+            elif not invert_response_transformation:
+                if not np.all(np.unique(response_transformation.column_coordinate) == physical_response_coordinate):
+                    raise ValueError('The physical coordinates in the response transformation do no match the transfer functions')
+                transformed_response_coordinate = np.unique(response_transformation.row_coordinate)
+                response_transformation_matrix = response_transformation[transformed_response_coordinate, physical_response_coordinate]
+                
+        transformed_frf_ordinate = response_transformation_matrix @ original_frf_ordinate @ reference_transformation_matrix
+
+        return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION, self.ravel().abscissa[0], np.moveaxis(transformed_frf_ordinate, 0, -1), 
+                          outer_product(transformed_response_coordinate, transformed_reference_coordinate))
+
+    def interpolate_by_zero_pad(self, irf_padded_length, return_irf=False,
+                                odd_num_samples = False):
         """
         Interpolates a transfer function by zero padding or truncating its
         impulse response
@@ -5691,6 +6377,14 @@ class TransferFunctionArray(NDDataArray):
             If True, the zero-padded impulse response function will be returned.
             If False, it will be transformed back to a transfer function prior
             to being returned.
+        odd_num_samples : bool, optional
+            If True, then it is assumed that the spectrum has been constructed
+            from a signal with an odd number of samples.  Note that this
+            function uses the rfft function from scipy to compute the
+            inverse fast fourier transform.  The irfft function is not round-trip
+            equivalent for odd functions, because by default it assumes an even
+            signal length.  For an odd signal length, the user must either specify
+            odd_num_samples = True to make it round-trip equivalent.
 
         Returns
         -------
@@ -5704,16 +6398,17 @@ class TransferFunctionArray(NDDataArray):
         If `irf_padded_length` is less than the current function's `num_elements`,
         then it will be truncated instead of zero-padded.
         """
-        irf = self.ifft()
+        irf = self.ifft(odd_num_samples=odd_num_samples)
         if irf_padded_length < irf.num_elements:
             irf = irf.idx_by_el[:irf_padded_length]
         else:
-            irf = irf.zero_pad(irf_padded_length - irf.num_elements)
+            irf = irf.zero_pad(irf_padded_length - irf.num_elements,left=False,right=True)
         if return_irf:
             return irf
         else:
-            frf = irf.fft()
-            frf.ordinate[..., -1] = 0
+            frf = irf.fft(norm='backward')
+            if irf_padded_length % 2 == 0:
+                frf.ordinate[...,-1] = 0
             return frf
 
     def substructure_by_constraint_matrix(self, dofs, constraint_matrix):
@@ -5811,8 +6506,41 @@ class TransferFunctionArray(NDDataArray):
         dof_list = np.array(dof_list).view(CoordinateArray)
         return self.substructure_by_constraint_matrix(dof_list, constraint_matrix)
 
-# def transfer_function_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def transfer_function_array(abscissa,ordinate,coordinate,
+                            comment1='',comment2='',
+                            comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a TransferFunctionArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the TransferFunctionArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : TransferFunctionArray
+        The constructed TransferFunctionArray object
+    """
+    return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 
 class ImpulseResponseFunctionArray(NDDataArray):
@@ -6008,6 +6736,41 @@ class ImpulseResponseFunctionArray(NDDataArray):
 
         return irfs_causal
 
+def impulse_response_function_array(abscissa,ordinate,coordinate,
+                                    comment1='',comment2='',
+                                    comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a ImpulseResponseFunctionArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the ImpulseResponseFunctionArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : ImpulseResponseFunctionArray
+        The constructed ImpulseResponseFunctionArray object
+    """
+    return data_array(FunctionTypes.IMPULSE_RESPONSE_FUNCTION,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 class TransmissibilityArray(NDDataArray):
     """Data array used to store transmissibility data"""
@@ -6022,8 +6785,43 @@ class TransmissibilityArray(NDDataArray):
         Returns the function type of the data array
         """
         return FunctionTypes.TRANSMISIBILITY
-# def transmisibility_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+
+
+def transmissibility_array(abscissa,ordinate,coordinate,
+                           comment1='',comment2='',
+                           comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a TransmissibilityArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the TransmissibilityArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : TransmissibilityArray
+        The constructed TransmissibilityArray object
+    """
+    return data_array(FunctionTypes.TRANSMISIBILITY,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 
 class CoherenceArray(NDDataArray):
@@ -6109,6 +6907,44 @@ class CoherenceArray(NDDataArray):
         return data_array(FunctionTypes.COHERENCE,
                           freq, np.moveaxis(coh, 0, -1), coordinate)
 
+
+def coherence_array(abscissa,ordinate,coordinate,
+                    comment1='',comment2='',
+                    comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a CoherenceArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the CoherenceArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : CoherenceArray
+        The constructed CoherenceArray object
+    """
+    return data_array(FunctionTypes.COHERENCE,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
+
+
 class MultipleCoherenceArray(NDDataArray):
     """Data array used to store coherence data"""
     def __new__(subtype, shape, nelements, buffer=None, offset=0,
@@ -6190,8 +7026,41 @@ class MultipleCoherenceArray(NDDataArray):
         return data_array(FunctionTypes.MULTIPLE_COHERENCE,
                           freq, np.moveaxis(mcoh, 0, -1), res_data.coordinate)
 
-# def coherence_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def multiple_coherence_array(abscissa,ordinate,coordinate,
+                    comment1='',comment2='',
+                    comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a MultipleCoherenceArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the MultipleCoherenceArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : MultipleCoherenceArray
+        The constructed MultipleCoherenceArray object
+    """
+    return data_array(FunctionTypes.MULTIPLE_COHERENCE,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 
 class CorrelationArray(NDDataArray):
@@ -6203,8 +7072,41 @@ class CorrelationArray(NDDataArray):
         """
         return FunctionTypes.CROSSCORRELATION
 
-# def correlation_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def correlation_array(abscissa,ordinate,coordinate,
+                    comment1='',comment2='',
+                    comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a CorrelationArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the CorrelationArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : CorrelationArray
+        The constructed CorrelationArray object
+    """
+    return data_array(FunctionTypes.CROSSCORRELATION,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 
 class ModeIndicatorFunctionArray(NDDataArray):
@@ -6221,6 +7123,41 @@ class ModeIndicatorFunctionArray(NDDataArray):
         """
         return FunctionTypes.MODE_INDICATOR_FUNCTION
 
+def mode_indicator_function_array(abscissa,ordinate,coordinate,
+                                  comment1='',comment2='',
+                                  comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a ModeIndicatorFunctionArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the ModeIndicatorFunctionArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : ModeIndicatorFunctionArray
+        The constructed ModeIndicatorFunctionArray object
+    """
+    return data_array(FunctionTypes.MODE_INDICATOR_FUNCTION,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 class ShockResponseSpectrumArray(NDDataArray):
 
@@ -6632,8 +7569,41 @@ class ShockResponseSpectrumArray(NDDataArray):
                             axis.annotate(label, xy=(mx,my), textcoords='offset pixels', xytext=(4,4), ha='left', va='bottom')
         return axis
 
-# def mode_indicator_function_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
-#     pass
+def shock_response_spectrum_array(abscissa,ordinate,coordinate,
+                                  comment1='',comment2='',
+                                  comment3='',comment4='',comment5=''):
+    """
+    Helper function to create a ShockResponseSpectrumArray object.
+
+    All input arguments to this function are allowed to broadcast to create the
+    final data in the ShockResponseSpectrumArray object.
+
+    Parameters
+    ----------
+    abscissa : np.ndarray
+        Numpy array specifying the abscissa of the function
+    ordinate : np.ndarray
+        Numpy array specifying the ordinate of the function
+    coordinate : CoordinateArray
+        Coordinate for each data in the data array
+    comment1 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment2 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment3 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment4 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+    comment5 : np.ndarray, optional
+        Comment used to describe the data in the data array. The default is ''.
+
+    Returns
+    -------
+    obj : ShockResponseSpectrumArray
+        The constructed ShockResponseSpectrumArray object
+    """
+    return data_array(FunctionTypes.SHOCK_RESPONSE_SPECTRUM,abscissa,ordinate,
+                      coordinate, comment1,comment2,comment3,comment4,comment5)
 
 
 _function_type_class_map = {FunctionTypes.GENERAL: NDDataArray,
@@ -7242,7 +8212,8 @@ class GUIPlot(QMainWindow):
                     for k, (label, dataset) in enumerate(self.data_dictionary.items()):
                         data_entry = dataset[index]
                         legend_entry = '{:} {:} {:}'.format(
-                            original_index, data_entry.coordinate, label).replace("'", '')
+                            tuple([str(v) for v in original_index]),
+                            data_entry.coordinate, label).replace("'", '')
                         pen = pyqtgraph.mkPen(
                             color=[int(255 * v) for v in self.cm((j * (self.number_of_datasets) + k) % self.cm_mod)],
                             width=self.linewidth_selector.value())

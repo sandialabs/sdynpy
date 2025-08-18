@@ -34,7 +34,8 @@ import warnings
 
 
 def read_rattlesnake_output(file, coordinate_override_column=None, read_only_indices=None,
-                            read_variable='time_data'):
+                            read_variable='time_data', abscissa_start = None,
+                            abscissa_stop = None, downsample = None):
     """
     Reads in a Rattlesnake data file and returns the time history array as well
     as the channel table
@@ -43,6 +44,21 @@ def read_rattlesnake_output(file, coordinate_override_column=None, read_only_ind
     ----------
     file : str or nc4.Dataset
         Path to the file to read in or an already open
+    coordinate_override_column : str, optional
+        Specify a channel table column name to extract coordinate information from.
+        If not specified, then it will be assembled from node id and directions.
+    read_only_indices : slice or iterable, optional
+        A valid indexing operation to select which channel indices to read
+    read_variable : str, optional
+        The time variable from the Rattlesnake file to read.  These will 
+        generally be time_data, time_data_1, time_data_2, etc. depending on
+        how many streams exist in the file.  The default is 'time_data'.
+    abscissa_start : float, optional
+        Data will not be extracted for abscissa values less than this value
+    abscissa_stop : float, optional
+        Data will not be extracted for abscissa values greater than this value
+    downsample : int, optional
+        A step size to use to downsample the dataset when reading
 
     Returns
     -------
@@ -58,8 +74,19 @@ def read_rattlesnake_output(file, coordinate_override_column=None, read_only_ind
         ds = file
     if read_only_indices is None:
         read_only_indices = slice(None)
-    output_data = np.array(ds[read_variable][...][read_only_indices])
-    abscissa = np.arange(output_data.shape[-1]) / ds.sample_rate
+    if abscissa_start is None:
+        start_index = None
+    else:
+        start_index = int(np.ceil(abscissa_start * ds.sample_rate))
+    if abscissa_stop is None:
+        stop_index = None
+    else:
+        stop_index = int(np.ceil(abscissa_stop * ds.sample_rate))
+    abscissa_slice = slice(start_index, stop_index, downsample)
+    output_data = np.array(ds[read_variable][:,abscissa_slice][read_only_indices])
+    abscissa = np.arange(0 if start_index is None else start_index,
+                         ds[read_variable].shape[-1] if stop_index is None else stop_index,
+                         1 if downsample is None else downsample) / ds.sample_rate
     if coordinate_override_column is None:
         nodes = [int(''.join(char for char in node if char in '0123456789'))
                  for node in ds['channels']['node_number'][...][read_only_indices]]
@@ -506,13 +533,7 @@ def create_synthetic_test(spreadsheet_file_name: str,
                           channel_abort_level_data: list = None,
                           channel_active_in_environment_data: dict = None
                           ):
-    A, B, C, D = system.to_state_space(displacement_derivative == 0,
-                                       displacement_derivative == 1,
-                                       displacement_derivative == 2,
-                                       True,
-                                       response_coordinates,
-                                       excitation_coordinates)
-    np.savez(system_filename, A=A, B=B, C=C, D=D)
+    system.save(system_filename)
     # Load in Rattlesnake to create a template for the test
     sys.path.insert(0, rattlesnake_directory)
     import components as rs
@@ -565,7 +586,7 @@ def create_synthetic_test(spreadsheet_file_name: str,
             for row_index in range(response_coordinates.size + excitation_coordinates.size):
                 worksheet.cell(3+row_index, 24+environment_index, 'X')
     worksheet = workbook.get_sheet_by_name('Hardware')
-    worksheet.cell(1, 2, 5)
+    worksheet.cell(1, 2, 6)
     worksheet.cell(2, 2, os.path.abspath(system_filename))
     if sample_rate is not None:
         worksheet.cell(3, 2, sample_rate)

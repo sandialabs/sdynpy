@@ -1381,6 +1381,7 @@ class System:
             displacement_derivative=2,
             antialias_filter_cutoff_factor=3,
             antialias_filter_order=4,
+            multihammer_impact_spacing_factor = 4,
             **generator_kwargs
     ):
         available_excitations = ['pseudorandom', 'random',
@@ -1477,7 +1478,7 @@ class System:
                     pulse_times = []
                     last_pulse = 0
                     while last_pulse < frame_time * signal_fraction:
-                        next_pulse = last_pulse + pulse_width * (np.random.rand() * 4 + 1)
+                        next_pulse = last_pulse + pulse_width * (np.random.rand() * multihammer_impact_spacing_factor + 1)
                         pulse_times.append(next_pulse)
                         last_pulse = next_pulse
                     pulse_times = np.array(pulse_times)
