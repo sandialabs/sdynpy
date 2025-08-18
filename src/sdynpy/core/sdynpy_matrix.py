@@ -361,6 +361,25 @@ class Matrix(SdynpyArray):
             column_coordinate = row_coordinate
         return matrix(np.eye(row_coordinate.shape[-1], column_coordinate.shape[-1]),
                       row_coordinate, column_coordinate)
+    
+    def pinv(self, **pinv_params):
+        """
+        Creates the pseudoinverse of the matrix
+
+        Parameters
+        ----------
+        **pinv_params : various
+            Extra keyword arguments are passed directly to np.linalg.pinv
+
+        Returns
+        -------
+        Matrix
+            A matrix consisting of the pseudoinverse of the original matrix
+
+        """
+        mat = np.linalg.pinv(self.matrix,**pinv_params)
+        return matrix(matrix=mat,row_coordinate = self.column_coordinate,
+                      column_coordinate = self.row_coordinate)
 
 
 def matrix(matrix, row_coordinate, column_coordinate, buffer=None, offset=0,
