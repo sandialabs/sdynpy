@@ -3302,6 +3302,7 @@ class Geometry:
             css = coordinate_system_array((1,))
         return Geometry(nodes, css, tls, elems)
 
+
     @classmethod
     def camera_visualization(cls, K, RT, image_size, size=1, colors=1):
         """
@@ -4307,6 +4308,25 @@ class Geometry:
         else:
             return plotter, face_mesh, point_mesh, solid_mesh
 
+    def global_geometry_table(self,coordinate_array_or_nodelist = None):
+        if coordinate_array_or_nodelist is None:
+            coord = coordinate_array(self.node.id,[1,2,3],force_broadcast=True)
+        elif isinstance(coordinate_array_or_nodelist,CoordinateArray):
+            coord = coordinate_array_or_nodelist.flatten()
+        else:
+            coord = coordinate_array(coordinate_array_or_nodelist,[1,2,3],force_broadcast=True)
+        global_positions = self.global_node_coordinate(coord.node)
+        global_directions = self.global_deflection(coord)
+        coord_string = coord.string_array()
+        df_dict = {}
+        df_dict['Degree of Freedom'] = coord_string
+        for label,column in zip('XYZ',global_positions.T):
+            df_dict[f'Coordinate {label}'] = column
+        for label,column in zip('XYZ',global_directions.T):
+            df_dict[f'Direction {label}'] = column
+        df = pd.DataFrame(df_dict)
+        return df
+            
     def plot_coordinate(self, coordinates: CoordinateArray = None,
                         arrow_scale=0.1,
                         arrow_scale_type='bbox', label_dofs=False,
