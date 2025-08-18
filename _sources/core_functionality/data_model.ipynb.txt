@@ -1,0 +1,846 @@
+{
+ "cells": [
+  {
+   "cell_type": "raw",
+   "id": "33638605-d465-4a43-8e80-8d4113a20913",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Data Model\n",
+    "============\n",
+    "\n",
+    "This document describes the general data model used by SDynPy objects.  Understanding how SDynPy stores data can aid in understanding how to use SDynPy.\n",
+    "\n",
+    "SDynPy objects generally come in two 'flavors'.\n",
+    "\n",
+    "  - Python Classes\n",
+    "  - NumPy Structured Arrays\n",
+    "\n",
+    "General Python classes are used to represent objects that are typically used one-at-a-time.  These typically include types like :py:class:`Geometry<sdynpy.core.sdynpy_geometry.Geometry>`, which represent a test or analysis geometry.  Alternatively, certain types of objects are often used in the form of an array.  For example, a structural dynamics test can in general measure many channels of data, and this data is conveniently represented as an array of data.  To facilitate efficient array storage and usage, these objects are often represented as subclasses of NumPy arrays.  In particular, NumPy's Structured Arrays allow the inclusion of multiple fields with varying data types for each entry in the array.  In SDynPy, these objects generally include the identifier ``Array`` in their name.  Examples of such types include :py:class:`NodeArray<sdynpy.core.sdynpy_geometry.NodeArray>` which represents nodes or spatial points in a geometry, :py:class:`TimeHistoryArray<sdynpy.core.sdynpy_data.TimeHistoryArray>` which represents a set of time response data, or :py:class:`ShapeArray<sdynpy.core.sdynpy_shape.ShapeArray>` which represents a set of mode shapes.\n",
+    "\n",
+    "Accessing attributes and methods of general Python classes is relatively straightforward for those who are familiar with Python's object-oriented programming syntax, so it will not be described here.  Instead users are directed to the `Python Documentation <https://docs.python.org/3/tutorial/classes.html>`_ to learn about these general concepts.\n",
+    "\n",
+    "This document will focus on the data model used by SDynPy to represent array-like objects by subclassing NumPy's structured array.\n",
+    "\n",
+    "SDynPy Arrays\n",
+    "-------------\n",
+    "\n",
+    "All array-like SDynPy objects subclass from the :py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>` class, which in turn subclasses from the ``numpy.ndarray`` class.  Therefore, most SDynPy array objects can directly use NumPy functions.  As an example, you can easily select the unique degrees of freedom from a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` using ``numpy.unique`` or concatenate arrays together using ``numpy.concatenate``.\n",
+    "\n",
+    "In the following example, we create a handful of :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` objects, show that they are indeed a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` while also being a :py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>` and a ``ndarray``.  We also show how we can directly use NumPy functions with these objects."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "364cdfd1-3fee-412c-9f96-3dc2d1178dfa",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "array_1 is a NumPy ndarray: True\n",
+      "array_1 is a SdynpyArray: True\n",
+      "array_1 is a CoordinateArray: True\n",
+      "\n",
+      "Full array: ['1X+' '2X+' '3X+' '1Y+' '2Y+' '3Y+' '1X+' '2X+' '3X+']\n",
+      "Unique degrees of freedom: ['1X+' '1Y+' '2X+' '2Y+' '3X+' '3Y+']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Import packages\n",
+    "import sdynpy as sdpy\n",
+    "import numpy as np\n",
+    "\n",
+    "# Create some coordinate arrays\n",
+    "array_1 = sdpy.coordinate_array(node=[1,2,3],direction='X+')\n",
+    "array_2 = sdpy.coordinate_array(node=[1,2,3],direction='Y+')\n",
+    "array_3 = sdpy.coordinate_array(node=[1,2,3],direction='X+')\n",
+    "\n",
+    "print(f'array_1 is a NumPy ndarray: {isinstance(array_1,np.ndarray)}')\n",
+    "print(f'array_1 is a SdynpyArray: {isinstance(array_1,sdpy.SdynpyArray)}')\n",
+    "print(f'array_1 is a CoordinateArray: {isinstance(array_1,sdpy.CoordinateArray)}\\n')\n",
+    "\n",
+    "# Concatenate arrays together using numpy\n",
+    "full_array = np.concatenate((array_1,array_2,array_3))\n",
+    "print(f'Full array: {full_array}')\n",
+    "\n",
+    "# Get just the unique coordinates\n",
+    "unique_dofs = np.unique(full_array)\n",
+    "print(f'Unique degrees of freedom: {unique_dofs}')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b690a17d-a15b-4501-8cdd-4861bfad6f5b",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Some NumPy functions will not return the SDynPy object, but rather the basic NumPy structured array that represents the object.  An example of this is `numpy.array`.  However, we can easily use the `view` method to transform the object back to the desired SDynPy object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "5f7ee8a7-a231-473f-a0cd-6d6bf933c83c",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Created array_2d using np.array:\n",
+      "[[(1, 1) (2, 1) (3, 1)]\n",
+      " [(1, 2) (2, 2) (3, 2)]\n",
+      " [(1, 1) (2, 1) (3, 1)]]\n",
+      "array_2d is a NumPy ndarray: True\n",
+      "array_2d is a SdynpyArray: False\n",
+      "array_2d is a CoordinateArray: False\n",
+      "\n",
+      "Used view to transform the np.ndarray back to a SDynPy object:\n",
+      "[['1X+' '2X+' '3X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n",
+      "array_2d is a NumPy ndarray: True\n",
+      "array_2d is a SdynpyArray: True\n",
+      "array_2d is a CoordinateArray: True\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create a 2D array using np.array\n",
+    "array_2d = np.array((array_1,array_2,array_3))\n",
+    "\n",
+    "print(f'Created array_2d using np.array:\\n{array_2d}')\n",
+    "\n",
+    "# Check what type of object it is\n",
+    "print(f'array_2d is a NumPy ndarray: {isinstance(array_2d,np.ndarray)}')\n",
+    "print(f'array_2d is a SdynpyArray: {isinstance(array_2d,sdpy.SdynpyArray)}')\n",
+    "print(f'array_2d is a CoordinateArray: {isinstance(array_2d,sdpy.CoordinateArray)}\\n')\n",
+    "\n",
+    "# We can turn it back into a coordinate array using view\n",
+    "array_2d = array_2d.view(sdpy.CoordinateArray)\n",
+    "\n",
+    "print(f'Used view to transform the np.ndarray back to a SDynPy object:\\n{array_2d}')\n",
+    "\n",
+    "# Check what type of object it is\n",
+    "print(f'array_2d is a NumPy ndarray: {isinstance(array_2d,np.ndarray)}')\n",
+    "print(f'array_2d is a SdynpyArray: {isinstance(array_2d,sdpy.SdynpyArray)}')\n",
+    "print(f'array_2d is a CoordinateArray: {isinstance(array_2d,sdpy.CoordinateArray)}\\n')"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "b04c3a62-4b97-4198-9d19-635e8199f357",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "SDynPy Array Fields\n",
+    "-------------------\n",
+    "\n",
+    "NumPy's structured array allows multiple fields to be stored within a single array, which allows users to efficiently store and access those data.  The fields of a structure array, and therefore the fields of a :py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>`, are defined by the array's ``dtype``.  For example, each entry in a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` contains a ``node`` as an unsigned 8-byte integer and a ``direction`` as a signed 1-byte integer."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "8c013fe3-8f2b-4aa3-9459-f90b64961177",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "dtype([('node', '<u8'), ('direction', 'i1')])"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "array_2d.dtype"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "c1ea3824-cfe8-4d1b-8f9c-11eb470d68fd",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "To get a simple list of field names, :py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>` objects have a ``fields`` attribute that can be used."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "68594e66-1bca-4442-8a9a-9089b1a892a0",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "('node', 'direction')"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "array_2d.fields"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "f5e76f7c-fb5d-4c09-9b79-48a87feea641",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "When working with NumPy structured arrays, and therefore :py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>` objects, we can access the data in these fields by indexing using the field name.  This will usually return a basic NumPy array containing the data.  However, sometimes it will return other SDynPy objects."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "650cbf81-2ac4-4a86-b7e2-7cf82f637d87",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[1, 2, 3],\n",
+       "       [1, 2, 3],\n",
+       "       [1, 2, 3]], dtype=uint64)"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "array_2d['node']"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4f6d943b-b66a-431f-a4b0-050ce60be4d6",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Some users find this syntax unintuitive.  Therefore, SDynPy also allows users to access these fields as if they were attributes of the object itself.  Note, however, that these attributes are created dynamically, therefore many code-completion tools in development environments will not recognize these attributes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "3cadd338-ed9b-4964-a89c-6ff42923dc12",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[1, 2, 3],\n",
+       "       [1, 2, 3],\n",
+       "       [1, 2, 3]], dtype=uint64)"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "array_2d.node"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "85d9e24a-9698-4373-bd60-9fde39ab869c",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Storing SDynPy Data to Disk\n",
+    "----------------------------\n",
+    "\n",
+    ":py:class:`SdynpyArray<sdynpy.core.sdynpy_array.SdynpyArray>` objects can be saved to and loaded from the disk using functionality similar to that of NumPy, and are indeed stored as NumPy ``.npz`` or ``.npy`` files.  Because it is trival to go between NumPy arrays and SDynPy arrays using ``view``, the functionality is basically identical.\n",
+    "\n",
+    "When loading a SDynPy array from a NumPy file, we will generally use a class method to perform this operation; this tells SDynPy which class to view the object as.  These load functions are also often aliased to the module containing the class definition as well to make access easier."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "6f9a57f0-8240-47ef-840a-d77913177072",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Save to a file\n",
+    "array_2d.save('file_path.npy')\n",
+    "# Load from a file using a class method\n",
+    "array_2d_from_file = sdpy.CoordinateArray.load('file_path.npy')\n",
+    "# These are also often aliased to the relevant module.\n",
+    "array_2d_from_file = sdpy.coordinate.load('file_path.npy')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fea01e1e-a81c-4b88-aa35-1209e80f2c24",
+   "metadata": {},
+   "source": [
+    "Because Matlab is another common tool used in Structural Dynamics, SDynPy provides methods to save data to a `.mat` file.  This uses the `savemat` function from `scipy.io`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "721739e3-7f72-4bf8-9208-29ef5e1bc425",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "array_2d.savemat('file_path.mat')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d8217d4-8f8a-4322-b13c-a5efc8503108",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "## Indexing SDynPy Arrays\n",
+    "Because SDynPy arrays are actually NumPy arrays, all NumPy indexing syntax can be used.  See https://numpy.org/doc/2.2/user/basics.indexing.html for a complete description of indexing options available in SDynPy.\n",
+    "\n",
+    "One key concept to understand when indexing both NumPy and SDynPy objects is when these operations return *views into* or *copies of* an array.  Subtle bugs can be introduced into code if a user modifies a view of an array when they thought they had a copy.  Additionally, assignments into SDynPy fields can result in unintuitive behavior if these concepts are not well understood.\n",
+    "\n",
+    "Consider the following example where we try to assign to the first row of the node field of `array_2d`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "ece7df76-9334-4860-8589-675bb94ea642",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['1X+' '2X+' '3X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(array_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d54cf2ee-9204-4678-b01d-ba579660367e",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Imagine we would like to change the value of the node field for the entire first row.  There are many ways to do this.  For example, we could slice the entire first row and assign to the `node` field of that slice."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "1a9e65fb-1098-49f5-97a2-2556fa56fedc",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['10X+' '10X+' '10X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "array_2d[0,:].node = 10\n",
+    "print(array_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3cbf5f80-07f7-41aa-abda-f4cbe99ed0c6",
+   "metadata": {},
+   "source": [
+    "We could also assign directly to a slice of the `node` field."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "9f0dbaca-e6ee-4f2c-94ec-8e00f1642df0",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['20X+' '20X+' '20X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "array_2d.node[0,:] = 20\n",
+    "print(array_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67ffdfa0-5f75-4830-85f9-c74289013e39",
+   "metadata": {},
+   "source": [
+    "We can also use advanced indexing techniques such as integer indexing or logical indexing, explicitly selecting columns 0, 1, and 2 from row 0."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "4ccd7b31-cf76-40f8-9186-af9e562f116d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['30X+' '30X+' '30X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "array_2d.node[0,[0,1,2]] = 30\n",
+    "print(array_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0146b2d3-7a59-432e-8924-77e9bc2c3190",
+   "metadata": {},
+   "source": [
+    "However, think about what happens if we use advanced indexing on the CoordinateArray and then try to assign to the `node` field "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "7058a119-883a-4d4d-9b0d-cb63cebf8949",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['30X+' '30X+' '30X+']\n",
+      " ['1Y+' '2Y+' '3Y+']\n",
+      " ['1X+' '2X+' '3X+']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "array_2d[0,[0,1,2]].node = 40\n",
+    "print(array_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4d71fac-7b04-4a44-8391-ab2e33607793",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "We can see that the values the `node` field for the first row of `array_2d` were not assigned to 40, but rather remain as 30.  This is because when we do `array_2d[0,[0,1,2]]`, the advanced indexing triggers the creation of a *copy of* the original array, and we then change the value of the copy.  Since this copy has no relationship to the original array, the original array does not change.\n",
+    "\n",
+    "Contrast this with the first example using a slice: `array_2d[0,:]` is basic indexing which creates a *view into* the original array, meaning the view and the original array share the same memory.  Therefore changing the `node` field of the view is equivalent to changing the `node` field of the original array.\n",
+    "\n",
+    "Understanding the difference between copies and views for indexing operations is imperative to successfully use SDynPy.  Otherwise, subtle bugs can be introduced into the code."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "645c4f91-0da3-48ed-ab7c-ce72df774dee",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "## Iterating over SDynPy Arrays\n",
+    "\n",
+    "We often would like to iterate over the items in a SDynPy array.  We can do this using standard `for` loop syntax in Python.  Note that because SDynPy arrays are NumPy arrays, iterating over a SDynPy array works exactly the same as iterating over a NumPy array.  Basically, a `for` loop will loop over the first dimesion of the array.  For a 1D array, this will return every item in the array sequentially.  For a 2D array, this will return every *row* in the array sequentially."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "b6c9dd0d-b16c-40fd-a063-c10cfe824aa8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "1X+\n",
+      "2X+\n",
+      "3X+\n"
+     ]
+    }
+   ],
+   "source": [
+    "for item in array_1:\n",
+    "    print(item)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "8c130805-903b-4161-9af5-21919e00df21",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['30X+' '30X+' '30X+']\n",
+      "['1Y+' '2Y+' '3Y+']\n",
+      "['1X+' '2X+' '3X+']\n"
+     ]
+    }
+   ],
+   "source": [
+    "for item in array_2d:\n",
+    "    print(item)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89c56d6d-c683-444e-a351-a2b7ede57a16",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Sometimes it is useful to iterate over every item in a multidimensional array rather than just iterating over one dimension.  NumPy provides us with functions like `ndenumerate` to handle such cases, and will provide the index and item at each entry in the array; however, NumPy's `ndenumerate` will generally return a basic NumPy structured array rather than a SDynPy array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "eee62725-9efd-451f-b0e4-0a352cd610df",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "At (0, 0): (30, 1)\n",
+      "At (0, 1): (30, 1)\n",
+      "At (0, 2): (30, 1)\n",
+      "At (1, 0): (1, 2)\n",
+      "At (1, 1): (2, 2)\n",
+      "At (1, 2): (3, 2)\n",
+      "At (2, 0): (1, 1)\n",
+      "At (2, 1): (2, 1)\n",
+      "At (2, 2): (3, 1)\n"
+     ]
+    }
+   ],
+   "source": [
+    "for index,item in np.ndenumerate(array_2d):\n",
+    "    print(f'At {index}: {str(item)}')"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "1a613c6e-55fb-4dd4-96cb-08623f24f63e",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Therefore SDynPy provides its own method :py:func:`ndenumerate<sdynpy.core.sdynpy_array.SdynpyArray.ndenumerate>` which will automatically view the output as the correct SDynPy array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "32ac6526-d3f9-4d54-b84f-8e5ebc69cbdd",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "At (0, 0): 30X+\n",
+      "At (0, 1): 30X+\n",
+      "At (0, 2): 30X+\n",
+      "At (1, 0): 1Y+\n",
+      "At (1, 1): 2Y+\n",
+      "At (1, 2): 3Y+\n",
+      "At (2, 0): 1X+\n",
+      "At (2, 1): 2X+\n",
+      "At (2, 2): 3X+\n"
+     ]
+    }
+   ],
+   "source": [
+    "for index,item in array_2d.ndenumerate():\n",
+    "    print(f'At {index}: {str(item)}')"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "a0481a48-68da-42c4-9071-5052d795f278",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Creating SDynPy Arrays\n",
+    "-------------------------\n",
+    "\n",
+    "Users of NumPy will be aware that when constructing a ``numpy.ndarray``, they can directly use the class name to invoke the class constructor.  However, this will generally require the user to first create the array with the appropriate dtype and shape, and then subsequently fill it with data, which can be slightly inconvienent to use.  NumPy therefor offers a convenience function, ``numpy.array``, that can be directly passed the data to put into the array, and the function will automatically determine the shape and dtype.\n",
+    "\n",
+    "Because SDynPy arrays inherit functionality from NumPy, they also can be constructed directly using the class constructor; however, similar to NumPy, this can be inconvenient.  Therefore SDynPy similarly offers convenience functions to aid in creating SDynPy Array objects.  These convenience functions will generally have the same name as the class name, except will use ``snake_case`` capitalization instead of the ``CamelCase`` used by the class name.  For example, a :py:class:`NodeArray<sdynpy.core.sdynpy_geometry.NodeArray>` can be constructed with the :py:func:`node_array<sdynpy.core.sdynpy_geometry.node_array>` function, and a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` can be constructed with the :py:func:`coordinate_array<sdynpy.core.sdynpy_coordinate.coordinate_array>` function.\n",
+    "\n",
+    "For example, we can construct a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>` object using the constructor:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "c93d66b4-b6e7-4bed-805a-83c6c0222a86",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['1X+' '2X+' '3X+']\n"
+     ]
+    }
+   ],
+   "source": [
+    "array = sdpy.CoordinateArray((3,)) # Create an empty array with shape (3,)\n",
+    "array.node = [1,2,3] # Fill in the empty node numbers\n",
+    "array.direction = [1,1,1] # Fill in the empty directions, direction 1 corresponds to X+\n",
+    "\n",
+    "print(array)"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "id": "749bffb2-d490-4812-8036-f01000a9b7a2",
+   "metadata": {
+    "editable": true,
+    "raw_mimetype": "text/restructuredtext",
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "Alternatively, we can use the more convenient :py:func:`coordinate_array<sdynpy.core.sdynpy_coordinate.coordinate_array>` function which provides us a more convenient approach:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "1c3841d4-53ea-4f39-8e3d-5dea74e0c795",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['1X+' '2X+' '3X+']\n"
+     ]
+    }
+   ],
+   "source": [
+    "array = sdpy.coordinate_array([1,2,3],['X+','X+','X+'])\n",
+    "\n",
+    "print(array)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4bedc7bc-eed5-43d7-8c3d-a85e0fdc51c7",
+   "metadata": {
+    "editable": true,
+    "slideshow": {
+     "slide_type": ""
+    },
+    "tags": []
+   },
+   "source": [
+    "## Summary\n",
+    "\n",
+    "SDynPy's data model incorporates general Python classes as well as array-like classes.  These array-like classes subclass from NumPy's `ndarray` to inherit much of the useful functionality of those arrays."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.1"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

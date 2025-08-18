@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.doc.sdynpy_latex &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.doc.sdynpy_latex &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -112,9 +113,19 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyqtgraph</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pqtg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">PIL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">mac</span><span class="p">,</span> <span class="n">matrix_plot</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometryPlotter</span><span class="p">,</span> <span class="n">ShapePlotter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span><span class="p">,</span><span class="n">GeometryPlotter</span><span class="p">,</span> <span class="n">ShapePlotter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span><span class="n">coordinate_array</span> <span class="k">as</span> <span class="n">sd_coordinate_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShapeArray</span><span class="p">,</span> <span class="n">mac</span> <span class="k">as</span> <span class="n">shape_mac</span><span class="p">,</span><span class="n">rigid_body_check</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..fileio.sdynpy_pdf3D</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_animated_modeshape_content</span><span class="p">,</span><span class="n">get_view_parameters_from_plotter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QApplication</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">vtk</span><span class="w"> </span><span class="kn">import</span> <span class="n">vtkU3DExporter</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">vtkU3DExporter</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="create_latex_summary"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_latex_summary.html#sdynpy.doc.sdynpy_latex.create_latex_summary">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_latex_summary</span><span class="p">(</span><span class="n">figure_basename</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">frfs</span><span class="p">,</span>
                          <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure_basename_relative_to_latex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -295,6 +306,698 @@
         <span class="n">output_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">output_string</span></div>
 
+<div class="viewcode-block" id="create_geometry_overview"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_geometry_overview.html#sdynpy.doc.sdynpy_latex.create_geometry_overview">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_geometry_overview</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">{},</span> 
+                             <span class="n">coordinate_array</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">plot_coordinate_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+                             <span class="n">animation_style</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span><span class="p">,</span>
+                             <span class="n">animation_frames</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                             <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+                             <span class="n">geometry_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:geometry&#39;</span><span class="p">,</span>
+                             <span class="n">geometry_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Geometry&#39;</span><span class="p">,</span>
+                             <span class="n">geometry_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+                             <span class="n">geometry_animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
+                             <span class="n">geometry_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;[h]&#39;</span><span class="p">,</span>
+                             <span class="n">geometry_figure_save_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">coordinate_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:coordinate&#39;</span><span class="p">,</span>
+                             <span class="n">coordinate_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Local Coordinate Directions (Red: X+, Green: Y+, Blue: Z+)&#39;</span><span class="p">,</span>
+                             <span class="n">coordinate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+                             <span class="n">coordinate_animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
+                             <span class="n">coordinate_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;[h]&#39;</span><span class="p">,</span>
+                             <span class="n">coordinate_figure_save_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">figure_root</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">include_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">geometry_figure_save_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">geometry_figure_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">geometry_figure_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">coordinate_figure_save_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coordinate_figure_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;coordinate&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coordinate_figure_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;coordinate&#39;</span><span class="p">)</span>
+    
+    <span class="n">plot_local_coords</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span><span class="n">Geometry</span><span class="p">):</span>
+        <span class="n">geom_plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">plot_kwargs</span><span class="p">,</span><span class="n">plot_individual_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span><span class="n">GeometryPlotter</span><span class="p">):</span>
+        <span class="n">geom_plotter</span> <span class="o">=</span> <span class="n">geometry</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`geometry` should be a `Geometry` or `GeometryPlotter` object&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plot_coordinate_kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">plot_kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">plot_coordinate_kwargs</span><span class="p">[</span><span class="s1">&#39;plot_kwargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_kwargs</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">,</span><span class="n">CoordinateArray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If `coordinate_array` is a `CoordinateArray` object, then `geometry` must be a `Geometry` object.&#39;</span><span class="p">)</span>
+        <span class="n">coord_plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">,</span><span class="o">**</span><span class="n">plot_coordinate_kwargs</span><span class="p">,</span><span class="n">plot_individual_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">,</span><span class="n">GeometryPlotter</span><span class="p">):</span>
+        <span class="n">coord_plotter</span> <span class="o">=</span> <span class="n">coordinate_array</span>
+        <span class="n">coordinate_array</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">coordinate_array</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If `coordinate_array` is local, then `geometry` must be a `Geometry` object.&#39;</span><span class="p">)</span>
+        <span class="n">css_to_plot</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">coordinate_system</span><span class="o">.</span><span class="n">id</span><span class="p">[[</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">coordinate_system</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">3</span><span class="p">,:</span><span class="mi">3</span><span class="p">]]]</span>
+        <span class="n">nodes_to_plot</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">disp_cs</span><span class="p">,</span><span class="n">css_to_plot</span><span class="p">)]</span>
+        <span class="n">coordinate_array</span> <span class="o">=</span> <span class="n">sd_coordinate_array</span><span class="p">(</span><span class="n">nodes_to_plot</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">force_broadcast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">coord_plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">,</span><span class="o">**</span><span class="n">plot_coordinate_kwargs</span><span class="p">,</span><span class="n">plot_individual_items</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plot_local_coords</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">coordinate_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coord_plotter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`coordinate_array` should be a `CoordinateArray` or `GeometryPlotter` object or `None`&#39;</span><span class="p">)</span>
+    
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="p">[</span>
+<span class="sd">&quot;&quot;&quot;To describe the data acquired in this activity, a geometry is constructed</span>
+<span class="sd">consisting of the measurement positions and orientations, as well as lines and</span>
+<span class="sd">elements to aid in visualization of the geometry.  The geometry for this</span>
+<span class="sd">activity is shown in Figure \\ref{{{geometry_reference:}}}.&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">geometry_reference</span> <span class="o">=</span> <span class="n">geometry_figure_label</span><span class="p">)]</span>
+    
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">([</span><span class="n">geom_plotter</span><span class="p">],</span><span class="n">geometry_figure_label</span><span class="p">,</span>
+                               <span class="n">geometry_figure_caption</span><span class="p">,</span>
+                               <span class="n">geometry_graphics_options</span><span class="p">,</span>
+                               <span class="n">geometry_animate_graphics_options</span><span class="p">,</span>
+                               <span class="n">geometry_figure_placement</span><span class="p">,</span>
+                               <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">geometry_figure_save_name</span><span class="p">],</span>
+                               <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">,</span>
+                               <span class="n">animation_style</span> <span class="o">=</span> <span class="n">animation_style</span><span class="p">,</span>
+                               <span class="n">animation_frames</span> <span class="o">=</span> <span class="n">animation_frames</span><span class="p">,</span>
+                               <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">coord_plotter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    
+        <span class="k">if</span> <span class="n">plot_local_coords</span><span class="p">:</span>
+            <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="sd">&quot;&quot;&quot;To describe orientations of measurements, coordinate systems are used to define</span>
+<span class="sd">local directions.  Figure \\ref{{{coordinate_reference:}}} shows the local</span>
+<span class="sd">coordinate systems defined in the test.&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordinate_reference</span> <span class="o">=</span> <span class="n">coordinate_figure_label</span><span class="p">)</span>
+            <span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">([</span><span class="n">coord_plotter</span><span class="p">],</span><span class="n">coordinate_figure_label</span><span class="p">,</span>
+                                   <span class="n">coordinate_figure_caption</span><span class="p">,</span>
+                                   <span class="n">coordinate_graphics_options</span><span class="p">,</span>
+                                   <span class="n">coordinate_animate_graphics_options</span><span class="p">,</span>
+                                   <span class="n">coordinate_figure_placement</span><span class="p">,</span>
+                                   <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">coordinate_figure_save_name</span><span class="p">],</span>
+                                   <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">,</span>
+                                   <span class="n">animation_style</span> <span class="o">=</span> <span class="n">animation_style</span><span class="p">,</span>
+                                   <span class="n">animation_frames</span> <span class="o">=</span> <span class="n">animation_frames</span><span class="p">,</span>
+                                   <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">include_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">include_name</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_string</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
+<div class="viewcode-block" id="create_data_quality_summary"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_data_quality_summary.html#sdynpy.doc.sdynpy_latex.create_data_quality_summary">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_data_quality_summary</span><span class="p">(</span>
+        <span class="n">reference_autospectra_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frf_coherence_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coherence_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_autospectra_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:reference_autospectra&#39;</span><span class="p">,</span>
+        <span class="n">reference_autospectra_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Autospectra of the reference channels&#39;</span><span class="p">,</span>
+        <span class="n">reference_autospectra_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">reference_autospectra_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">reference_autospectra_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">reference_autospectra_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_autospectra_subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:drive_point_frf&#39;</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Drive point frequency response functions&#39;</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:reciprocal_frfs&#39;</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Reciprocal frequency response functions.&#39;</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frf_coherence_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:frf_coherence&#39;</span><span class="p">,</span>
+        <span class="n">frf_coherence_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Drive point frequency response functions with coherence overlaid&#39;</span><span class="p">,</span>
+        <span class="n">frf_coherence_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">frf_coherence_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">frf_coherence_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">frf_coherence_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frf_coherence_subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coherence_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:coherence&#39;</span><span class="p">,</span>
+        <span class="n">coherence_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Coherence of all channels in the test.&#39;</span><span class="p">,</span>
+        <span class="n">coherence_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">coherence_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">coherence_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">coherence_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coherence_subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">figure_root</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_autospectra_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">drive_point_frfs_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reciprocal_frfs_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frf_coherence_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coherence_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">):</span>
+    
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">if</span> <span class="n">reference_autospectra_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">reference_autospectra_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the autospectra of the &#39;</span>
+    <span class="s1">&#39;reference channels in the test.  &#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">reference_autospectra_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reference_autospectra_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;reference_autospectra_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reference_autospectra_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;reference_autospectra_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+            <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">reference_autospectra_figure</span><span class="p">],</span>
+            <span class="n">figure_label</span> <span class="o">=</span> <span class="n">reference_autospectra_figure_label</span><span class="p">,</span>
+            <span class="n">figure_caption</span> <span class="o">=</span> <span class="n">reference_autospectra_figure_caption</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">reference_autospectra_graphics_options</span><span class="p">,</span>
+            <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">reference_autospectra_figure_placement</span><span class="p">,</span>
+            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="n">reference_autospectra_subfigure_options</span><span class="p">,</span>
+            <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="n">reference_autospectra_subfigure_labels</span><span class="p">,</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="n">reference_autospectra_subfigure_captions</span><span class="p">,</span>
+            <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">reference_autospectra_figure_save_names</span><span class="p">,</span>
+            <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+        
+    <span class="k">if</span> <span class="n">drive_point_frfs_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">drive_point_frfs_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the imaginary part &#39;</span>
+    <span class="s1">&#39;of the drive point frequency response functions.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">drive_point_frfs_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">drive_point_frfs_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;drive_point_frf_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">drive_point_frfs_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;drive_point_frf_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+            <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">drive_point_frfs_figure</span><span class="p">],</span>
+            <span class="n">figure_label</span> <span class="o">=</span> <span class="n">drive_point_frfs_figure_label</span><span class="p">,</span>
+            <span class="n">figure_caption</span> <span class="o">=</span> <span class="n">drive_point_frfs_figure_caption</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">drive_point_frfs_graphics_options</span><span class="p">,</span>
+            <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">drive_point_frfs_figure_placement</span><span class="p">,</span>
+            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="n">drive_point_frfs_subfigure_options</span><span class="p">,</span>
+            <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="n">drive_point_frfs_subfigure_labels</span><span class="p">,</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="n">drive_point_frfs_subfigure_captions</span><span class="p">,</span>
+            <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">drive_point_frfs_figure_save_names</span><span class="p">,</span>
+            <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">reciprocal_frfs_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">reciprocal_frfs_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the reciprocal frequency response functions in the test.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">reciprocal_frfs_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reciprocal_frfs_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;reciprocal_frfs_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reciprocal_frfs_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;reciprocal_frfs_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+            <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">reciprocal_frfs_figure</span><span class="p">],</span>
+            <span class="n">figure_label</span> <span class="o">=</span> <span class="n">reciprocal_frfs_figure_label</span><span class="p">,</span>
+            <span class="n">figure_caption</span> <span class="o">=</span> <span class="n">reciprocal_frfs_figure_caption</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">reciprocal_frfs_graphics_options</span><span class="p">,</span>
+            <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">reciprocal_frfs_figure_placement</span><span class="p">,</span>
+            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="n">reciprocal_frfs_subfigure_options</span><span class="p">,</span>
+            <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="n">reciprocal_frfs_subfigure_labels</span><span class="p">,</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="n">reciprocal_frfs_subfigure_captions</span><span class="p">,</span>
+            <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">reciprocal_frfs_figure_save_names</span><span class="p">,</span>
+            <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">frf_coherence_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">frf_coherence_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the coherence overlaying the drive point frequency response functions.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">frf_coherence_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">frf_coherence_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;frf_coherence_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">frf_coherence_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;frf_coherence_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+            <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">frf_coherence_figure</span><span class="p">],</span>
+            <span class="n">figure_label</span> <span class="o">=</span> <span class="n">frf_coherence_figure_label</span><span class="p">,</span>
+            <span class="n">figure_caption</span> <span class="o">=</span> <span class="n">frf_coherence_figure_caption</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">frf_coherence_graphics_options</span><span class="p">,</span>
+            <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">frf_coherence_figure_placement</span><span class="p">,</span>
+            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="n">frf_coherence_subfigure_options</span><span class="p">,</span>
+            <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="n">frf_coherence_subfigure_labels</span><span class="p">,</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="n">frf_coherence_subfigure_captions</span><span class="p">,</span>
+            <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">frf_coherence_figure_save_names</span><span class="p">,</span>
+            <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+        
+    <span class="k">if</span> <span class="n">coherence_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">coherence_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the coherence of the &#39;</span>
+    <span class="s1">&#39;response channels in the test.  &#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">coherence_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">coherence_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;coherence_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coherence_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;coherence_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+            <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">coherence_figure</span><span class="p">],</span>
+            <span class="n">figure_label</span> <span class="o">=</span> <span class="n">coherence_figure_label</span><span class="p">,</span>
+            <span class="n">figure_caption</span> <span class="o">=</span> <span class="n">coherence_figure_caption</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">coherence_graphics_options</span><span class="p">,</span>
+            <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">coherence_figure_placement</span><span class="p">,</span>
+            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="n">coherence_subfigure_options</span><span class="p">,</span>
+            <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="n">coherence_subfigure_labels</span><span class="p">,</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="n">coherence_subfigure_captions</span><span class="p">,</span>
+            <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">coherence_figure_save_names</span><span class="p">,</span>
+            <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+        
+    <span class="k">if</span> <span class="n">include_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">include_name</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_string</span><span class="p">))</span>
+            
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
+<div class="viewcode-block" id="create_mode_fitting_summary"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_mode_fitting_summary.html#sdynpy.doc.sdynpy_latex.create_mode_fitting_summary">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_mode_fitting_summary</span><span class="p">(</span>
+        <span class="c1"># General information from the curve fitter</span>
+        <span class="n">fit_modes_information</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># Information about the modes</span>
+        <span class="n">fit_modes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_modes_table</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_mode_table_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">mac_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mac_plot_kwargs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># Information to create resynthesis plots</span>
+        <span class="n">experimental_frfs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resynthesized_frfs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resynthesis_comparison</span> <span class="o">=</span> <span class="s1">&#39;cmif&#39;</span><span class="p">,</span>
+        <span class="n">resynthesis_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_kwargs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># Path options</span>
+        <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">figure_root</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_mode_information_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mac_plot_save_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_save_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># Latex formatting information</span>
+        <span class="n">fit_modes_information_table_justification_string</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_modes_information_table_longtable</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">fit_modes_information_table_header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">fit_modes_information_table_horizontal_lines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fit_modes_information_table_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_information_figure_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_information_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_table_justification_string</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_modes_table_label</span> <span class="o">=</span> <span class="s1">&#39;tab:mode_fits&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_table_caption</span> <span class="o">=</span> <span class="s1">&#39;Modal parameters fit to the test data.&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_table_longtable</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">fit_modes_table_header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">fit_modes_table_horizontal_lines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fit_modes_table_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">fit_modes_table_header_override</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mac_plot_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:mac&#39;</span><span class="p">,</span>
+        <span class="n">mac_plot_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Modal Assurance Criterion Matrix from Fit Modes&#39;</span><span class="p">,</span>
+        <span class="n">mac_plot_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">mac_plot_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:resynthesis&#39;</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Test data compared to equivalent data computed from modal fits.&#39;</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span>
+        <span class="n">resynthesis_plot_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="p">):</span>
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fit_modes_information</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">figure_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fit_modes_information</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;figure&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;caption&#39;</span><span class="p">)]</span>
+        <span class="n">table_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fit_modes_information</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;table&#39;</span> <span class="ow">and</span> <span class="n">key</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;caption&#39;</span><span class="p">]</span>
+        <span class="n">fig_format_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;ref&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ref{{fig:mode_fitting_</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figure_keys</span><span class="p">)}</span>
+        <span class="n">table_format_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;ref&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ref{{tab:mode_fitting_</span><span class="si">{:}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table_keys</span><span class="p">)}</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fit_modes_information</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">fig_format_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">table_format_kwargs</span><span class="p">)</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figure_keys</span><span class="p">):</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="s1">&#39;fig:mode_fitting_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit_modes_information_figure_graphics_options</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>
+                <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">fit_modes_information_figure_graphics_options</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">fit_modes_information_figure_graphics_options</span>
+            <span class="k">if</span> <span class="n">fit_mode_information_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;fit_mode_figure_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;fit_mode_figure_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">save_name</span> <span class="o">=</span> <span class="n">fit_mode_information_save_names</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">([</span><span class="n">fit_modes_information</span><span class="p">[</span><span class="n">key</span><span class="p">]],</span>
+                         <span class="n">reference</span><span class="p">,</span>
+                         <span class="n">fit_modes_information</span><span class="p">[</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;caption&#39;</span><span class="p">],</span>
+                         <span class="n">graphics_options</span><span class="p">,</span>
+                         <span class="n">figure_save_names</span><span class="o">=</span><span class="p">[</span><span class="n">save_name</span><span class="p">],</span>
+                         <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">,</span>
+                         <span class="p">)</span>
+            <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">fit_modes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Table </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">fit_modes_table_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the modal parameters fit to the test data.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">fit_modes_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fit_modes_table</span> <span class="o">=</span> <span class="n">fit_modes</span><span class="o">.</span><span class="n">mode_table</span><span class="p">(</span><span class="s1">&#39;pandas&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">fit_modes_table_header_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fit_modes_table</span><span class="p">,</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">fit_modes_table</span> <span class="o">=</span> <span class="n">fit_modes_table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">fit_modes_table_header_override</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fit_modes_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fit_modes_table_header_override</span> <span class="k">else</span> 
+                                      <span class="n">fit_modes_table_header_override</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fit_modes_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">fit_modes_table</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_justification_string</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_label</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_caption</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_longtable</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_header</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_horizontal_lines</span><span class="p">,</span>
+                                  <span class="n">fit_modes_table_placement</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">mac_figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fit_modes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Create the MAC from fit modes</span>
+        <span class="n">mac</span> <span class="o">=</span> <span class="n">shape_mac</span><span class="p">(</span><span class="n">fit_modes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mac_plot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mac_plot_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">matrix_plot</span><span class="p">(</span><span class="n">mac</span><span class="p">,</span><span class="o">**</span><span class="n">mac_plot_kwargs</span><span class="p">)</span>
+        <span class="n">mac_figure</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
+    
+    <span class="k">if</span> <span class="n">mac_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">mac_plot_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the Modal Assurance Criterion Matrix,&#39;</span>
+<span class="s1">&#39;which is a measure of how similar each mode shape looks to all the other mode shapes.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">mac_plot_save_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mac_plot_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;mac&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mac_plot_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;mac&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">([</span><span class="n">mac_figure</span><span class="p">],</span>
+                                   <span class="n">mac_plot_figure_label</span><span class="p">,</span>
+                                   <span class="s1">&#39;Modal Assurance Criterion Matrix of the fit mode shapes.&#39;</span><span class="p">,</span>
+                                   <span class="n">mac_plot_graphics_options</span><span class="p">,</span>
+                                   <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">mac_plot_figure_placement</span><span class="p">,</span>
+                                   <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">mac_plot_save_name</span><span class="p">],</span>
+                                   <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">resynthesis_figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">experimental_frfs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">resynthesized_frfs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resynthesis_plot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">resynthesis_plot_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">max_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">experimental_frfs</span><span class="o">.</span><span class="n">abscissa</span><span class="p">),</span>
+                               <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">abscissa</span><span class="p">)])</span>
+        <span class="n">min_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">experimental_frfs</span><span class="o">.</span><span class="n">abscissa</span><span class="p">),</span>
+                               <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">abscissa</span><span class="p">)])</span>
+        <span class="n">abscissa_range</span> <span class="o">=</span> <span class="n">max_abscissa</span> <span class="o">-</span> <span class="n">min_abscissa</span>
+        <span class="n">max_abscissa</span> <span class="o">+=</span> <span class="n">abscissa_range</span><span class="o">/</span><span class="mi">20</span>
+        <span class="n">min_abscissa</span> <span class="o">-=</span> <span class="n">abscissa_range</span><span class="o">/</span><span class="mi">20</span>
+        <span class="k">if</span> <span class="n">resynthesis_comparison</span> <span class="o">==</span> <span class="s1">&#39;cmif&#39;</span><span class="p">:</span>
+            <span class="n">ds1</span> <span class="o">=</span> <span class="n">experimental_frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()</span>
+            <span class="n">ds2</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">()</span>
+            <span class="n">resynthesis_figure</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+            <span class="n">kwargs1</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs2</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs1</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+            <span class="n">kwargs2</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="n">ds1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs1</span><span class="p">)</span>
+            <span class="n">ds2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CMIF&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">min_abscissa</span><span class="p">,</span><span class="n">max_abscissa</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">resynthesis_comparison</span> <span class="o">==</span> <span class="s1">&#39;qmif&#39;</span><span class="p">:</span>
+            <span class="n">ds1</span> <span class="o">=</span> <span class="n">experimental_frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s1">&#39;imag&#39;</span><span class="p">)</span>
+            <span class="n">ds2</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">compute_cmif</span><span class="p">(</span><span class="n">part</span><span class="o">=</span><span class="s1">&#39;imag&#39;</span><span class="p">)</span>
+            <span class="n">resynthesis_figure</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+            <span class="n">kwargs1</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs2</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs1</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+            <span class="n">kwargs2</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="n">ds1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs1</span><span class="p">)</span>
+            <span class="n">ds2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;QMIF&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">min_abscissa</span><span class="p">,</span><span class="n">max_abscissa</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">resynthesis_comparison</span> <span class="o">==</span> <span class="s1">&#39;mmif&#39;</span><span class="p">:</span>
+            <span class="n">ds1</span> <span class="o">=</span> <span class="n">experimental_frfs</span><span class="o">.</span><span class="n">compute_mmif</span><span class="p">()</span>
+            <span class="n">ds2</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">compute_mmif</span><span class="p">()</span>
+            <span class="n">resynthesis_figure</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+            <span class="n">kwargs1</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs2</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs1</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+            <span class="n">kwargs2</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="n">ds1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs1</span><span class="p">)</span>
+            <span class="n">ds2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MMIF&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">min_abscissa</span><span class="p">,</span><span class="n">max_abscissa</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">resynthesis_comparison</span> <span class="o">==</span> <span class="s1">&#39;nmif&#39;</span><span class="p">:</span>
+            <span class="n">ds1</span> <span class="o">=</span> <span class="n">experimental_frfs</span><span class="o">.</span><span class="n">compute_nmif</span><span class="p">()</span>
+            <span class="n">ds2</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span><span class="o">.</span><span class="n">compute_nmif</span><span class="p">()</span>
+            <span class="n">resynthesis_figure</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+            <span class="n">kwargs1</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs2</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs1</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+            <span class="n">kwargs2</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="n">ds1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs1</span><span class="p">)</span>
+            <span class="n">ds2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;MMIF&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">min_abscissa</span><span class="p">,</span><span class="n">max_abscissa</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">resynthesis_comparison</span> <span class="o">==</span> <span class="s1">&#39;frf&#39;</span><span class="p">:</span>
+            <span class="n">ds1</span> <span class="o">=</span> <span class="n">experimental_frfs</span>
+            <span class="n">ds2</span> <span class="o">=</span> <span class="n">resynthesized_frfs</span>
+            <span class="n">kwargs1</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs2</span> <span class="o">=</span> <span class="n">resynthesis_plot_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">kwargs1</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+            <span class="n">kwargs2</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">ds1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">frf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">flaten</span><span class="p">(),</span><span class="n">ds2</span><span class="p">[</span><span class="n">ds1</span><span class="o">.</span><span class="n">coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+                <span class="n">frf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="n">kwargs2</span><span class="p">)</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">min_abscissa</span><span class="p">,</span><span class="n">max_abscissa</span><span class="p">])</span>
+            <span class="n">resynthesis_figure</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span>
+    
+    <span class="k">if</span> <span class="n">resynthesis_figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="sa">f</span><span class="s1">&#39;To judge the adequacy of the fit modes, Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">resynthesis_plot_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the data resynthesized from the &#39;</span>
+<span class="s1">&#39;fit modes compared to the equivalent experimental data.&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">resynthesis_plot_save_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">resynthesis_plot_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span><span class="s1">&#39;resynthesis&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">resynthesis_plot_save_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span><span class="s1">&#39;resynthesis&#39;</span><span class="p">)</span>
+        
+        <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">([</span><span class="n">resynthesis_figure</span><span class="p">],</span>
+                                   <span class="n">resynthesis_plot_figure_label</span><span class="p">,</span>
+                                   <span class="s1">&#39;Experimental data compared to that resynthesized from the fit modes.&#39;</span><span class="p">,</span>
+                                   <span class="n">resynthesis_plot_graphics_options</span><span class="p">,</span>
+                                   <span class="n">figure_placement</span> <span class="o">=</span> <span class="n">resynthesis_plot_figure_placement</span><span class="p">,</span>
+                                   <span class="n">figure_save_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">resynthesis_plot_save_name</span><span class="p">],</span>
+                                   <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">include_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">include_name</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_string</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
+<div class="viewcode-block" id="create_mode_shape_figures"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_mode_shape_figures.html#sdynpy.doc.sdynpy_latex.create_mode_shape_figures">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_mode_shape_figures</span><span class="p">(</span>
+        <span class="n">geometry</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:modeshapes&#39;</span><span class="p">,</span>
+        <span class="n">figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Mode shapes extracted from test data.&#39;</span><span class="p">,</span>
+        <span class="n">graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
+        <span class="n">animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
+        <span class="n">figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span> <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">figure_root</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">animation_style</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">animation_frames</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">geometry_plot_shape_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">include_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref{{</span><span class="si">{:}</span><span class="s1">}} shows the mode shapes extracted from the test.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">figure_label</span><span class="p">)]</span>
+    
+    <span class="k">if</span> <span class="n">subfigure_captions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">):</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mode </span><span class="si">{:}</span><span class="s1"> at </span><span class="si">{:0.2f}</span><span class="s1"> Hz with </span><span class="si">{:0.2f}</span><span class="se">\\</span><span class="si">% d</span><span class="s1">amping&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">mode</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mode</span><span class="o">.</span><span class="n">damping</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">shapes</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Mode </span><span class="si">{:}</span><span class="s1"> at </span><span class="si">{:0.2f}</span><span class="s1"> Hz with </span><span class="si">{:0.2f}</span><span class="se">\\</span><span class="si">% d</span><span class="s1">amping&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">mode</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span><span class="n">mode</span><span class="o">.</span><span class="n">damping</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shapes</span><span class="p">)]</span>
+    
+    <span class="k">if</span> <span class="n">figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span> <span class="s1">&#39;modeshape_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span> <span class="s1">&#39;modeshape_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">animation_style</span> <span class="o">==</span> <span class="s1">&#39;one3d&#39;</span><span class="p">:</span>
+        <span class="n">animation_style</span> <span class="o">=</span> <span class="s1">&#39;3d&#39;</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">shapes</span><span class="p">]</span>
+    
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">figure</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span><span class="n">figure_label</span><span class="p">,</span><span class="n">figure_caption</span><span class="p">,</span><span class="n">graphics_options</span><span class="p">,</span>
+               <span class="n">animate_graphics_options</span><span class="p">,</span> <span class="n">figure_placement</span><span class="p">,</span> <span class="n">subfigure_options</span><span class="p">,</span>
+               <span class="n">subfigure_labels</span><span class="p">,</span> <span class="n">subfigure_captions</span><span class="p">,</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+               <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+               <span class="n">figure_save_names</span><span class="p">,</span> <span class="n">latex_root</span><span class="p">,</span> <span class="n">animation_style</span><span class="p">,</span> <span class="n">animation_frames</span><span class="p">,</span>
+               <span class="n">animation_frame_rate</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">include_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">include_name</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_string</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
+<div class="viewcode-block" id="create_rigid_body_analysis"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.create_rigid_body_analysis.html#sdynpy.doc.sdynpy_latex.create_rigid_body_analysis">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">create_rigid_body_analysis</span><span class="p">(</span>
+        <span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span>
+        <span class="n">complex_plane_figures</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">residual_figure</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:rigid_shapes&#39;</span><span class="p">,</span>
+        <span class="n">complex_plane_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:complex_plane&#39;</span><span class="p">,</span>
+        <span class="n">residual_figure_label</span> <span class="o">=</span> <span class="s1">&#39;fig:rigid_shape_residual&#39;</span><span class="p">,</span>
+        <span class="n">figure_caption</span> <span class="o">=</span> <span class="s1">&#39;Rigid body shapes extracted from test data.&#39;</span><span class="p">,</span>
+        <span class="n">complex_plane_caption</span> <span class="o">=</span> <span class="s1">&#39;Complex Plane of the extracted shapes.&#39;</span><span class="p">,</span>
+        <span class="n">residual_caption</span> <span class="o">=</span> <span class="s1">&#39;Rigid body residual showing non-rigid portions of the shapes.&#39;</span><span class="p">,</span>
+        <span class="n">graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
+        <span class="n">complex_plane_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
+        <span class="n">residual_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
+        <span class="n">animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
+        <span class="n">figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">complex_plane_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">residual_figure_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span> <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">complex_plane_subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span>
+        <span class="n">complex_plane_subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">complex_plane_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">residual_figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">figure_root</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">animation_style</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">animation_frames</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="n">geometry_plot_shape_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">rigid_body_check_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">include_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">):</span>
+    
+    <span class="n">latex_string</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the rigid shapes extracted from the &#39;</span>
+        <span class="s1">&#39;rigid body analysis.  This analysis is performed to ensure all &#39;</span>
+        <span class="s1">&#39;sensors are installed and documented correctly in the channel table. &#39;</span>
+        <span class="s1">&#39;If a sensor had the wrong sensitivity, had its polarity flipped, or &#39;</span>
+        <span class="s1">&#39;if cables were plugged in incorrectly, that sensor would not be &#39;</span>
+        <span class="s1">&#39;moving rigidly with the rest of the test article.&#39;</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">subfigure_captions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">):</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Rigid body shape </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="o">.</span><span class="n">shapes</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Rigid body shape </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">)]</span>
+    
+    <span class="k">if</span> <span class="n">figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span> <span class="s1">&#39;rigid_shape_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span> <span class="s1">&#39;rigid_shape_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">figure</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">,</span><span class="n">figure_label</span><span class="p">,</span><span class="n">figure_caption</span><span class="p">,</span><span class="n">graphics_options</span><span class="p">,</span>
+               <span class="n">animate_graphics_options</span><span class="p">,</span> <span class="n">figure_placement</span><span class="p">,</span> <span class="n">subfigure_options</span><span class="p">,</span>
+               <span class="n">subfigure_labels</span><span class="p">,</span> <span class="n">subfigure_captions</span><span class="p">,</span> <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+               <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+               <span class="n">figure_save_names</span><span class="p">,</span> <span class="n">latex_root</span><span class="p">,</span> <span class="n">animation_style</span><span class="p">,</span> <span class="n">animation_frames</span><span class="p">,</span>
+               <span class="n">animation_frame_rate</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">complex_plane_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">complex_plane_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span> <span class="s1">&#39;rigid_complex_plane_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">complex_plane_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span> <span class="s1">&#39;rigid_complex_plane_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">residual_figure_save_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">figure_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">residual_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_root</span><span class="p">,</span> <span class="s1">&#39;rigid_residual&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">residual_figure_save_names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">figure_root</span><span class="p">,</span> <span class="s1">&#39;rigid_residual&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">complex_plane_figures</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">residual_figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rigid_body_kwargs</span> <span class="o">=</span> <span class="n">rigid_body_check_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">rigid_body_kwargs</span><span class="p">[</span><span class="s1">&#39;return_figures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">rigid_body_check</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span> <span class="o">**</span><span class="n">rigid_body_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">complex_plane_figures</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">complex_plane_figures</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">residual_figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">residual_figure</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+        <span class="s1">&#39;A more quantitiative analysis of the rigid body shapes is shown in &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">complex_plane_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> and </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">residual_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1">. &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">complex_plane_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the complex plane &#39;</span>
+        <span class="s1">&#39;of the shape, which should look like a line through the origin.  &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;Figure </span><span class="se">\\</span><span class="s1">ref</span><span class="se">{{</span><span class="si">{</span><span class="n">residual_figure_label</span><span class="si">:</span><span class="se">}}</span><span class="si">}</span><span class="s1"> shows the shape residuals, &#39;</span>
+        <span class="s1">&#39;which are the remaining shape coefficient when the rigid portion of &#39;</span>
+        <span class="s1">&#39;the motion is subtracted away.  The residual is then the remaining &#39;</span>
+        <span class="s1">&#39;non-rigid portion of the motion, so large residual suggest issues with &#39;</span>
+        <span class="s1">&#39;that channel.&#39;</span><span class="p">))</span>
+    
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">complex_plane_figures</span><span class="p">),</span><span class="n">complex_plane_figure_label</span><span class="p">,</span>
+        <span class="n">complex_plane_caption</span><span class="p">,</span> <span class="n">complex_plane_graphics_options</span><span class="p">,</span>
+        <span class="n">animate_graphics_options</span><span class="p">,</span> <span class="n">complex_plane_figure_placement</span><span class="p">,</span>
+        <span class="n">complex_plane_subfigure_options</span><span class="p">,</span>
+        <span class="n">complex_plane_subfigure_labels</span><span class="p">,</span>
+        <span class="n">rigid_shapes</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">comment1</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rigid_shapes</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">)</span> <span class="k">else</span> <span class="n">rigid_shapes</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span>
+        <span class="n">max_subfigures_per_page</span><span class="p">,</span>
+        <span class="n">max_subfigures_first_page</span><span class="p">,</span>
+        <span class="n">complex_plane_figure_save_names</span><span class="p">,</span> <span class="n">latex_root</span><span class="p">))</span>
+    
+    <span class="n">latex_string</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figure</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">residual_figure</span><span class="p">],</span><span class="n">residual_figure_label</span><span class="p">,</span>
+        <span class="n">residual_caption</span><span class="p">,</span> <span class="n">residual_graphics_options</span><span class="p">,</span>
+        <span class="n">animate_graphics_options</span><span class="p">,</span> <span class="n">residual_figure_placement</span><span class="p">,</span>
+        <span class="n">figure_save_names</span> <span class="o">=</span> <span class="n">residual_figure_save_names</span><span class="p">,</span>
+        <span class="n">latex_root</span> <span class="o">=</span> <span class="n">latex_root</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">include_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">include_name</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_string</span><span class="p">))</span>
+            
+    <span class="k">return</span> <span class="n">latex_string</span></div>
+
 <div class="viewcode-block" id="figure"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.figure.html#sdynpy.doc.sdynpy_latex.figure">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">figure</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span> <span class="n">figure_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">figure_caption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
            <span class="n">graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth&#39;</span><span class="p">,</span> 
            <span class="n">animate_graphics_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;width=0.7\linewidth,loop&#39;</span><span class="p">,</span>
@@ -302,7 +1005,12 @@
            <span class="n">subfigure_options</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[t]{0.45\linewidth}&#39;</span><span class="p">,</span> <span class="n">subfigure_labels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
            <span class="n">subfigure_captions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_subfigures_per_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
            <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">figure_save_names</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-           <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span>
+           <span class="n">latex_root</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+           <span class="n">animation_style</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">animation_frames</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+           <span class="n">animation_frame_rate</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+           <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">geometry_plot_shape_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
            <span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds figures, subfigures, and animations to a running latex document.</span>
@@ -361,6 +1069,27 @@
 <span class="sd">        Directory in which the latex .tex file will be constructed.  This is</span>
 <span class="sd">        used to create relative paths to the save_figure_names within the latex</span>
 <span class="sd">        document.  If not specified, then the current directory will be assumed.</span>
+<span class="sd">    animation_style : str, optional</span>
+<span class="sd">        If a GeometryPlotter or ShapePlotter object is passed, this argument</span>
+<span class="sd">        will determine what is saved from it.  To save just a screen shot of</span>
+<span class="sd">        the plotter, use `animation_style = None` or `animation_style = &#39;none&#39;.</span>
+<span class="sd">        To save an animated 2D figure, use `animation_style= &#39;2d&#39;`.  To save</span>
+<span class="sd">        an animated 3D figure, use `animation_style = &#39;3d&#39;`.  If not specified,</span>
+<span class="sd">        a screenshot will be saved.</span>
+<span class="sd">    animation_frames : int</span>
+<span class="sd">        If a GeometryPlotter or ShapePlotter object is passed with a 2D</span>
+<span class="sd">        `animation_style`, this argument will determine how many frames are</span>
+<span class="sd">        rendered.</span>
+<span class="sd">    animation_frame_rate : int</span>
+<span class="sd">        This is the frame rate used in the animation.</span>
+<span class="sd">    geometry : Geometry, optional</span>
+<span class="sd">        If a ShapeArray is passed as a figure type, then a geometry must also</span>
+<span class="sd">        be specified to define how the shape should be plotted.</span>
+<span class="sd">    geometry_plot_shape_kwargs : dict, optional</span>
+<span class="sd">        If a ShapeArray and Geometry are passed, then this is a dictionary of</span>
+<span class="sd">        keyword arguments into the Geometry.plot_shape function in</span>
+<span class="sd">        sdynpy.pdf3D.</span>
+<span class="sd">        </span>
 <span class="sd">     </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -382,11 +1111,25 @@
 <span class="sd">        - A pyqtgraph plotitem</span>
 <span class="sd">        - A bytes object that represents an image</span>
 <span class="sd">        - A string to a file name</span>
+<span class="sd">        - A GeometryPlotter containing a geometry</span>
+<span class="sd">        - A ShapePlotter containing a mode shape</span>
+<span class="sd">        - A ShapeArray object containing a mode</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    
+    
+    <span class="k">if</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="o">.</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> 
+        <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">figures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">subfigures</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">subfigures</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="c1"># If it&#39;s a shapeplotter, we need to break it out into the multiple shapes</span>
+    <span class="c1"># but keep track of the iterable</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figures</span><span class="p">,</span><span class="n">ShapePlotter</span><span class="p">):</span>
+        <span class="n">shapeplotter</span> <span class="o">=</span> <span class="n">figures</span>
+        <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">shapeplotter</span><span class="o">.</span><span class="n">shapes</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shapeplotter</span> <span class="o">=</span> <span class="kc">None</span>
         
     <span class="k">if</span> <span class="n">max_subfigures_first_page</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">max_subfigures_first_page</span> <span class="o">=</span> <span class="n">max_subfigures_per_page</span>
@@ -417,6 +1160,7 @@
         <span class="c1"># the file</span>
         <span class="n">relpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="n">latex_root</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">this_figure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">figure</span><span class="p">):</span>
+            <span class="n">pdf3d</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">animate</span><span class="p">:</span>
                 <span class="n">this_filename</span> <span class="o">=</span> <span class="n">base</span><span class="o">+</span><span class="s1">&#39;_</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="n">ext</span>
                 <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span>
@@ -432,27 +1176,148 @@
                 <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
                 <span class="n">this_figure</span><span class="o">.</span><span class="n">writeImage</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
-            <span class="c1"># 2D NumpyArray</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
-                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
             <span class="c1"># ShapePlotter</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">ShapePlotter</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;ShapePlotter is not implemented yet&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.png&#39;</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="n">ext</span>
+                <span class="k">if</span> <span class="n">animation_style</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+                    <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;2d&#39;</span><span class="p">:</span>
+                    <span class="n">this_figure</span><span class="o">.</span><span class="n">save_animation</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span><span class="n">frames</span><span class="o">=</span><span class="n">animation_frames</span><span class="p">,</span>
+                                               <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">,</span>
+                                               <span class="n">individual_images</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">animate</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;-&#39;</span>
+                    <span class="n">num_frames</span> <span class="o">=</span> <span class="n">animation_frames</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;3d&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;3D Animation is not supported for ShapePlotter. Pass ShapeArray for interactive mode shape plots.&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid animation_style.  Must be one of None, &quot;2d&quot;, or &quot;3d&quot;.&#39;</span><span class="p">)</span>
+            <span class="c1"># ShapeArray</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="n">ShapeArray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;If a ShapeArray is passed as a figure, a Geometry must also be passed to the geometry argument.&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.png&#39;</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="n">ext</span>
+                <span class="n">plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="o">**</span><span class="n">geometry_plot_shape_kwargs</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">animation_style</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+                    <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;2d&#39;</span><span class="p">:</span>
+                    <span class="n">plotter</span><span class="o">.</span><span class="n">save_animation</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span><span class="n">frames</span><span class="o">=</span><span class="n">animation_frames</span><span class="p">,</span>
+                                           <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">,</span>
+                                           <span class="n">individual_images</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">animate</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;-&#39;</span>
+                    <span class="n">num_frames</span> <span class="o">=</span> <span class="n">animation_frames</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;3d&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">vtkU3DExporter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot Import vtkU3DExporter.  It must first be installed with `pip install vtk-u3dexporter`&#39;</span><span class="p">)</span>
+                    <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">plotter</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                    <span class="n">u3d_filename</span> <span class="o">=</span> <span class="n">this_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span><span class="s1">&#39;.u3d&#39;</span><span class="p">)</span>
+                    <span class="n">js_filename</span> <span class="o">=</span> <span class="n">this_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span><span class="s1">&#39;.js&#39;</span><span class="p">)</span>
+                    <span class="n">rel_path_u3d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">u3d_filename</span><span class="p">,</span><span class="n">latex_root</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+                    <span class="n">rel_path_js</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">js_filename</span><span class="p">,</span><span class="n">latex_root</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+                    <span class="c1"># Pick out appropriate arguments</span>
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;node_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">[</span><span class="s1">&#39;plot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;node_size&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;line_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">[</span><span class="s1">&#39;plot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;line_width&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;opacity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">[</span><span class="s1">&#39;deformed_opacity&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;show_edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">[</span><span class="s1">&#39;plot_kwargs&#39;</span><span class="p">][</span><span class="s1">&#39;show_edges&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;displacement_scale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_plot_shape_kwargs</span><span class="p">[</span><span class="s1">&#39;starting_scale&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="n">create_animated_modeshape_content</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span><span class="n">this_figure</span><span class="p">,</span>
+                                                      <span class="n">u3d_name</span><span class="o">=</span><span class="n">u3d_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.u3d&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                                      <span class="n">js_name</span> <span class="o">=</span> <span class="n">js_filename</span><span class="p">,</span> <span class="n">one_js</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">pdf3d</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">pdf3d_parameters</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;=&#39;</span><span class="o">+</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">get_view_parameters_from_plotter</span><span class="p">(</span><span class="n">plotter</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                    <span class="n">pdf3d_parameters</span> <span class="o">+=</span> <span class="s1">&#39;, &#39;</span><span class="o">+</span><span class="n">graphics_options</span><span class="o">+</span><span class="s1">&#39;, add3Djscript=&#39;</span><span class="o">+</span><span class="n">rel_path_js</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">plotter</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid animation_style.  Must be one of None, &quot;2d&quot;, or &quot;3d&quot;.&#39;</span><span class="p">)</span>
+                <span class="n">plotter</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="c1"># GeometryPlotter</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">GeometryPlotter</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;GeometryPlotter is not implemented yet&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.png&#39;</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="n">ext</span>
+                <span class="k">if</span> <span class="n">animation_style</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+                    <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;2d&#39;</span><span class="p">:</span>
+                    <span class="n">this_figure</span><span class="o">.</span><span class="n">save_rotation_animation</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span><span class="n">frames</span><span class="o">=</span><span class="n">animation_frames</span><span class="p">,</span>
+                                                        <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">,</span>
+                                                        <span class="n">individual_images</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">animate</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;-&#39;</span>
+                    <span class="n">num_frames</span> <span class="o">=</span> <span class="n">animation_frames</span>
+                <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;3d&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">vtkU3DExporter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot Import vtkU3DExporter.  It must first be installed with `pip install vtk-u3dexporter`&#39;</span><span class="p">)</span>
+                    <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                    <span class="n">u3d_filename</span> <span class="o">=</span> <span class="n">this_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span><span class="s1">&#39;.u3d&#39;</span><span class="p">)</span>
+                    <span class="n">rel_path_u3d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">u3d_filename</span><span class="p">,</span><span class="n">latex_root</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+                    <span class="n">exporter</span> <span class="o">=</span> <span class="n">vtkU3DExporter</span><span class="o">.</span><span class="n">vtkU3DExporter</span><span class="p">()</span>
+                    <span class="n">exporter</span><span class="o">.</span><span class="n">SetFileName</span><span class="p">(</span><span class="n">u3d_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.u3d&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+                    <span class="n">exporter</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">this_figure</span><span class="o">.</span><span class="n">render_window</span><span class="p">)</span>
+                    <span class="n">exporter</span><span class="o">.</span><span class="n">Write</span><span class="p">()</span>
+                    
+                    <span class="n">pdf3d</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">pdf3d_parameters</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;=&#39;</span><span class="o">+</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">get_view_parameters_from_plotter</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                    <span class="n">pdf3d_parameters</span> <span class="o">+=</span> <span class="s1">&#39;, &#39;</span><span class="o">+</span><span class="n">graphics_options</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid animation_style.  Must be one of None, &quot;2d&quot;, or &quot;3d&quot;.&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">shapeplotter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">shapeplotter</span><span class="o">.</span><span class="n">current_shape</span> <span class="o">=</span> <span class="n">j</span>
+                    <span class="n">shapeplotter</span><span class="o">.</span><span class="n">compute_displacements</span><span class="p">()</span>
+                    <span class="n">shapeplotter</span><span class="o">.</span><span class="n">update_shape_mode</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">shapeplotter</span><span class="o">.</span><span class="n">show_comment</span><span class="p">()</span>
+                    <span class="n">QApplication</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">animation_style</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span><span class="p">:</span>
+                        <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">shapeplotter</span><span class="o">.</span><span class="n">screenshot</span><span class="p">())</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">animation_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;2d&#39;</span><span class="p">:</span>
+                        <span class="n">shapeplotter</span><span class="o">.</span><span class="n">save_animation</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span><span class="n">frames</span><span class="o">=</span><span class="n">animation_frames</span><span class="p">,</span>
+                                               <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">animation_frame_rate</span><span class="p">,</span>
+                                               <span class="n">individual_images</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="n">animate</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">relpath</span> <span class="o">+=</span> <span class="s1">&#39;-&#39;</span>
+                        <span class="n">num_frames</span> <span class="o">=</span> <span class="n">animation_frames</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Bad type with integer figure.&#39;</span><span class="p">)</span>
             <span class="c1"># Bytes object</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
-                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">frombytes</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">this_figure</span><span class="p">))</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
             <span class="c1"># String to file name</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="n">this_filename</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">copy</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># 2D NumpyArray</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">this_figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">this_filename</span> <span class="o">+=</span> <span class="s1">&#39;.png&#39;</span>
+                <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">this_filename</span><span class="p">)</span>
+            <span class="c1"># Otherwise</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown Figure Type: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">this_figure</span><span class="p">)))</span>
         <span class="c1"># Now we end the figure and create a new one if we are at the right</span>
         <span class="c1"># subfigure number</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">subfigures</span> <span class="ow">and</span> <span class="n">max_subfigures_per_page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> 
@@ -475,6 +1340,13 @@
             <span class="n">graphics_options</span><span class="o">=</span><span class="n">animate_graphics_options</span><span class="p">,</span>
             <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
             <span class="n">base_name</span><span class="o">=</span><span class="n">relpath</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">num_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pdf3d</span><span class="p">:</span>
+            <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        \includemedia[</span><span class="si">{graphics_options_3D:}</span><span class="s2">]{{\includegraphics[</span><span class="si">{graphics_options:}</span><span class="s2">]{{</span><span class="si">{base_name:}</span><span class="s2">}}}}{{</span><span class="si">{base_name_u3d:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">graphics_options_3D</span> <span class="o">=</span> <span class="n">pdf3d_parameters</span><span class="p">,</span>
+            <span class="n">graphics_options</span> <span class="o">=</span> <span class="n">graphics_options</span><span class="p">,</span>
+            <span class="n">base_name</span> <span class="o">=</span> <span class="n">relpath</span><span class="p">,</span>
+            <span class="n">base_name_u3d</span> <span class="o">=</span> <span class="n">rel_path_u3d</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        \includegraphics[</span><span class="si">{:}</span><span class="s2">]{{</span><span class="si">{:}</span><span class="s2">}}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -505,7 +1377,12 @@
 
 <div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../_autosummary/sdynpy.doc.sdynpy_latex.table.html#sdynpy.doc.sdynpy_latex.table">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">justification_string</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
           <span class="n">table_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">table_caption</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">longtable</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-          <span class="n">header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">horizontal_lines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+          <span class="n">header</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">horizontal_lines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">table_placement</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">table_as_list</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">table_as_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table_as_list</span>
     <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
     <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">justification_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -516,10 +1393,11 @@
         <span class="k">if</span> <span class="n">table_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">    \label{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_label</span><span class="p">)</span>
+        <span class="n">latex_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">latex_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;\begin{{table}}</span>
+        <span class="n">latex_string</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;\begin{{table}}</span><span class="si">{:}</span>
 <span class="s1">    \centering</span>
-<span class="s1">    \caption{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">table_caption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">table_caption</span><span class="p">)</span>
+<span class="s1">    \caption{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_placement</span><span class="p">,</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">table_caption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">table_caption</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">table_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">    \label{{</span><span class="si">{:}</span><span class="s1">}}&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_label</span><span class="p">)</span>
@@ -530,9 +1408,11 @@
         <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        \hline&#39;&#39;&#39;</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="s1">&#39;        &#39;</span><span class="o">+</span><span class="s1">&#39; &amp; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">)])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="s1">&#39;        &#39;</span><span class="o">+</span><span class="s1">&#39; &amp; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">%&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">)])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">header</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">row</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;\hline&#39;</span>
+            <span class="k">if</span> <span class="n">longtable</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">        </span><span class="se">\\</span><span class="s1">endhead&#39;</span>
         <span class="n">latex_string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">row</span>
         <span class="k">if</span> <span class="n">horizontal_lines</span><span class="p">:</span>
             <span class="n">latex_string</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
@@ -554,7 +1434,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefd6c60e0>
+<jinja2.runtime.BlockReference object at 0x7f1d4aa1e0d0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

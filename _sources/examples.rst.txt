@@ -12,3 +12,4 @@ SDynpy Examples
    example_problems/craig_bampton_substructuring
    example_problems/transmission_simulator
    example_problems/mimo_random_vibration_control
+   example_problems/virtual_point_transformation

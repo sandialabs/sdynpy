@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_shape.ShapeArray &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.core.sdynpy_shape.ShapeArray &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -110,6 +111,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_complex"><code class="docutils literal notranslate"><span class="pre">ShapeArray.to_complex()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_real"><code class="docutils literal notranslate"><span class="pre">ShapeArray.to_real()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system"><code class="docutils literal notranslate"><span class="pre">ShapeArray.transform_coordinate_system()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix"><code class="docutils literal notranslate"><span class="pre">ShapeArray.transformation_matrix()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv"><code class="docutils literal notranslate"><span class="pre">ShapeArray.write_to_unv()</span></code></a></li>
 </ul>
 </li>
@@ -257,7 +259,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system" title="sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
 <td><p>Performs coordinate system transformations on the shape</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv" title="sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, specific_data_type, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix" title="sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix</span></code></a>(physical_coordinates)</p></td>
+<td><p>Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv" title="sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, specific_data_type, ...])</p></td>
 <td><p>Writes shape data to a unverisal file</p></td>
 </tr>
 </tbody>
@@ -533,7 +538,7 @@ function.  This can then be saved to a .mat file and loaded using
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>table_format</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of table to generate.  Can be ‘csv’, ‘rst’, ‘markdown’,
-‘latex’, or ‘ascii’. The default is ‘csv’.</p></li>
+‘latex’, ‘pandas’, or ‘ascii’. The default is ‘csv’.</p></li>
 <li><p><strong>frequency_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Format specifier for frequency. The default is ‘{:0.2f}’.</p></li>
 <li><p><strong>damping_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Format specifier for damping percent. The default is ‘{:0.2f}%’.</p></li>
 </ul>
@@ -867,6 +872,33 @@ matrix as zeros.  Default is False.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix">
+<span class="sig-name descname"><span class="pre">transformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.transformation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – The “physical” force coordinates for the transformation.</p></li>
+<li><p><strong>inversion</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the pseudo inverse of the mode shape matrix will be performed. If False, the mode shape matrix will not be inverted.</p></li>
+<li><p><strong>normalized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the rows of the transformation matrix will be normalized to unit magnitude.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transformation</strong> – The transformation matrix as a matrix object. It is organized with
+the modal CoordinateArray on the rows and the physical
+force CoordinateArray on the columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix">Matrix</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The transformation automatically handles polarity differences in the geometry
+and force_coordinate.</p>
+<p>The returned transformation matrix is intended to be used as an output transformation matrix for MIMO vibration control.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv">
 <span class="sig-name descname"><span class="pre">write_to_unv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_case_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.write_to_unv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv" title="Permalink to this definition"></a></dt>
 <dd><p>Writes shape data to a unverisal file</p>
@@ -908,7 +940,7 @@ which denotes acceleration shapes.</p></li>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7eff008aaf20>
+<jinja2.runtime.BlockReference object at 0x7f1d4b1d7090>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

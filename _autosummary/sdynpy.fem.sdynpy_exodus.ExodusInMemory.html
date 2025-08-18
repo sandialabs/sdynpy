@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.fem.sdynpy_exodus.ExodusInMemory &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.fem.sdynpy_exodus.ExodusInMemory &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -75,9 +76,11 @@
 <li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.fem.sdynpy_exodus.ExodusInMemory</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.__init__"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.extract_sharp_edges"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.extract_sharp_edges()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.from_sdynpy()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.get_block_surface"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.get_block_surface()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.load_from_exodus"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.load_from_exodus()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.reduce_to_surfaces"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.reduce_to_surfaces()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.repack"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.repack()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.triangulate_surface_mesh"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.triangulate_surface_mesh()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.write_to_file"><code class="docutils literal notranslate"><span class="pre">ExodusInMemory.write_to_file()</span></code></a></li>
@@ -168,13 +171,19 @@ all blocks.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.__init__" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([exo, variables, timesteps, blocks])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_sdynpy</span></code></a>(geometry[, displacement_data])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.extract_sharp_edges" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.extract_sharp_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_sharp_edges</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.get_block_surface" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.get_block_surface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_block_surface</span></code></a>(block_id[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_sdynpy</span></code></a>(geometry[, displacement_data])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.get_block_surface" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.get_block_surface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_block_surface</span></code></a>(block_id[, ...])</p></td>
 <td><p>Gets the node indices and element connectivity of surface elements</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.load_from_exodus" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.load_from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_exodus</span></code></a>(exo[, variables, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.load_from_exodus" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.load_from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_exodus</span></code></a>(exo[, variables, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.reduce_to_surfaces" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.reduce_to_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce_to_surfaces</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.repack" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory.repack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">repack</span></code></a>(q[, modes])</p></td>
@@ -188,6 +197,11 @@ all blocks.</p></li>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.ExodusInMemory.extract_sharp_edges">
+<span class="sig-name descname"><span class="pre">extract_sharp_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#ExodusInMemory.extract_sharp_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.extract_sharp_edges" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sdynpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#ExodusInMemory.from_sdynpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.from_sdynpy" title="Permalink to this definition"></a></dt>
@@ -242,6 +256,11 @@ tris and quads)</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.ExodusInMemory.reduce_to_surfaces">
+<span class="sig-name descname"><span class="pre">reduce_to_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#ExodusInMemory.reduce_to_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.reduce_to_surfaces" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.fem.sdynpy_exodus.ExodusInMemory.repack">
 <span class="sig-name descname"><span class="pre">repack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/fem/sdynpy_exodus.html#ExodusInMemory.repack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.fem.sdynpy_exodus.ExodusInMemory.repack" title="Permalink to this definition"></a></dt>
 <dd><p>Repackages an exodus file as a linear combination of itself</p>
@@ -289,7 +308,7 @@ connectivity, and original block elements</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefe25ee90>
+<jinja2.runtime.BlockReference object at 0x7f1d4c7fd690>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.fileio.sdynpy_escdf &mdash; SDynPy 0.18.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.fileio.sdynpy_escdf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.fileio.sdynpy_escdf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Fri Feb  7 10:47:58 2025</span>
+
+<span class="sd">@author: dprohe</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">Geometry</span><span class="p">,</span><span class="n">NodeArray</span><span class="p">,</span><span class="n">CoordinateSystemArray</span><span class="p">,</span>
+                                    <span class="n">coordinate_system_array</span><span class="p">,</span><span class="n">node_array</span><span class="p">,</span>
+                                    <span class="n">global_coord</span><span class="p">,</span><span class="n">_element_types</span><span class="p">,</span><span class="n">_exodus_elem_type_map</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShapeArray</span><span class="p">,</span><span class="n">shape_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span><span class="n">FunctionTypes</span><span class="p">,</span><span class="n">NDDataArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">color_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">coordinate_array</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">QMainWindow</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">escdf</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">escdf</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="to_geometry"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.to_geometry.html#sdynpy.fileio.sdynpy_escdf.to_geometry">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">to_geometry</span><span class="p">(</span><span class="n">geometry_dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">istype</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;geometry_dataset must have be an ESCDF `geometry` dataset.&#39;</span><span class="p">)</span>
+    <span class="n">element_type_string</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="p">[</span><span class="n">coordinate_system_array</span><span class="p">()]</span>
+    <span class="k">for</span> <span class="nb">id</span><span class="p">,</span><span class="n">position</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span>
+            <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">node_position</span><span class="p">,</span>
+            <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">node_x_direction</span><span class="p">,</span>
+            <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">node_y_direction</span><span class="p">,</span>
+            <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">node_z_direction</span><span class="p">):</span>
+        <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_array</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span><span class="n">position</span><span class="p">,</span><span class="n">def_cs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">disp_cs</span><span class="o">=</span><span class="nb">id</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">css</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate_system_array</span><span class="p">(</span><span class="nb">id</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;Node </span><span class="si">{:}</span><span class="s1"> Disp CS&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span>
+                                           <span class="n">matrix</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)))))</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">NodeArray</span><span class="p">)</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">css</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateSystemArray</span><span class="p">)</span>
+
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">Geometry</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span><span class="n">css</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">connection</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">geometry_dataset</span><span class="o">.</span><span class="n">line_connection</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">line_color</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+                <span class="n">color_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">color</span><span class="o">/</span><span class="mi">255</span> <span class="o">-</span> <span class="n">color_list</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">color_index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">add_traceline</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color_index</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="c1"># No tracelines</span>
+        <span class="k">pass</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">connection</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">geometry_dataset</span><span class="o">.</span><span class="n">element_connection</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">element_color</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+                <span class="n">color_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">color</span><span class="o">/</span><span class="mi">255</span> <span class="o">-</span> <span class="n">color_list</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">color_index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">type_name</span> <span class="o">=</span> <span class="n">geometry_dataset</span><span class="o">.</span><span class="n">element_type</span><span class="p">[</span><span class="n">i</span><span class="p">][()]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">element_type</span> <span class="o">=</span> <span class="n">_exodus_elem_type_map</span><span class="p">[</span><span class="n">type_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">element_type_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">element_type_string</span> <span class="o">=</span> <span class="p">{</span><span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">_element_types</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">element_type</span> <span class="o">=</span> <span class="n">element_type_string</span><span class="p">[</span><span class="n">type_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unknown Element Type at index </span><span class="si">{:}</span><span class="s1">, </span><span class="si">{:}</span><span class="s1">.  Skipping...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">type_name</span><span class="p">))</span>
+                    <span class="k">continue</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">element_type</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_index</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="c1"># No elements</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">geometry</span></div>
+
+<div class="viewcode-block" id="from_geometry"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.from_geometry.html#sdynpy.fileio.sdynpy_escdf.from_geometry">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">from_geometry</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">geometry</span> <span class="p">:</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">descriptive_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">escdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;Could not import module `escdf`, unable to create dataset.&#39;</span><span class="p">)</span>
+    <span class="n">esgeo</span> <span class="o">=</span> <span class="n">escdf</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">geometry</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span><span class="n">descriptive_name</span> <span class="o">=</span> <span class="n">descriptive_name</span><span class="p">)</span>
+    <span class="n">esgeo</span><span class="o">.</span><span class="n">node_id</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">esgeo</span><span class="o">.</span><span class="n">node_position</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">global_node_coordinate</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">esgeo</span><span class="o">.</span><span class="n">node_x_direction</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">global_deflection</span><span class="p">(</span>
+        <span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">))</span>
+    <span class="n">esgeo</span><span class="o">.</span><span class="n">node_y_direction</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">global_deflection</span><span class="p">(</span>
+        <span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="s1">&#39;Y+&#39;</span><span class="p">))</span>
+    <span class="n">esgeo</span><span class="o">.</span><span class="n">node_z_direction</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">global_deflection</span><span class="p">(</span>
+        <span class="n">coordinate_array</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="s1">&#39;Z+&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">esgeo</span><span class="o">.</span><span class="n">line_color</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="mi">255</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">color</span><span class="p">]</span>
+        <span class="n">esgeo</span><span class="o">.</span><span class="n">line_connection</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">connectivity</span>
+    <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">esgeo</span><span class="o">.</span><span class="n">element_connection</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">connectivity</span>
+        <span class="n">esgeo</span><span class="o">.</span><span class="n">element_color</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="mi">255</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">color</span><span class="p">]</span>
+        <span class="n">esgeo</span><span class="o">.</span><span class="n">element_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">_element_types</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">esgeo</span></div>
+    
+<div class="viewcode-block" id="to_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.to_shape.html#sdynpy.fileio.sdynpy_escdf.to_shape">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">to_shape</span><span class="p">(</span><span class="n">shape_dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">istype</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;shape_dataset must be an ESCDF `mode` dataset.&#39;</span><span class="p">)</span>
+    <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">shape_dataset</span><span class="o">.</span><span class="n">dof_name</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+    <span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">...</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">frequency</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="n">damping</span> <span class="o">=</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">damping_ratio</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">modal_mass</span> <span class="o">=</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">modal_mass</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">shape_dataset</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span><span class="n">shape_matrix</span><span class="p">,</span><span class="n">frequency</span><span class="p">,</span><span class="n">damping</span><span class="p">,</span><span class="n">modal_mass</span><span class="p">,</span>
+                       <span class="n">description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="from_shape"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.from_shape.html#sdynpy.fileio.sdynpy_escdf.from_shape">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">from_shape</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">shape</span> <span class="p">:</span> <span class="n">ShapeArray</span><span class="p">,</span> <span class="n">descriptive_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">escdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;Could not import module `escdf`, unable to create dataset.&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">escdf</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span><span class="n">descriptive_name</span> <span class="o">=</span> <span class="n">descriptive_name</span><span class="p">)</span>
+    <span class="n">modes</span><span class="o">.</span><span class="n">damping_ratio</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">damping</span>
+    <span class="n">modes</span><span class="o">.</span><span class="n">frequency</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">frequency</span>
+    <span class="n">dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+    <span class="n">modes</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="n">dofs</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">modes</span><span class="o">.</span><span class="n">dof_name</span> <span class="o">=</span> <span class="n">dofs</span><span class="o">.</span><span class="n">string_array</span><span class="p">()</span>
+    <span class="n">modes</span><span class="o">.</span><span class="n">modal_mass</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">modal_mass</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">modes</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">modes</span></div>
+    
+<span class="n">datatype_enum_names</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">:</span><span class="s1">&#39;time response&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">CROSSSPECTRUM</span><span class="p">:</span><span class="s1">&#39;power spectrum&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">:</span><span class="s1">&#39;frequency response function&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TRANSMISIBILITY</span><span class="p">:</span><span class="s1">&#39;transmissibility&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">COHERENCE</span><span class="p">:</span><span class="s1">&#39;coherence&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">CROSSCORRELATION</span><span class="p">:</span><span class="s1">&#39;correlation&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">:</span><span class="s1">&#39;power spectral density&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span><span class="s1">&#39;spectrum&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">MODE_INDICATOR_FUNCTION</span><span class="p">:</span><span class="s1">&#39;mode indicator function&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PARTIAL_COHERENCE</span><span class="p">:</span><span class="s1">&#39;partial coherence&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">SHOCK_RESPONSE_SPECTRUM</span><span class="p">:</span><span class="s1">&#39;shock response spectrum&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">IMPULSE_RESPONSE_FUNCTION</span><span class="p">:</span><span class="s1">&#39;impulse response function&#39;</span><span class="p">,</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">MULTIPLE_COHERENCE</span><span class="p">:</span><span class="s1">&#39;multiple coherence&#39;</span><span class="p">}</span>
+   
+<span class="n">datatype_names</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">GENERAL</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">,</span><span class="s1">&#39;none&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;time history&#39;</span><span class="p">,</span><span class="s1">&#39;time response&#39;</span><span class="p">,</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="s1">&#39;time data&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;time histories&#39;</span><span class="p">,</span><span class="s1">&#39;time responses&#39;</span><span class="p">,</span> <span class="s1">&#39;ths&#39;</span><span class="p">,</span> <span class="s1">&#39;times&#39;</span><span class="p">,],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">AUTOSPECTRUM</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;autospectrum&#39;</span><span class="p">,</span><span class="s1">&#39;as&#39;</span><span class="p">,</span><span class="s1">&#39;autospectra&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">CROSSSPECTRUM</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;crossspectrum&#39;</span><span class="p">,</span><span class="s1">&#39;cs&#39;</span><span class="p">,</span><span class="s1">&#39;crossspectra&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;frf&#39;</span><span class="p">,</span><span class="s1">&#39;frequency response&#39;</span><span class="p">,</span><span class="s1">&#39;frequency response function&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;frfs&#39;</span><span class="p">,</span><span class="s1">&#39;frequency responses&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency response functions&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;transfer function&#39;</span><span class="p">,</span><span class="s1">&#39;transfer functions&#39;</span><span class="p">,</span> <span class="s1">&#39;tf&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TRANSMISIBILITY</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;transmisibility&#39;</span><span class="p">,</span><span class="s1">&#39;transmisibility function&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;transmisibilities&#39;</span><span class="p">,</span><span class="s1">&#39;transmisibility functions&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">COHERENCE</span><span class="p">:[</span><span class="s1">&#39;coherence&#39;</span><span class="p">,</span><span class="s1">&#39;coh&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">AUTOCORRELATION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;corr&#39;</span><span class="p">,</span><span class="s1">&#39;correlation&#39;</span><span class="p">,</span><span class="s1">&#39;autocorrelation&#39;</span><span class="p">,</span><span class="s1">&#39;corrs&#39;</span><span class="p">,</span><span class="s1">&#39;correlations&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;autocorrelations&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">CROSSCORRELATION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;ccorr&#39;</span><span class="p">,</span><span class="s1">&#39;crosscorrelation&#39;&#39;ccorrs&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;crosscorrelations&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">POWER_SPECTRAL_DENSITY</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;power spectral density&#39;</span><span class="p">,</span><span class="s1">&#39;power spectral densities&#39;</span><span class="p">,</span><span class="s1">&#39;psd&#39;</span><span class="p">,</span><span class="s1">&#39;psds&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;apsd&#39;</span><span class="p">,</span><span class="s1">&#39;apsds&#39;</span><span class="p">,</span><span class="s1">&#39;cpsd&#39;</span><span class="p">,</span><span class="s1">&#39;cpsds&#39;</span><span class="p">,</span><span class="s1">&#39;autopower spectral density&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;autopower spectral densities&#39;</span><span class="p">,</span><span class="s1">&#39;crosspower spectral density&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;crosspower spectral densities&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">ENERGY_SPECTRAL_DENSITY</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;esd&#39;</span><span class="p">,</span><span class="s1">&#39;energy spectral density&#39;</span><span class="p">,</span><span class="s1">&#39;energy spectral densities&#39;</span><span class="p">,</span><span class="s1">&#39;esds&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PROBABILITY_DENSITY_FUNCTION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span><span class="s1">&#39;pdfs&#39;</span><span class="p">,</span><span class="s1">&#39;probability density&#39;</span><span class="p">,</span><span class="s1">&#39;probability densities&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;probability density function&#39;</span><span class="p">,</span><span class="s1">&#39;probability density functions&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;fft&#39;</span><span class="p">,</span><span class="s1">&#39;ffts&#39;</span><span class="p">,</span><span class="s1">&#39;spectrum&#39;</span><span class="p">,</span><span class="s1">&#39;spectra&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">CUMULATIVE_FREQUENCY_DISTRIBUTION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;cfd&#39;</span><span class="p">,</span><span class="s1">&#39;cfds&#39;</span><span class="p">,</span><span class="s1">&#39;cumulative frequency distribution&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;cumulative frequency distributions&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PEAKS_VALLEY</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;peaks valley&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">STRESS_PER_CYCLE</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;stress per cycle&#39;</span><span class="p">,</span><span class="s1">&#39;stress/cycle&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">STRAIN_PER_CYCLE</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;strain per cycle&#39;</span><span class="p">,</span><span class="s1">&#39;strain/cycle&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">ORBIT</span><span class="p">:[</span><span class="s1">&#39;orbit&#39;</span><span class="p">,</span><span class="s1">&#39;orbits&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">MODE_INDICATOR_FUNCTION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;mif&#39;</span><span class="p">,</span><span class="s1">&#39;cmif&#39;</span><span class="p">,</span><span class="s1">&#39;mmif&#39;</span><span class="p">,</span><span class="s1">&#39;nmif&#39;</span><span class="p">,</span><span class="s1">&#39;mode indicator function&#39;</span><span class="p">,</span><span class="s1">&#39;mode indicator functions&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;complex mode indicator function&#39;</span><span class="p">,</span><span class="s1">&#39;complex mode indicator functions&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;multimode indicator function&#39;</span><span class="p">,</span><span class="s1">&#39;multimode indicator functions&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;normal mode indicator function normal mode indicator functions&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FORCE_PATTERN</span><span class="p">:[</span><span class="s1">&#39;force_pattern&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PARTIAL_POWER</span><span class="p">:[</span><span class="s1">&#39;partial power&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PARTIAL_COHERENCE</span><span class="p">:[</span><span class="s1">&#39;partial coherence&#39;</span><span class="p">,</span><span class="s1">&#39;partial coh&#39;</span><span class="p">,</span><span class="s1">&#39;pcoh&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">EIGENVALUE</span><span class="p">:[</span><span class="s1">&#39;eigenvalue&#39;</span><span class="p">,</span><span class="s1">&#39;eigenvalues&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">EIGENVECTOR</span><span class="p">:[</span><span class="s1">&#39;eigenvector&#39;</span><span class="p">,</span><span class="s1">&#39;eigenvectors&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">SHOCK_RESPONSE_SPECTRUM</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;shock response spectrum&#39;</span><span class="p">,</span><span class="s1">&#39;shock response spectra&#39;</span><span class="p">,</span><span class="s1">&#39;srs&#39;</span><span class="p">,</span><span class="s1">&#39;srss&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FINITE_IMPULSE_RESPONSE_FILTER</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;finite impulse response function&#39;</span><span class="p">,</span><span class="s1">&#39;firf&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">MULTIPLE_COHERENCE</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;mcoh&#39;</span><span class="p">,</span><span class="s1">&#39;multiple coherence&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">ORDER_FUNCTION</span><span class="p">:[</span><span class="s1">&#39;order&#39;</span><span class="p">,</span><span class="s1">&#39;order function&#39;</span><span class="p">,</span><span class="s1">&#39;order functions&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">PHASE_COMPENSATION</span><span class="p">:[</span><span class="s1">&#39;phase comp&#39;</span><span class="p">,</span><span class="s1">&#39;phase compensation&#39;</span><span class="p">],</span>
+    <span class="n">FunctionTypes</span><span class="o">.</span><span class="n">IMPULSE_RESPONSE_FUNCTION</span><span class="p">:</span>
+        <span class="p">[</span><span class="s1">&#39;irf&#39;</span><span class="p">,</span><span class="s1">&#39;irfs&#39;</span><span class="p">,</span><span class="s1">&#39;impulse response function&#39;</span><span class="p">,</span><span class="s1">&#39;impulse response functions&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;impuse response&#39;</span><span class="p">,</span><span class="s1">&#39;impulse responses&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+ 
+<span class="n">datatype_map</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">name_list</span> <span class="ow">in</span> <span class="n">datatype_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">name_list</span><span class="p">:</span>
+        <span class="n">datatype_map</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">key</span>
+
+<div class="viewcode-block" id="to_data"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.to_data.html#sdynpy.fileio.sdynpy_escdf.to_data">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">to_data</span><span class="p">(</span><span class="n">data_dataset</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">istype</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;data_dataset must be an ESCDF `data` dataset.&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">function_type</span> <span class="o">=</span> <span class="n">datatype_map</span><span class="p">[</span>
+            <span class="n">data_dataset</span><span class="o">.</span><span class="n">data_type</span><span class="p">[</span><span class="o">...</span><span class="p">][()]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown data type </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_dataset</span><span class="o">.</span><span class="n">data_type</span><span class="p">[</span><span class="o">...</span><span class="p">][()]))</span>
+    <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">data_dataset</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+    <span class="n">ordinate_unit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;Ordinate Unit: &#39;</span><span class="p">,</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">ordinate_unit</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+    <span class="n">abscissa_unit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39; -- Abscissa Unit: &#39;</span><span class="p">,</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">abscissa_unit</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+    <span class="n">comment1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ordinate_unit</span><span class="p">,</span><span class="n">abscissa_unit</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">data_dataset</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">data_dataset</span><span class="o">.</span><span class="n">abscissa_step</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">abscissa_start</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">abscissa</span> <span class="o">=</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">function_type</span><span class="p">,</span> <span class="n">abscissa</span><span class="p">,</span> <span class="n">data_dataset</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+                      <span class="n">coordinate</span><span class="p">,</span> <span class="n">comment1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="from_data"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.from_data.html#sdynpy.fileio.sdynpy_escdf.from_data">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">from_data</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data</span> <span class="p">:</span> <span class="n">NDDataArray</span><span class="p">,</span><span class="n">descriptive_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">escdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;Could not import module `escdf`, unable to create dataset.&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">abscissa_spacing</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">abscissa_spacing</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">starting_abscissa</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">starting_abscissa</span> <span class="o">==</span> <span class="n">starting_abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">starting_abscissa</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">starting_abscissa</span> <span class="o">=</span> <span class="n">starting_abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">escdf</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span><span class="n">descriptive_name</span> <span class="o">=</span> <span class="n">descriptive_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">starting_abscissa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">abscissa_spacing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">abscissa</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">abscissa</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abscissa</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">abscissa</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">abscissa</span> <span class="o">=</span> <span class="n">abscissa</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">abscissa_step</span> <span class="o">=</span> <span class="n">abscissa_spacing</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">abscissa_start</span> <span class="o">=</span> <span class="n">starting_abscissa</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ordinate</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="n">datatype_enum_names</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">function_type</span><span class="p">]</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">string_array</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+<div class="viewcode-block" id="ESCDFVisualizer"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.ESCDFVisualizer.html#sdynpy.fileio.sdynpy_escdf.ESCDFVisualizer">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ESCDFVisualizer</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An interactive window allowing users to explore an ESCDF file&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="ESCDFVisualizer.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.fileio.sdynpy_escdf.ESCDFVisualizer.html#sdynpy.fileio.sdynpy_escdf.ESCDFVisualizer.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">escdf_file</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an ESCDF Visualizer Window to explore an ESCDF file.</span>
+<span class="sd">        </span>
+<span class="sd">        A filename or ESCDF object can be passed as an argment, or it can be</span>
+<span class="sd">        loaded at a later point.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        escdf_file : str or ESCDF, optional</span>
+<span class="sd">            The file or ESCDF object to explore.  If not passed, one can be</span>
+<span class="sd">            loaded through the graphical user interface.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f1d4a9b8cd0>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

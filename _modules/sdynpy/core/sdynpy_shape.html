@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -123,6 +124,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_magnitude_constraint</span><span class="p">,</span> <span class="n">quaternion_to_rotation_matrix</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_exodus</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exodus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_dof</span><span class="w"> </span><span class="kn">import</span> <span class="n">by_condition_number</span><span class="p">,</span> <span class="n">by_effective_independence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_matrix</span><span class="w"> </span><span class="kn">import</span> <span class="n">matrix</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QTableWidget</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QAbstractItemView</span>
@@ -330,7 +332,7 @@
 
     <span class="nd">@modeshape</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">modeshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -593,8 +595,13 @@
             <span class="n">dim</span> <span class="o">=</span> <span class="n">all_coords</span><span class="o">.</span><span class="n">ndim</span>
             <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">responses</span> <span class="o">=</span> <span class="n">all_coords</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            
+            <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">references</span> <span class="o">=</span> <span class="n">responses</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">damping_ratios</span> <span class="o">=</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">damping</span>
         <span class="n">angular_natural_frequencies</span> <span class="o">=</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">frequency</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
         <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
@@ -1261,7 +1268,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        table_format : str, optional</span>
 <span class="sd">            The type of table to generate.  Can be &#39;csv&#39;, &#39;rst&#39;, &#39;markdown&#39;,</span>
-<span class="sd">            &#39;latex&#39;, or &#39;ascii&#39;. The default is &#39;csv&#39;.</span>
+<span class="sd">            &#39;latex&#39;, &#39;pandas&#39;, or &#39;ascii&#39;. The default is &#39;csv&#39;.</span>
 <span class="sd">        frequency_format : str, optional</span>
 <span class="sd">            Format specifier for frequency. The default is &#39;{:0.2f}&#39;.</span>
 <span class="sd">        damping_format : str, optional</span>
@@ -1278,12 +1285,12 @@
 <span class="sd">            String representation of the mode table</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">available_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rst&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">,</span> <span class="s1">&#39;latex&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">]</span>
+        <span class="n">available_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rst&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">,</span> <span class="s1">&#39;latex&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">,</span><span class="s1">&#39;pandas&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">available_formats</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`table_format` must be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">available_formats</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;ascii&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;latex&#39;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;latex&#39;</span><span class="p">,</span><span class="s1">&#39;pandas&#39;</span><span class="p">]:</span>
             <span class="c1"># Create a Pandas dataframe</span>
             <span class="n">sorted_flat_self</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
             <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Mode&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">sorted_flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
@@ -1297,7 +1304,11 @@
             <span class="k">if</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latex&#39;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_latex</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+                <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_latex</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">table_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pandas&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">df</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown Table Format: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_format</span><span class="p">))</span></div>
             
 <div class="viewcode-block" id="ShapeArray.edit_comments"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.edit_comments">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">edit_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1331,7 +1342,55 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ShapeCommentTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">ShapeCommentTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ShapeArray.transformation_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">transformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_coordinates</span><span class="p">,</span> <span class="n">inversion</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : CoordinateArray</span>
+<span class="sd">            The &quot;physical&quot; force coordinates for the transformation.</span>
+<span class="sd">            </span>
+<span class="sd">        inversion : bool, optional</span>
+<span class="sd">            If True, the pseudo inverse of the mode shape matrix will be performed. If False, the mode shape matrix will not be inverted.</span>
+
+<span class="sd">        normalized : bool, optional</span>
+<span class="sd">            If True, the rows of the transformation matrix will be normalized to unit magnitude.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        transformation : Matrix</span>
+<span class="sd">            The transformation matrix as a matrix object. It is organized with</span>
+<span class="sd">            the modal CoordinateArray on the rows and the physical </span>
+<span class="sd">            force CoordinateArray on the columns.</span>
+<span class="sd">            </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The transformation automatically handles polarity differences in the geometry </span>
+<span class="sd">        and force_coordinate.</span>
+<span class="sd">        </span>
+<span class="sd">        The returned transformation matrix is intended to be used as an output transformation matrix for MIMO vibration control.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Generate Modal Coordinates</span>
+        <span class="n">modal_coordinates</span> <span class="o">=</span> <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)),</span> <span class="n">direction</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Truncate Shapes to Physical Coordinates</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">physical_coordinates</span><span class="p">)</span>
+        
+        <span class="c1"># Invert Matrix (if desired)</span>
+        <span class="k">if</span> <span class="n">inversion</span><span class="p">:</span>
+            <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span>
+            
+        <span class="c1"># Normalize Matrix (if desired)</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">transformation_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">transformation_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="n">transformation_matrix</span><span class="p">,</span> <span class="n">modal_coordinates</span><span class="p">,</span> <span class="n">physical_coordinates</span><span class="p">)</span></div></div>
         
 <div class="viewcode-block" id="ShapeCommentTable"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ShapeCommentTable</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
 <div class="viewcode-block" id="ShapeCommentTable.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">plotter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1596,7 +1655,7 @@
     <span class="k">return</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">residual</span></div>
 
 
-<div class="viewcode-block" id="rigid_body_check"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.rigid_body_check.html#sdynpy.core.sdynpy_shape.rigid_body_check">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">rigid_body_check</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">distance_number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">distance_yscale</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">residuals_to_label</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<div class="viewcode-block" id="rigid_body_check"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.rigid_body_check.html#sdynpy.core.sdynpy_shape.rigid_body_check">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">rigid_body_check</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">rigid_shapes</span><span class="p">,</span> <span class="n">distance_number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">residuals_to_label</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                      <span class="n">return_shape_diagnostics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_figures</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">rigid_shape_kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs rigid body checks, both looking at the complex plane and residuals</span>
@@ -1608,14 +1667,8 @@
 <span class="sd">    rigid_shapes : ShapeArray</span>
 <span class="sd">        ShapeArray consisting of nominally rigid shapes from which errors are</span>
 <span class="sd">        to be computed</span>
-<span class="sd">    distance : float, optional</span>
-<span class="sd">        Threshold for computing distance from other points to find outliers.</span>
-<span class="sd">        The default is 0.25.</span>
 <span class="sd">    distance_number : int, optional</span>
 <span class="sd">        Threshold for number of neighbors to find outliers. The default is 5.</span>
-<span class="sd">    distance_yscale : float, optional</span>
-<span class="sd">        Penalty factor applied to the complex portion of the shape when</span>
-<span class="sd">        computing distances. The default is 20.</span>
 <span class="sd">    residuals_to_label : int, optional</span>
 <span class="sd">        The top `residuals_to_label` residuals will be highlighted in the</span>
 <span class="sd">        residual plots. The default is 5.</span>
@@ -1648,7 +1701,7 @@
     <span class="n">shape_matrix_exp</span> <span class="o">=</span> <span class="n">rigid_shapes</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
     <span class="n">shape_matrix_true</span> <span class="o">=</span> <span class="n">true_rigid_shapes</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
     <span class="n">projection</span> <span class="o">=</span> <span class="n">shape_matrix_true</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">shape_matrix_true</span><span class="p">,</span> <span class="n">shape_matrix_exp</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">shape_matrix_exp</span> <span class="o">-</span> <span class="n">projection</span><span class="p">)</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">shape_matrix_exp</span> <span class="o">-</span> <span class="n">projection</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">projection</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Normalize to the largest dof in each shape</span>
     <span class="n">suspicious_channels</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Plot the complex plane for each shape</span>
     <span class="n">figs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1660,10 +1713,16 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Real Part&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Imag Part&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Shape </span><span class="si">{:}</span><span class="se">\n</span><span class="s1">Complex Plane&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">i</span> <span class="k">if</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span><span class="p">))</span>
-            <span class="n">shape_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">distance_yscale</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">point_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">shape_points</span> <span class="o">-</span> <span class="n">shape_points</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">point_distances</span> <span class="o">&lt;</span> <span class="n">distance</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">distance_number</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="k">if</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="c1"># Fit line through the origin (y = mx)</span>
+            <span class="n">m</span><span class="p">,</span> <span class="n">residuals</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">singular_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get the slope</span>
+            <span class="n">point_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Plot the line fit on the plot</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axline</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">slope</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">point_distances</span><span class="p">)[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>
             <span class="k">for</span> <span class="n">outlier</span> <span class="ow">in</span> <span class="n">outliers</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">outlier</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">outlier</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">outlier</span><span class="p">]))</span>
                 <span class="n">suspicious_channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">outlier</span><span class="p">])</span>
@@ -1947,7 +2006,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefd6c4d60>
+<jinja2.runtime.BlockReference object at 0x7f1d4eac0310>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

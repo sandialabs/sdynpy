@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virtual Point Transformation &mdash; SDynPy 0.18.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modal Tutorials" href="../modal_tutorials.html" />
+    <link rel="prev" title="MIMO Random Vibration" href="mimo_random_vibration_control.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">SDynpy Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="airplane_modal_test.html">Airplane Modal Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rattlesnake_demonstration.html">Rattlesnake Demonstration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transient_fem_analysis.html">Analysis of Transient Finite Element Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_reduction/model_reduction.html">Model Reduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="craig_bampton_substructuring.html">Substructuring using Craig-Bampton Superelements from Sierra/SD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transmission_simulator.html">Substructuring using the Transmission Simulator Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mimo_random_vibration_control.html">MIMO Random Vibration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Virtual Point Transformation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Importing-the-Required-Packages">Importing the Required Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Basic-Transformation-Theory">Basic Transformation Theory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Convention-for-Transformations-in-SDynPy">Convention for Transformations in SDynPy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Generating-the-Example-Problem">Generating the Example Problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creating-the-Beam-Mass-and-Stiffness-Matrices">Creating the Beam Mass and Stiffness Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Generating-the-External-Node-Mass-and-Stiffness-Matrices">Generating the External Node Mass and Stiffness Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Assembling-the-System-Mass-and-Stiffness-Matrices">Assembling the System Mass and Stiffness Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Creating-the-System-Geometry">Creating the System Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Making-the-Transformed-System-Object">Making the Transformed System Object</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Performing-Response-Transformations">Performing Response Transformations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Compute-the-Time-Response">Compute the Time Response</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Creating-the-Response-Transformation-Matrix">Creating the Response Transformation Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Apply-the-Transformation-to-the-Response-Data">Apply the Transformation to the Response Data</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#TimeHistoryArray">TimeHistoryArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#SpectrumArray">SpectrumArray</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#PowerSpectralDensityArray">PowerSpectralDensityArray</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Performing-FRF-Transformations">Performing FRF Transformations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#References">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">SDynpy Examples</a></li>
+      <li class="breadcrumb-item active">Virtual Point Transformation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/example_problems/virtual_point_transformation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Virtual-Point-Transformation">
+<h1>Virtual Point Transformation<a class="headerlink" href="#Virtual-Point-Transformation" title="Permalink to this heading"></a></h1>
+<p>Transformations can be useful in noise and vibration applications, such as: multiple-input/multiple-output (MIMO) vibration testing [1], substructuring [2], and transfer path analysis. This example will derive the basic theory for how transformations are applied in SDynPy. It will also demonstrate how some standard functions can be used to perform a virtual point transformation based on rigid body kinematics. It will show how to generate an example problem, create the transformation matrices,
+then apply the transformations to different data types.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#Importing-the-Required-Packages"><span class="std std-ref">Importing Packages</span></a></p></li>
+<li><p><a class="reference internal" href="#Basic-Transformation-Theory"><span class="std std-ref">Transformation Theory</span></a></p></li>
+<li><p><a class="reference internal" href="#Generating-the-Example-Problem"><span class="std std-ref">Generating the Example Problem</span></a></p></li>
+<li><p><a class="reference internal" href="#Performing-Response-Transformations"><span class="std std-ref">Response Transformations</span></a></p></li>
+<li><p><a class="reference internal" href="#Performing-FRF-Transformations"><span class="std std-ref">FRF Transformations</span></a></p></li>
+<li><p><a class="reference internal" href="#Summary"><span class="std std-ref">Summary</span></a></p></li>
+</ul>
+<section id="Importing-the-Required-Packages">
+<h2>Importing the Required Packages<a class="headerlink" href="#Importing-the-Required-Packages" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sdynpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sdpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">chirp</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Basic-Transformation-Theory">
+<h2>Basic Transformation Theory<a class="headerlink" href="#Basic-Transformation-Theory" title="Permalink to this heading"></a></h2>
+<p>This section derives the equations for how transformation are applied to time traces, frequency spectra, cross-power spectral densities (CPSDs), and frequency response functions (FRFs) in SDynPy. The starting point for the derivation is the basic response transformation, where physical responses are turned into transformed responses. This transformation is shown in the equation below, where <span class="math notranslate nohighlight">\(\left\{x\right\}\)</span> is a vector of physical responses (in the time or frequency domain),
+<span class="math notranslate nohighlight">\(\left[T\right]\)</span> is the transformation matrix, and <span class="math notranslate nohighlight">\(\left\{\hat{x}\right\}\)</span> is a vector of transformed responses.</p>
+<div class="math notranslate nohighlight">
+\[\left\{\hat{x}\right\}=\left[T\right]\left\{x\right\}\]</div>
+<p>This transformation framework can easily be applied to CPSD matrices through the following equations, where <span class="math notranslate nohighlight">\(\left[{\hat{G}}_ {xx}\right]\)</span> is transformed response CPSD matrix, <span class="math notranslate nohighlight">\(\left[G_ {xx}\right]\)</span> is the physical response CPSD matrix, and <span class="math notranslate nohighlight">\(\left[\bullet\right]^\ast\)</span> indicates the conjugate-transpose of the given matrix or vector.</p>
+<div class="math notranslate nohighlight">
+\[\left[{\hat{G}}_{xx}\right]=\left\{\hat{x}\right\}\left\{\hat{x}\right\}^\ast=\left(\left[T\right]\left\{x\right\}\right)\left(\left[T\right]\left\{x\right\}\right)^\ast=\left[T\right]\left\{x\right\}\left\{x\right\}^\ast\left[T\right]^\ast=\left[T\right]\left[G_{xx}\right]\left[T\right]^\ast\]</div>
+<p>The response transformation is applied to FRFs by substituting the FRF equation of motion into the original response transformation that was shown above. In this equation, <span class="math notranslate nohighlight">\(\left[H\right]\)</span> is a matrix of FRFs and <span class="math notranslate nohighlight">\(\left\{f\right\}\)</span> is a vector of forces.</p>
+<div class="math notranslate nohighlight">
+\[\left\{\hat{x}\right\}=\left[T_ {response}\right]\left\{x\right\}=\left[T_ {response}\right]\left[H\right]\left\{f\right\}\]</div>
+<p>A force (more generically called a reference) transformation can also be applied to the FRFs through the following operations. First, the force transformation equation is written to convert the physical forces into transformed forces.</p>
+<div class="math notranslate nohighlight">
+\[\left\{\hat{f}\right\}=\left[T_ {force}\right]\left\{f\right\}\]</div>
+<p>Next, the force transformation equation is inverted to convert the transformed forces into physical forces, where <span class="math notranslate nohighlight">\(\left[\bullet\right]^\dag\)</span> indicates a pseudo-inverse of the given matrix.</p>
+<div class="math notranslate nohighlight">
+\[\left\{f\right\}=\left[T_ {force}\right]^\dag\left\{\hat{f}\right\}\]</div>
+<p>Finally, the inverted force transformation equation is then plugged into the FRF equation of motion.</p>
+<div class="math notranslate nohighlight">
+\[\left\{x\right\}=\left[H\right]\left\{f\right\}=\left[H\right]\left[T_ {force}\right]^\dag\left\{\hat{f}\right\}\]</div>
+<p>Both the force and response transformations can be applied to the FRFs in the same operation to calculate the transformed FRFs, denoted by <span class="math notranslate nohighlight">\(\left[\hat{H}\right]\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\left[\hat{H}\right]=\left[T_ {response}\right]\left[H\right]\left[T_ {force}\right]^\dag\]</div>
+<section id="Convention-for-Transformations-in-SDynPy">
+<h3>Convention for Transformations in SDynPy<a class="headerlink" href="#Convention-for-Transformations-in-SDynPy" title="Permalink to this heading"></a></h3>
+<p>The SDynPy functions for transformations assume that the user is supplying transformations in a format that converts physical quantities to the transformed quantities. However, this convention does not represent all the use cases. For example, one might need to convert the transformed quantity back to the physical quantity, or it might be easier to compute the inverted transformation matrix (that converts the transformed quantity to the physical quantity). Consequently, options are available in
+all the transformation functions to invert the supplied transformations, so they are compatible with whatever transformation convention is being used.</p>
+</section>
+</section>
+<section id="Generating-the-Example-Problem">
+<h2>Generating the Example Problem<a class="headerlink" href="#Generating-the-Example-Problem" title="Permalink to this heading"></a></h2>
+<p>The example system is a two dimensional beam (only in-plane motion) that is rigidly coupled to a node through a rigid spider via static condensation (similar to an rbe2 element). The red portion of the image is the beam where each circle is a node on the beam, the green circle is the node that is external to the beam (referred to as the external node), and the blue lines are the rigid spider that connects the beam and external node. Each node in the system allows for X, Z, and RY motion, as
+shown in the picture.</p>
+<p><img alt="System Image with Directions" src="../_images/transformation_example_systerm.png" /></p>
+<section id="Creating-the-Beam-Mass-and-Stiffness-Matrices">
+<h3>Creating the Beam Mass and Stiffness Matrices<a class="headerlink" href="#Creating-the-Beam-Mass-and-Stiffness-Matrices" title="Permalink to this heading"></a></h3>
+<p>The mass and stiffness matrices will be defined for the beam using standard SDynPy functions for Euler-Bernoulli beams with the supplied material properties</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beam_length</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># m</span>
+<span class="n">box_cross_section_size</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1"># m</span>
+<span class="n">number_nodes</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">youngs_modulus</span> <span class="o">=</span> <span class="mf">69.8e9</span> <span class="c1"># pa</span>
+<span class="n">density</span> <span class="o">=</span> <span class="mi">2700</span> <span class="c1"># kg/m^3</span>
+<span class="n">poissons_ratio</span> <span class="o">=</span> <span class="mf">0.33</span>
+
+<span class="n">beam_k</span><span class="p">,</span> <span class="n">beam_m</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">beam</span><span class="o">.</span><span class="n">beamkm_2d</span><span class="p">(</span><span class="n">beam_length</span><span class="p">,</span> <span class="n">box_cross_section_size</span><span class="p">,</span> <span class="n">box_cross_section_size</span><span class="p">,</span>
+                                     <span class="n">number_nodes</span><span class="p">,</span> <span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">poissons_ratio</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Generating-the-External-Node-Mass-and-Stiffness-Matrices">
+<h3>Generating the External Node Mass and Stiffness Matrices<a class="headerlink" href="#Generating-the-External-Node-Mass-and-Stiffness-Matrices" title="Permalink to this heading"></a></h3>
+<p>The mass and stiffness for the different degrees of freedom (DOFs) in the external node are uncoupled from each other, so there will only be entries on the diagonal of the accompanying matrices.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">external_node_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">external_node_m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1"># kg</span>
+<span class="n">external_node_m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1"># kg</span>
+<span class="n">external_node_m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1"># kg*m^2</span>
+
+<span class="n">external_node_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">external_node_k</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e6</span> <span class="c1"># kg</span>
+<span class="n">external_node_k</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e6</span> <span class="c1"># kg</span>
+<span class="n">external_node_k</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e3</span> <span class="c1"># N*m/rad</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Assembling-the-System-Mass-and-Stiffness-Matrices">
+<h3>Assembling the System Mass and Stiffness Matrices<a class="headerlink" href="#Assembling-the-System-Mass-and-Stiffness-Matrices" title="Permalink to this heading"></a></h3>
+<p>The uncoupled mass and stiffness matrices for the system will be assembled in block diagonal fashion with the external node being in the upper left block of the system matrices.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">physical_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">beam_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">external_node_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">beam_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">external_node_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">physical_m</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">external_node_m</span>
+<span class="n">physical_m</span><span class="p">[</span><span class="mi">3</span><span class="p">:,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">beam_m</span>
+
+<span class="n">physical_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">beam_k</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">beam_k</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">physical_k</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">external_node_k</span>
+<span class="n">physical_k</span><span class="p">[</span><span class="mi">3</span><span class="p">:,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">beam_k</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Creating-the-System-Geometry">
+<h3>Creating the System Geometry<a class="headerlink" href="#Creating-the-System-Geometry" title="Permalink to this heading"></a></h3>
+<p>A SDynPy geometry object will be manually created for the system. This geometry will be used later in the demonstration to create the kinematic transformation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">node_locations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                           <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+                           <span class="p">[</span><span class="o">-</span><span class="mf">0.165</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+                           <span class="p">[</span> <span class="mf">0.165</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+                           <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]])</span>
+
+<span class="n">node_array</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">node_array</span><span class="p">([</span><span class="mi">101</span><span class="p">,</span><span class="mi">201</span><span class="p">,</span><span class="mi">202</span><span class="p">,</span><span class="mi">203</span><span class="p">,</span><span class="mi">204</span><span class="p">],</span> <span class="n">node_locations</span><span class="p">)</span>
+
+<span class="n">traceline_array</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">traceline_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="p">[</span><span class="mi">201</span><span class="p">,</span><span class="mi">202</span><span class="p">,</span><span class="mi">203</span><span class="p">,</span><span class="mi">204</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">201</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">202</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">203</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">204</span><span class="p">])</span>
+
+<span class="n">system_geometry</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">Geometry</span><span class="p">(</span><span class="n">node_array</span><span class="p">,</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_system_array</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">traceline_array</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">system_geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&lt;sdynpy.core.sdynpy_geometry.GeometryPlotter at 0x31d4908b0&gt;,
+ PolyData (0x31d4d61a0)
+   N Cells:    5
+   N Points:   5
+   N Strips:   0
+   X Bounds:   -5.000e-01, 5.000e-01
+   Y Bounds:   0.000e+00, 0.000e+00
+   Z Bounds:   0.000e+00, 1.000e-01
+   N Arrays:   2,
+ PolyData (0x31d4d63e0)
+   N Cells:    5
+   N Points:   5
+   N Strips:   0
+   X Bounds:   -5.000e-01, 5.000e-01
+   Y Bounds:   0.000e+00, 0.000e+00
+   Z Bounds:   0.000e+00, 1.000e-01
+   N Arrays:   2,
+ None)
+</pre></div></div>
+</div>
+<p><img alt="Geoemetry Plot" src="../_images/transformation_geometry_plot.png" /></p>
+</section>
+<section id="Making-the-Transformed-System-Object">
+<h3>Making the Transformed System Object<a class="headerlink" href="#Making-the-Transformed-System-Object" title="Permalink to this heading"></a></h3>
+<p>The external node and beam will be coupled to one another via static condensation with a transformation matrix that is applied to both the mass and stiffness matrices. A damping matrix matrix will also be created for the system via some proportional factors from the transformed mass and stiffness matrices (the precise level of damping is inconsequential for this exercise). These transformed mass, stiffness, and damping matrices along with the transformation matrix will then be compiled into a
+SDynPy system object that can be used to compute time responses or FRFs for the system.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformation_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">1</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.165</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.165</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+
+<span class="n">transformed_m</span> <span class="o">=</span> <span class="n">transformation_array</span><span class="nd">@physical_m@transformation_array</span><span class="o">.</span><span class="n">T</span>
+<span class="n">transformed_k</span> <span class="o">=</span> <span class="n">transformation_array</span><span class="nd">@physical_k@transformation_array</span><span class="o">.</span><span class="n">T</span>
+<span class="n">transformed_c</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="o">*</span><span class="n">transformed_m</span> <span class="o">+</span> <span class="mf">0.00001</span><span class="o">*</span><span class="n">transformed_k</span>
+
+<span class="n">system_coordinate</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">101</span><span class="p">,</span><span class="mi">201</span><span class="p">,</span><span class="mi">202</span><span class="p">,</span><span class="mi">203</span><span class="p">,</span><span class="mi">204</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">transformed_system</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">system_coordinate</span><span class="p">,</span> <span class="n">transformed_m</span><span class="p">,</span> <span class="n">transformed_k</span><span class="p">,</span> <span class="n">transformed_c</span><span class="p">,</span> <span class="n">transformation</span><span class="o">=</span><span class="n">transformation_array</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The mode shapes can be computed and reviewed to verify that the system behaves like a rigid body.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformed_shapes</span> <span class="o">=</span> <span class="n">transformed_system</span><span class="o">.</span><span class="n">eigensolution</span><span class="p">()</span>
+<span class="n">system_geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="n">transformed_shapes</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;sdynpy.core.sdynpy_geometry.ShapePlotter at 0x31d4925f0&gt;
+</pre></div></div>
+</div>
+<p><img alt="Mode Shape 1" src="../_images/transformation_example_system_mode_1.gif" /></p>
+<p><img alt="Mode Shape 2" src="../_images/transformation_example_system_mode_2.gif" /></p>
+<p><img alt="Mode Shape 3" src="../_images/transformation_example_system_mode_3.gif" /></p>
+</section>
+</section>
+<section id="Performing-Response-Transformations">
+<h2>Performing Response Transformations<a class="headerlink" href="#Performing-Response-Transformations" title="Permalink to this heading"></a></h2>
+<p>The response transformations will be demonstrated using the example system with the following process:</p>
+<ol class="arabic simple">
+<li><p>Time integration will be used to compute the response of the example system to a supplied force.</p></li>
+<li><p>A rigid kinematic transformation will be created from the system geometry to transform the beam motion to the external node motion.</p></li>
+<li><p>The “truth” external node motion from the time integration will be compared to the transformed motion from step two to demonstrate that the virtual point transformation worked as expected.</p></li>
+</ol>
+<p>The above process will be repeated for a SDynPy TimeHistoryArray, SpectrumArray, and PowerSpectralDensityArray. Note that the core aspects of the demonstration will be done using pre-made SDynPy functions and methods, meaning that minimal coding is required to perform transformations.</p>
+<section id="Compute-the-Time-Response">
+<h3>Compute the Time Response<a class="headerlink" href="#Compute-the-Time-Response" title="Permalink to this heading"></a></h3>
+<p>The “time_integration” method for the SDynPy system object is used to compute the response of the previously created “transformed_system” to a supplied force. In this case, chirp excitation will be applied to the external node. Note that the excitation bandwidth encompasses the modes of the system. Otherwise, the precise details of the excitation are inconsequential for this demonstration.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5001</span><span class="p">)</span><span class="o">/</span><span class="mi">5000</span>
+
+<span class="n">external_node_coordinate</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="n">chirp_excitation_ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">chirp</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">chirp</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">chirp</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)])</span>
+
+<span class="n">chirp_excitation</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">chirp_excitation_ordinate</span><span class="p">,</span> <span class="n">external_node_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+<span class="n">time_response</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">transformed_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">chirp_excitation</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Creating-the-Response-Transformation-Matrix">
+<h3>Creating the Response Transformation Matrix<a class="headerlink" href="#Creating-the-Response-Transformation-Matrix" title="Permalink to this heading"></a></h3>
+<p>The response transformation is created by using the “response_kinematic_transformation” method for the SDynPy geometry object. In this case, the “beam_transform_coordinate” defines the DOFs on the beam that will be transformed to the external node. Note that the one and three directions correspond to the X and Z direction, meaning that only translation beam motion will be used to recreate the 3DOF (X, Z, RY) external node motion.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beam_transform_coordinate</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">201</span><span class="p">,</span><span class="mi">202</span><span class="p">,</span><span class="mi">203</span><span class="p">,</span><span class="mi">204</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">response_transformation</span> <span class="o">=</span> <span class="n">system_geometry</span><span class="o">.</span><span class="n">response_kinematic_transformation</span><span class="p">(</span><span class="n">response_coordinate</span> <span class="o">=</span> <span class="n">beam_transform_coordinate</span><span class="p">,</span>
+                                                                            <span class="n">virtual_point_node_number</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
+                                                                            <span class="n">virtual_point_location</span> <span class="o">=</span> <span class="n">node_array</span><span class="p">[</span><span class="n">node_array</span><span class="o">.</span><span class="n">id</span><span class="o">==</span><span class="mi">101</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Apply-the-Transformation-to-the-Response-Data">
+<h3>Apply the Transformation to the Response Data<a class="headerlink" href="#Apply-the-Transformation-to-the-Response-Data" title="Permalink to this heading"></a></h3>
+<p>The response transformation is applied to the response data using the “apply_transformation” method that has been implemented for the TimeHistoryArray, SpectrumArray, and PowerSpectralDensityArray response types in SDynPy. The accuracy of the transformed response can be verified by comparing it to the “truth” response at the external node of the system via a NumPy “allclose” comparison (where teh comparison should result in “true”). Note that imperfections in floating point arithmetic mean that
+the transformed response will never match the truth response via an “==” comparison, which is why allclose is being used.</p>
+<p>Also note that different CoordinateArrays are being used to index the response data to ensure the correct data is being used at each step in the analysis.</p>
+<section id="TimeHistoryArray">
+<h4>TimeHistoryArray<a class="headerlink" href="#TimeHistoryArray" title="Permalink to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformed_time_response</span> <span class="o">=</span> <span class="n">time_response</span><span class="p">[</span><span class="n">beam_transform_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">response_transformation</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformed_time_response</span><span class="p">[</span><span class="n">external_node_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="n">time_response</span><span class="p">[</span><span class="n">external_node_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformed and truth time responses match&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformation did not work as expected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The transformed and truth time responses match
+</pre></div></div>
+</div>
+</section>
+<section id="SpectrumArray">
+<h4>SpectrumArray<a class="headerlink" href="#SpectrumArray" title="Permalink to this heading"></a></h4>
+<p>The time response is converted to a spectrum using the “fft” method for TimeHistoryArrays. This method returns the raw discrete Fourier transform of the time trace, meaning that no windowing or averaging parameters are supplied.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spectrum_response</span> <span class="o">=</span> <span class="n">time_response</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span>
+
+<span class="n">transformed_spectrum_response</span> <span class="o">=</span> <span class="n">spectrum_response</span><span class="p">[</span><span class="n">beam_transform_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">response_transformation</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformed_spectrum_response</span><span class="p">[</span><span class="n">external_node_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="n">spectrum_response</span><span class="p">[</span><span class="n">external_node_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformed and truth spectrum responses match&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformation did not work as expected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The transformed and truth spectrum responses match
+</pre></div></div>
+</div>
+</section>
+<section id="PowerSpectralDensityArray">
+<h4>PowerSpectralDensityArray<a class="headerlink" href="#PowerSpectralDensityArray" title="Permalink to this heading"></a></h4>
+<p>The time response is converted to a CPSD using the “cpsd” method for TimeHistoryArrays. In this case a single average is used with no overlap or windowing. Note that the “apply_transformation” method for PowerSpectralDensityArrays is limited to “full” CPSD arrays, meaning that CPSD array must have the power spectral densities and cross terms.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cpsd_response</span> <span class="o">=</span> <span class="n">time_response</span><span class="o">.</span><span class="n">cpsd</span><span class="p">(</span><span class="n">samples_per_frame</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">overlap</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;boxcar&#39;</span><span class="p">)</span>
+
+<span class="n">transformed_cpsd_response</span> <span class="o">=</span> <span class="n">cpsd_response</span><span class="p">[</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">outer_product</span><span class="p">(</span><span class="n">beam_transform_coordinate</span><span class="p">,</span> <span class="n">beam_transform_coordinate</span><span class="p">)]</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">response_transformation</span><span class="p">)</span>
+
+<span class="n">external_node_cpsd_coordinate</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">outer_product</span><span class="p">(</span><span class="n">external_node_coordinate</span><span class="p">,</span> <span class="n">external_node_coordinate</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformed_cpsd_response</span><span class="p">[</span><span class="n">external_node_cpsd_coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="n">cpsd_response</span><span class="p">[</span><span class="n">external_node_cpsd_coordinate</span><span class="p">]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformed and truth CPSD responses match&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformation did not work as expected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The transformed and truth CPSD responses match
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+<section id="Performing-FRF-Transformations">
+<h2>Performing FRF Transformations<a class="headerlink" href="#Performing-FRF-Transformations" title="Permalink to this heading"></a></h2>
+<p>Transformations can be applied to FRFs in a similar manner to how the response transformations were done. The FRFs will be computed using the “frequency_response” method for the SDynPy system object for this example. CoordinateArray indexing will then be used to separate the different groups of FRFs for the transformations and comparison steps in the analysis. Note that the frequency range for the FRFs was selected such that it encompassed all the modes of the system.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frequency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">601</span><span class="p">)</span>
+<span class="n">system_frf</span> <span class="o">=</span> <span class="n">transformed_system</span><span class="o">.</span><span class="n">frequency_response</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">system_coordinate</span><span class="p">,</span> <span class="n">system_coordinate</span><span class="p">)</span>
+
+<span class="n">external_node_frf</span> <span class="o">=</span> <span class="n">system_frf</span><span class="p">[</span><span class="n">external_node_cpsd_coordinate</span><span class="p">]</span>
+<span class="n">beam_frf</span> <span class="o">=</span> <span class="n">system_frf</span><span class="p">[</span><span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">outer_product</span><span class="p">(</span><span class="n">beam_transform_coordinate</span><span class="p">,</span> <span class="n">beam_transform_coordinate</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<p>The virtual point transformation for this demonstration requires both a reference and response transformation. The response transformation that was previously created can be applied to the FRFs, but a separate reference transformation must be created. In this case, the reference transformation is created using the “force_kinematic_transformation” method for geometry objects. Note that this method is being used since force transformations are defined slightly differently than response
+transformations, more details can be found in [2]. Similar to the response transformation, the reference transformation will only translation beam excitation to recreate the 3DOF (X, Z, RY) external node excitation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_transformation</span> <span class="o">=</span> <span class="n">system_geometry</span><span class="o">.</span><span class="n">force_kinematic_transformation</span><span class="p">(</span><span class="n">force_coordinate</span> <span class="o">=</span> <span class="n">beam_transform_coordinate</span><span class="p">,</span>
+                                                                          <span class="n">virtual_point_node_number</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
+                                                                          <span class="n">virtual_point_location</span> <span class="o">=</span> <span class="n">node_array</span><span class="p">[</span><span class="n">node_array</span><span class="o">.</span><span class="n">id</span><span class="o">==</span><span class="mi">101</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>The transformations are applied to the FRFs using the “apply_transformation” method for TransferFunctionArrays. It should be noted that the other applications (such as a MIMO vibration test) may not need both a response and reference transformation. As such, the apply_transformation method does not require that both a response and reference transformation be supplied (i.e., the user can supply either transformation on its own).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformed_frf</span> <span class="o">=</span> <span class="n">beam_frf</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">response_transformation</span> <span class="o">=</span> <span class="n">response_transformation</span><span class="p">,</span>
+                                                <span class="n">reference_transformation</span> <span class="o">=</span> <span class="n">reference_transformation</span><span class="p">)[</span><span class="n">external_node_cpsd_coordinate</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The transformed and truth FRFs are compared with a NumPy allclose comparison to verify that the virtual point transformation worked as expected. In this case, some DOFs in system are not coupled to one another, meaning that the cross-FRFs will have an amplitude that is less than machine precision. As such, only the driving point FRFs are being compared.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">external_node_frf</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">axis1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">transformed_frf</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">axis1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformed and truth FRFs match&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The transformation did not work as expected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The transformed and truth FRFs match
+</pre></div></div>
+</div>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading"></a></h2>
+<p>This example introduced the basic theory for transformations, as they are applied in SDynPy. It then developed an example system to demonstrate how the transformation methods can be easily applied to TimeHistoryArrays, SpectrumArrays, PowerSpectralDensityArrays, and TransferFunctionArrays. Note that while this example only demonstrated the application of rigid kinematic transformations, more exotic transformations [3,4,5] could also be used with the “apply_transformation” method.</p>
+</section>
+<section id="References">
+<h2>References<a class="headerlink" href="#References" title="Permalink to this heading"></a></h2>
+<p>[1] D. Rohe, R. Schultz, and N. Hunter, “Rattlesnake User’s Manual,” Sandia National Laboratories, 2021.</p>
+<p>[2] M. Van der Seijs, D. van den Bosch, D. Rixen, and D. Klerk, “An improved methodology for the virtual point transformation of measured frequency response functions in dynamic substructuring,” in Proceedings of the 4th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering, Kos Island, 2013, pp. 4334-4347, doi: 10.7712/120113.4816.C1539.</p>
+<p>[3] M. Haeussler and D. Rixen, “Optimal transformation of frequency response functions on interface deformation modes,” in Proceedings of IMAC XXXV, the 35th International Modal Analysis Conference, Los Angeles 2017.</p>
+<p>[4] R. Schultz and P. Avitabile, “Shape-constrained Input Estimation for Efficient Multi-shaker Vibration Testing,” Experimental Techniques, vol. 44, no. 4, pp. 409-423, 2020/08/01 2020, doi: 10.1007/s40799-020-00361-0.</p>
+<p>[5] F. Trainotti, T. Bregar, S. W. B. Klaassen, and D. J. Rixen, “Experimental decoupling of substructures by singular vector transformation,” Mechanical Systems and Signal Processing, vol. 163, p. 108092, 2022/01/15/ 2022, doi: <a class="reference external" href="https://doi.org/10.1016/j.ymssp.2021.108092">https://doi.org/10.1016/j.ymssp.2021.108092</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mimo_random_vibration_control.html" class="btn btn-neutral float-left" title="MIMO Random Vibration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modal_tutorials.html" class="btn btn-neutral float-right" title="Modal Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f1d4b16e110>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

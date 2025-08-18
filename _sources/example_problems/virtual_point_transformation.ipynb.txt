@@ -1,0 +1,635 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "aee7ca04",
+   "metadata": {},
+   "source": [
+    "# Virtual Point Transformation\n",
+    "Transformations can be useful in noise and vibration applications, such as: multiple-input/multiple-output (MIMO) vibration testing [1], substructuring [2], and transfer path analysis. This example will derive the basic theory for how transformations are applied in SDynPy. It will also demonstrate how some standard functions can be used to perform a virtual point transformation based on rigid body kinematics. It will show how to generate an example problem, create the transformation matrices, then apply the transformations to different data types. \n",
+    "\n",
+    "* [Importing Packages](#importing-the-required-packages)\n",
+    "* [Transformation Theory](#basic-transformation-theory)\n",
+    "* [Generating the Example Problem](#generating-the-example-problem)\n",
+    "* [Response Transformations](#performing-response-transformations)\n",
+    "* [FRF Transformations](#performing-frf-transformations)\n",
+    "* [Summary](#summary)\n",
+    "\n",
+    "## Importing the Required Packages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "e3b362f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import sdynpy as sdpy\n",
+    "from scipy.signal import chirp"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2b124b7",
+   "metadata": {},
+   "source": [
+    "## Basic Transformation Theory\n",
+    "This section derives the equations for how transformation are applied to time traces, frequency spectra, cross-power spectral densities (CPSDs), and frequency response functions (FRFs) in SDynPy. The starting point for the derivation is the basic response transformation, where physical responses are turned into transformed responses. This transformation is shown in the equation below, where $\\left\\{x\\right\\}$ is a vector of physical responses (in the time or frequency domain), $\\left[T\\right]$ is the transformation matrix, and $\\left\\{\\hat{x}\\right\\}$ is a vector of transformed responses.\n",
+    "\n",
+    "$$\n",
+    "\\left\\{\\hat{x}\\right\\}=\\left[T\\right]\\left\\{x\\right\\}\n",
+    "$$\n",
+    "\n",
+    "This transformation framework can easily be applied to CPSD matrices through the following equations, where $\\left[{\\hat{G}}_ {xx}\\right]$ is transformed response CPSD matrix, $\\left[G_ {xx}\\right]$ is the physical response CPSD matrix, and $\\left[\\bullet\\right]^\\ast$ indicates the conjugate-transpose of the given matrix or vector. \n",
+    "\n",
+    "$$\n",
+    "\\left[{\\hat{G}}_{xx}\\right]=\\left\\{\\hat{x}\\right\\}\\left\\{\\hat{x}\\right\\}^\\ast=\\left(\\left[T\\right]\\left\\{x\\right\\}\\right)\\left(\\left[T\\right]\\left\\{x\\right\\}\\right)^\\ast=\\left[T\\right]\\left\\{x\\right\\}\\left\\{x\\right\\}^\\ast\\left[T\\right]^\\ast=\\left[T\\right]\\left[G_{xx}\\right]\\left[T\\right]^\\ast\n",
+    "$$\n",
+    "\n",
+    "The response transformation is applied to FRFs by substituting the FRF equation of motion into the original response transformation that was shown above. In this equation, $\\left[H\\right]$ is a matrix of FRFs and $\\left\\{f\\right\\}$ is a vector of forces.  \n",
+    "\n",
+    "$$\n",
+    "\\left\\{\\hat{x}\\right\\}=\\left[T_ {response}\\right]\\left\\{x\\right\\}=\\left[T_ {response}\\right]\\left[H\\right]\\left\\{f\\right\\}\n",
+    "$$\n",
+    "\n",
+    "A force (more generically called a reference) transformation can also be applied to the FRFs through the following operations. First, the force transformation equation is written to convert the physical forces into transformed forces. \n",
+    "\n",
+    "$$\n",
+    "\\left\\{\\hat{f}\\right\\}=\\left[T_ {force}\\right]\\left\\{f\\right\\}\n",
+    "$$\n",
+    "\n",
+    "Next, the force transformation equation is inverted to convert the transformed forces into physical forces, where $\\left[\\bullet\\right]^\\dag$ indicates a pseudo-inverse of the given matrix. \n",
+    "\n",
+    "$$\n",
+    "\\left\\{f\\right\\}=\\left[T_ {force}\\right]^\\dag\\left\\{\\hat{f}\\right\\}\n",
+    "$$\n",
+    "\n",
+    "Finally, the inverted force transformation equation is then plugged into the FRF equation of motion.\n",
+    "\n",
+    "$$\n",
+    "\\left\\{x\\right\\}=\\left[H\\right]\\left\\{f\\right\\}=\\left[H\\right]\\left[T_ {force}\\right]^\\dag\\left\\{\\hat{f}\\right\\}\n",
+    "$$\n",
+    "\n",
+    "Both the force and response transformations can be applied to the FRFs in the same operation to calculate the transformed FRFs, denoted by $\\left[\\hat{H}\\right]$.\n",
+    "\n",
+    "$$\n",
+    "\\left[\\hat{H}\\right]=\\left[T_ {response}\\right]\\left[H\\right]\\left[T_ {force}\\right]^\\dag\n",
+    "$$\n",
+    "\n",
+    "### Convention for Transformations in SDynPy\n",
+    "The SDynPy functions for transformations assume that the user is supplying transformations in a format that converts physical quantities to the transformed quantities. However, this convention does not represent all the use cases. For example, one might need to convert the transformed quantity back to the physical quantity, or it might be easier to compute the inverted transformation matrix (that converts the transformed quantity to the physical quantity). Consequently, options are available in all the transformation functions to invert the supplied transformations, so they are compatible with whatever transformation convention is being used. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "00258e18",
+   "metadata": {},
+   "source": [
+    "## Generating the Example Problem\n",
+    "The example system is a two dimensional beam (only in-plane motion) that is rigidly coupled to a node through a rigid spider via static condensation (similar to an rbe2 element). The red portion of the image is the beam where each circle is a node on the beam, the green circle is the node that is external to the beam (referred to as the external node), and the blue lines are the rigid spider that connects the beam and external node. Each node in the system allows for X, Z, and RY motion, as shown in the picture. \n",
+    "\n",
+    "\n",
+    "![System Image with Directions](figures/transformation_example_systerm.png)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6456a186",
+   "metadata": {},
+   "source": [
+    "### Creating the Beam Mass and Stiffness Matrices\n",
+    "The mass and stiffness matrices will be defined for the beam using standard SDynPy functions for Euler-Bernoulli beams with the supplied material properties"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "a38d4e3f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "beam_length = 1 # m\n",
+    "box_cross_section_size = 0.05 # m\n",
+    "number_nodes = 4\n",
+    "\n",
+    "youngs_modulus = 69.8e9 # pa\n",
+    "density = 2700 # kg/m^3\n",
+    "poissons_ratio = 0.33\n",
+    "\n",
+    "beam_k, beam_m = sdpy.beam.beamkm_2d(beam_length, box_cross_section_size, box_cross_section_size, \n",
+    "                                     number_nodes, youngs_modulus, density, poissons_ratio)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e95ef5e",
+   "metadata": {},
+   "source": [
+    "### Generating the External Node Mass and Stiffness Matrices\n",
+    "The mass and stiffness for the different degrees of freedom (DOFs) in the external node are uncoupled from each other, so there will only be entries on the diagonal of the accompanying matrices. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "4df35d67",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "external_node_m = np.zeros((3, 3), dtype=float)\n",
+    "external_node_m[0,0] = 0.01 # kg\n",
+    "external_node_m[1,1] = 0.01 # kg\n",
+    "external_node_m[2,2] = 0.01 # kg*m^2\n",
+    "\n",
+    "external_node_k = np.zeros((3, 3), dtype=float)\n",
+    "external_node_k[0,0] = 10e6 # kg\n",
+    "external_node_k[1,1] = 10e6 # kg\n",
+    "external_node_k[2,2] = 10e3 # N*m/rad"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab95c5f0",
+   "metadata": {},
+   "source": [
+    "### Assembling the System Mass and Stiffness Matrices\n",
+    "The uncoupled mass and stiffness matrices for the system will be assembled in block diagonal fashion with the external node being in the upper left block of the system matrices. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "b36e15cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "physical_m = np.zeros((beam_m.shape[0]+external_node_m.shape[0], beam_m.shape[1]+external_node_m.shape[1]), dtype=float)\n",
+    "physical_m[:3, :3] = external_node_m\n",
+    "physical_m[3:, 3:] = beam_m\n",
+    "\n",
+    "physical_k = np.zeros((beam_k.shape[0]+3, beam_k.shape[1]+3), dtype=float)\n",
+    "physical_k[:3, :3] = external_node_k\n",
+    "physical_k[3:, 3:] = beam_k"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3efb1df5",
+   "metadata": {},
+   "source": [
+    "### Creating the System Geometry\n",
+    "A SDynPy geometry object will be manually created for the system. This geometry will be used later in the demonstration to create the kinematic transformation. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "59698f15",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "node_locations = np.array([[ 0,     0, 0],\n",
+    "                           [-0.5,   0, 0.1],\n",
+    "                           [-0.165, 0, 0.1],\n",
+    "                           [ 0.165, 0, 0.1],\n",
+    "                           [ 0.5,   0, 0.1]])\n",
+    "\n",
+    "node_array = sdpy.node_array([101,201,202,203,204], node_locations)\n",
+    "\n",
+    "traceline_array = sdpy.traceline_array(id=1, connectivity=[201,202,203,204,0,101,201,0,101,202,0,101,203,0,101,204])\n",
+    "\n",
+    "system_geometry = sdpy.Geometry(node_array, sdpy.coordinate_system_array(id=1), traceline_array)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "38554f3d",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(<sdynpy.core.sdynpy_geometry.GeometryPlotter at 0x31d4908b0>,\n",
+       " PolyData (0x31d4d61a0)\n",
+       "   N Cells:    5\n",
+       "   N Points:   5\n",
+       "   N Strips:   0\n",
+       "   X Bounds:   -5.000e-01, 5.000e-01\n",
+       "   Y Bounds:   0.000e+00, 0.000e+00\n",
+       "   Z Bounds:   0.000e+00, 1.000e-01\n",
+       "   N Arrays:   2,\n",
+       " PolyData (0x31d4d63e0)\n",
+       "   N Cells:    5\n",
+       "   N Points:   5\n",
+       "   N Strips:   0\n",
+       "   X Bounds:   -5.000e-01, 5.000e-01\n",
+       "   Y Bounds:   0.000e+00, 0.000e+00\n",
+       "   Z Bounds:   0.000e+00, 1.000e-01\n",
+       "   N Arrays:   2,\n",
+       " None)"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "system_geometry.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b8a83097",
+   "metadata": {},
+   "source": [
+    "![Geoemetry Plot](figures/transformation_geometry_plot.png)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b7ad64e0",
+   "metadata": {},
+   "source": [
+    "### Making the Transformed System Object\n",
+    "The external node and beam will be coupled to one another via static condensation with a transformation matrix that is applied to both the mass and stiffness matrices. A damping matrix matrix will also be created for the system via some proportional factors from the transformed mass and stiffness matrices (the precise level of damping is inconsequential for this exercise). These transformed mass, stiffness, and damping matrices along with the transformation matrix will then be compiled into a SDynPy system object that can be used to compute time responses or FRFs for the system. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "435b18f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "transformation_array = np.array([[1, 0, 0, 1,   0,   0, 1,   0,     0, 1,    0,     0, 1,    0,   0], \n",
+    "                                 [0, 1, 0, 0,   1,   0, 0,   1,     0, 0,    1,     0, 0,    1,   0], \n",
+    "                                 [0, 0, 1, 0.1, 0.5, 0, 0.1, 0.165, 0, 0.1, -0.165, 0, 0.1, -0.5, 0]])\n",
+    "\n",
+    "transformed_m = transformation_array@physical_m@transformation_array.T\n",
+    "transformed_k = transformation_array@physical_k@transformation_array.T\n",
+    "transformed_c = 0.0001*transformed_m + 0.00001*transformed_k\n",
+    "\n",
+    "system_coordinate = sdpy.coordinate_array(node=np.array([101,201,202,203,204])[...,np.newaxis], direction=[1,3,5]).flatten()\n",
+    "transformed_system = sdpy.System(system_coordinate, transformed_m, transformed_k, transformed_c, transformation=transformation_array.T)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c9b2b0f",
+   "metadata": {},
+   "source": [
+    "The mode shapes can be computed and reviewed to verify that the system behaves like a rigid body. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "40220909",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<sdynpy.core.sdynpy_geometry.ShapePlotter at 0x31d4925f0>"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "transformed_shapes = transformed_system.eigensolution()\n",
+    "system_geometry.plot_shape(transformed_shapes)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5f437138",
+   "metadata": {},
+   "source": [
+    "![Mode Shape 1](figures/transformation_example_system_mode_1.gif)\n",
+    "\n",
+    "![Mode Shape 2](figures/transformation_example_system_mode_2.gif)\n",
+    "\n",
+    "![Mode Shape 3](figures/transformation_example_system_mode_3.gif)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "974a3267",
+   "metadata": {},
+   "source": [
+    "## Performing Response Transformations\n",
+    "The response transformations will be demonstrated using the example system with the following process:\n",
+    "\n",
+    "1. Time integration will be used to compute the response of the example system to a supplied force. \n",
+    "2. A rigid kinematic transformation will be created from the system geometry to transform the beam motion to the external node motion.\n",
+    "3. The \"truth\" external node motion from the time integration will be compared to the transformed motion from step two to demonstrate that the virtual point transformation worked as expected.\n",
+    "\n",
+    "The above process will be repeated for a SDynPy TimeHistoryArray, SpectrumArray, and PowerSpectralDensityArray. Note that the core aspects of the demonstration will be done using pre-made SDynPy functions and methods, meaning that minimal coding is required to perform transformations. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f915e2b",
+   "metadata": {},
+   "source": [
+    "### Compute the Time Response\n",
+    "The \"time_integration\" method for the SDynPy system object is used to compute the response of the previously created \"transformed_system\" to a supplied force. In this case, chirp excitation will be applied to the external node. Note that the excitation bandwidth encompasses the modes of the system. Otherwise, the precise details of the excitation are inconsequential for this demonstration.   "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "06660f00",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time = np.arange(5001)/5000\n",
+    "\n",
+    "external_node_coordinate = sdpy.coordinate_array(node=101, direction=[1,3,5]).flatten()\n",
+    "\n",
+    "chirp_excitation_ordinate = np.array([chirp(time, 20, 1, 500), chirp(time, 20, 1, 500), chirp(time, 20, 1, 500)])\n",
+    "\n",
+    "chirp_excitation = sdpy.data_array(sdpy.data.FunctionTypes.TIME_RESPONSE, time, chirp_excitation_ordinate, external_node_coordinate[...,np.newaxis])\n",
+    "time_response, _ = transformed_system.time_integrate(chirp_excitation)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c98075d4",
+   "metadata": {},
+   "source": [
+    "### Creating the Response Transformation Matrix\n",
+    "The response transformation is created by using the \"response_kinematic_transformation\" method for the SDynPy geometry object. In this case, the \"beam_transform_coordinate\" defines the DOFs on the beam that will be transformed to the external node. Note that the one and three directions correspond to the X and Z direction, meaning that only translation beam motion will be used to recreate the 3DOF (X, Z, RY) external node motion. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "eec3ebd2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "beam_transform_coordinate = sdpy.coordinate_array(node=np.array([201,202,203,204])[...,np.newaxis], direction=[1,3]).flatten()\n",
+    "response_transformation = system_geometry.response_kinematic_transformation(response_coordinate = beam_transform_coordinate, \n",
+    "                                                                            virtual_point_node_number = 101,\n",
+    "                                                                            virtual_point_location = node_array[node_array.id==101].coordinate[0,...])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "349e2464",
+   "metadata": {},
+   "source": [
+    "### Apply the Transformation to the Response Data\n",
+    "The response transformation is applied to the response data using the \"apply_transformation\" method that has been implemented for the TimeHistoryArray, SpectrumArray, and PowerSpectralDensityArray response types in SDynPy. The accuracy of the transformed response can be verified by comparing it to  the \"truth\" response at the external node of the system via a NumPy \"allclose\" comparison (where teh comparison should result in \"true\"). Note that imperfections in floating point arithmetic mean that the transformed response will never match the truth response via an \"==\" comparison, which is why allclose is being used. \n",
+    "\n",
+    "Also note that different CoordinateArrays are being used to index the response data to ensure the correct data is being used at each step in the analysis. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ca4f7d2",
+   "metadata": {},
+   "source": [
+    "#### TimeHistoryArray"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "5acbe2ff",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The transformed and truth time responses match\n"
+     ]
+    }
+   ],
+   "source": [
+    "transformed_time_response = time_response[beam_transform_coordinate[...,np.newaxis]].apply_transformation(response_transformation)\n",
+    "\n",
+    "if np.allclose(transformed_time_response[external_node_coordinate[...,np.newaxis]].ordinate, time_response[external_node_coordinate[...,np.newaxis]].ordinate):\n",
+    "    print('The transformed and truth time responses match')\n",
+    "else:\n",
+    "    print('The transformation did not work as expected')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0a57ca4",
+   "metadata": {},
+   "source": [
+    "#### SpectrumArray\n",
+    "The time response is converted to a spectrum using the \"fft\" method for TimeHistoryArrays. This method returns the raw discrete Fourier transform of the time trace, meaning that no windowing or averaging parameters are supplied. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "4b96f3d3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The transformed and truth spectrum responses match\n"
+     ]
+    }
+   ],
+   "source": [
+    "spectrum_response = time_response.fft()\n",
+    "\n",
+    "transformed_spectrum_response = spectrum_response[beam_transform_coordinate[...,np.newaxis]].apply_transformation(response_transformation)\n",
+    "\n",
+    "if np.allclose(transformed_spectrum_response[external_node_coordinate[...,np.newaxis]].ordinate, spectrum_response[external_node_coordinate[...,np.newaxis]].ordinate):\n",
+    "    print('The transformed and truth spectrum responses match')\n",
+    "else:\n",
+    "    print('The transformation did not work as expected')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "51c3cf23",
+   "metadata": {},
+   "source": [
+    "#### PowerSpectralDensityArray\n",
+    "The time response is converted to a CPSD using the \"cpsd\" method for TimeHistoryArrays. In this case a single average is used with no overlap or windowing. Note that the \"apply_transformation\" method for PowerSpectralDensityArrays is limited to \"full\" CPSD arrays, meaning that CPSD array must have the power spectral densities and cross terms. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "98b0d548",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The transformed and truth CPSD responses match\n"
+     ]
+    }
+   ],
+   "source": [
+    "cpsd_response = time_response.cpsd(samples_per_frame=time.shape[0], overlap=0, window='boxcar')\n",
+    "\n",
+    "transformed_cpsd_response = cpsd_response[sdpy.coordinate.outer_product(beam_transform_coordinate, beam_transform_coordinate)].apply_transformation(response_transformation)\n",
+    "\n",
+    "external_node_cpsd_coordinate = sdpy.coordinate.outer_product(external_node_coordinate, external_node_coordinate)\n",
+    "if np.allclose(transformed_cpsd_response[external_node_cpsd_coordinate].ordinate, cpsd_response[external_node_cpsd_coordinate].ordinate):\n",
+    "    print('The transformed and truth CPSD responses match')\n",
+    "else:\n",
+    "    print('The transformation did not work as expected')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "82c002c7",
+   "metadata": {},
+   "source": [
+    "## Performing FRF Transformations\n",
+    "Transformations can be applied to FRFs in a similar manner to how the response transformations were done. The FRFs will be computed using the \"frequency_response\" method for the SDynPy system object for this example. CoordinateArray indexing will then be used to separate the different groups of FRFs for the transformations and comparison steps in the analysis. Note that the frequency range for the FRFs was selected such that it encompassed all the modes of the system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "628b2137",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "frequency = np.arange(601)\n",
+    "system_frf = transformed_system.frequency_response(frequency, system_coordinate, system_coordinate)\n",
+    "\n",
+    "external_node_frf = system_frf[external_node_cpsd_coordinate]\n",
+    "beam_frf = system_frf[sdpy.coordinate.outer_product(beam_transform_coordinate, beam_transform_coordinate)]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f7a42152",
+   "metadata": {},
+   "source": [
+    "The virtual point transformation for this demonstration requires both a reference and response transformation. The response transformation that was previously created can be applied to the FRFs, but a separate reference transformation must be created. In this case, the reference transformation is created using the \"force_kinematic_transformation\" method for geometry objects. Note that this method is being used since force transformations are defined slightly differently than response transformations, more details can be found in [2]. Similar to the response transformation, the reference transformation will only translation beam excitation to recreate the 3DOF (X, Z, RY) external node excitation. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "fe477bc8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "reference_transformation = system_geometry.force_kinematic_transformation(force_coordinate = beam_transform_coordinate, \n",
+    "                                                                          virtual_point_node_number = 101,\n",
+    "                                                                          virtual_point_location = node_array[node_array.id==101].coordinate[0,...])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "444a3db3",
+   "metadata": {},
+   "source": [
+    "The transformations are applied to the FRFs using the \"apply_transformation\" method for TransferFunctionArrays. It should be noted that the other applications (such as a MIMO vibration test) may not need both a response and reference transformation. As such, the apply_transformation method does not require that both a response and reference transformation be supplied (i.e., the user can supply either transformation on its own). "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "d7c5ea88",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "transformed_frf = beam_frf.apply_transformation(response_transformation = response_transformation, \n",
+    "                                                reference_transformation = reference_transformation)[external_node_cpsd_coordinate]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fee928a9",
+   "metadata": {},
+   "source": [
+    "The transformed and truth FRFs are compared with a NumPy allclose comparison to verify that the virtual point transformation worked as expected. In this case, some DOFs in system are not coupled to one another, meaning that the cross-FRFs will have an amplitude that is less than machine precision. As such, only the driving point FRFs are being compared. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "c122e3a3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The transformed and truth FRFs match\n"
+     ]
+    }
+   ],
+   "source": [
+    "if np.allclose(external_node_frf.ordinate.diagonal(axis1=0, axis2=1), transformed_frf.ordinate.diagonal(axis1=0, axis2=1)):\n",
+    "    print('The transformed and truth FRFs match')\n",
+    "else:\n",
+    "    print('The transformation did not work as expected')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "05f4f62b",
+   "metadata": {},
+   "source": [
+    "## Summary\n",
+    "This example introduced the basic theory for transformations, as they are applied in SDynPy. It then developed an example system to demonstrate how the transformation methods can be easily applied to TimeHistoryArrays, SpectrumArrays, PowerSpectralDensityArrays, and TransferFunctionArrays. Note that while this example only demonstrated the application of rigid kinematic transformations, more exotic transformations [3,4,5] could also be used with the \"apply_transformation\" method. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ef07783",
+   "metadata": {},
+   "source": [
+    "## References\n",
+    "[1] D. Rohe, R. Schultz, and N. Hunter, \"Rattlesnake User’s Manual,\" Sandia National Laboratories, 2021. \n",
+    "\n",
+    "[2] M. Van der Seijs, D. van den Bosch, D. Rixen, and D. Klerk, \"An improved methodology for the virtual point transformation of measured frequency response functions in dynamic substructuring,\" in Proceedings of the 4th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering, Kos Island, 2013, pp. 4334-4347, doi: 10.7712/120113.4816.C1539. \n",
+    "\n",
+    "[3] M. Haeussler and D. Rixen, \"Optimal transformation of frequency response functions on interface deformation modes,\" in Proceedings of IMAC XXXV, the 35th International Modal Analysis Conference, Los Angeles 2017.\n",
+    "\n",
+    "[4] R. Schultz and P. Avitabile, \"Shape-constrained Input Estimation for Efficient Multi-shaker Vibration Testing,\" Experimental Techniques, vol. 44, no. 4, pp. 409-423, 2020/08/01 2020, doi: 10.1007/s40799-020-00361-0.\n",
+    "\n",
+    "[5] F. Trainotti, T. Bregar, S. W. B. Klaassen, and D. J. Rixen, \"Experimental decoupling of substructures by singular vector transformation,\" Mechanical Systems and Signal Processing, vol. 163, p. 108092, 2022/01/15/ 2022, doi: https://doi.org/10.1016/j.ymssp.2021.108092."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

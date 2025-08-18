@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Functionality &mdash; SDynPy 0.18.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Package Layout" href="core_functionality/package_layout.html" />
+    <link rel="prev" title="SDynPy Showcase" href="sdynpy_showcase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core Functionality</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html">Package Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html">Data Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html">Coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html">System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/modal_analysis.html">Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Core Functionality</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/core_functionality.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="core-functionality">
+<h1>Core Functionality<a class="headerlink" href="#core-functionality" title="Permalink to this heading"></a></h1>
+<p>This section of the SDynPy documentation describes the core functionality of the
+package.</p>
+<p>At its core, SDynPy contains objects that represent typical objects that are
+commonly used in structural dynamics.  These objects are designed to make it
+easier to perform common tasks in structural dynamics, including signal
+processing, visualization, and bookkeeping.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/package_layout.html">Package Layout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#sdynpy-subpackages">SDynPy Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#sdynpy-core-objects">SDynPy Core Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#file-input-and-output">File Input and Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#finite-elements-and-similar-numerical-functionality">Finite Elements and Similar Numerical Functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#modal-analysis">Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#signal-processing">Signal Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/package_layout.html#demonstration-objects">Demonstration Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/data_model.html">Data Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#SDynPy-Arrays">SDynPy Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#SDynPy-Array-Fields">SDynPy Array Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#Storing-SDynPy-Data-to-Disk">Storing SDynPy Data to Disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#Indexing-SDynPy-Arrays">Indexing SDynPy Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#Iterating-over-SDynPy-Arrays">Iterating over SDynPy Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#Creating-SDynPy-Arrays">Creating SDynPy Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data_model.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/geometry.html">Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#SDynPy-Geometry-Objects">SDynPy Geometry Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Creating-Geometry-from-Scratch">Creating Geometry from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Creating-Geometry-from-an-Excel-File-Template">Creating Geometry from an Excel File Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Reading-and-Writing-Universal-Files">Reading and Writing Universal Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Reading-and-Writing-to-NumPy-Files">Reading and Writing to NumPy Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Coordinate-System-Transformations">Coordinate System Transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Reading-and-Writing-to-Exodus-Files">Reading and Writing to Exodus Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Geometry-Reduction">Geometry Reduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Combining-Geometries">Combining Geometries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Geometry-Mapping">Geometry Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Cone-Geometry-Examples">Cone Geometry Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/geometry.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/coordinate.html">Coordinates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#SDynPy-Coordinate-Objects">SDynPy Coordinate Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Creating-Coordinates-from-Scratch">Creating Coordinates from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Referencing-Coordinates-to-Geometries">Referencing Coordinates to Geometries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Set-Operations-with-CoordinateArrays">Set Operations with CoordinateArrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Sorting-CoordinateArray-Objects">Sorting CoordinateArray Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Converting-CoordinateArrays-to-Strings">Converting CoordinateArrays to Strings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Saving-and-Loading-CoordinateArrays">Saving and Loading CoordinateArrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Using-CoordinateArrays-with-Other-SDynPy-Objects">Using CoordinateArrays with Other SDynPy Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/coordinate.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/shape.html">Shapes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#SDynPy-Shape-Objects">SDynPy Shape Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Creating-Shapes-from-Scratch">Creating Shapes from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Comparing-Real-and-Complex-Shapes">Comparing Real and Complex Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Plotting-Shapes-on-Geometry">Plotting Shapes on Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Indexing-Shapes-to-Extract-Coefficients">Indexing Shapes to Extract Coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Creating-Rigid-Body-Shapes">Creating Rigid Body Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Reducing-Shapes">Reducing Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Combining-Shapes">Combining Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Reading-and-Writing-Universal-Files">Reading and Writing Universal Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Reading-and-Writing-to-NumPy-Files">Reading and Writing to NumPy Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Reading-and-Writing-to-Exodus-Files">Reading and Writing to Exodus Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Saving-Shape-Images-and-Animations">Saving Shape Images and Animations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Transforming-Shape-Coordinate-Systems">Transforming Shape Coordinate Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Optimal-Degree-of-Freedom-Selection">Optimal Degree of Freedom Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/shape.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/data.html">Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#SDynPy-Data-Objects">SDynPy Data Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Creating-Data-from-Scratch">Creating Data from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Visualizing-Data">Visualizing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Indexing-NDDataArrays">Indexing NDDataArrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Reading-and-Writing-to-NumPy-Files">Reading and Writing to NumPy Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Writing-to-Matlab-Files">Writing to Matlab Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/data.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/system.html">System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#SDynPy-System-Objects">SDynPy System Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Creating-a-System-from-Scratch">Creating a System from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Simulating-the-System">Simulating the System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Modal-Analysis">Modal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Extracting-State-Space-Equations">Extracting State Space Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Computing-Frequency-Response">Computing Frequency Response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Beam-Finite-Elements">Beam Finite Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Assigning-Damping">Assigning Damping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Model-Reduction">Model Reduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Substructuring-and-Applying-Constraints">Substructuring and Applying Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Reading-and-Writing-NumPy-Files">Reading and Writing NumPy Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_functionality/system.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/matrix.html">Matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_functionality/modal_analysis.html">Modal Analysis</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy_showcase.html" class="btn btn-neutral float-left" title="SDynPy Showcase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core_functionality/package_layout.html" class="btn btn-neutral float-right" title="Package Layout" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f1d4b20b250>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

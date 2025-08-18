@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_harmonic &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_harmonic &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -108,9 +109,15 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.linalg</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">la</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">lfilter</span><span class="p">,</span> <span class="n">lfiltic</span><span class="p">,</span> <span class="n">butter</span><span class="p">,</span> <span class="n">windows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircularBufferWithOverlap</span>
 
 
-<div class="viewcode-block" id="harmonic_mag_phase"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html#sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">harmonic_mag_phase</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">nharmonics</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="harmonic_mag_phase"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html#sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">harmonic_mag_phase</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">nharmonics</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">return_residual</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ts</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nharmonics</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nharmonics</span><span class="p">):</span>
         <span class="n">A</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequency</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ts</span><span class="p">)</span>
@@ -121,7 +128,589 @@
     <span class="n">Bs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coefs</span><span class="p">[</span><span class="n">nharmonics</span><span class="p">:</span><span class="n">nharmonics</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
     <span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Bs</span><span class="p">,</span> <span class="n">As</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">magnitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">As</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Bs</span><span class="o">**</span><span class="mi">2</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">magnitudes</span><span class="p">,</span> <span class="n">phases</span></div>
+    <span class="k">if</span> <span class="n">return_residual</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">magnitudes</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="p">(</span><span class="n">A</span><span class="nd">@coefs</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">magnitudes</span><span class="p">,</span> <span class="n">phases</span></div>
+
+<div class="viewcode-block" id="harmonic_mag_phase_fit"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit.html#sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">harmonic_mag_phase_fit</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span><span class="n">xs</span><span class="p">,</span> <span class="n">frequency_guess</span><span class="p">,</span> <span class="n">nharmonics</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">minimize_options</span><span class="p">):</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_fun</span><span class="p">(</span><span class="n">frequency</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">harmonic_mag_phase</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">frequency</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nharmonics</span><span class="p">,</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">min_fun</span><span class="p">,</span> <span class="p">[</span><span class="n">frequency_guess</span><span class="p">],</span> <span class="o">**</span><span class="n">minimize_options</span><span class="p">)</span>
+    
+    <span class="n">frequency_fit</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mag</span><span class="p">,</span> <span class="n">phs</span> <span class="o">=</span> <span class="n">harmonic_mag_phase</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">frequency_fit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frequency_fit</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">phs</span></div>
+
+
+<div class="viewcode-block" id="digital_tracking_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter.html#sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">digital_tracking_filter</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">cutoff_frequency_ratio</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span>
+                            <span class="n">filter_order</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">phase_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">amplitude_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="n">block_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                            <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes amplitudes and phases using a digital tracking filter</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The time step of the signal</span>
+<span class="sd">    xs : iterable</span>
+<span class="sd">        The signal that will have amplitude and phase extracted.</span>
+<span class="sd">    frequencies : iterable</span>
+<span class="sd">        The instantaneous frequency at each time step.</span>
+<span class="sd">    arguments : iterable</span>
+<span class="sd">        The instantaneous argument to the sine wave at each time step.</span>
+<span class="sd">    cutoff_frequency_ratio : float</span>
+<span class="sd">        The cutoff frequency of the low-pass filter compared to the lowest</span>
+<span class="sd">        frequency sine tone in each block.  Default is 0.15.</span>
+<span class="sd">    filter_order : float</span>
+<span class="sd">        The filter order of the low-pass butterworth filter.  Default is 2.</span>
+<span class="sd">    phase_estimate : float</span>
+<span class="sd">        An estimate of the initial phase to seed the low-pass filter.</span>
+<span class="sd">    amplitude_estimate : float</span>
+<span class="sd">        An estimate of the initial amplitude to seed the low-pass filter.</span>
+<span class="sd">    block_size : int</span>
+<span class="sd">        Number of samples to use for each block.  If not specified, the entire</span>
+<span class="sd">        signal is treated as a single block.</span>
+<span class="sd">    plot_results : bool</span>
+<span class="sd">        If True, will plot the data at multiple steps for diagnostics</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : np.ndarray</span>
+<span class="sd">        The amplitude at each time step</span>
+<span class="sd">    phase : np.ndarray</span>
+<span class="sd">        The phase at each time step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">block_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">block_size</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal and Amplitude&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Filtered COLA Signal (cos)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Filtered COLA Signal (sin)&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">phase_estimate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">phase_estimate</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">amplitude_estimate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">amplitude_estimate</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">xi_0_filt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_90_filt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_0</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_90</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">frame_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="n">phases</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">amplitudes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">frame_index</span><span class="o">*</span><span class="n">block_size</span> <span class="o">&lt;</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,</span><span class="nb">slice</span><span class="p">(</span><span class="n">frame_index</span><span class="o">*</span><span class="n">block_size</span><span class="p">,(</span><span class="n">frame_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">block_size</span><span class="p">))</span>
+        <span class="n">fi</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">b</span><span class="p">,</span><span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">filter_order</span><span class="p">,</span> <span class="n">cutoff_frequency_ratio</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fi</span><span class="p">),</span><span class="n">fs</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xi_0_filt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Set up some fake data to initialize the filter to a good value</span>
+            <span class="n">past_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">filter_order</span><span class="o">*</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+            <span class="n">past_xs</span> <span class="o">=</span> <span class="n">amplitude_estimate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span> <span class="o">+</span> <span class="n">phase_estimate</span><span class="p">)</span>
+            <span class="n">xi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span><span class="p">)</span><span class="o">*</span><span class="n">past_xs</span>
+            <span class="n">xi_90</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span><span class="p">)</span><span class="o">*</span><span class="n">past_xs</span>
+            <span class="n">xi_0_filt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">amplitude_estimate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase_estimate</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">xi_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">xi_90_filt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">amplitude_estimate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase_estimate</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">xi_90</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">,</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+        <span class="c1"># Set up the filter initial states</span>
+        <span class="n">z0i</span> <span class="o">=</span> <span class="n">lfiltic</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xi_0</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z90i</span> <span class="o">=</span> <span class="n">lfiltic</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xi_90</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Extract this portion of the signal</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frame_index</span><span class="o">*</span><span class="n">block_size</span><span class="p">,(</span><span class="n">frame_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">block_size</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">ti</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">argsi</span> <span class="o">=</span> <span class="n">arguments</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="c1"># Now set up the tracking filter</span>
+        <span class="n">cola0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="n">cola90</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="n">xi_0</span> <span class="o">=</span> <span class="n">cola0</span><span class="o">*</span><span class="n">xi</span>
+        <span class="n">xi_90</span> <span class="o">=</span> <span class="n">cola90</span><span class="o">*</span><span class="n">xi</span>
+        <span class="n">xi_0_filt</span><span class="p">,</span><span class="n">z0i</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="n">zi</span><span class="o">=</span><span class="n">z0i</span><span class="p">)</span>
+        <span class="n">xi_90_filt</span><span class="p">,</span><span class="n">z90i</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="n">zi</span><span class="o">=</span><span class="n">z90i</span><span class="p">)</span>
+        <span class="n">phases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">))</span>
+        <span class="n">amplitudes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xi_0_filt</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">xi_90_filt</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">frame_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">amplitudes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">phases</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">amplitudes</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span><span class="n">phase</span></div>
+
+<div class="viewcode-block" id="digital_tracking_filter_generator"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator.html#sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">digital_tracking_filter_generator</span><span class="p">(</span>
+        <span class="n">dt</span><span class="p">,</span> <span class="n">cutoff_frequency_ratio</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span>
+        <span class="n">filter_order</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">phase_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">amplitude_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes amplitudes and phases using a digital tracking filter</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The time step of the signal</span>
+<span class="sd">    cutoff_frequency_ratio : float</span>
+<span class="sd">        The cutoff frequency of the low-pass filter compared to the lowest</span>
+<span class="sd">        frequency sine tone in each block.  Default is 0.15.</span>
+<span class="sd">    filter_order : float</span>
+<span class="sd">        The filter order of the low-pass butterworth filter.  Default is 2.</span>
+<span class="sd">    phase_estimate : float</span>
+<span class="sd">        An estimate of the initial phase to seed the low-pass filter.</span>
+<span class="sd">    amplitude_estimate : float</span>
+<span class="sd">        An estimate of the initial amplitude to seed the low-pass filter.</span>
+<span class="sd">    plot_results : bool</span>
+<span class="sd">        If True, will plot the data at multiple steps for diagnostics</span>
+
+<span class="sd">    Sends</span>
+<span class="sd">    ------</span>
+<span class="sd">    xi : iterable</span>
+<span class="sd">        The next block of the signal to be filtered</span>
+<span class="sd">    fi : iterable</span>
+<span class="sd">        The frequencies at the time steps in xi</span>
+<span class="sd">    argsi : iterable</span>
+<span class="sd">        The argument to a cosine function at the time steps in xi</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    amplitude : np.ndarray</span>
+<span class="sd">        The amplitude at each time step</span>
+<span class="sd">    phase : np.ndarray</span>
+<span class="sd">        The phase at each time step</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal and Amplitude&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Filtered COLA Signal (cos)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Filtered COLA Signal (sin)&#39;</span><span class="p">)</span>
+        <span class="n">sample_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">phase_estimate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">phase_estimate</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">amplitude_estimate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">amplitude_estimate</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">xi_0_filt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_90_filt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_0</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xi_90</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">xi</span><span class="p">,</span> <span class="n">fi</span><span class="p">,</span> <span class="n">argsi</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">amplitude</span><span class="p">,</span><span class="n">phase</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span>
+        <span class="n">fi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fi</span><span class="p">)</span>
+        <span class="n">argsi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="n">b</span><span class="p">,</span><span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">filter_order</span><span class="p">,</span> <span class="n">cutoff_frequency_ratio</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fi</span><span class="p">),</span><span class="n">fs</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xi_0_filt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Set up some fake data to initialize the filter to a good value</span>
+            <span class="n">past_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">filter_order</span><span class="o">*</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+            <span class="n">past_xs</span> <span class="o">=</span> <span class="n">amplitude_estimate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span> <span class="o">+</span> <span class="n">phase_estimate</span><span class="p">)</span>
+            <span class="n">xi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span><span class="p">)</span><span class="o">*</span><span class="n">past_xs</span>
+            <span class="n">xi_90</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">past_ts</span><span class="p">)</span><span class="o">*</span><span class="n">past_xs</span>
+            <span class="n">xi_0_filt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">amplitude_estimate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase_estimate</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">xi_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">xi_90_filt</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">amplitude_estimate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase_estimate</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">xi_90</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">,</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">past_ts</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+        <span class="c1"># Set up the filter initial states</span>
+        <span class="n">z0i</span> <span class="o">=</span> <span class="n">lfiltic</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xi_0</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z90i</span> <span class="o">=</span> <span class="n">lfiltic</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xi_90</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Now set up the tracking filter</span>
+        <span class="n">cola0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="n">cola90</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="n">xi_0</span> <span class="o">=</span> <span class="n">cola0</span><span class="o">*</span><span class="n">xi</span>
+        <span class="n">xi_90</span> <span class="o">=</span> <span class="n">cola90</span><span class="o">*</span><span class="n">xi</span>
+        <span class="n">xi_0_filt</span><span class="p">,</span><span class="n">z0i</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="n">zi</span><span class="o">=</span><span class="n">z0i</span><span class="p">)</span>
+        <span class="n">xi_90_filt</span><span class="p">,</span><span class="n">z90i</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="n">zi</span><span class="o">=</span><span class="n">z90i</span><span class="p">)</span>
+        <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">)</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xi_0_filt</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">xi_90_filt</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">sample_index</span><span class="p">,</span><span class="n">sample_index</span> <span class="o">+</span> <span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">amplitude</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">phase</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_0</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_0_filt</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_90</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">xi_90_filt</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+            <span class="n">sample_index</span> <span class="o">+=</span> <span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+            
+<div class="viewcode-block" id="vold_kalman_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter.html#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">vold_kalman_filter</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">filter_order</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                       <span class="n">bandwidth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_amp_phs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">return_envelope</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_r</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract sinusoidal components from a signal using the second generation</span>
+<span class="sd">    Vold-Kalman filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : float</span>
+<span class="sd">        The sample rate of the signal in Hz.</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        A 1D signal containing sinusoidal components that need to be extracted</span>
+<span class="sd">    arguments : ndarray</span>
+<span class="sd">        A 2D array consisting of the arguments to the sinusoidal components of</span>
+<span class="sd">        the form exp(1j*argument).  This is the integral over time of the</span>
+<span class="sd">        angular frequency, which can be approximated as</span>
+<span class="sd">        2*np.pi*scipy.integrate.cumulative_trapezoid(frequencies,timesteps,initial=0)</span>
+<span class="sd">        if frequencies is the frequency at each time step in Hz timesteps is</span>
+<span class="sd">        the vector of time steps in seconds.  This is a 2D array where the</span>
+<span class="sd">        number of rows is the</span>
+<span class="sd">        number of different sinusoidal components that are desired to be</span>
+<span class="sd">        extracted, and the number of columns are the number of time steps in</span>
+<span class="sd">        the `signal` argument.</span>
+<span class="sd">    filter_order : int, optional</span>
+<span class="sd">        The order of the VK filter, which should be 1, 2, or 3. The default is</span>
+<span class="sd">        2.  The low-pass filter roll-off is approximately -40 dB per times the</span>
+<span class="sd">        filter order.</span>
+<span class="sd">    bandwidth : ndarray, optional</span>
+<span class="sd">        The prescribed bandwidth of the filter. This is related to the filter</span>
+<span class="sd">        selectivity parameter `r` in the literature.  This will be broadcast to</span>
+<span class="sd">        the same shape as the `arguments` argument.  The default is the sample</span>
+<span class="sd">        rate divided by 1000.</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        Can be set to either &#39;single&#39; or &#39;multi&#39;.  In a &#39;single&#39; solution, each</span>
+<span class="sd">        sinusoidal component will be solved independently without any coupling.</span>
+<span class="sd">        This can be more efficient, but will result in errors if the</span>
+<span class="sd">        frequencies of the sine waves cross.  The &#39;multi&#39; solution will solve</span>
+<span class="sd">        for all sinusoidal components simultaneously, resulting in a better</span>
+<span class="sd">        estimate of crossing frequencies. The default is &#39;multi&#39;.</span>
+<span class="sd">    return_amp_phs : bool</span>
+<span class="sd">        Returns the amplitude and phase of the reconstructed signals at each</span>
+<span class="sd">        time step.  Default is False</span>
+<span class="sd">    return_envelope : bool</span>
+<span class="sd">        Returns the complex envelope and phasors at each time step.  Default is</span>
+<span class="sd">        False</span>
+<span class="sd">    return_r : bool</span>
+<span class="sd">        Returns the computed selectivity parameters for the filter.  Default is</span>
+<span class="sd">        False</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If arguments are not the correct size or values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reconstructed_signals : ndarray</span>
+<span class="sd">        Returns a time history the same size as `signal` for each of the</span>
+<span class="sd">        sinusoidal components solved for.</span>
+<span class="sd">    reconstructed_amplitudes : ndarray</span>
+<span class="sd">        Returns the amplitude over time for each of the sinusoidal components</span>
+<span class="sd">        solved for.  Only returned if return_amp_phs is True.</span>
+<span class="sd">    reconstructed_phases : ndarray</span>
+<span class="sd">        Returns the phase over time for each of the sinusoidal components</span>
+<span class="sd">        solved for.  Only returned if return_amp_phs is True.</span>
+<span class="sd">    reconstructed_envelope : ndarray</span>
+<span class="sd">        Returns the complex envelope `x` over time for each of the sinusoidal</span>
+<span class="sd">        components solved for.  Only returned if return_envelope is True.</span>
+<span class="sd">    reconstructed_phasor : ndarray</span>
+<span class="sd">        Returns the phasor `c` over time for each of the sinusoidal components</span>
+<span class="sd">        solved for.  Only returned if return_envelope is True.</span>
+<span class="sd">    r : ndarray</span>
+<span class="sd">        Returns the selectivity `r` over time for each of the sinusoidal</span>
+<span class="sd">        components solved for.  Only returned if return_r is True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filter_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filter_order</span> <span class="o">=</span> <span class="mi">2</span>
+    
+    <span class="k">if</span> <span class="n">bandwidth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">sample_rate</span><span class="o">/</span><span class="mi">1000</span>
+    
+    <span class="c1"># Make sure input data are numpy arrays</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span><span class="n">arguments</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">relative_bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span><span class="o">/</span><span class="n">sample_rate</span>
+    
+    <span class="c1"># Extract some sizes to make sure everything is correctly sized</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># n_orders_freq, n_freq = frequencies.shape</span>
+    <span class="c1"># if n_freq != n_samples:</span>
+    <span class="c1">#     raise ValueError(&#39;Frequency array must have identical number of columns as samples in signal&#39;)</span>
+    <span class="n">n_orders_arg</span><span class="p">,</span> <span class="n">n_arg</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_arg</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Argument array must have identical number of columns as samples in signal&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_orders_arg</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;multi&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;single&#39;</span>
+    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;multi&#39;</span><span class="p">,</span><span class="s1">&#39;single&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`method` must be either &quot;multi&quot; or &quot;single&quot;&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Construct phasors to multiply the signals by</span>
+    <span class="n">phasor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">arguments</span><span class="p">)</span>
+    
+    <span class="c1"># Construct the matrices for the least squares solution</span>
+    <span class="k">if</span> <span class="n">filter_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span>
+                    <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">))))</span>
+    <span class="k">elif</span> <span class="n">filter_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span>
+                    <span class="p">(</span><span class="mi">6</span><span class="o">-</span><span class="mi">8</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">)))</span>
+    <span class="k">elif</span> <span class="n">filter_order</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span>
+                    <span class="p">(</span><span class="mi">20</span><span class="o">-</span><span class="mi">30</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">)</span><span class="o">+</span><span class="mi">12</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">relative_bandwidth</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;filter order must be 1, 2, or 3&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Construct the solution matrices</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">spdiags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">coefs</span><span class="p">,(</span><span class="n">n_samples</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                       <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">filter_order</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+                       <span class="n">n_samples</span><span class="o">-</span><span class="n">filter_order</span><span class="p">,</span>
+                       <span class="n">n_samples</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rvec</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">spdiags</span><span class="p">(</span><span class="n">rvec</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">n_samples</span><span class="p">,</span><span class="n">n_samples</span><span class="p">)</span>
+        <span class="n">AR</span> <span class="o">=</span> <span class="n">A</span><span class="nd">@R</span>
+        <span class="n">B</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">AR</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">@</span><span class="p">(</span><span class="n">AR</span><span class="p">)</span> <span class="o">+</span> <span class="n">sparse</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_samples</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;multi&#39;</span><span class="p">:</span>
+        <span class="c1"># This solves the multiple order approach, constructing a big matrix of</span>
+        <span class="c1"># Bs on the diagonal and CHCs on the off-diagonals.  We can set up the</span>
+        <span class="c1"># matrix as diagonals and upper diagonals then add the transpose to get the</span>
+        <span class="c1"># lower diagonals</span>
+        <span class="n">B_multi_diagonal</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="c1"># There will be number of orders**2 B matrices, and number of orders</span>
+        <span class="c1"># diagonals, so there will be n_orders**2-n_orders off diagonals, half on</span>
+        <span class="c1"># on the upper triangle.  We need to fill in all of these values for all</span>
+        <span class="c1"># time steps.</span>
+        <span class="n">num_off_diags</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_orders_arg</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">n_orders_arg</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">row_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span><span class="n">num_off_diags</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">col_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span><span class="n">num_off_diags</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">CHC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span><span class="n">num_off_diags</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;c16&#39;</span><span class="p">)</span>
+        <span class="c1"># Keep track of the off-diagonal index so we know which column to put the</span>
+        <span class="c1"># data in</span>
+        <span class="n">off_diagonal_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Now we need to step through the off-diagonal blocks and create the arrays</span>
+        <span class="k">for</span> <span class="n">row_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_orders_arg</span><span class="p">):</span>
+            <span class="c1"># Since we need to stay on the upper triangle, column indices will start</span>
+            <span class="c1"># after the diagonal entry</span>
+            <span class="k">for</span> <span class="n">col_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">row_index</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">n_orders_arg</span><span class="p">):</span>
+                <span class="n">row_indices</span><span class="p">[:,</span><span class="n">off_diagonal_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">row_index</span><span class="o">*</span><span class="n">n_samples</span><span class="p">,(</span><span class="n">row_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_samples</span><span class="p">)</span>
+                <span class="n">col_indices</span><span class="p">[:,</span><span class="n">off_diagonal_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">col_index</span><span class="o">*</span><span class="n">n_samples</span><span class="p">,(</span><span class="n">col_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_samples</span><span class="p">)</span>
+                <span class="n">CHC</span><span class="p">[:,</span><span class="n">off_diagonal_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">phasor</span><span class="p">[</span><span class="n">row_index</span><span class="p">]</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">*</span><span class="n">phasor</span><span class="p">[</span><span class="n">col_index</span><span class="p">]</span>
+                <span class="n">off_diagonal_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># We set up the variables as multidimensional so we could store them easier,</span>
+        <span class="c1"># but now we need to flatten them to put them into the sparse matrix.</span>
+        <span class="c1"># We choose CSR because we can do math with it easier</span>
+        <span class="n">B_multi_utri</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">CHC</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),(</span><span class="n">row_indices</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">col_indices</span><span class="o">.</span><span class="n">flatten</span><span class="p">())),</span><span class="n">shape</span><span class="o">=</span><span class="n">B_multi_diagonal</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    
+        <span class="c1"># Now we can assemble the entire matrix by adding with the complex conjugate</span>
+        <span class="c1"># of the upper triangle to get the lower triangle</span>
+        <span class="n">B_multi</span> <span class="o">=</span> <span class="n">B_multi_diagonal</span> <span class="o">+</span> <span class="n">B_multi_utri</span> <span class="o">+</span> <span class="n">B_multi_utri</span><span class="o">.</span><span class="n">getH</span><span class="p">()</span>
+    
+        <span class="c1"># We also need to construct the right hand side of the equation.  This</span>
+        <span class="c1"># should be a multiplication of the phasor^H with the signal</span>
+        <span class="n">RHS</span> <span class="o">=</span> <span class="n">phasor</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span><span class="n">n_orders_arg</span><span class="p">)</span>
+    
+        <span class="n">x_multi</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">B_multi</span><span class="p">,</span><span class="n">RHS</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">x_multi</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_orders_arg</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Multiply by 2 to account for missing negative frequency components</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># This solves the single order approach.  If the user has put in multiple</span>
+        <span class="c1"># orders, it will solve them all independently instead of combining them</span>
+        <span class="c1"># into a single larger solve.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_orders_arg</span><span class="p">,</span><span class="n">n_samples</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">phasor_i</span><span class="p">,</span> <span class="n">B_i</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">phasor</span><span class="p">,</span><span class="n">B</span><span class="p">)):</span>
+            <span class="c1"># We already have the left side of the equation B, now we just need the</span>
+            <span class="c1"># right side of the equation, which is the phasor hermetian</span>
+            <span class="c1"># times the signal elementwise-multiplied</span>
+            <span class="n">RHS</span> <span class="o">=</span> <span class="n">phasor_i</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">*</span><span class="n">signal</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">B_i</span><span class="p">,</span><span class="n">RHS</span><span class="p">)</span>
+    
+    <span class="n">return_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">phasor</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">return_amp_phs</span><span class="p">:</span>
+        <span class="n">return_value</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">x</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">return_envelope</span><span class="p">:</span>
+        <span class="n">return_value</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">phasor</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">return_r</span><span class="p">:</span>
+        <span class="n">return_value</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">r</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">return_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">return_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">return_value</span></div>
+    
+<div class="viewcode-block" id="vold_kalman_filter_generator"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator.html#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">vold_kalman_filter_generator</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">num_orders</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">overlap</span><span class="p">,</span>
+                                 <span class="n">filter_order</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">bandwidth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">yield_amp_phs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">yield_envelope</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts sinusoidal information using a Vold-Kalman Filter</span>
+<span class="sd">    </span>
+<span class="sd">    This uses an windowed-overlap-and-add process to solve for the signal while</span>
+<span class="sd">    removing start and end effects of the filter.  Each time the generator is</span>
+<span class="sd">    called, it will yield a further section of the results up until the overlap</span>
+<span class="sd">    section.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : float</span>
+<span class="sd">        The sample rate of the signal in Hz.</span>
+<span class="sd">    num_orders : int</span>
+<span class="sd">        The number of orders that will be found in the signal</span>
+<span class="sd">    block_size : int</span>
+<span class="sd">        The size of the blocks used in the analysis.</span>
+<span class="sd">    filter_order : int, optional</span>
+<span class="sd">        The order of the VK filter, which should be 1, 2, or 3. The default is</span>
+<span class="sd">        2.  The low-pass filter roll-off is approximately -40 dB per times the</span>
+<span class="sd">        filter order.</span>
+<span class="sd">    bandwidth : ndarray, optional</span>
+<span class="sd">        The prescribed bandwidth of the filter. This is related to the filter</span>
+<span class="sd">        selectivity parameter `r` in the literature.  This will be broadcast to</span>
+<span class="sd">        the same shape as the `arguments` argument.  The default is the sample</span>
+<span class="sd">        rate divided by 1000.</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        Can be set to either &#39;single&#39; or &#39;multi&#39;.  In a &#39;single&#39; solution, each</span>
+<span class="sd">        sinusoidal component will be solved independently without any coupling.</span>
+<span class="sd">        This can be more efficient, but will result in errors if the</span>
+<span class="sd">        frequencies of the sine waves cross.  The &#39;multi&#39; solution will solve</span>
+<span class="sd">        for all sinusoidal components simultaneously, resulting in a better</span>
+<span class="sd">        estimate of crossing frequencies. The default is &#39;multi&#39;.</span>
+<span class="sd">    overlap : float, optional</span>
+<span class="sd">        Fraction of the block size to overlap when computing the results.  If</span>
+<span class="sd">        not specified, it will default to 0.15.</span>
+<span class="sd">    plot_results : bool</span>
+<span class="sd">        If True, will plot the data at multiple steps for diagnostics</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If arguments are not the correct size or values.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If data is provided subsequently to specifying last_signal = True</span>
+
+<span class="sd">    Sends</span>
+<span class="sd">    -----</span>
+<span class="sd">    xi : iterable</span>
+<span class="sd">        The next block of the signal to be filtered.  This should be a 1D</span>
+<span class="sd">        signal containing sinusoidal components that need to be extracted.</span>
+<span class="sd">    argsi : iterable</span>
+<span class="sd">        A 2D array consisting of the arguments to the sinusoidal components of</span>
+<span class="sd">        the form exp(1j*argsi).  This is the integral over time of the</span>
+<span class="sd">        angular frequency, which can be approximated as</span>
+<span class="sd">        2*np.pi*scipy.integrate.cumulative_trapezoid(frequencies,timesteps,initial=0)</span>
+<span class="sd">        if frequencies is the frequency at each time step in Hz timesteps is</span>
+<span class="sd">        the vector of time steps in seconds.  This is a 2D array where the</span>
+<span class="sd">        number of rows is the</span>
+<span class="sd">        number of different sinusoidal components that are desired to be</span>
+<span class="sd">        extracted, and the number of columns are the number of time steps in</span>
+<span class="sd">        the `signal` argument.</span>
+<span class="sd">    last_signal : bool</span>
+<span class="sd">        If True, the remainder of the data will be returned and the</span>
+<span class="sd">        overlap-and-add process will be finished.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    -------</span>
+<span class="sd">    reconstructed_signals : ndarray</span>
+<span class="sd">        Returns a time history the same size as `signal` for each of the</span>
+<span class="sd">        sinusoidal components solved for.</span>
+<span class="sd">    reconstructed_amplitudes : ndarray</span>
+<span class="sd">        Returns the amplitude over time for each of the sinusoidal components</span>
+<span class="sd">        solved for.  Only returned if return_amp_phs is True.</span>
+<span class="sd">    reconstructed_phases : ndarray</span>
+<span class="sd">        Returns the phase over time for each of the sinusoidal components</span>
+<span class="sd">        solved for.  Only returned if return_amp_phs is True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">num_orders</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">signal_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">analysis_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Startup&#39;</span><span class="p">)</span>
+    <span class="n">previous_envelope</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">reconstructed_signals</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">reconstructed_amplitudes</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">reconstructed_phases</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">overlap_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">overlap</span><span class="o">*</span><span class="n">block_size</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">windows</span><span class="o">.</span><span class="n">hann</span><span class="p">(</span><span class="n">overlap_samples</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">start_window</span> <span class="o">=</span> <span class="n">window</span><span class="p">[:</span><span class="n">overlap_samples</span><span class="p">]</span>
+    <span class="n">end_window</span> <span class="o">=</span> <span class="n">window</span><span class="p">[</span><span class="n">overlap_samples</span><span class="p">:]</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">CircularBufferWithOverlap</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">block_size</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">overlap_samples</span><span class="p">,</span> <span class="n">data_shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_orders</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="n">first_output</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Before Yield&#39;</span><span class="p">)</span>
+        <span class="n">xi</span><span class="p">,</span><span class="n">argsi</span><span class="p">,</span><span class="n">last_signal</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">reconstructed_signals</span><span class="p">,</span><span class="n">reconstructed_amplitudes</span><span class="p">,</span> <span class="n">reconstructed_phases</span>
+        <span class="n">argsi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">argsi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+            <span class="n">timesteps_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">signal_index</span><span class="p">,</span> <span class="n">signal_index</span> <span class="o">+</span> <span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_signal</span><span class="p">,</span><span class="n">xi</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+            <span class="n">signal_index</span> <span class="o">+=</span> <span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;After Yield&#39;</span><span class="p">)</span>
+        <span class="n">buffer_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">xi</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">argsi</span><span class="p">])</span>
+        <span class="n">buffer_output</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">write_get_data</span><span class="p">(</span><span class="n">buffer_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">buffer_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">first_output</span><span class="p">:</span>
+                <span class="n">buffer_output</span> <span class="o">=</span> <span class="n">buffer_output</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">overlap_samples</span><span class="p">:]</span>
+                <span class="n">first_output</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">signal</span> <span class="o">=</span> <span class="n">buffer_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">arguments</span> <span class="o">=</span> <span class="n">buffer_output</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">signal</span> <span class="o">=</span> <span class="n">buffer_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">arguments</span> <span class="o">=</span> <span class="n">buffer_output</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">signal</span><span class="p">[:</span><span class="n">overlap_samples</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[:</span><span class="n">overlap_samples</span><span class="p">]</span><span class="o">*</span><span class="n">start_window</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">last_signal</span><span class="p">:</span>
+                <span class="n">signal</span><span class="p">[</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">:]</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">:]</span><span class="o">*</span><span class="n">end_window</span>
+            <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+                <span class="n">timesteps_analysis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">analysis_index</span><span class="p">,</span> <span class="n">analysis_index</span> <span class="o">+</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">,</span><span class="n">signal</span><span class="p">)</span>
+                <span class="n">analysis_index</span> <span class="o">+=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">overlap_samples</span>
+            <span class="c1"># Do the VK Filtering</span>
+            <span class="n">vk_signal</span><span class="p">,</span> <span class="n">vk_envelope</span><span class="p">,</span> <span class="n">vk_phasor</span> <span class="o">=</span> <span class="n">vold_kalman_filter</span><span class="p">(</span>
+                <span class="n">sample_rate</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">filter_order</span><span class="p">,</span>
+                <span class="n">bandwidth</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">return_envelope</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">vks</span><span class="p">,</span><span class="n">vke</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vk_signal</span><span class="p">,</span><span class="n">vk_envelope</span><span class="p">,</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">,</span><span class="n">vks</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vke</span><span class="p">))</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">vke</span><span class="p">))</span>
+            <span class="c1"># If necessary, do the overlap</span>
+            <span class="k">if</span> <span class="n">previous_envelope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vk_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="n">overlap_samples</span><span class="p">]</span> <span class="o">=</span> <span class="n">vk_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="n">overlap_samples</span><span class="p">]</span> <span class="o">+</span> <span class="n">previous_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">:]</span>
+            <span class="n">reconstructed_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">vk_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">]</span><span class="o">*</span><span class="n">vk_phasor</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">])</span>
+            <span class="n">reconstructed_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vk_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">])</span>
+            <span class="n">reconstructed_phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">vk_envelope</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">plot_results</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">vks</span><span class="p">,</span><span class="n">vka</span><span class="p">,</span><span class="n">vkp</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">reconstructed_signals</span><span class="p">,</span><span class="n">reconstructed_amplitudes</span><span class="p">,</span><span class="n">reconstructed_phases</span><span class="p">,</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">[:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">],</span><span class="n">vks</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">[:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">],</span><span class="n">vka</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+                    <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">timesteps_analysis</span><span class="p">[:</span><span class="o">-</span><span class="n">overlap_samples</span><span class="p">],</span><span class="n">vkp</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+            <span class="n">previous_envelope</span> <span class="o">=</span> <span class="n">vk_envelope</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="kc">None</span></div>
+        
+        
+        
+        
 </pre></div>
 
            </div>
@@ -131,7 +720,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefe5348e0>
+<jinja2.runtime.BlockReference object at 0x7f1d4a7a93d0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

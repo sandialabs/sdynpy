@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_generator.sine_sweep &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_generator.sine_sweep &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_buffer.html">sdynpy.signal_processing.sdynpy_buffer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_camera.html">sdynpy.signal_processing.sdynpy_camera</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_complex.html">sdynpy.signal_processing.sdynpy_complex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_correlation.html">sdynpy.signal_processing.sdynpy_correlation</a></li>
@@ -134,7 +136,7 @@
 <h1>sdynpy.signal_processing.sdynpy_generator.sine_sweep<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-generator-sine-sweep" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_generator.sine_sweep">
-<span class="sig-name descname"><span class="pre">sine_sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweep_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweep_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitudes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_generator.html#sine_sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_generator.sine_sweep" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sine_sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweep_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweep_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitudes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_argument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_generator.html#sine_sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_generator.sine_sweep" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a sweeping sine wave with linear or logarithmic sweep rate</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -151,14 +153,18 @@ the rate is in Hz/s.  For a logarithmic sweep, the rate is in octave/s.</p></li>
 ‘lin’ or ‘log’.  If a string is specified, it will be used for all
 breakpoints.  Otherwise it should be an array containing strings with
 one fewer element than that of the <cite>frequencies</cite> array.</p></li>
-<li><p><strong>amplitudes</strong> (<em>iterable</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Amplitude of the sine wave at each of the frequency breakpoints.  Can
+<li><p><strong>amplitudes</strong> (<em>iterable</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Amplitude of the cosine wave at each of the frequency breakpoints.  Can
 be specified as a single floating point value, or as an array with a
 value specified for each breakpoint. The default is 1.</p></li>
-<li><p><strong>phases</strong> (<em>iterable</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Phases of the sine wave at each of the frequency breakpoints.  Can
+<li><p><strong>phases</strong> (<em>iterable</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Phases of the cosine wave at each of the frequency breakpoints.  Can
 be specified as a single floating point value, or as an array with a
 value specified for each breakpoint. Be aware that modifying the phase
 between breakpoints will effectively change the frequency of the signal,
 because the phase will change over time.  The default is 0.</p></li>
+<li><p><strong>return_argument</strong> (<em>bool</em>) – If True, return cosine argument over time</p></li>
+<li><p><strong>return_frequency</strong> (<em>bool</em>) – If True, return the instantaneous frequency over time</p></li>
+<li><p><strong>return_amplitude</strong> (<em>bool</em>) – If True, return the instantaneous amplitude over time</p></li>
+<li><p><strong>return_phase</strong> (<em>bool</em>) – If True, return the instantaneous phase over time</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -167,12 +173,16 @@ because the phase will change over time.  The default is 0.</p></li>
     and a positive sweep rate is specified.</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>ordinate</strong> – A numpy array consisting of the generated sine sweep signal.  The length
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>ordinate</strong> (<em>np.ndarray</em>) – A numpy array consisting of the generated sine sweep signal.  The length
 of the signal will be determined by the frequency breakpoints and sweep
-rates.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>np.ndarray</p>
+rates.</p></li>
+<li><p><strong>arg_over_time</strong> (<em>np.ndarray</em>) – A numpy array consisting of the argument to the cosine wave over time.</p></li>
+<li><p><strong>freq_over_time</strong> (<em>np.ndarray</em>) – A numpy array consisting of the frequency of the cosine wave over time.</p></li>
+<li><p><strong>amp_over_time</strong> (<em>np.ndarray</em>) – A numpy array consistsing of the amplitude of the cosine wave over time.</p></li>
+<li><p><strong>phs_over_time</strong> (<em>np.ndarray</em>) – A numpy array consisting of the added phase of the cosine wave over time.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -190,7 +200,7 @@ rates.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefe25c460>
+<jinja2.runtime.BlockReference object at 0x7f1d4e622ad0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

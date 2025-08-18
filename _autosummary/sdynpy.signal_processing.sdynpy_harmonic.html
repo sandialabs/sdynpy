@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_harmonic &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_harmonic &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -28,8 +28,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase" href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html" />
-    <link rel="prev" title="sdynpy.signal_processing.sdynpy_geometry_fitting.fit_line_point_cloud" href="sdynpy.signal_processing.sdynpy_geometry_fitting.fit_line_point_cloud.html" /> 
+    <link rel="next" title="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter" href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter.html" />
+    <link rel="prev" title="sdynpy.signal_processing.sdynpy_geometry_fitting.intersection_point_multiple_lines" href="sdynpy.signal_processing.sdynpy_geometry_fitting.intersection_point_multiple_lines.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_buffer.html">sdynpy.signal_processing.sdynpy_buffer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_camera.html">sdynpy.signal_processing.sdynpy_camera</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_complex.html">sdynpy.signal_processing.sdynpy_complex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_correlation.html">sdynpy.signal_processing.sdynpy_correlation</a></li>
@@ -76,7 +78,12 @@
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_generator.html">sdynpy.signal_processing.sdynpy_generator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_geometry_fitting.html">sdynpy.signal_processing.sdynpy_geometry_fitting</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">sdynpy.signal_processing.sdynpy_harmonic</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter.html">sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator.html">sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator</a></li>
 <li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html">sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit.html">sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter.html">sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator.html">sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.signal_processing.sdynpy_integration.html">sdynpy.signal_processing.sdynpy_integration</a></li>
@@ -142,8 +149,23 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <col style="width: 90%" />
 </colgroup>
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter.html#sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter" title="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">digital_tracking_filter</span></code></a>(dt, xs, frequencies, ...)</p></td>
+<td><p>Computes amplitudes and phases using a digital tracking filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator.html#sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator" title="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">digital_tracking_filter_generator</span></code></a>(dt[, ...])</p></td>
+<td><p>Computes amplitudes and phases using a digital tracking filter</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html#sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase" title="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harmonic_mag_phase</span></code></a>(ts, xs, frequency[, ...])</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit.html#sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit" title="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">harmonic_mag_phase_fit</span></code></a>(ts, xs, frequency_guess)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter.html#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter" title="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vold_kalman_filter</span></code></a>(sample_rate, signal, ...)</p></td>
+<td><p>Extract sinusoidal components from a signal using the second generation Vold-Kalman filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator.html#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator" title="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vold_kalman_filter_generator</span></code></a>(sample_rate, ...)</p></td>
+<td><p>Extracts sinusoidal information using a Vold-Kalman Filter</p></td>
 </tr>
 </tbody>
 </table>
@@ -153,14 +175,14 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sdynpy.signal_processing.sdynpy_geometry_fitting.fit_line_point_cloud.html" class="btn btn-neutral float-left" title="sdynpy.signal_processing.sdynpy_geometry_fitting.fit_line_point_cloud" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase.html" class="btn btn-neutral float-right" title="sdynpy.signal_processing.sdynpy_harmonic.harmonic_mag_phase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sdynpy.signal_processing.sdynpy_geometry_fitting.intersection_point_multiple_lines.html" class="btn btn-neutral float-left" title="sdynpy.signal_processing.sdynpy_geometry_fitting.intersection_point_multiple_lines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter.html" class="btn btn-neutral float-right" title="sdynpy.signal_processing.sdynpy_harmonic.digital_tracking_filter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefdfc9a20>
+<jinja2.runtime.BlockReference object at 0x7f1d4c99e350>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

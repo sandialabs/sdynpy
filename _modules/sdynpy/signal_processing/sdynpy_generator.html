@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_generator &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_generator &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -256,7 +257,9 @@
         <span class="n">signal</span> <span class="o">+=</span> <span class="n">peak</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span><span class="o">**</span><span class="n">sine_exponent</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">signal</span></div>
 
-<div class="viewcode-block" id="sine_sweep"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_generator.sine_sweep.html#sdynpy.signal_processing.sdynpy_generator.sine_sweep">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sine_sweep</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">sweep_rates</span><span class="p">,</span> <span class="n">sweep_types</span><span class="p">,</span> <span class="n">amplitudes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="sine_sweep"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_generator.sine_sweep.html#sdynpy.signal_processing.sdynpy_generator.sine_sweep">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sine_sweep</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">sweep_rates</span><span class="p">,</span> <span class="n">sweep_types</span><span class="p">,</span> <span class="n">amplitudes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">phases</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+               <span class="n">return_argument</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_frequency</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="n">return_amplitude</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_phase</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a sweeping sine wave with linear or logarithmic sweep rate</span>
 
@@ -279,15 +282,23 @@
 <span class="sd">        breakpoints.  Otherwise it should be an array containing strings with</span>
 <span class="sd">        one fewer element than that of the `frequencies` array.</span>
 <span class="sd">    amplitudes : iterable or float, optional</span>
-<span class="sd">        Amplitude of the sine wave at each of the frequency breakpoints.  Can</span>
+<span class="sd">        Amplitude of the cosine wave at each of the frequency breakpoints.  Can</span>
 <span class="sd">        be specified as a single floating point value, or as an array with a</span>
 <span class="sd">        value specified for each breakpoint. The default is 1.</span>
 <span class="sd">    phases : iterable or float, optional</span>
-<span class="sd">        Phases of the sine wave at each of the frequency breakpoints.  Can</span>
+<span class="sd">        Phases of the cosine wave at each of the frequency breakpoints.  Can</span>
 <span class="sd">        be specified as a single floating point value, or as an array with a</span>
 <span class="sd">        value specified for each breakpoint. Be aware that modifying the phase</span>
 <span class="sd">        between breakpoints will effectively change the frequency of the signal,</span>
 <span class="sd">        because the phase will change over time.  The default is 0.</span>
+<span class="sd">    return_argument : bool</span>
+<span class="sd">        If True, return cosine argument over time</span>
+<span class="sd">    return_frequency : bool</span>
+<span class="sd">        If True, return the instantaneous frequency over time</span>
+<span class="sd">    return_amplitude : bool</span>
+<span class="sd">        If True, return the instantaneous amplitude over time</span>
+<span class="sd">    return_phase : bool</span>
+<span class="sd">        If True, return the instantaneous phase over time</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -302,11 +313,24 @@
 <span class="sd">        A numpy array consisting of the generated sine sweep signal.  The length</span>
 <span class="sd">        of the signal will be determined by the frequency breakpoints and sweep</span>
 <span class="sd">        rates.</span>
+<span class="sd">    arg_over_time : np.ndarray</span>
+<span class="sd">        A numpy array consisting of the argument to the cosine wave over time.</span>
+<span class="sd">    freq_over_time : np.ndarray</span>
+<span class="sd">        A numpy array consisting of the frequency of the cosine wave over time.    </span>
+<span class="sd">    amp_over_time : np.ndarray</span>
+<span class="sd">        A numpy array consistsing of the amplitude of the cosine wave over time.</span>
+<span class="sd">    phs_over_time : np.ndarray</span>
+<span class="sd">        A numpy array consisting of the added phase of the cosine wave over time.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">last_phase</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">abscissa</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ordinate</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">arg_over_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">freq_over_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">amp_over_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">phs_over_time</span> <span class="o">=</span> <span class="p">[]</span>
+    
     <span class="c1"># Go through each section</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># Extract the terms</span>
@@ -329,7 +353,7 @@
             <span class="n">end_amplitude</span> <span class="o">=</span> <span class="n">amplitudes</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
-            <span class="n">end_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
+            <span class="n">end_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
             <span class="n">end_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>
@@ -360,14 +384,35 @@
             <span class="n">phase_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_phase</span><span class="p">,</span><span class="n">start_phase</span><span class="p">]</span>
             <span class="n">amp_interp</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_amplitude</span><span class="p">,</span><span class="n">start_amplitude</span><span class="p">]</span>
         <span class="n">this_phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">this_frequency</span><span class="p">,</span><span class="n">freq_interp</span><span class="p">,</span><span class="n">phase_interp</span><span class="p">)</span>
+        <span class="c1"># if sweep_type in [&#39;lin&#39;,&#39;linear&#39;]:</span>
+        <span class="c1">#     this_phases = np.interp(this_frequency,freq_interp,phase_interp)</span>
+        <span class="c1"># elif sweep_type in [&#39;log&#39;,&#39;logarithmic&#39;]:</span>
+        <span class="c1">#     this_phase = np.interp(np.log(this_frequency),np.log(freq_interp),np.log(phase_interp))</span>
         <span class="c1"># Compute the amplitude at each time step</span>
         <span class="n">this_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">this_frequency</span><span class="p">,</span><span class="n">freq_interp</span><span class="p">,</span><span class="n">amp_interp</span><span class="p">)</span>
-        <span class="n">this_ordinate</span> <span class="o">=</span> <span class="n">this_amplitudes</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">this_argument</span><span class="o">+</span><span class="n">this_phases</span><span class="o">+</span><span class="n">last_phase</span><span class="p">)</span>
+        <span class="n">this_ordinate</span> <span class="o">=</span> <span class="n">this_amplitudes</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">this_argument</span><span class="o">+</span><span class="n">this_phases</span><span class="o">+</span><span class="n">last_phase</span><span class="p">)</span>
+        <span class="n">arg_over_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_argument</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">last_phase</span><span class="p">)</span>
         <span class="n">last_phase</span> <span class="o">+=</span> <span class="n">this_argument</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">abscissa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_abscissa</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">ordinate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_ordinate</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">freq_over_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_frequency</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">amp_over_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_amplitudes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">phs_over_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_phases</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ordinate</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ordinate</span></div>
+    <span class="n">return_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">ordinate</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">return_argument</span><span class="p">:</span>
+        <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">arg_over_time</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">return_frequency</span><span class="p">:</span>
+        <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">freq_over_time</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">return_amplitude</span><span class="p">:</span>
+        <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">amp_over_time</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">return_phase</span><span class="p">:</span>
+        <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">phs_over_time</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">return_vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">return_vals</span> <span class="o">=</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">return_vals</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">return_vals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">return_vals</span></div>
 </pre></div>
 
            </div>
@@ -377,7 +422,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefd9da980>
+<jinja2.runtime.BlockReference object at 0x7f1d4cabd390>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

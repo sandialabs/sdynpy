@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.modal.sdynpy_modeshape &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -482,7 +483,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">low_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">upper_residuals</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">frequency_lines_for_residuals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
@@ -491,9 +492,10 @@
                 <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> \
                     <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frequency_lines_for_residuals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">high_freq_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">solve_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
             <span class="p">(</span><span class="n">solve_indices</span><span class="p">,</span> <span class="n">low_freq_indices</span><span class="p">,</span> <span class="n">high_freq_indices</span><span class="p">)))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">solve_indices</span><span class="p">)</span>
         <span class="n">frf_matrix</span> <span class="o">=</span> <span class="n">frf_matrix</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">solve_indices</span><span class="p">]</span>
         <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="p">[</span><span class="n">solve_indices</span><span class="p">]</span>
 
@@ -936,7 +938,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefe537820>
+<jinja2.runtime.BlockReference object at 0x7f1d4a8e9c10>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

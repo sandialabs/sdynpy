@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Model &mdash; SDynPy 0.18.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Geometry" href="geometry.html" />
+    <link rel="prev" title="Package Layout" href="package_layout.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_functionality.html">Core Functionality</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="package_layout.html">Package Layout</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#SDynPy-Arrays">SDynPy Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SDynPy-Array-Fields">SDynPy Array Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Storing-SDynPy-Data-to-Disk">Storing SDynPy Data to Disk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Indexing-SDynPy-Arrays">Indexing SDynPy Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Iterating-over-SDynPy-Arrays">Iterating over SDynPy Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Creating-SDynPy-Arrays">Creating SDynPy Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coordinate.html">Coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modal_analysis.html">Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../core_functionality.html">Core Functionality</a></li>
+      <li class="breadcrumb-item active">Data Model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core_functionality/data_model.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Data-Model">
+<h1>Data Model<a class="headerlink" href="#Data-Model" title="Permalink to this heading"></a></h1>
+<p>This document describes the general data model used by SDynPy objects.  Understanding how SDynPy stores data can aid in understanding how to use SDynPy.</p>
+<p>SDynPy objects generally come in two ‘flavors’.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Python Classes</p></li>
+<li><p>NumPy Structured Arrays</p></li>
+</ul>
+</div></blockquote>
+<p>General Python classes are used to represent objects that are typically used one-at-a-time.  These typically include types like <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a>, which represent a test or analysis geometry.  Alternatively, certain types of objects are often used in the form of an array.  For example, a structural dynamics test can in general measure many channels of data, and this data is conveniently represented as an array of data.  To facilitate efficient array storage and usage, these objects are often represented as subclasses of NumPy arrays.  In particular, NumPy’s Structured Arrays allow the inclusion of multiple fields with varying data types for each entry in the array.  In SDynPy, these objects generally include the identifier <code class="docutils literal notranslate"><span class="pre">Array</span></code> in their name.  Examples of such types include <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeArray</span></code></a> which represents nodes or spatial points in a geometry, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeHistoryArray</span></code></a> which represents a set of time response data, or <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShapeArray</span></code></a> which represents a set of mode shapes.</p>
+<p>Accessing attributes and methods of general Python classes is relatively straightforward for those who are familiar with Python’s object-oriented programming syntax, so it will not be described here.  Instead users are directed to the <a class="reference external" href="https://docs.python.org/3/tutorial/classes.html">Python Documentation</a> to learn about these general concepts.</p>
+<p>This document will focus on the data model used by SDynPy to represent array-like objects by subclassing NumPy’s structured array.</p>
+<section id="SDynPy-Arrays">
+<h2>SDynPy Arrays<a class="headerlink" href="#SDynPy-Arrays" title="Permalink to this heading"></a></h2>
+<p>All array-like SDynPy objects subclass from the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> class, which in turn subclasses from the <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> class.  Therefore, most SDynPy array objects can directly use NumPy functions.  As an example, you can easily select the unique degrees of freedom from a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> using <code class="docutils literal notranslate"><span class="pre">numpy.unique</span></code> or concatenate arrays together using <code class="docutils literal notranslate"><span class="pre">numpy.concatenate</span></code>.</p>
+<p>In the following example, we create a handful of <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> objects, show that they are indeed a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> while also being a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> and a <code class="docutils literal notranslate"><span class="pre">ndarray</span></code>.  We also show how we can directly use NumPy functions with these objects.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import packages</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sdynpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sdpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Create some coordinate arrays</span>
+<span class="n">array_1</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;X+&#39;</span><span class="p">)</span>
+<span class="n">array_2</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Y+&#39;</span><span class="p">)</span>
+<span class="n">array_3</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;X+&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_1 is a NumPy ndarray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_1 is a SdynpyArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_1</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">SdynpyArray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_1 is a CoordinateArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_1</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Concatenate arrays together using numpy</span>
+<span class="n">full_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">array_1</span><span class="p">,</span><span class="n">array_2</span><span class="p">,</span><span class="n">array_3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Full array: </span><span class="si">{</span><span class="n">full_array</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get just the unique coordinates</span>
+<span class="n">unique_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">full_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unique degrees of freedom: </span><span class="si">{</span><span class="n">unique_dofs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array_1 is a NumPy ndarray: True
+array_1 is a SdynpyArray: True
+array_1 is a CoordinateArray: True
+
+Full array: [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39; &#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39; &#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+Unique degrees of freedom: [&#39;1X+&#39; &#39;1Y+&#39; &#39;2X+&#39; &#39;2Y+&#39; &#39;3X+&#39; &#39;3Y+&#39;]
+</pre></div></div>
+</div>
+<p>Some NumPy functions will not return the SDynPy object, but rather the basic NumPy structured array that represents the object. An example of this is <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code>. However, we can easily use the <code class="docutils literal notranslate"><span class="pre">view</span></code> method to transform the object back to the desired SDynPy object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a 2D array using np.array</span>
+<span class="n">array_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">array_1</span><span class="p">,</span><span class="n">array_2</span><span class="p">,</span><span class="n">array_3</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Created array_2d using np.array:</span><span class="se">\n</span><span class="si">{</span><span class="n">array_2d</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Check what type of object it is</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a NumPy ndarray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a SdynpyArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">SdynpyArray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a CoordinateArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># We can turn it back into a coordinate array using view</span>
+<span class="n">array_2d</span> <span class="o">=</span> <span class="n">array_2d</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Used view to transform the np.ndarray back to a SDynPy object:</span><span class="se">\n</span><span class="si">{</span><span class="n">array_2d</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Check what type of object it is</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a NumPy ndarray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a SdynpyArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">SdynpyArray</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;array_2d is a CoordinateArray: </span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">array_2d</span><span class="p">,</span><span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Created array_2d using np.array:
+[[(1, 1) (2, 1) (3, 1)]
+ [(1, 2) (2, 2) (3, 2)]
+ [(1, 1) (2, 1) (3, 1)]]
+array_2d is a NumPy ndarray: True
+array_2d is a SdynpyArray: False
+array_2d is a CoordinateArray: False
+
+Used view to transform the np.ndarray back to a SDynPy object:
+[[&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+array_2d is a NumPy ndarray: True
+array_2d is a SdynpyArray: True
+array_2d is a CoordinateArray: True
+
+</pre></div></div>
+</div>
+</section>
+<section id="SDynPy-Array-Fields">
+<h2>SDynPy Array Fields<a class="headerlink" href="#SDynPy-Array-Fields" title="Permalink to this heading"></a></h2>
+<p>NumPy’s structured array allows multiple fields to be stored within a single array, which allows users to efficiently store and access those data.  The fields of a structure array, and therefore the fields of a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a>, are defined by the array’s <code class="docutils literal notranslate"><span class="pre">dtype</span></code>.  For example, each entry in a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> contains a <code class="docutils literal notranslate"><span class="pre">node</span></code> as an unsigned 8-byte integer and a <code class="docutils literal notranslate"><span class="pre">direction</span></code> as a signed 1-byte integer.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">dtype</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dtype([(&#39;node&#39;, &#39;&lt;u8&#39;), (&#39;direction&#39;, &#39;i1&#39;)])
+</pre></div></div>
+</div>
+<p>To get a simple list of field names, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> objects have a <code class="docutils literal notranslate"><span class="pre">fields</span></code> attribute that can be used.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">fields</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;node&#39;, &#39;direction&#39;)
+</pre></div></div>
+</div>
+<p>When working with NumPy structured arrays, and therefore <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> objects, we can access the data in these fields by indexing using the field name.  This will usually return a basic NumPy array containing the data.  However, sometimes it will return other SDynPy objects.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[1, 2, 3],
+       [1, 2, 3],
+       [1, 2, 3]], dtype=uint64)
+</pre></div></div>
+</div>
+<p>Some users find this syntax unintuitive. Therefore, SDynPy also allows users to access these fields as if they were attributes of the object itself. Note, however, that these attributes are created dynamically, therefore many code-completion tools in development environments will not recognize these attributes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">node</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[1, 2, 3],
+       [1, 2, 3],
+       [1, 2, 3]], dtype=uint64)
+</pre></div></div>
+</div>
+</section>
+<section id="Storing-SDynPy-Data-to-Disk">
+<h2>Storing SDynPy Data to Disk<a class="headerlink" href="#Storing-SDynPy-Data-to-Disk" title="Permalink to this heading"></a></h2>
+<p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> objects can be saved to and loaded from the disk using functionality similar to that of NumPy, and are indeed stored as NumPy <code class="docutils literal notranslate"><span class="pre">.npz</span></code> or <code class="docutils literal notranslate"><span class="pre">.npy</span></code> files.  Because it is trival to go between NumPy arrays and SDynPy arrays using <code class="docutils literal notranslate"><span class="pre">view</span></code>, the functionality is basically identical.</p>
+<p>When loading a SDynPy array from a NumPy file, we will generally use a class method to perform this operation; this tells SDynPy which class to view the object as.  These load functions are also often aliased to the module containing the class definition as well to make access easier.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save to a file</span>
+<span class="n">array_2d</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;file_path.npy&#39;</span><span class="p">)</span>
+<span class="c1"># Load from a file using a class method</span>
+<span class="n">array_2d_from_file</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;file_path.npy&#39;</span><span class="p">)</span>
+<span class="c1"># These are also often aliased to the relevant module.</span>
+<span class="n">array_2d_from_file</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;file_path.npy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Because Matlab is another common tool used in Structural Dynamics, SDynPy provides methods to save data to a <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file. This uses the <code class="docutils literal notranslate"><span class="pre">savemat</span></code> function from <code class="docutils literal notranslate"><span class="pre">scipy.io</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="s1">&#39;file_path.mat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Indexing-SDynPy-Arrays">
+<h2>Indexing SDynPy Arrays<a class="headerlink" href="#Indexing-SDynPy-Arrays" title="Permalink to this heading"></a></h2>
+<p>Because SDynPy arrays are actually NumPy arrays, all NumPy indexing syntax can be used. See <a class="reference external" href="https://numpy.org/doc/2.2/user/basics.indexing.html">https://numpy.org/doc/2.2/user/basics.indexing.html</a> for a complete description of indexing options available in SDynPy.</p>
+<p>One key concept to understand when indexing both NumPy and SDynPy objects is when these operations return <em>views into</em> or <em>copies of</em> an array. Subtle bugs can be introduced into code if a user modifies a view of an array when they thought they had a copy. Additionally, assignments into SDynPy fields can result in unintuitive behavior if these concepts are not well understood.</p>
+<p>Consider the following example where we try to assign to the first row of the node field of <code class="docutils literal notranslate"><span class="pre">array_2d</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">array_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+</pre></div></div>
+</div>
+<p>Imagine we would like to change the value of the node field for the entire first row. There are many ways to do this. For example, we could slice the entire first row and assign to the <code class="docutils literal notranslate"><span class="pre">node</span></code> field of that slice.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">array_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[&#39;10X+&#39; &#39;10X+&#39; &#39;10X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+</pre></div></div>
+</div>
+<p>We could also assign directly to a slice of the <code class="docutils literal notranslate"><span class="pre">node</span></code> field.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">array_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[&#39;20X+&#39; &#39;20X+&#39; &#39;20X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+</pre></div></div>
+</div>
+<p>We can also use advanced indexing techniques such as integer indexing or logical indexing, explicitly selecting columns 0, 1, and 2 from row 0.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">array_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[&#39;30X+&#39; &#39;30X+&#39; &#39;30X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+</pre></div></div>
+</div>
+<p>However, think about what happens if we use advanced indexing on the CoordinateArray and then try to assign to the <code class="docutils literal notranslate"><span class="pre">node</span></code> field</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_2d</span><span class="p">[</span><span class="mi">0</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">array_2d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[&#39;30X+&#39; &#39;30X+&#39; &#39;30X+&#39;]
+ [&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+ [&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]]
+</pre></div></div>
+</div>
+<p>We can see that the values the <code class="docutils literal notranslate"><span class="pre">node</span></code> field for the first row of <code class="docutils literal notranslate"><span class="pre">array_2d</span></code> were not assigned to 40, but rather remain as 30. This is because when we do <code class="docutils literal notranslate"><span class="pre">array_2d[0,[0,1,2]]</span></code>, the advanced indexing triggers the creation of a <em>copy of</em> the original array, and we then change the value of the copy. Since this copy has no relationship to the original array, the original array does not change.</p>
+<p>Contrast this with the first example using a slice: <code class="docutils literal notranslate"><span class="pre">array_2d[0,:]</span></code> is basic indexing which creates a <em>view into</em> the original array, meaning the view and the original array share the same memory. Therefore changing the <code class="docutils literal notranslate"><span class="pre">node</span></code> field of the view is equivalent to changing the <code class="docutils literal notranslate"><span class="pre">node</span></code> field of the original array.</p>
+<p>Understanding the difference between copies and views for indexing operations is imperative to successfully use SDynPy. Otherwise, subtle bugs can be introduced into the code.</p>
+</section>
+<section id="Iterating-over-SDynPy-Arrays">
+<h2>Iterating over SDynPy Arrays<a class="headerlink" href="#Iterating-over-SDynPy-Arrays" title="Permalink to this heading"></a></h2>
+<p>We often would like to iterate over the items in a SDynPy array. We can do this using standard <code class="docutils literal notranslate"><span class="pre">for</span></code> loop syntax in Python. Note that because SDynPy arrays are NumPy arrays, iterating over a SDynPy array works exactly the same as iterating over a NumPy array. Basically, a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop will loop over the first dimesion of the array. For a 1D array, this will return every item in the array sequentially. For a 2D array, this will return every <em>row</em> in the array sequentially.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">array_1</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1X+
+2X+
+3X+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">array_2d</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;30X+&#39; &#39;30X+&#39; &#39;30X+&#39;]
+[&#39;1Y+&#39; &#39;2Y+&#39; &#39;3Y+&#39;]
+[&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+</pre></div></div>
+</div>
+<p>Sometimes it is useful to iterate over every item in a multidimensional array rather than just iterating over one dimension. NumPy provides us with functions like <code class="docutils literal notranslate"><span class="pre">ndenumerate</span></code> to handle such cases, and will provide the index and item at each entry in the array; however, NumPy’s <code class="docutils literal notranslate"><span class="pre">ndenumerate</span></code> will generally return a basic NumPy structured array rather than a SDynPy array.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">item</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">array_2d</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;At </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+At (0, 0): (30, 1)
+At (0, 1): (30, 1)
+At (0, 2): (30, 1)
+At (1, 0): (1, 2)
+At (1, 1): (2, 2)
+At (1, 2): (3, 2)
+At (2, 0): (1, 1)
+At (2, 1): (2, 1)
+At (2, 2): (3, 1)
+</pre></div></div>
+</div>
+<p>Therefore SDynPy provides its own method <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray.ndenumerate" title="sdynpy.core.sdynpy_array.SdynpyArray.ndenumerate"><code class="xref py py-func docutils literal notranslate"><span class="pre">ndenumerate</span></code></a> which will automatically view the output as the correct SDynPy array.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">item</span> <span class="ow">in</span> <span class="n">array_2d</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;At </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+At (0, 0): 30X+
+At (0, 1): 30X+
+At (0, 2): 30X+
+At (1, 0): 1Y+
+At (1, 1): 2Y+
+At (1, 2): 3Y+
+At (2, 0): 1X+
+At (2, 1): 2X+
+At (2, 2): 3X+
+</pre></div></div>
+</div>
+</section>
+<section id="Creating-SDynPy-Arrays">
+<h2>Creating SDynPy Arrays<a class="headerlink" href="#Creating-SDynPy-Arrays" title="Permalink to this heading"></a></h2>
+<p>Users of NumPy will be aware that when constructing a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, they can directly use the class name to invoke the class constructor.  However, this will generally require the user to first create the array with the appropriate dtype and shape, and then subsequently fill it with data, which can be slightly inconvienent to use.  NumPy therefor offers a convenience function, <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code>, that can be directly passed the data to put into the array, and the function will automatically determine the shape and dtype.</p>
+<p>Because SDynPy arrays inherit functionality from NumPy, they also can be constructed directly using the class constructor; however, similar to NumPy, this can be inconvenient.  Therefore SDynPy similarly offers convenience functions to aid in creating SDynPy Array objects.  These convenience functions will generally have the same name as the class name, except will use <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> capitalization instead of the <code class="docutils literal notranslate"><span class="pre">CamelCase</span></code> used by the class name.  For example, a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeArray</span></code></a> can be constructed with the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.node_array.html#sdynpy.core.sdynpy_geometry.node_array" title="sdynpy.core.sdynpy_geometry.node_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">node_array</span></code></a> function, and a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> can be constructed with the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.coordinate_array.html#sdynpy.core.sdynpy_coordinate.coordinate_array" title="sdynpy.core.sdynpy_coordinate.coordinate_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">coordinate_array</span></code></a> function.</p>
+<p>For example, we can construct a <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> object using the constructor:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">CoordinateArray</span><span class="p">((</span><span class="mi">3</span><span class="p">,))</span> <span class="c1"># Create an empty array with shape (3,)</span>
+<span class="n">array</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="c1"># Fill in the empty node numbers</span>
+<span class="n">array</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Fill in the empty directions, direction 1 corresponds to X+</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+</pre></div></div>
+</div>
+<p>Alternatively, we can use the more convenient <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.coordinate_array.html#sdynpy.core.sdynpy_coordinate.coordinate_array" title="sdynpy.core.sdynpy_coordinate.coordinate_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">coordinate_array</span></code></a> function which provides us a more convenient approach:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="s1">&#39;X+&#39;</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;1X+&#39; &#39;2X+&#39; &#39;3X+&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading"></a></h2>
+<p>SDynPy’s data model incorporates general Python classes as well as array-like classes. These array-like classes subclass from NumPy’s <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> to inherit much of the useful functionality of those arrays.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="package_layout.html" class="btn btn-neutral float-left" title="Package Layout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geometry.html" class="btn btn-neutral float-right" title="Geometry" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f1d4e5b6050>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

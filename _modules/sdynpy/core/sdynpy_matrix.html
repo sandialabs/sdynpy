@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.core.sdynpy_matrix &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -53,6 +53,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
@@ -446,7 +447,26 @@
         <span class="k">if</span> <span class="n">column_coordinate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">column_coordinate</span> <span class="o">=</span> <span class="n">row_coordinate</span>
         <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">row_coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">column_coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
-                      <span class="n">row_coordinate</span><span class="p">,</span> <span class="n">column_coordinate</span><span class="p">)</span></div></div>
+                      <span class="n">row_coordinate</span><span class="p">,</span> <span class="n">column_coordinate</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Matrix.pinv"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix.pinv">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">pinv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">pinv_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates the pseudoinverse of the matrix</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **pinv_params : various</span>
+<span class="sd">            Extra keyword arguments are passed directly to np.linalg.pinv</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Matrix</span>
+<span class="sd">            A matrix consisting of the pseudoinverse of the original matrix</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span><span class="o">**</span><span class="n">pinv_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="n">matrix</span><span class="o">=</span><span class="n">mat</span><span class="p">,</span><span class="n">row_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_coordinate</span><span class="p">,</span>
+                      <span class="n">column_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_matrix.matrix.html#sdynpy.core.sdynpy_matrix.matrix">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">row_coordinate</span><span class="p">,</span> <span class="n">column_coordinate</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -487,7 +507,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefd6a6680>
+<jinja2.runtime.BlockReference object at 0x7f1d4a916d10>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

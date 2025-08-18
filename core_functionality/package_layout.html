@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Package Layout &mdash; SDynPy 0.18.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Model" href="data_model.html" />
+    <link rel="prev" title="Core Functionality" href="../core_functionality.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../core_functionality.html">Core Functionality</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Package Layout</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sdynpy-subpackages">SDynPy Subpackages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sdynpy-core-objects">SDynPy Core Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-input-and-output">File Input and Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#finite-elements-and-similar-numerical-functionality">Finite Elements and Similar Numerical Functionality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modal-analysis">Modal Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signal-processing">Signal Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#demonstration-objects">Demonstration Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coordinate.html">Coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modal_analysis.html">Modal Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../core_functionality.html">Core Functionality</a></li>
+      <li class="breadcrumb-item active">Package Layout</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core_functionality/package_layout.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="package-layout">
+<h1>Package Layout<a class="headerlink" href="#package-layout" title="Permalink to this heading"></a></h1>
+<p>This document will describe the layout of SDynPy to help users find the functions they are looking for.</p>
+<section id="sdynpy-subpackages">
+<h2>SDynPy Subpackages<a class="headerlink" href="#sdynpy-subpackages" title="Permalink to this heading"></a></h2>
+<p>SDynPy is split up into several subpackages to help organize its content.  While these subpackages are convenient to organize the content, they are not convenient to use, as typical function calls might require descending multiple package levels, resulting in inconveniently long code.  Therefore, SDynPy heavily relies on aliases to commonly used functions and classes.</p>
+<p>The following sections describe the major subpackages that exist in SDynPy.</p>
+</section>
+<section id="sdynpy-core-objects">
+<h2>SDynPy Core Objects<a class="headerlink" href="#sdynpy-core-objects" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../_autosummary/sdynpy.core.html#module-sdynpy.core" title="sdynpy.core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core</span></code></a> subpackage contains Python modules that define the core SDynPy objects and other core functionality.  These are designed to represent common data used in structural dynamics, including degrees of freedom, geometry, data, or dynamic systems.  Because of their ubiquitous nature, almost all of the modules, classes, and their corresponding helper functions are aliased to the top-level SDynPy namespace.  The <a class="reference internal" href="../_autosummary/sdynpy.core.html#module-sdynpy.core" title="sdynpy.core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">core</span></code></a> modules are:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>SDynPy Core Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.html#module-sdynpy.core.sdynpy_array" title="sdynpy.core.sdynpy_array"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.html#module-sdynpy.core.sdynpy_array" title="sdynpy.core.sdynpy_array"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.array</span></code></a></p></td>
+<td><p>Definition of the parent <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SdynpyArray</span></code></a> class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_colors.html#module-sdynpy.core.sdynpy_colors" title="sdynpy.core.sdynpy_colors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_colors</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_colors.html#module-sdynpy.core.sdynpy_colors" title="sdynpy.core.sdynpy_colors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.colors</span></code></a></p></td>
+<td><p>Definition of the color map scheme used by
+| SDynPy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.html#module-sdynpy.core.sdynpy_coordinate" title="sdynpy.core.sdynpy_coordinate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_coordinate</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.html#module-sdynpy.core.sdynpy_coordinate" title="sdynpy.core.sdynpy_coordinate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.coordinate</span></code></a></p></td>
+<td><p>Definition of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> class used to represent degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.html#module-sdynpy.core.sdynpy_data" title="sdynpy.core.sdynpy_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.html#module-sdynpy.core.sdynpy_data" title="sdynpy.core.sdynpy_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.data</span></code></a></p></td>
+<td><p>Definition of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NDDataArray</span></code></a> class and it’s subclasses. (<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeHistoryArray</span></code></a>, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.SpectrumArray.html#sdynpy.core.sdynpy_data.SpectrumArray" title="sdynpy.core.sdynpy_data.SpectrumArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumArray</span></code></a>, etc.) used to represent data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.html#module-sdynpy.core.sdynpy_geometry" title="sdynpy.core.sdynpy_geometry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.html#module-sdynpy.core.sdynpy_geometry" title="sdynpy.core.sdynpy_geometry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.geometry</span></code></a></p></td>
+<td><p>Definition of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> class and its component classes (<a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeArray</span></code></a>, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementArray</span></code></a>, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray" title="sdynpy.core.sdynpy_geometry.TracelineArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracelineArray</span></code></a>, <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateSystemArray</span></code></a>) used to represent the locations and orientations of measurements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.html#module-sdynpy.core.sdynpy_matrix" title="sdynpy.core.sdynpy_matrix"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_matrix</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.html#module-sdynpy.core.sdynpy_matrix" title="sdynpy.core.sdynpy_matrix"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.matrix_mod</span></code></a></p></td>
+<td><p>Definition of the <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">Matrix</span></code></a> class used to map degrees of freedom to rows and columns of a matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.html#module-sdynpy.core.sdynpy_shape" title="sdynpy.core.sdynpy_shape"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_shape</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.html#module-sdynpy.core.sdynpy_shape" title="sdynpy.core.sdynpy_shape"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.shape</span></code></a></p></td>
+<td><p>Definition of the parent <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShapeArray</span></code></a> class used to represent mode or deflection shapes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.html#module-sdynpy.core.sdynpy_system" title="sdynpy.core.sdynpy_system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_system</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.html#module-sdynpy.core.sdynpy_system" title="sdynpy.core.sdynpy_system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.system</span></code></a></p></td>
+<td><p>Definition of the parent <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a> class used to represent dynamic systems (mass, stiffness, and damping).</p></td>
+</tr>
+</tbody>
+</table>
+<p>In addition to the modules being aliased to the SDynPy namespace, many of the classes and functions from the <a class="reference internal" href="../_autosummary/sdynpy.core.html#module-sdynpy.core" title="sdynpy.core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">core</span></code></a> subpackage are also aliased to the top-level namespace, as these are the most often called functions and classes in SDynPy.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>SDynPy Array Class</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_array.SdynpyArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_array.SdynpyArray.html#sdynpy.core.sdynpy_array.SdynpyArray" title="sdynpy.core.sdynpy_array.SdynpyArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.SdynpyArray</span></code></a></p></td>
+<td><p>Parent class of all SDynPy Arrays.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Coordinate Classes and Functions</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_coordinate.CoordinateArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.CoordinateArray</span></code></a></p></td>
+<td><p>Class to represent degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.coordinate_array.html#sdynpy.core.sdynpy_coordinate.coordinate_array" title="sdynpy.core.sdynpy_coordinate.coordinate_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_coordinate.coordinate_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.coordinate_array.html#sdynpy.core.sdynpy_coordinate.coordinate_array" title="sdynpy.core.sdynpy_coordinate.coordinate_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.coordinate_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateArray</span></code></a> objects.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Classes and Functions</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.NDDataArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.NDDataArray</span></code></a></p></td>
+<td><p>Parent class of all SDynPy Data Arrays.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.TimeHistoryArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.TimeHistoryArray</span></code></a></p></td>
+<td><p>Data class representing time histories.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.TransferFunctionArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.TransferFunctionArray</span></code></a></p></td>
+<td><p>Data class representing transfer functions or frequency response functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.CoherenceArray.html#sdynpy.core.sdynpy_data.CoherenceArray" title="sdynpy.core.sdynpy_data.CoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.CoherenceArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.CoherenceArray.html#sdynpy.core.sdynpy_data.CoherenceArray" title="sdynpy.core.sdynpy_data.CoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.CoherenceArray</span></code></a></p></td>
+<td><p>Data class representing coherence functions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.MultipleCoherenceArray.html#sdynpy.core.sdynpy_data.MultipleCoherenceArray" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.MultipleCoherenceArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.MultipleCoherenceArray.html#sdynpy.core.sdynpy_data.MultipleCoherenceArray" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.MultipleCoherenceArray</span></code></a></p></td>
+<td><p>Data class representing multiple coherence functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.PowerSpectralDensityArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.PowerSpectralDensityArray</span></code></a></p></td>
+<td><p>Data class representing power spectral density functions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.SpectrumArray.html#sdynpy.core.sdynpy_data.SpectrumArray" title="sdynpy.core.sdynpy_data.SpectrumArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.SpectrumArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.SpectrumArray.html#sdynpy.core.sdynpy_data.SpectrumArray" title="sdynpy.core.sdynpy_data.SpectrumArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.SpectrumArray</span></code></a></p></td>
+<td><p>Data class representing spectra (e.g. FFTs).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.GUIPlot.html#sdynpy.core.sdynpy_data.GUIPlot" title="sdynpy.core.sdynpy_data.GUIPlot"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.GUIPlot</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.GUIPlot.html#sdynpy.core.sdynpy_data.GUIPlot" title="sdynpy.core.sdynpy_data.GUIPlot"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.GUIPlot</span></code></a></p></td>
+<td><p>An interactive data plotter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.CPSDPlot.html#sdynpy.core.sdynpy_data.CPSDPlot" title="sdynpy.core.sdynpy_data.CPSDPlot"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.CPSDPlot</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.CPSDPlot.html#sdynpy.core.sdynpy_data.CPSDPlot" title="sdynpy.core.sdynpy_data.CPSDPlot"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.CPSDPlot</span></code></a></p></td>
+<td><p>An interactive data plotter specifically for cross-power spectral density data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.data_array.html#sdynpy.core.sdynpy_data.data_array" title="sdynpy.core.sdynpy_data.data_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.data_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.data_array.html#sdynpy.core.sdynpy_data.data_array" title="sdynpy.core.sdynpy_data.data_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.data_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray" title="sdynpy.core.sdynpy_data.NDDataArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NDDataArray</span></code></a> (and subclasses) objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.time_history_array.html#sdynpy.core.sdynpy_data.time_history_array" title="sdynpy.core.sdynpy_data.time_history_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.time_history_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.time_history_array.html#sdynpy.core.sdynpy_data.time_history_array" title="sdynpy.core.sdynpy_data.time_history_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.time_history_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeHistoryArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.transfer_function_array.html#sdynpy.core.sdynpy_data.transfer_function_array" title="sdynpy.core.sdynpy_data.transfer_function_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.transfer_function_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.transfer_function_array.html#sdynpy.core.sdynpy_data.transfer_function_array" title="sdynpy.core.sdynpy_data.transfer_function_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.transfer_function_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.coherence_array.html#sdynpy.core.sdynpy_data.coherence_array" title="sdynpy.core.sdynpy_data.coherence_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.coherence_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.coherence_array.html#sdynpy.core.sdynpy_data.coherence_array" title="sdynpy.core.sdynpy_data.coherence_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.coherence_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.CoherenceArray.html#sdynpy.core.sdynpy_data.CoherenceArray" title="sdynpy.core.sdynpy_data.CoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoherenceArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.multiple_coherence_array.html#sdynpy.core.sdynpy_data.multiple_coherence_array" title="sdynpy.core.sdynpy_data.multiple_coherence_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.multiple_coherence_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.multiple_coherence_array.html#sdynpy.core.sdynpy_data.multiple_coherence_array" title="sdynpy.core.sdynpy_data.multiple_coherence_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.multiple_coherence_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.MultipleCoherenceArray.html#sdynpy.core.sdynpy_data.MultipleCoherenceArray" title="sdynpy.core.sdynpy_data.MultipleCoherenceArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleCoherenceArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.power_spectral_density_array.html#sdynpy.core.sdynpy_data.power_spectral_density_array" title="sdynpy.core.sdynpy_data.power_spectral_density_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.power_spectral_density_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.power_spectral_density_array.html#sdynpy.core.sdynpy_data.power_spectral_density_array" title="sdynpy.core.sdynpy_data.power_spectral_density_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.power_spectral_density_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.PowerSpectralDensityArray.html#sdynpy.core.sdynpy_data.PowerSpectralDensityArray" title="sdynpy.core.sdynpy_data.PowerSpectralDensityArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">PowerSpectralDensityArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.spectrum_array.html#sdynpy.core.sdynpy_data.spectrum_array" title="sdynpy.core.sdynpy_data.spectrum_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_data.spectrum_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.spectrum_array.html#sdynpy.core.sdynpy_data.spectrum_array" title="sdynpy.core.sdynpy_data.spectrum_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.spectrum_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_data.SpectrumArray.html#sdynpy.core.sdynpy_data.SpectrumArray" title="sdynpy.core.sdynpy_data.SpectrumArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumArray</span></code></a> objects.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Geometry Classes and Functions</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.Geometry</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.Geometry</span></code></a></p></td>
+<td><p>Class to represent a test or analysis geometry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.NodeArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.NodeArray</span></code></a></p></td>
+<td><p>Class to represent node locations in a geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.CoordinateSystemArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.CoordinateSystemArray</span></code></a></p></td>
+<td><p>Class to represent global and local coordinate systems in a geometry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray" title="sdynpy.core.sdynpy_geometry.TracelineArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.TracelineArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray" title="sdynpy.core.sdynpy_geometry.TracelineArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.TracelineArray</span></code></a></p></td>
+<td><p>Class to represent lines connecting nodes for visualization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.ElementArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.ElementArray</span></code></a></p></td>
+<td><p>Class to represent elements connecting nodes for visualization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.node_array.html#sdynpy.core.sdynpy_geometry.node_array" title="sdynpy.core.sdynpy_geometry.node_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.node_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.node_array.html#sdynpy.core.sdynpy_geometry.node_array" title="sdynpy.core.sdynpy_geometry.node_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.node_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.NodeArray.html#sdynpy.core.sdynpy_geometry.NodeArray" title="sdynpy.core.sdynpy_geometry.NodeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.coordinate_system_array.html#sdynpy.core.sdynpy_geometry.coordinate_system_array" title="sdynpy.core.sdynpy_geometry.coordinate_system_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.coordinate_system_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.coordinate_system_array.html#sdynpy.core.sdynpy_geometry.coordinate_system_array" title="sdynpy.core.sdynpy_geometry.coordinate_system_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.coordinate_system_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.CoordinateSystemArray.html#sdynpy.core.sdynpy_geometry.CoordinateSystemArray" title="sdynpy.core.sdynpy_geometry.CoordinateSystemArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoordinateSystemArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.traceline_array.html#sdynpy.core.sdynpy_geometry.traceline_array" title="sdynpy.core.sdynpy_geometry.traceline_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.traceline_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.traceline_array.html#sdynpy.core.sdynpy_geometry.traceline_array" title="sdynpy.core.sdynpy_geometry.traceline_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.traceline_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.TracelineArray.html#sdynpy.core.sdynpy_geometry.TracelineArray" title="sdynpy.core.sdynpy_geometry.TracelineArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracelineArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.element_array.html#sdynpy.core.sdynpy_geometry.element_array" title="sdynpy.core.sdynpy_geometry.element_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.element_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.element_array.html#sdynpy.core.sdynpy_geometry.element_array" title="sdynpy.core.sdynpy_geometry.element_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.element_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.ElementArray.html#sdynpy.core.sdynpy_geometry.ElementArray" title="sdynpy.core.sdynpy_geometry.ElementArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementArray</span></code></a> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map" title="sdynpy.core.sdynpy_geometry.id_map"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_geometry.id_map</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_geometry.id_map.html#sdynpy.core.sdynpy_geometry.id_map" title="sdynpy.core.sdynpy_geometry.id_map"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.id_map</span></code></a></p></td>
+<td><p>Class to represent identification number maps between two geometries.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Matrix Classes and Functions</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_matrix.Matrix</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.Matrix</span></code></a></p></td>
+<td><p>Class used to map degrees of freedom to rows and columns of a matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.matrix.html#sdynpy.core.sdynpy_matrix.matrix" title="sdynpy.core.sdynpy_matrix.matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_matrix.matrix</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.matrix.html#sdynpy.core.sdynpy_matrix.matrix" title="sdynpy.core.sdynpy_matrix.matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.matrix</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">Matrix</span></code></a> objects.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Shape Classes and Functions</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_shape.ShapeArray</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.ShapeArray</span></code></a></p></td>
+<td><p>Class used to represent mode or deflection shapes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.shape_array.html#sdynpy.core.sdynpy_shape.shape_array" title="sdynpy.core.sdynpy_shape.shape_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_shape.shape_array</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.shape_array.html#sdynpy.core.sdynpy_shape.shape_array" title="sdynpy.core.sdynpy_shape.shape_array"><code class="xref py py-func docutils literal notranslate"><span class="pre">sdynpy.shape_array</span></code></a></p></td>
+<td><p>Helper function to create <a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray" title="sdynpy.core.sdynpy_shape.ShapeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShapeArray</span></code></a> objects.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>System Classes</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.core.sdynpy_system.System</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.System</span></code></a></p></td>
+<td><p>Class used to represent dynamic systems with mass, stiffness, and damping matrices.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="file-input-and-output">
+<h2>File Input and Output<a class="headerlink" href="#file-input-and-output" title="Permalink to this heading"></a></h2>
+<p>Structural dynamics data often comes from external sources, whether it is a modal, vibration, or shock test or an equivalent finite element simulation.  Therefore, being able to quickly and easily bring external data into SDynPy is a priority.  While users could strip data from their external files and manually construct SDynPy objects from that data, this risks bookkeeping and other translation errors.  Therefore if a file type is commonly read into or written from SDynPy, it is useful to add a dedicated reader or writer into SDynPy to handle this translation correctly.  The <a class="reference internal" href="../_autosummary/sdynpy.fileio.html#module-sdynpy.fileio" title="sdynpy.fileio"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio</span></code></a> subpackage contains much of the code to handle these conversions.  For convenience, the modules are aliased to the top-level namespace.  The <a class="reference internal" href="../_autosummary/sdynpy.fileio.html#module-sdynpy.fileio" title="sdynpy.fileio"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fileio</span></code></a> modules are:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File Input/Output Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_uff.html#module-sdynpy.fileio.sdynpy_uff" title="sdynpy.fileio.sdynpy_uff"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_uff</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_uff.html#module-sdynpy.fileio.sdynpy_uff" title="sdynpy.fileio.sdynpy_uff"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.uff</span></code></a> or <a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_uff.html#module-sdynpy.fileio.sdynpy_uff" title="sdynpy.fileio.sdynpy_uff"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.unv</span></code></a></p></td>
+<td><p>Functionality for reading and writing the <a class="reference external" href="https://www.ceas3.uc.edu/sdrluff/">Universal File Format</a>, a text-based file format common in structural dynamics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_rattlesnake.html#module-sdynpy.fileio.sdynpy_rattlesnake" title="sdynpy.fileio.sdynpy_rattlesnake"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_rattlesnake</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_rattlesnake.html#module-sdynpy.fileio.sdynpy_rattlesnake" title="sdynpy.fileio.sdynpy_rattlesnake"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.rattlesnake</span></code></a></p></td>
+<td><p>Functionality for reading output from the open-source vibration controller and modal testing software <a class="reference external" href="https://github.com/sandialabs/rattlesnake-vibration-controller">Rattlesnake</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_vic.html#module-sdynpy.fileio.sdynpy_vic" title="sdynpy.fileio.sdynpy_vic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_vic</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_vic.html#module-sdynpy.fileio.sdynpy_vic" title="sdynpy.fileio.sdynpy_vic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.vic</span></code></a></p></td>
+<td><p>Functionality for reading output from <a class="reference external" href="https://www.correlatedsolutions.com/vic-3d">Correlated Solution’s VIC3D</a> <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_pdf3D.html#module-sdynpy.fileio.sdynpy_pdf3D" title="sdynpy.fileio.sdynpy_pdf3D"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_pdf3D</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_pdf3D.html#module-sdynpy.fileio.sdynpy_pdf3D" title="sdynpy.fileio.sdynpy_pdf3D"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.pdf3D</span></code></a></p></td>
+<td><p>Functionality for writing geometry and shape data to a format that can be embedded into an <a class="reference external" href="https://helpx.adobe.com/acrobat/using/adding-3d-models-pdfs-acrobat.html">interactive PDF</a> for test or analysis documentation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_tshaker.html#module-sdynpy.fileio.sdynpy_tshaker" title="sdynpy.fileio.sdynpy_tshaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_tshaker</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_tshaker.html#module-sdynpy.fileio.sdynpy_tshaker" title="sdynpy.fileio.sdynpy_tshaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.tshaker</span></code></a></p></td>
+<td><p>Functionality for reading output data from T-Shaker, a vibration shaker controller.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_escdf.html#module-sdynpy.fileio.sdynpy_escdf" title="sdynpy.fileio.sdynpy_escdf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fileio.sdynpy_escdf</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fileio.sdynpy_escdf.html#module-sdynpy.fileio.sdynpy_escdf" title="sdynpy.fileio.sdynpy_escdf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.escdf</span></code></a></p></td>
+<td><p>Functionality for reading and writing the Engineering Sciences Common Data Format.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finite-elements-and-similar-numerical-functionality">
+<h2>Finite Elements and Similar Numerical Functionality<a class="headerlink" href="#finite-elements-and-similar-numerical-functionality" title="Permalink to this heading"></a></h2>
+<p>SDynPy has a limited set of finite element and other numerical functionality in the <a class="reference internal" href="../_autosummary/sdynpy.fem.html#module-sdynpy.fem" title="sdynpy.fem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fem</span></code></a> subpackage.  This includes simple beam finite elements, electrodynamic shaker models, and sensor optimization routines to select optimal sensors for a test from finite element results.  For convenience, the modules are aliased to the top-level namespace.  The <a class="reference internal" href="../_autosummary/sdynpy.fem.html#module-sdynpy.fem" title="sdynpy.fem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">fem</span></code></a> modules are:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>FEM Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_beam.html#module-sdynpy.fem.sdynpy_beam" title="sdynpy.fem.sdynpy_beam"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_beam</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_beam.html#module-sdynpy.fem.sdynpy_beam" title="sdynpy.fem.sdynpy_beam"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.beam</span></code></a></p></td>
+<td><p>Functionality for defining beam finite elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_shaker.html#module-sdynpy.fem.sdynpy_shaker" title="sdynpy.fem.sdynpy_shaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_shaker</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_shaker.html#module-sdynpy.fem.sdynpy_shaker" title="sdynpy.fem.sdynpy_shaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.shaker</span></code></a></p></td>
+<td><p>Functionality for definining shaker electromechanical models per <a class="reference external" href="http://www.sandv.com/downloads/0110lang.pdf">Lang and Snyder</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_dof.html#module-sdynpy.fem.sdynpy_dof" title="sdynpy.fem.sdynpy_dof"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_dof</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_dof.html#module-sdynpy.fem.sdynpy_dof" title="sdynpy.fem.sdynpy_dof"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.dof</span></code></a></p></td>
+<td><p>Techniques such as effective independence used to select sensors for a test given finite element data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.html#module-sdynpy.fem.sdynpy_exodus" title="sdynpy.fem.sdynpy_exodus"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_exodus</span></code></a></p></td>
+<td><p>See Below</p></td>
+<td><p>Functionality for reading and writing the <a class="reference external" href="https://sandialabs.github.io/seacas-docs/exodusII-new.pdf">Exodus</a> finite element model format.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Because the Exodus file format is used often at Sandia National Laboratories where SDynPy was originally developed, key classes from the <a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.html#module-sdynpy.fem.sdynpy_exodus" title="sdynpy.fem.sdynpy_exodus"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy_exodus</span></code></a> module are also aliased to the top-level namespace.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Exodus Classes</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_exodus.Exodus</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.Exodus</span></code></a></p></td>
+<td><p>Class to represent an Exodus file as stored on the filesystem</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.ExodusInMemory.html#sdynpy.fem.sdynpy_exodus.ExodusInMemory" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.fem.sdynpy_exodus.ExodusInMemory</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.fem.sdynpy_exodus.ExodusInMemory.html#sdynpy.fem.sdynpy_exodus.ExodusInMemory" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.ExodusInMemory</span></code></a></p></td>
+<td><p>Class that represents an Exodus file in memory in a format similar to a Matlab Structure</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="modal-analysis">
+<h2>Modal Analysis<a class="headerlink" href="#modal-analysis" title="Permalink to this heading"></a></h2>
+<p>SDynPy has capabilities for performing experimental modal analysis which entails fitting modes to frequency response functions measured on the test article.  These and similar capabilities exist in the <a class="reference internal" href="../_autosummary/sdynpy.modal.html#module-sdynpy.modal" title="sdynpy.modal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.modal</span></code></a> subpackage.  Many of the modules in this subpackage provide both code-based and GUI-based tools to fit modes to data.  In the case of the <a class="reference internal" href="../_autosummary/sdynpy.modal.html#module-sdynpy.modal" title="sdynpy.modal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">modal</span></code></a> subpackage, much of the useful content boils down to a handful of classes.  Therefore, instead of aliasing the modules in the subpackage to the top-level namespace, SDynPy aliases these classes to the top-level namespace.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Modal Classes</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy.html#sdynpy.modal.sdynpy_polypy.PolyPy" title="sdynpy.modal.sdynpy_polypy.PolyPy"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_polypy.PolyPy</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy.html#sdynpy.modal.sdynpy_polypy.PolyPy" title="sdynpy.modal.sdynpy_polypy.PolyPy"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.PolyPy</span></code></a></p></td>
+<td><p>Code-based implementation of the PolyMax mode fitter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html#sdynpy.modal.sdynpy_polypy.PolyPy_GUI" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_polypy.PolyPy_GUI</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_polypy.PolyPy_GUI.html#sdynpy.modal.sdynpy_polypy.PolyPy_GUI" title="sdynpy.modal.sdynpy_polypy.PolyPy_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.PolyPy_GUI</span></code></a></p></td>
+<td><p>GUI-based implementation of the PolyMax mode fitter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_smac.SMAC.html#sdynpy.modal.sdynpy_smac.SMAC" title="sdynpy.modal.sdynpy_smac.SMAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_smac.SMAC</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_smac.SMAC.html#sdynpy.modal.sdynpy_smac.SMAC" title="sdynpy.modal.sdynpy_smac.SMAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.SMAC</span></code></a></p></td>
+<td><p>Code-based implemenation of the Synthesize Modes and Correlate mode fitter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_smac.SMAC_GUI.html#sdynpy.modal.sdynpy_smac.SMAC_GUI" title="sdynpy.modal.sdynpy_smac.SMAC_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_smac.SMAC_GUI</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_smac.SMAC_GUI.html#sdynpy.modal.sdynpy_smac.SMAC_GUI" title="sdynpy.modal.sdynpy_smac.SMAC_GUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.SMAC_GUI</span></code></a></p></td>
+<td><p>GUI-based implemenation of the Synthesize Modes and Correlate mode fitter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_ccmif.ColoredCMIF.html#sdynpy.modal.sdynpy_ccmif.ColoredCMIF" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_ccmif.ColoredCMIF</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_ccmif.ColoredCMIF.html#sdynpy.modal.sdynpy_ccmif.ColoredCMIF" title="sdynpy.modal.sdynpy_ccmif.ColoredCMIF"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.ColoredCMIF</span></code></a></p></td>
+<td><p>GUI-based tool to interactively select and combine modes fit to multiple single-reference measurements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI" title="sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI.html#sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI" title="sdynpy.modal.sdynpy_signal_processing_gui.SignalProcessingGUI"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.SignalProcessingGUI</span></code></a></p></td>
+<td><p>GUI-based tool to compute spectral quantities from time histories.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest" title="sdynpy.modal.sdynpy_modal_test.ModalTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.modal.sdynpy_modal_test.ModalTest</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.modal.sdynpy_modal_test.ModalTest.html#sdynpy.modal.sdynpy_modal_test.ModalTest" title="sdynpy.modal.sdynpy_modal_test.ModalTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">sdynpy.ModalTest</span></code></a></p></td>
+<td><p>A class to represent a typical modal test, intended to aid modal test practitioners in the data processing and documentation workflow.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="signal-processing">
+<h2>Signal Processing<a class="headerlink" href="#signal-processing" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference internal" href="../_autosummary/sdynpy.signal_processing.html#module-sdynpy.signal_processing" title="sdynpy.signal_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing</span></code></a> subpackage includes a wide variety of tools that are related to structural dynamics.  Often, the code in this package is at a “lower level” than the rest of the SDynPy code, operating on raw data rather than SDynPy objects.  Many times, SDynPy objects will often call these lower-level functions as part of their own operations.  <a class="reference internal" href="../_autosummary/sdynpy.signal_processing.html#module-sdynpy.signal_processing" title="sdynpy.signal_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal_processing</span></code></a> functions can be faster in that they remove the bookkeeping overhead that a lot of SDynPy objects implement, but the user must then be aware that their data must be correctly sorted prior to using the techniques.  Additionally, some of the content in <a class="reference internal" href="../_autosummary/sdynpy.signal_processing.html#module-sdynpy.signal_processing" title="sdynpy.signal_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal_processing</span></code></a> does not fit well within the existing SDynPy core objects, so the subpackage serves as a kind of catch-all for tools that can be used in structural dynamics, but perhaps are not commonly used.  The modules of <a class="reference internal" href="../_autosummary/sdynpy.signal_processing.html#module-sdynpy.signal_processing" title="sdynpy.signal_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal_processing</span></code></a> are generally aliased to the top-level namespace.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal Processing Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_camera.html#module-sdynpy.signal_processing.sdynpy_camera" title="sdynpy.signal_processing.sdynpy_camera"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_camera</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_camera.html#module-sdynpy.signal_processing.sdynpy_camera" title="sdynpy.signal_processing.sdynpy_camera"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.camera</span></code></a></p></td>
+<td><p>Various functions for dealing with data from cameras, including camera calibration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_complex.html#module-sdynpy.signal_processing.sdynpy_complex" title="sdynpy.signal_processing.sdynpy_complex"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_complex</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_complex.html#module-sdynpy.signal_processing.sdynpy_complex" title="sdynpy.signal_processing.sdynpy_complex"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.complex</span></code></a></p></td>
+<td><p>Utility functions for working with complex numbers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_correlation.html#module-sdynpy.signal_processing.sdynpy_correlation" title="sdynpy.signal_processing.sdynpy_correlation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_correlation</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_correlation.html#module-sdynpy.signal_processing.sdynpy_correlation" title="sdynpy.signal_processing.sdynpy_correlation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.correlation</span></code></a></p></td>
+<td><p>Functions like the modal assurance cirterion for comparing data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.html#module-sdynpy.signal_processing.sdynpy_cpsd" title="sdynpy.signal_processing.sdynpy_cpsd"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_cpsd</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_cpsd.html#module-sdynpy.signal_processing.sdynpy_cpsd" title="sdynpy.signal_processing.sdynpy_cpsd"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.cpsd</span></code></a></p></td>
+<td><p>Various functions for dealing with cross-power spectral density matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_frf.html#module-sdynpy.signal_processing.sdynpy_frf" title="sdynpy.signal_processing.sdynpy_frf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_frf</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_frf.html#module-sdynpy.signal_processing.sdynpy_frf" title="sdynpy.signal_processing.sdynpy_frf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.frf</span></code></a></p></td>
+<td><p>Various functions computing frequency response functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_frf_inverse.html#module-sdynpy.signal_processing.sdynpy_frf_inverse" title="sdynpy.signal_processing.sdynpy_frf_inverse"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_frf_inverse</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_frf_inverse.html#module-sdynpy.signal_processing.sdynpy_frf_inverse" title="sdynpy.signal_processing.sdynpy_frf_inverse"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.frf_inverse</span></code></a></p></td>
+<td><p>Various functions for inverting frequency response functions, including regularization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_generator.html#module-sdynpy.signal_processing.sdynpy_generator" title="sdynpy.signal_processing.sdynpy_generator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_generator</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_generator.html#module-sdynpy.signal_processing.sdynpy_generator" title="sdynpy.signal_processing.sdynpy_generator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.generator</span></code></a></p></td>
+<td><p>Various functions for generating common time signals, like pseudorandom or sine sweeps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_geometry_fitting.html#module-sdynpy.signal_processing.sdynpy_geometry_fitting" title="sdynpy.signal_processing.sdynpy_geometry_fitting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_geometry_fitting</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_geometry_fitting.html#module-sdynpy.signal_processing.sdynpy_geometry_fitting" title="sdynpy.signal_processing.sdynpy_geometry_fitting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.geometry_fitting</span></code></a></p></td>
+<td><p>Various functions for dealing with geometry; for example, fitting a shape to a point cloud, or finding intersection points of lines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.html#module-sdynpy.signal_processing.sdynpy_harmonic" title="sdynpy.signal_processing.sdynpy_harmonic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_harmonic</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_harmonic.html#module-sdynpy.signal_processing.sdynpy_harmonic" title="sdynpy.signal_processing.sdynpy_harmonic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.harmonic</span></code></a></p></td>
+<td><p>Functions for fitting sine waves to data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_integration.html#module-sdynpy.signal_processing.sdynpy_integration" title="sdynpy.signal_processing.sdynpy_integration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_integration</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_integration.html#module-sdynpy.signal_processing.sdynpy_integration" title="sdynpy.signal_processing.sdynpy_integration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.integration</span></code></a></p></td>
+<td><p>Various functions for generating and integrating state space systems.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_lrm.html#module-sdynpy.signal_processing.sdynpy_lrm" title="sdynpy.signal_processing.sdynpy_lrm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_lrm</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_lrm.html#module-sdynpy.signal_processing.sdynpy_lrm" title="sdynpy.signal_processing.sdynpy_lrm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.lrm</span></code></a></p></td>
+<td><p>Advanced FRF computation technique using local rational modeling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_rotation.html#module-sdynpy.signal_processing.sdynpy_rotation" title="sdynpy.signal_processing.sdynpy_rotation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_rotation</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_rotation.html#module-sdynpy.signal_processing.sdynpy_rotation" title="sdynpy.signal_processing.sdynpy_rotation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.rotation</span></code></a></p></td>
+<td><p>Various functions for dealing with rotations; rotation matrices, Rodrigues parameters, rigid body transformations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_srs.html#module-sdynpy.signal_processing.sdynpy_srs" title="sdynpy.signal_processing.sdynpy_srs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.signal_processing.sdynpy_srs</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.signal_processing.sdynpy_srs.html#module-sdynpy.signal_processing.sdynpy_srs" title="sdynpy.signal_processing.sdynpy_srs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.srs</span></code></a></p></td>
+<td><p>Various functions for working with shock response spectra.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
+<p>SDynPy has limited functionality to create documentation for test or analysis results.  This functionality is currently a work-in-progress, but capability exists to dump common formats into PowerPoint or LaTeX documents.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Documentation Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.doc.sdynpy_ppt.html#module-sdynpy.doc.sdynpy_ppt" title="sdynpy.doc.sdynpy_ppt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.doc.sdynpy_ppt</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.doc.sdynpy_ppt.html#module-sdynpy.doc.sdynpy_ppt" title="sdynpy.doc.sdynpy_ppt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.doc.ppt</span></code></a></p></td>
+<td><p>Various functions to document SDynPy results in a PowerPoint document.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.doc.sdynpy_latex.html#module-sdynpy.doc.sdynpy_latex" title="sdynpy.doc.sdynpy_latex"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.doc.sdynpy_latex</span></code></a></p></td>
+<td><p><a class="reference internal" href="../_autosummary/sdynpy.doc.sdynpy_latex.html#module-sdynpy.doc.sdynpy_latex" title="sdynpy.doc.sdynpy_latex"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.doc.latex</span></code></a></p></td>
+<td><p>Various functions to document SDynPy results in a LaTeX document.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="demonstration-objects">
+<h2>Demonstration Objects<a class="headerlink" href="#demonstration-objects" title="Permalink to this heading"></a></h2>
+<p>Sometimes when a user has a new idea that they would like to try out, they simply want to quickly create a somewhat “interesting” system (e.g. something more than a simple beam or spring-mass-damper system), and generate data to explore.  The <a class="reference internal" href="../_autosummary/sdynpy.demo.html#module-sdynpy.demo" title="sdynpy.demo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.demo</span></code></a> subpackage provides two demonstration objects: a flat plate and a simple airplane-like model made out of beam elements.  Note that there is some overhead in creating these demonstration objects, therefore the <a class="reference internal" href="../_autosummary/sdynpy.demo.html#module-sdynpy.demo" title="sdynpy.demo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.demo</span></code></a> subpackage is not imported automatically with SDynPy, it must be imported separately using <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">sdynpy.demo</span></code>.  Because these are imported separately, there is no aliasing of the modules to the top-level namespace.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Demonstration Modules</p></th>
+<th class="head"><p>Alias</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_autosummary/sdynpy.demo.beam_airplane.html#module-sdynpy.demo.beam_airplane" title="sdynpy.demo.beam_airplane"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.demo.beam_airplane</span></code></a></p></td>
+<td><p>None</p></td>
+<td><p>Creates a system and geometry for a structure that looks like a V-tailed airplane.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_autosummary/sdynpy.demo.beam_plate.html#module-sdynpy.demo.beam_plate" title="sdynpy.demo.beam_plate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sdynpy.demo.beam_plate</span></code></a></p></td>
+<td><p>None</p></td>
+<td><p>Creates a system and geometry for a structure that looks like a flat plate.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../core_functionality.html" class="btn btn-neutral float-left" title="Core Functionality" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_model.html" class="btn btn-neutral float-right" title="Data Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f1d4d43b490>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

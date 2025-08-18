@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry.from_excel_template &mdash; SDynPy 0.14.2 documentation</title>
+  <title>sdynpy.core.sdynpy_geometry.from_excel_template &mdash; SDynPy 0.18.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
@@ -167,20 +168,16 @@ Geometry are defined.</p>
 <p>On the Coordinate Systems tab, users will define the various global and
 local coordinate systems in their geometry.  Each geometry requires
 an ID number.   A Name can optionally be given.  The Color should be
-specified as an integer corresponding to the Ideas color map.  The
-Type of the coordinate system should be an integer:</p>
-<blockquote>
-<div><p>0 - Cartesian
-1 - Polar
-2 - Spherical</p>
-</div></blockquote>
+selectred from the dropdown list of colors in the Excel template.  The
+type of the coordinate system should be selected from the dropdown list of
+coordinate system types.</p>
 <p>The origin of the coordinate system can be specified with the X Location,
 Y Location, Z Location columns.  Then rotations of the coordinate system
 can be specified using rotations about axes.  Up to three axes and angles
 can be specified to create arbitrary compound rotations.  The rotation
 axes should be X, Y, or Z, and the rotation angles are in degrees.</p>
 <p>On the Nodes tab, all tabs must be filled out.  ID numbers must be unique.
-Colors should be an integer corresponding to the Ideas color map.  The
+Colors should be selected from the dropdown list in the Excel template.  The
 position of the node is specified using the X Location, Y Location, Z
 Location columns.  Each node has a displacement coordinate system in which
 its position is defined, and a a definition coordinate system in which
@@ -188,23 +185,23 @@ its displacements are defined.  These columns should consist of integers
 corresponding to ID numbers from the Coordinate Systems tab.</p>
 <p>On the Elements tab, elements connecting nodes are defined.  The ID
 column must consist of unique integer identifiers.  The Color tab should
-be specified as an integer corresponding to the Ideas color map.  The
-type can be a string (hex, quad, tet, tri, beam, etc.) or an integer
-consisting of a universal file format element type.  If the type column
+be selected from the dropdown list.  The type can be selected from the dropdown list.
+If the type column
 is empty, an element type based on the number of connections given will
 be used. Defult element types for connection length of 2 is “Type 21 - Linear Beam”,
 for a connection length of 3 is “Type 41 - Plane Stress Linear Triangle”,
-and for a connection length of 4 is “Type 44 - Plane Stress Linear Quadrilateral”
-The columns Node 1 through Node 20 contain the nodes in each element.  Only the required
+and for a connection length of 4 is “Type 44 - Plane Stress Linear Quadrilateral”.
+The columns Node 1 through Node 4 contain the nodes in each element.  Only the required
 number of nodes must be filled out (e.g. a tri element would only contain
 3 nodes, so only columns Node 1, Node 2, and Node 3 would be filled).</p>
 <p>On the Trace Lines tab, lines connecting the nodes are defined.  The
 ID column must consist of unique integer identifiers.  The Description
-column contains a string description of the line.  The Color column
-should consist of an integer corresponding to the Ideas color map.  The
-Node 1 through Node 20 columns should contain the nodes for each line.
+column contains a string description of the line.  The Color should be
+selected from the dropdown list.  The
+Node 1 through Node 5 columns should contain the nodes for each line.
 Only the number of nodes in the line must be filled out, so if a line
-only connects 5 nodes, only Node 1 though Node 5 must be filled.</p>
+only connects 5 nodes, only Node 1 though Node 5 must be filled. More columns can
+can be added for additional Nodes if longer tracelines are needed.</p>
 </dd></dl>
 
 </section>
@@ -220,7 +217,7 @@ only connects 5 nodes, only Node 1 though Node 5 must be filled.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7efefe49b190>
+<jinja2.runtime.BlockReference object at 0x7f1d4c823010>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>
