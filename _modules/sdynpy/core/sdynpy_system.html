@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.18.6 documentation</title>
+  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.19.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -115,7 +115,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">from_nodelist</span><span class="p">,</span> <span class="n">outer_product</span><span class="p">,</span> <span class="n">coordinate_array</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_beam</span><span class="w"> </span><span class="kn">import</span> <span class="n">beamkm</span><span class="p">,</span> <span class="n">rect_beam_props</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_exodus</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exodus</span><span class="p">,</span> <span class="n">ExodusInMemory</span><span class="p">,</span> <span class="n">reduce_exodus_to_surfaces</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_exodus</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exodus</span><span class="p">,</span> <span class="n">ExodusInMemory</span><span class="p">,</span> <span class="n">reduce_exodus_to_surfaces</span><span class="p">,</span> <span class="n">read_sierra_matlab_matrix_file</span><span class="p">,</span> <span class="n">read_sierra_matlab_map_file</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">frf</span> <span class="k">as</span> <span class="n">spfrf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">generator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">eigh</span><span class="p">,</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">null_space</span><span class="p">,</span> <span class="n">eig</span>
@@ -1448,6 +1448,47 @@
         <span class="n">system</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">Mr</span><span class="p">,</span> <span class="n">Kr</span><span class="p">,</span> <span class="n">Cr</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">system</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">boundary_dofs</span></div>
 
+<div class="viewcode-block" id="System.from_sierra_sd_mfile_output"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.from_sierra_sd_mfile_output">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sierra_sd_mfile_output</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">maa_file</span><span class="p">,</span> <span class="n">kaa_file</span><span class="p">,</span> <span class="n">gid_file</span><span class="p">,</span> <span class="n">aset_map_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a System object from the MFILE, MAA, and KAA outputs from</span>
+<span class="sd">        Sierra/SD</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maa_file : str</span>
+<span class="sd">            Path to the file containing the MAA matrix.</span>
+<span class="sd">        kaa_file : str</span>
+<span class="sd">            Path to the file containing the KAA matrix.</span>
+<span class="sd">        gid_file : str</span>
+<span class="sd">            Path to the file contiaining the global node id map</span>
+<span class="sd">        aset_map_file : str</span>
+<span class="sd">            Path to the A-set Map.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        system : System</span>
+<span class="sd">            A system object with the specified matrices and degrees of freedom.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">read_sierra_matlab_matrix_file</span><span class="p">(</span><span class="n">maa_file</span><span class="p">)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">read_sierra_matlab_matrix_file</span><span class="p">(</span><span class="n">kaa_file</span><span class="p">)</span>
+        <span class="n">gid</span> <span class="o">=</span> <span class="n">read_sierra_matlab_map_file</span><span class="p">(</span><span class="n">gid_file</span><span class="p">)</span>
+        <span class="n">asetmap</span> <span class="o">=</span> <span class="n">read_sierra_matlab_map_file</span><span class="p">(</span><span class="n">aset_map_file</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span>
+        <span class="n">valid_dofs</span> <span class="o">=</span> <span class="n">asetmap</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># Check if any of the acoustic, temperature, or voltage are defined</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_dofs</span><span class="p">[:,</span><span class="o">-</span><span class="mi">3</span><span class="p">:]):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Sierra system contains acoustic, temperature, or voltage degrees of freedom.  These will be ignored by SDynPy.&#39;</span><span class="p">)</span>
+        <span class="n">valid_dofs</span> <span class="o">=</span> <span class="n">valid_dofs</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">asetmap</span> <span class="o">=</span> <span class="n">asetmap</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">gid</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])[</span><span class="n">valid_dofs</span><span class="p">]</span>
+        <span class="n">dof_ordering</span> <span class="o">=</span> <span class="n">asetmap</span><span class="p">[</span><span class="n">valid_dofs</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="n">dof_ordering</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">dof_ordering</span><span class="p">]</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">dof_ordering</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">dof_ordering</span><span class="p">]</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">system</span></div>
+
+
 <div class="viewcode-block" id="System.simulate_test"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.simulate_test">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_test</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>  <span class="c1"># The system itself</span>
             <span class="n">bandwidth</span><span class="p">,</span>
@@ -1629,7 +1670,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f112c4976d0>
+<jinja2.runtime.BlockReference object at 0x7f596e18df90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>
