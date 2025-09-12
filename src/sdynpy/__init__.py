@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod
 from .fileio import unv, uff, rattlesnake, vic, tshaker, pdf3D, escdf
-from .fem.sdynpy_exodus import Exodus, ExodusInMemory
+from .fem.sdynpy_exodus import Exodus, ExodusInMemory, read_sierra_matlab_map_file, read_sierra_matlab_matrix_file
 from .fem import sdynpy_beam as beam
 from .fem import sdynpy_shaker as shaker
 from .fem import sdynpy_dof as dof

@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 from .sdynpy_coordinate import CoordinateArray, from_nodelist, outer_product, coordinate_array
 from ..fem.sdynpy_beam import beamkm, rect_beam_props
-from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces
+from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces, read_sierra_matlab_matrix_file, read_sierra_matlab_map_file
 from ..signal_processing import frf as spfrf
 from ..signal_processing import generator
 from scipy.linalg import eigh, block_diag, null_space, eig
@@ -1360,6 +1360,47 @@ class System:
             geometry = Geometry.from_exodus(exo)
         system = cls(coordinates, Mr, Kr, Cr, transformation)
         return system, geometry, boundary_dofs
+
+    @classmethod
+    def from_sierra_sd_mfile_output(cls, maa_file, kaa_file, gid_file, aset_map_file):
+        """
+        Generates a System object from the MFILE, MAA, and KAA outputs from
+        Sierra/SD
+
+        Parameters
+        ----------
+        maa_file : str
+            Path to the file containing the MAA matrix.
+        kaa_file : str
+            Path to the file containing the KAA matrix.
+        gid_file : str
+            Path to the file contiaining the global node id map
+        aset_map_file : str
+            Path to the A-set Map.
+
+        Returns
+        -------
+        system : System
+            A system object with the specified matrices and degrees of freedom.
+
+        """
+        M = read_sierra_matlab_matrix_file(maa_file)
+        K = read_sierra_matlab_matrix_file(kaa_file)
+        gid = read_sierra_matlab_map_file(gid_file)
+        asetmap = read_sierra_matlab_map_file(aset_map_file).reshape(-1,9)
+        valid_dofs = asetmap != -1
+        # Check if any of the acoustic, temperature, or voltage are defined
+        if np.any(valid_dofs[:,-3:]):
+            warnings.warn('Sierra system contains acoustic, temperature, or voltage degrees of freedom.  These will be ignored by SDynPy.')
+        valid_dofs = valid_dofs[:,:-3]
+        asetmap = asetmap[:,:-3]
+        coordinates = coordinate_array(gid[:,np.newaxis],[1,2,3,4,5,6])[valid_dofs]
+        dof_ordering = asetmap[valid_dofs]-1
+        M = M[dof_ordering[:,np.newaxis],dof_ordering]
+        K = K[dof_ordering[:,np.newaxis],dof_ordering]
+        system = cls(coordinates,M,K)
+        return system
+
 
     def simulate_test(
             self,  # The system itself

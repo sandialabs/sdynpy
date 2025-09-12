@@ -2710,7 +2710,8 @@ class TimeHistoryArray(NDDataArray):
     def rms(self):
         return np.sqrt(np.mean(self.ordinate**2, axis=-1))
 
-    def to_rattlesnake_specification(self, filename, coordinate_order=None,
+    def to_rattlesnake_specification(self, filename=None, 
+                                     coordinate_order=None,
                                      min_time=None,
                                      max_time=None):
         if coordinate_order is not None:
@@ -2725,9 +2726,12 @@ class TimeHistoryArray(NDDataArray):
             if max_time is None:
                 max_time = np.inf
             reshaped_data = reshaped_data.extract_elements_by_abscissa(min_time, max_time)
-        np.savez(filename,
-                 t=reshaped_data[0].abscissa - reshaped_data[0].abscissa[0],
-                 signal=reshaped_data.ordinate)
+        out_dict = dict(t=reshaped_data[0].abscissa - reshaped_data[0].abscissa[0],
+                        signal=reshaped_data.ordinate,
+                        coordinate=reshaped_data.coordinate.view(np.ndarray))
+        if filename is not None:
+            np.savez(filename, **out_dict)
+        return out_dict
 
     def find_signal_shift(self, other_signal,
                           compute_subsample_shift=True,
@@ -5156,7 +5160,8 @@ class PowerSpectralDensityArray(NDDataArray):
             reshaped_data = reshaped_data.extract_elements_by_abscissa(min_frequency, max_frequency)
         out_dict = dict(
             f=reshaped_data[0, 0].abscissa,
-            cpsd=np.moveaxis(reshaped_data.ordinate, -1, 0))
+            cpsd=np.moveaxis(reshaped_data.ordinate, -1, 0),
+            coordinate=coordinate_array.view(np.ndarray))
         if upper_warning_db is not None:
             out_dict['warning_upper'] = np.einsum('ijj->ij', out_dict['cpsd']*db2scale(upper_warning_db)**2).real
         if lower_warning_db is not None:
