@@ -3628,6 +3628,183 @@ class Geometry:
         QApplication.processEvents()
         return plotter, face_mesh, point_mesh, solid_mesh
 
+    def plot_actors(self, node_size: int = 5, line_width: int = 1, opacity=1.0, view_up=None, view_from=None, plotter=None,
+             show_edges=False, color=None, **kwargs):
+        """
+        Plots the geometry in an interactive 3D window and returns actors.
+
+        Parameters
+        ----------
+        node_size : int, optional
+            Size to display the nodes in pixels.  Set to 0 to not display nodes.
+            The default is 5.
+        line_width : int, optional
+            Width to display tracelines and element edges in pixels.  Set to 0
+            to not show tracelines or edges.  The default is 1.
+        opacity : float, optional
+            A float between 0 and 1 to specify the transparency of the geometry.
+            Set to 1 for completely opaque, and 0 for completely transparent
+            (invisible).  The default is 1.0, no transparency.
+        view_up : np.ndarray, optional
+            Set the "up" direction in the plot by passing in a size-3 numpy
+            array.  The default is None.
+        view_from : np.ndarray, optional
+            Specify the direction from which the geometry is viewed.  The
+            default is None.
+        plotter : BackgroundPlotter, optional
+            A plotter can be specified to plot the geometry in an existing
+            plot.  The default is None, which creates a new window and plot.
+        show_edges : bool, optional
+            Specify whether or not to draw edges on elements. The default is False.
+        color : str or 3-element sequence, optional
+            Color to use for the geometry. If specified, it overrides the individual
+            element/node colors. The default is None.
+        **kwargs : dict, optional
+            Additional keyword arguments to pass to PyVista's `add_mesh` function.
+
+        Raises
+        ------
+        KeyError
+            If referenced id numbers are not found in the corresponding object,
+            for example if a traceline references node 11 but there is no node
+            11 in the NodeArray
+        ValueError
+            If an invalid or unknown element type is used
+
+        Returns
+        ------
+        plotter : BackgroundPlotter
+            A reference to the plotter object that the geometry was plotted in
+        face_mesh_actor : pyvista.Actor
+            A reference to the actor for surface elements.
+        point_mesh_actor : pyvista.Actor
+            A reference to the actor for nodes and tracelines.
+        solid_mesh_actor : pyvista.Actor
+            A reference to the actor for volume elements.
+
+        """
+        if IGNORE_PLOTS:
+            return None, None, None, None
+        # Get part information
+        nodes = self.node.flatten()
+        css = self.coordinate_system.flatten()
+        elems = self.element.flatten()
+        tls = self.traceline.flatten()
+
+        coordinate_system = CoordinateSystemArray(nodes.shape)
+        for key, node in nodes.ndenumerate():
+            coordinate_system[key] = css[np.where(self.coordinate_system.id == node.def_cs)]
+        global_node_positions = global_coord(coordinate_system, nodes.coordinate)
+        node_index_dict = {node.id[()]: index[0] for index, node in nodes.ndenumerate()}
+        node_index_map = np.vectorize(node_index_dict.__getitem__)
+
+        # Now go through and get the element and line connectivity
+        face_element_connectivity = []
+        face_element_colors = []
+        solid_element_connectivity = []
+        solid_element_colors = []
+        solid_element_types = []
+        node_colors = []
+        line_connectivity = []
+        line_colors = []
+        for index, node in nodes.ndenumerate():
+            node_colors.append(node.color)
+        for index, element in elems.ndenumerate():
+            if element.type in _beam_elem_types:
+                line_connectivity.append(len(element.connectivity))
+                try:
+                    line_connectivity.extend(node_index_map(element.connectivity))
+                except KeyError:
+                    raise KeyError(f'Element {element.id} contains a node id not found in the node array')
+                line_colors.append(element.color)
+            elif element.type in _face_element_types:
+                face_element_connectivity.append(len(element.connectivity))
+                try:
+                    face_element_connectivity.extend(node_index_map(element.connectivity))
+                except KeyError:
+                    raise KeyError(f'Element {element.id} contains a node id not found in the node array')
+                face_element_colors.append(element.color)
+            elif element.type in _solid_element_types:
+                try:
+                    solid_element_types.append(_vtk_element_map[element.type])
+                except KeyError:
+                    raise ValueError(f'Do not know equivalent VTK element type for {element.type}: {_element_types[element.type]}')
+                solid_element_connectivity.append(len(element.connectivity))
+                try:
+                    if solid_element_types[-1] in _vtk_connectivity_reorder:
+                        solid_element_connectivity.extend(node_index_map(
+                            element.connectivity[..., _vtk_connectivity_reorder[solid_element_types[-1]]]))
+                    else:
+                        solid_element_connectivity.extend(node_index_map(element.connectivity))
+                except KeyError:
+                    raise KeyError(f'Element {element.id} contains a node id not found in the node array')
+                solid_element_colors.append(element.color)
+            else:
+                raise ValueError(f'Unknown element type {element.type}')
+
+        for index, tl in tls.ndenumerate():
+            for conn_group in split_list(tl.connectivity, 0):
+                if len(conn_group) == 0:
+                    continue
+                line_connectivity.append(len(conn_group))
+                try:
+                    line_connectivity.extend(node_index_map(conn_group))
+                except KeyError:
+                    raise KeyError(f'Traceline {tl.id} contains a node id not found in the node array')
+                line_colors.append(tl.color)
+
+        if plotter is None:
+            plotter = GeometryPlotter(editor=False)
+
+        face_mesh_actor = None
+        if len(face_element_connectivity) > 0 or len(line_connectivity) > 0:
+            poly_data = pv.PolyData(global_node_positions,
+                                    faces=face_element_connectivity if face_element_connectivity else None,
+                                    lines=line_connectivity if line_connectivity else None)
+            poly_data.cell_data['color'] = line_colors + face_element_colors
+            
+            mesh_kwargs = {'show_edges': show_edges, 'show_scalar_bar': False, 'line_width': line_width, 'opacity': opacity, **kwargs}
+            if color is None:
+                face_mesh_actor = plotter.add_mesh(poly_data, scalars='color', cmap=colormap, clim=[0, 15], **mesh_kwargs)
+            else:
+                face_mesh_actor = plotter.add_mesh(poly_data, color=color, **mesh_kwargs)
+
+        solid_mesh_actor = None
+        if len(solid_element_connectivity) > 0:
+            unstructured_grid = pv.UnstructuredGrid(np.array(solid_element_connectivity),
+                                                    np.array(solid_element_types, dtype='uint8'),
+                                                    np.array(global_node_positions))
+            unstructured_grid.cell_data['color'] = solid_element_colors
+            
+            mesh_kwargs = {'show_edges': show_edges, 'show_scalar_bar': False, 'line_width': line_width, 'opacity': opacity, **kwargs}
+            if color is None:
+                solid_mesh_actor = plotter.add_mesh(unstructured_grid, scalars='color', cmap=colormap, clim=[0, 15], **mesh_kwargs)
+            else:
+                solid_mesh_actor = plotter.add_mesh(unstructured_grid, color=color, **mesh_kwargs)
+
+        point_mesh_actor = None
+        if node_size > 0:
+            poly_data = pv.PolyData(global_node_positions)
+            poly_data.point_data['color'] = node_colors
+            
+            mesh_kwargs = {'show_scalar_bar': False, 'point_size': node_size, 'opacity': opacity, **kwargs}
+            if color is None:
+                point_mesh_actor = plotter.add_mesh(poly_data, scalars='color', cmap=colormap, clim=[0, 15], render_points_as_spheres=True, **mesh_kwargs)
+            else:
+                point_mesh_actor = plotter.add_mesh(poly_data, color=color, render_points_as_spheres=True, **mesh_kwargs)
+
+        if view_from is not None:
+            focus = plotter.camera.focal_point
+            distance = plotter.camera.distance
+            plotter.camera.position = np.array(focus) + distance * np.array(view_from) / np.linalg.norm(view_from)
+            plotter.camera.focal_point = focus
+        if view_up is not None:
+            plotter.camera.up = view_up
+        plotter.show()
+        plotter.render()
+        QApplication.processEvents()
+        return plotter, face_mesh_actor, point_mesh_actor, solid_mesh_actor
+
     def plot_coordinate(self, coordinates: CoordinateArray = None,
                         arrow_scale=0.1,
                         arrow_scale_type='bbox', label_dofs=False,

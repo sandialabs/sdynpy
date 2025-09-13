@@ -41,6 +41,7 @@ from PIL import Image
 
 from .sdynpy_geometry import GeometryPlotter, global_coord, global_deflection
 from .sdynpy_shape import ShapeCommentTable
+from .sdynpy_colors import color_list
 
 
 class MultipleShapePlotter(GeometryPlotter):
@@ -120,14 +121,19 @@ class MultipleShapePlotter(GeometryPlotter):
         self.point_mesh_deformed_list = []
         self.solid_mesh_deformed_list = []
 
+        # Assign colors automatically if not provided
+        for i, plot_kwargs in enumerate(self.plot_kwargs_list):
+            if 'color' not in plot_kwargs:
+                plot_kwargs['color'] = color_list[i % len(color_list)]
+
         for geometry, plot_kwargs in zip(self.geometries, self.plot_kwargs_list):
-            _, face_mesh_u, point_mesh_u, solid_mesh_u = geometry.plot(
+            _, face_mesh_u, point_mesh_u, solid_mesh_u = geometry.plot_actors(
                 plotter=self, opacity=undeformed_opacity, **plot_kwargs)
             self.face_mesh_undeformed_list.append(face_mesh_u)
             self.point_mesh_undeformed_list.append(point_mesh_u)
             self.solid_mesh_undeformed_list.append(solid_mesh_u)
 
-            _, face_mesh_d, point_mesh_d, solid_mesh_d = geometry.plot(
+            _, face_mesh_d, point_mesh_d, solid_mesh_d = geometry.plot_actors(
                 plotter=self, opacity=deformed_opacity, **plot_kwargs)
             self.face_mesh_deformed_list.append(face_mesh_d)
             self.point_mesh_deformed_list.append(point_mesh_d)
@@ -239,9 +245,9 @@ class MultipleShapePlotter(GeometryPlotter):
                     (self.point_mesh_deformed_list[i], self.point_mesh_undeformed_list[i]),
                     (self.solid_mesh_deformed_list[i], self.solid_mesh_undeformed_list[i])
             ):
-                if mesh_deformed is not None:
-                    mesh_deformed.points = (mesh_undeformed.points +
-                                            deformation * self.displacement_scale * self.displacement_scale_modification)
+                if mesh_deformed is not None and mesh_undeformed is not None:
+                    mesh_deformed.mapper.dataset.points = (mesh_undeformed.mapper.dataset.points +
+                                                            deformation * self.displacement_scale * self.displacement_scale_modification)
         self.render()
 
     def update_shape(self):
