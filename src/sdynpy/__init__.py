@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod
+from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod,geometries
 from .fileio import unv, uff, rattlesnake, vic, tshaker
 from .fem.sdynpy_exodus import Exodus, ExodusInMemory
 from .fem import sdynpy_beam as beam

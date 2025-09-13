@@ -48,7 +48,7 @@ setup(
         "matplotlib",
         "npTDMS",
         "qtpy",
-        "PyQt5",
+        #"PyQt5",
         "pyqtgraph",
         "netCDF4",
         "pandas",

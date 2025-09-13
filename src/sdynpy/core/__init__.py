@@ -24,3 +24,4 @@ from . import sdynpy_data as data
 from . import sdynpy_array as array
 from . import sdynpy_system as system
 from . import sdynpy_matrix as matrix_mod
+from . import sdynpy_geometries as geometries
