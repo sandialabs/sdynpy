@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod
+from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod, system_nl
 from .fileio import unv, uff, rattlesnake, vic, tshaker, pdf3D, escdf
 from .fem.sdynpy_exodus import Exodus, ExodusInMemory, read_sierra_matlab_map_file, read_sierra_matlab_matrix_file
 from .fem import sdynpy_beam as beam
@@ -59,6 +59,8 @@ MultipleCoherenceArray = data.MultipleCoherenceArray
 power_spectral_density_array = data.power_spectral_density_array
 PowerSpectralDensityArray = data.PowerSpectralDensityArray
 spectrum_array = data.spectrum_array
+ShockResponseSpectrumArray = data.ShockResponseSpectrumArray
+shock_response_spectrum_array = data.shock_response_spectrum_array
 SpectrumArray = data.SpectrumArray
 GUIPlot = data.GUIPlot
 CPSDPlot = data.CPSDPlot
@@ -67,3 +69,4 @@ System = system.System
 matrix_plot = correlation.matrix_plot
 Matrix = matrix_mod.Matrix
 matrix = matrix_mod.matrix
+SystemNL = system_nl.SystemNL

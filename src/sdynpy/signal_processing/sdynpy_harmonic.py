@@ -272,7 +272,7 @@ def digital_tracking_filter_generator(
             
 def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
                        bandwidth = None, method = None, return_amp_phs = False,
-                       return_envelope = False, return_r = False,):
+                       return_envelope = False, return_r = False, verbose=False):
     """
     Extract sinusoidal components from a signal using the second generation
     Vold-Kalman filter.
@@ -319,6 +319,8 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
     return_r : bool
         Returns the computed selectivity parameters for the filter.  Default is
         False
+    verbose : bool
+        Prints progress throughout the calculation if True, default is False.
 
     Raises
     ------
@@ -347,12 +349,16 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
         components solved for.  Only returned if return_r is True.
 
     """
+    if verbose:
+        print('Parsing Arguments')
     if filter_order is None:
         filter_order = 2
     
     if bandwidth is None:
         bandwidth = sample_rate/1000
     
+    if verbose:
+        print('Ensuring Correct Array Sizes')
     # Make sure input data are numpy arrays
     signal = np.array(signal)
     arguments = np.atleast_2d(arguments)
@@ -377,9 +383,13 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
     if method.lower() not in ['multi','single']:
         raise ValueError('`method` must be either "multi" or "single"')
     
+    if verbose:
+        print('Constructing Phasors')
     # Construct phasors to multiply the signals by
     phasor = np.exp(1j*arguments)
     
+    if verbose:
+        print('Constructing Solution Matrices')
     # Construct the matrices for the least squares solution
     if filter_order == 1:
         coefs = np.array([1,-1])
@@ -408,6 +418,8 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
         B.append((AR).T@(AR) + sparse.eye(n_samples))
     
     if method.lower() == 'multi':
+        if verbose:
+            print('Setting up "multi"')
         # This solves the multiple order approach, constructing a big matrix of
         # Bs on the diagonal and CHCs on the off-diagonals.  We can set up the
         # matrix as diagonals and upper diagonals then add the transpose to get the
@@ -445,10 +457,15 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
         # We also need to construct the right hand side of the equation.  This
         # should be a multiplication of the phasor^H with the signal
         RHS = phasor.flatten().conj()*np.tile(signal,n_orders_arg)
-    
+        if verbose:
+            print('Solving "multi"')
         x_multi = linalg.spsolve(B_multi,RHS[:,np.newaxis])
         x = 2*x_multi.reshape(n_orders_arg,-1) # Multiply by 2 to account for missing negative frequency components
+        if verbose:
+            print('Done!')
     else:
+        if verbose:
+            print('Setting up "single"')
         # This solves the single order approach.  If the user has put in multiple
         # orders, it will solve them all independently instead of combining them
         # into a single larger solve.
@@ -458,8 +475,14 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
             # right side of the equation, which is the phasor hermetian
             # times the signal elementwise-multiplied
             RHS = phasor_i.conj()*signal
+            if verbose:
+                print(f'Solving "single" {i+1}')
             x[i] = 2*linalg.spsolve(B_i,RHS)
+        if verbose:
+            print("Done!")
     
+    if verbose:
+        print('Constructing Return Values')
     return_value = [np.real(x*phasor)]
     if return_amp_phs:
         return_value.extend([np.abs(x),np.angle(x)])
@@ -474,9 +497,8 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
     
 def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
                                  filter_order = None,
-                                 bandwidth = None, method = None,
-                                 yield_amp_phs = False,
-                                 yield_envelope = False, plot_results = False):
+                                 bandwidth = None, method = None, plot_results = False,
+                                 verbose=False):
     """
     Extracts sinusoidal information using a Vold-Kalman Filter
     
@@ -493,6 +515,9 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
         The number of orders that will be found in the signal
     block_size : int
         The size of the blocks used in the analysis.
+    overlap : float, optional
+        Fraction of the block size to overlap when computing the results.  If
+        not specified, it will default to 0.15.
     filter_order : int, optional
         The order of the VK filter, which should be 1, 2, or 3. The default is
         2.  The low-pass filter roll-off is approximately -40 dB per times the
@@ -509,9 +534,6 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
         frequencies of the sine waves cross.  The 'multi' solution will solve
         for all sinusoidal components simultaneously, resulting in a better
         estimate of crossing frequencies. The default is 'multi'.
-    overlap : float, optional
-        Fraction of the block size to overlap when computing the results.  If
-        not specified, it will default to 0.15.
     plot_results : bool
         If True, will plot the data at multiple steps for diagnostics
 
@@ -559,7 +581,8 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
         fig,ax = plt.subplots(num_orders+1,3)
         signal_index = 0
         analysis_index = 0
-    print('Startup')
+    if verbose:
+        print('Startup')
     previous_envelope = None
     reconstructed_signals = None
     reconstructed_amplitudes = None
@@ -570,17 +593,23 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
     end_window = window[overlap_samples:]
     buffer = CircularBufferWithOverlap(3*block_size, block_size, overlap_samples, data_shape=(num_orders+1,))
     first_output = True
+    last_signal = False
     while True:
-        print('Before Yield')
-        xi,argsi,last_signal = yield reconstructed_signals,reconstructed_amplitudes, reconstructed_phases
+        if verbose:
+            print('Before Yield')
+        xi,argsi,check_last_signal = yield reconstructed_signals,reconstructed_amplitudes, reconstructed_phases
+        if last_signal and check_last_signal:
+            raise ValueError('Generator has been exhausted')
+        last_signal = check_last_signal
         argsi = np.atleast_2d(argsi)
         if plot_results:
             timesteps_signal = np.arange(signal_index, signal_index + xi.shape[-1])/sample_rate
             ax[0,0].plot(timesteps_signal,xi,'k')
             signal_index += xi.shape[-1]
-        print('After Yield')
+        if verbose:
+            print('After Yield')
         buffer_data = np.concatenate([xi[np.newaxis],argsi])
-        buffer_output = buffer.write_get_data(buffer_data)
+        buffer_output = buffer.write_get_data(buffer_data, last_signal)
         if buffer_output is not None:
             if first_output:
                 buffer_output = buffer_output[...,overlap_samples:]
@@ -600,7 +629,7 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
             # Do the VK Filtering
             vk_signal, vk_envelope, vk_phasor = vold_kalman_filter(
                 sample_rate, signal, arguments, filter_order,
-                bandwidth, method, return_envelope=True)
+                bandwidth, method, return_envelope=True, verbose = verbose)
             if plot_results:
                 for vks,vke,a in zip(vk_signal,vk_envelope,ax[1:]):
                     a[0].plot(timesteps_analysis,vks.copy())
@@ -609,17 +638,27 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
             # If necessary, do the overlap
             if previous_envelope is not None:
                 vk_envelope[...,:overlap_samples] = vk_envelope[...,:overlap_samples] + previous_envelope[...,-overlap_samples:]
-            reconstructed_signals = np.real(vk_envelope[...,:-overlap_samples]*vk_phasor[...,:-overlap_samples])
-            reconstructed_amplitudes = np.abs(vk_envelope[...,:-overlap_samples])
-            reconstructed_phases = np.angle(vk_envelope[...,:-overlap_samples])
-            if plot_results:
-                for vks,vka,vkp,a in zip(reconstructed_signals,reconstructed_amplitudes,reconstructed_phases,ax[1:]):
-                    a[0].plot(timesteps_analysis[:-overlap_samples],vks,'k')
-                    a[1].plot(timesteps_analysis[:-overlap_samples],vka,'k')
-                    a[2].plot(timesteps_analysis[:-overlap_samples],vkp,'k')
+            if not last_signal:
+                reconstructed_signals = np.real(vk_envelope[...,:-overlap_samples]*vk_phasor[...,:-overlap_samples])
+                reconstructed_amplitudes = np.abs(vk_envelope[...,:-overlap_samples])
+                reconstructed_phases = np.angle(vk_envelope[...,:-overlap_samples])
+                if plot_results:
+                    for vks,vka,vkp,a in zip(reconstructed_signals,reconstructed_amplitudes,reconstructed_phases,ax[1:]):
+                        a[0].plot(timesteps_analysis[:-overlap_samples],vks,'k')
+                        a[1].plot(timesteps_analysis[:-overlap_samples],vka,'k')
+                        a[2].plot(timesteps_analysis[:-overlap_samples],vkp,'k')
+            else:
+                reconstructed_signals = np.real(vk_envelope*vk_phasor)
+                reconstructed_amplitudes = np.abs(vk_envelope)
+                reconstructed_phases = np.angle(vk_envelope)
+                if plot_results:
+                    for vks,vka,vkp,a in zip(reconstructed_signals,reconstructed_amplitudes,reconstructed_phases,ax[1:]):
+                        a[0].plot(timesteps_analysis,vks,'k')
+                        a[1].plot(timesteps_analysis,vka,'k')
+                        a[2].plot(timesteps_analysis,vkp,'k')
             previous_envelope = vk_envelope
         else:
-            outputs = None
+            reconstructed_signals = reconstructed_amplitudes = reconstructed_phases = None
         
         
         

@@ -398,6 +398,7 @@ def sum_decayed_sines(sample_rate, block_size,
                       scale_factor=1.02,
                       acceleration_factor=1.0,
                       plot_results=False, srs_frequencies=None,
+                      ignore_compensation_pulse = False,
                       verbose=False
                       ):
     """
@@ -519,6 +520,8 @@ def sum_decayed_sines(sample_rate, block_size,
     srs_frequencies : np.ndarray, optional
         If specified, these frequencies will be used to compute the SRS that
         will be plotted when the `plot_results` value is `True`.
+    ignore_compensation_pulse : bool, optional
+        If True, the compensation pulse will be ignored.
     verbose : True, optional
         If True, additional diagnostics will be printed to the console.
 
@@ -636,7 +639,7 @@ def sum_decayed_sines(sample_rate, block_size,
          sine_frequencies, sine_amplitudes, sine_decays, sine_delays,
          scale_factor*required_srs, compensation_frequency, compensation_decay,
          sample_rate, block_size, srs_damping, srs_type, number_of_iterations,
-         convergence, error_tolerance, verbose)
+         convergence, error_tolerance, ignore_compensation_pulse, verbose)
 
     all_frequencies = np.concatenate((used_frequencies,
                                       [used_comp_frequency]))
@@ -697,7 +700,8 @@ def _sum_decayed_sines(sine_frequencies, sine_amplitudes,
                        sample_rate, block_size,
                        srs_damping, srs_type,
                        number_of_iterations=3, convergence=0.8,
-                       error_tolerance=0.05, verbose=False):
+                       error_tolerance=0.05, ignore_compensation_pulse = False,
+                       verbose=False):
     """
     Optimizes the amplitudes of sums of decayed sines
 
@@ -742,6 +746,8 @@ def _sum_decayed_sines(sine_frequencies, sine_amplitudes,
         The fraction of the error corrected each iteration. The default is 0.8.
     error_tolerance : float, optional
         Allowable relative error in the SRS. The default is 0.05.
+    ignore_compensation_pulse : bool, optional
+        If True, ignores the compensation pulse.  Default is false.
     verbose : bool, optional
         If True, information on the interations will be provided. The default
         is False.
@@ -777,12 +783,13 @@ def _sum_decayed_sines(sine_frequencies, sine_amplitudes,
                 required_srs, compensation_frequency, compensation_decay,
                 sample_rate, block_size, srs_damping, srs_type,
                 number_of_iterations=10, convergence=convergence,
-                error_tolerance=error_tolerance, verbose=verbose))
+                error_tolerance=error_tolerance, ignore_compensation_pulse=ignore_compensation_pulse,
+                verbose=verbose))
         # get the SRS error at each frequency term by first computing the signal
         (this_signal, this_compensation_frequency, this_compensation_amplitude,
          this_compensation_decay, this_compensation_delay) = sum_decayed_sines_reconstruction_with_compensation(
             sine_frequencies, this_sine_amplitudes, sine_decays, sine_delays,
-            compensation_frequency, compensation_decay, sample_rate, block_size)
+            compensation_frequency, compensation_decay, sample_rate, block_size, ignore_compensation_pulse=ignore_compensation_pulse)
         # Then computing the SRS of the signal
         this_srs = srs(this_signal, 1/sample_rate, sine_frequencies, srs_damping,
                        srs_type)[0]
@@ -816,6 +823,7 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
                                         damping_srs, srs_type,
                                         number_of_iterations=10, convergence=0.8,
                                         error_tolerance=0.05,
+                                        ignore_compensation_pulse=False,
                                         verbose=False):
     """
     Iterates on amplitudes of decayed sine waves to match a prescribed SRS
@@ -862,6 +870,8 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
         The fraction of the error corrected each iteration. The default is 0.8.
     error_tolerance : float, optional
         Allowable relative error in the SRS. The default is 0.05.
+    ignore_compensation_pulse : bool, optional
+        If True, do not use a compensation pulse.  Default is false.
     verbose : bool, optional
         If True, information on the interations will be provided. The default
         is False.
@@ -917,8 +927,12 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
             this_pulse = sum_decayed_sines_reconstruction(
                 frequency, amplitude, decay, delay, sample_rate, block_size)
             # Get the compensating pulse
-            compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
-                sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+            if not ignore_compensation_pulse:
+                compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
+                    sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+            else:
+                compensation_amplitude = 0
+                compensation_delay = 0
             # Find the number of samples to shift the waveform
             num_shift = -int(np.floor(compensation_delay*sample_rate))
             if abs(num_shift) >= block_size:
@@ -968,8 +982,12 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
                 this_pulse = sum_decayed_sines_reconstruction(
                     frequency, new_amplitude, decay, delay, sample_rate, block_size)
                 # Get the compensating pulse
-                compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
-                    sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+                if not ignore_compensation_pulse:
+                    compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
+                        sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+                else:
+                    compensation_amplitude = 0
+                    compensation_delay = 0
                 # Find the number of samples to shift the waveform
                 num_shift = -int(np.floor(compensation_delay*sample_rate))
                 if abs(num_shift) >= block_size:
@@ -1023,8 +1041,12 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
                     this_pulse = sum_decayed_sines_reconstruction(
                         frequency, amplitude, decay, delay, sample_rate, block_size)
                     # Get the compensating pulse
-                    compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
-                        sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+                    if not ignore_compensation_pulse:
+                        compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
+                            sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+                    else:
+                        compensation_amplitude = 0
+                        compensation_delay = 0
                     # Find the number of samples to shift the waveform
                     num_shift = -int(np.floor(compensation_delay*sample_rate))
                     if abs(num_shift) >= block_size:
@@ -1072,8 +1094,12 @@ def _sum_decayed_sines_single_iteration(sine_frequencies, sine_amplitudes,
                 if iteration_count > number_of_iterations:
                     print('  Warning: SRS did not converge for frequency {:}: {:0.4f}'.format(i, frequency))
                     break
-    compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
-        sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+    if not ignore_compensation_pulse:
+        compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
+            sine_frequencies, sine_amplitudes, sine_decays, sine_delays, compensation_frequency, compensation_decay)
+    else:
+        compensation_amplitude = 0
+        compensation_delay = 0
     return sine_amplitudes, compensation_amplitude, compensation_delay
 
 
@@ -1136,7 +1162,7 @@ def sum_decayed_sines_reconstruction(sine_frequencies, sine_amplitudes,
 def sum_decayed_sines_reconstruction_with_compensation(
         sine_frequencies, sine_amplitudes,
         sine_decays, sine_delays, compensation_frequency, compensation_decay,
-        sample_rate, block_size):
+        sample_rate, block_size, ignore_compensation_pulse = False):
     """
 
 
@@ -1158,6 +1184,8 @@ def sum_decayed_sines_reconstruction_with_compensation(
         The sample rate of the signal
     block_size : int
         The number of samples in the signal
+    ignore_compensation_pulse : bool, optional
+        If True, ignores the compensation pulse
 
     Returns
     -------
@@ -1176,9 +1204,13 @@ def sum_decayed_sines_reconstruction_with_compensation(
     sine_amplitudes = np.array(sine_amplitudes).flatten()
     sine_delays = np.array(sine_delays).flatten()
     sine_decays = np.array(sine_decays).flatten()
-    compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
-        sine_frequencies, sine_amplitudes, sine_decays, sine_delays,
-        compensation_frequency, compensation_decay)
+    if not ignore_compensation_pulse:
+        compensation_amplitude, compensation_delay = sum_decayed_sines_compensating_pulse_parameters(
+            sine_frequencies, sine_amplitudes, sine_decays, sine_delays,
+            compensation_frequency, compensation_decay)
+    else:
+        compensation_amplitude = 0
+        compensation_delay = 0
     sine_frequencies = np.concatenate((sine_frequencies, [compensation_frequency]))
     sine_amplitudes = np.concatenate((sine_amplitudes, [compensation_amplitude]))
     sine_delays = np.concatenate((sine_delays, [compensation_delay]))

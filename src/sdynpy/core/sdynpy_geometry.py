@@ -155,29 +155,56 @@ _element_types = {
     231: 'Axisymetric linear rigid surface',
     232: 'Axisymentric parabolic rigid surface'}
 
-_exodus_elem_type_map = {'hex8': 115,
-                         'tet4': 111,
-                         'quad4': 64,
-                         'tri3': 61,
-                         'shell4': 64,
-                         'shell3': 61,
-                         'bar2': 21,
-                         'truss2': 21,
-                         'bar': 21,
-                         'shell8': 65,
-                         'hex20': 116,
-                         'tetra10': 118,
-                         'hex': 115,
-                         'beam': 21,
-                         'rod':21, # 21 : 'Linear beam',
-                         'truss':21, # 21 : 'Linear beam',
-                         'tri':41, # 41 : 'Plane Stress Linear Triangle',
-                         'triangle':41, # 41 : 'Plane Stress Linear Triangle',
-                         'quad':44, # 44 : 'Plane Stress Linear Quadrilateral',
-                         'quadrilateral':44, # 44 : 'Plane Stress Linear Quadrilateral',
+_exodus_elem_type_map = {'triangle':41,
+                         'quadrilateral':44,
                          'hexahedral':115,
                          'tet':111,
                          'tetrahedral':111,
+                         'sphere':161,
+                         'spring':136,
+                         'bar':21,
+                         'bar2':21,
+                         'bar3':23,
+                         'beam':21,
+                         'beam2':21,
+                         'beam3':23,
+                         'truss':21,
+                         'truss2':21,
+                         'truss3':23,
+                         'quad':94,
+                         'quad4':94,
+                         'quad5':94,
+                         'quad8':95,
+                         'quad9':95,
+                         'shell':94,
+                         'shell4':94,
+                         'shell8':95,
+                         'shell9':95,
+                         'tri':91,
+                         'tri3':91,
+                         'tri6':92,
+                         'tri7':92,
+                         'trishell':91,
+                         'trishell3':91,
+                         'trishell6':92,
+                         'trishell7':92,
+                         'hex':115,
+                         'hex8':115,
+                         'hex9':116,
+                         'hex20':116,
+                         'hex27':117,
+                         'tetra':111,
+                         'tetra4':111,
+                         'tetra8':118,
+                         'tetra10':118,
+                         'tetra14':118,
+                         'wedge':112,
+                         'hexshell':116,
+                         # 'pyramid'
+                         # 'pyramid5'
+                         # 'pyramid8'
+                         # 'pyramid13'
+                         # 'pyramid18'
                          # Add new elements here
                          }
 
@@ -4341,10 +4368,11 @@ class Geometry:
         coordinates : CoordinateArray, optional
             Coordinates to draw on the geometry.  If no coordinates are specified,
             all translation degrees of freedom at each node will be plotted.
-        arrow_scale : float, optional
+        arrow_scale : float | np.ndarray, optional
             Size of the arrows in proportion to the length of the diagonal of
             the bounding box of the Geometry if `arrow_scale_type` is 'bbox',
-            otherwise the raw length of the arrow.  The default is 0.1.
+            otherwise the raw length of the arrow. If an ndarray is provided, 
+            it should match the shape of `coordinates`. The default is 0.1.
         arrow_scale_type : str, optional
             Specifies how to compute the size of the arrows.  If 'bbox', then
             the arrow is scaled based on the size of the geometry.  Otherwise,
@@ -4390,7 +4418,7 @@ class Geometry:
         if coordinates is None:
             coordinates = from_nodelist(self.node.id)
 
-        def build_coord_mesh(coordinates, geom):
+        def build_coord_mesh(coordinates, geom, scale_factors=None):
             nodes = coordinates.node
             indices = np.in1d(coordinates.node, geom.node.id)
             coordinates = coordinates[indices]
@@ -4405,68 +4433,86 @@ class Geometry:
             coord_mesh.point_data['Coordinates'] = global_deflections
             coord_mesh.point_data['Direction'] = abs(coordinates.direction)
             coord_mesh.point_data['Node ID'] = nodes
+            if scale_factors is not None:
+                coord_mesh.point_data['Scale'] = scale_factors
             return coord_mesh, points, global_deflections
 
         coordinates = coordinates.flatten()
+
+        if isinstance(arrow_scale, int | float):
+            scale = False
+            arrow_scale_array = np.ones(len(coordinates))
+            global_arrow_scale = arrow_scale
+        elif isinstance(arrow_scale, np.ndarray):
+            scale = 'Scale'
+            arrow_scale_array = arrow_scale
+            global_arrow_scale = 1
 
         if arrow_scale_type == 'bbox':
             node_coords = self.global_node_coordinate()
             bbox_diagonal = np.linalg.norm(
                 np.max(node_coords, axis=0) - np.min(node_coords, axis=0))
-            arrow_factor = bbox_diagonal * arrow_scale
+            arrow_factor = bbox_diagonal * global_arrow_scale
         else:
-            arrow_factor = arrow_scale
+            arrow_factor = global_arrow_scale
 
         # Create Straight Arrows and Labels
         coordinates_straight = coordinates[np.abs(coordinates.direction) < 4]
-
+        if arrow_scale_array is not None:
+            straight_scaling = arrow_scale_array[np.abs(coordinates.direction) < 4]
+        else:
+            straight_scaling = None
         if coordinates_straight.size:
             if plot_individual_items:
                 for coordinate_straight in coordinates_straight:
                     [coord_mesh_straight, points_straight, global_deflections_straight] = build_coord_mesh(
-                        coordinate_straight[np.newaxis], self)
+                        coordinate_straight[np.newaxis], self, straight_scaling)
         
                     if arrow_ends_on_node:
                         arrow_start = (-1.0, 0.0, 0.0)
                     else:
                         arrow_start = (0.0, 0.0, 0.0)
                     coord_arrows_stright = coord_mesh_straight.glyph(
-                        orient='Coordinates', scale=False, factor=arrow_factor, geom=pv.Arrow(start=arrow_start))
+                        orient='Coordinates', scale=scale, factor=arrow_factor, geom=pv.Arrow(start=arrow_start))
                     color = ((1.0,0.0,0.0) if abs(coordinate_straight.direction) == 1 else
                              (0.0,1.0,0.0) if abs(coordinate_straight.direction) == 2 else
                              (0.0,0.0,1.0))
                     plotter.add_mesh(coord_arrows_stright, color = color, show_scalar_bar=False)
             else:
                 [coord_mesh_straight, points_straight, global_deflections_straight] = build_coord_mesh(
-                    coordinates_straight, self)
+                    coordinates_straight, self, straight_scaling)
     
                 if arrow_ends_on_node:
                     arrow_start = (-1.0, 0.0, 0.0)
                 else:
                     arrow_start = (0.0, 0.0, 0.0)
                 coord_arrows_stright = coord_mesh_straight.glyph(
-                    orient='Coordinates', scale=False, factor=arrow_factor, geom=pv.Arrow(start=arrow_start))
+                    orient='Coordinates', scale=scale, factor=arrow_factor, geom=pv.Arrow(start=arrow_start))
                 plotter.add_mesh(coord_arrows_stright, scalars='Direction',
                                  cmap=coord_colormap, clim=[1, 6], show_scalar_bar=False)
 
             if label_dofs:
                 if arrow_ends_on_node:
                     dof_label_mesh = pv.PolyData(
-                        points_straight - global_deflections_straight * arrow_factor)
+                        points_straight - global_deflections_straight * arrow_factor * straight_scaling[:,np.newaxis])
                 else:
                     dof_label_mesh = pv.PolyData(
-                        points_straight + global_deflections_straight * arrow_factor)
+                        points_straight + global_deflections_straight * arrow_factor * straight_scaling[:,np.newaxis])
                 dof_label_mesh['DOF'] = [val for val in coordinates_straight.string_array()]
                 plotter.add_point_labels(dof_label_mesh, 'DOF', tolerance=0.0, shape=None,
                                          show_points=False, always_visible=True, font_size=label_font_size)
 
         # Create Rotational Arrows and Labels
         coordinates_rotation = coordinates[np.abs(coordinates.direction) > 3]
+        if arrow_scale_array is not None:
+            rotation_scaling = arrow_scale_array[np.abs(coordinates.direction) > 3]
+        else:
+            rotation_scaling = None
         if coordinates_rotation.size:
             if plot_individual_items:
                 for coordinate_rotation in coordinates_rotation:
                     [coord_mesh_rotation, points_rotation, global_deflections_rotation] = build_coord_mesh(
-                        coordinate_rotation[np.newaxis], self)
+                        coordinate_rotation[np.newaxis], self, rotation_scaling)
         
                     arrow_index = np.arange(4)
                     head_location_angles = 1 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
@@ -4487,14 +4533,14 @@ class Geometry:
         
                     curved_arrow = pv.merge([arc, cone])
                     coord_arrows_rotation = coord_mesh_rotation.glyph(
-                        orient='Coordinates', scale=False, factor=arrow_factor, geom=curved_arrow)
+                        orient='Coordinates', scale=scale, factor=arrow_factor, geom=curved_arrow)
                     color = ((1.0,0.0,0.0) if abs(coordinate_straight.direction) == 1 else
                              (0.0,1.0,0.0) if abs(coordinate_straight.direction) == 2 else
                              (0.0,0.0,1.0))
                     plotter.add_mesh(coord_arrows_rotation, color=color, show_scalar_bar=False)
             else:
                 [coord_mesh_rotation, points_rotation, global_deflections_rotation] = build_coord_mesh(
-                    coordinates_rotation, self)
+                    coordinates_rotation, self, rotation_scaling)
     
                 arrow_index = np.arange(4)
                 head_location_angles = 1 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
@@ -4515,7 +4561,7 @@ class Geometry:
     
                 curved_arrow = pv.merge([arc, cone])
                 coord_arrows_rotation = coord_mesh_rotation.glyph(
-                    orient='Coordinates', scale=False, factor=arrow_factor, geom=curved_arrow)
+                    orient='Coordinates', scale=scale, factor=arrow_factor, geom=curved_arrow)
                 # Make Colors of Rotations same as Straight
                 coord_arrows_rotation['Direction'] = coord_arrows_rotation['Direction'] - 3
     
@@ -4540,7 +4586,7 @@ class Geometry:
                     coordinate_systems, local_deformations_new, points)
 
                 dof_label_mesh = pv.PolyData(
-                    points_rotation + global_deflections_rotation_new * arrow_factor)
+                    points_rotation + global_deflections_rotation_new * arrow_factor * rotation_scaling[:,np.newaxis])
 
                 dof_label_mesh['DOF'] = [val for val in coordinates_rotation.string_array()]
                 plotter.add_point_labels(dof_label_mesh, 'DOF', tolerance=0.0, shape=None,

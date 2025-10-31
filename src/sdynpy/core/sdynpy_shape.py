@@ -349,7 +349,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         Parameters
         ----------
         exo : Exodus or ExodusInMemory
-            The exodus data from which geometry will be created.
+            The exodus data from which shapes will be created.
         x_disp : str, optional
             String denoting the nodal variable in the exodus file from which
             the X-direction displacement should be read. The default is 'DispX'.

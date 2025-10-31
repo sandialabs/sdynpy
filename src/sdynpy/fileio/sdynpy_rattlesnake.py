@@ -597,3 +597,91 @@ def create_synthetic_test(spreadsheet_file_name: str,
     worksheet.cell(6, 2, 1)
     worksheet.cell(7, 2, integration_oversample)
     workbook.save(spreadsheet_file_name)
+
+def read_sine_control_data(control_file, 
+                           read_quantities = 'control_response_signals_combined',
+                           excitation_dofs = None, control_dofs = None):
+    concatenated_keys = ['control_response_signals_combined',
+                         'control_response_amplitudes',
+                         'control_response_phases',
+                         'control_drive_modifications']
+    unconcatenated_keys = ['control_response_frequencies',
+                           'control_response_arguments',
+                           'control_target_phases',
+                           'control_target_amplitudes']
+    dimension_labels = {}
+    dimension_labels['control_response_signals_combined'] = ('response','timestep')
+    dimension_labels['control_response_amplitudes'] = ('tone','response','timestep')
+    dimension_labels['control_response_phases'] = ('tone','response','timestep')
+    dimension_labels['control_drive_modifications'] = ('tone','excitation','block_num')
+    dimension_labels['achieved_excitation_signals_combined'] = ('excitation','timestep')
+    dimension_labels['achieved_excitation_signals'] = ('tone','excitation','timestep')
+    dimension_labels['control_response_frequencies'] = ('tone','timestep')
+    dimension_labels['control_response_arguments'] = ('tone','timestep')
+    dimension_labels['control_target_amplitudes'] = ('tone','response','timestep')
+    dimension_labels['control_target_phases'] = ('tone','response','timestep')
+    if isinstance(control_file,str):
+        control_file = np.load(control_file)
+    sample_rate = control_file['sample_rate']
+    if isinstance(read_quantities,str):
+        read_quantities = [read_quantities]
+        return_single = True
+    else:
+        return_single = False
+    return_data = []
+    for read_quantity in read_quantities:
+        try:
+            dimension_label = dimension_labels[read_quantity]
+        except KeyError:
+            raise ValueError(f'{read_quantity} is not a valid quantity to read.  read_quantity must be one of {concatenated_keys+unconcatenated_keys}.')
+        # Extract the data and concatenate if necessary
+        if read_quantity in concatenated_keys:
+            data = []
+            for key in control_file:
+                if read_quantity == '_'.join(key.split("_")[:-1]):
+                    this_data = control_file[key]
+                    while this_data.ndim < len(dimension_label):
+                        this_data = this_data[...,np.newaxis]
+                    data.append(this_data)
+            data = np.concatenate(data,axis=-1)
+        elif read_quantity in unconcatenated_keys:
+            data = control_file[read_quantity]
+        else:
+            raise ValueError(f'{read_quantity} is not a valid quantity to read.  read_quantity must be one of {concatenated_keys+unconcatenated_keys}.')
+        # Set up the abscissa
+        if dimension_label[-1] == 'timestep':
+            abscissa = np.arange(data.shape[-1])/sample_rate
+        elif dimension_label[-1] == 'block_num':
+            abscissa = np.arange(data.shape[-1])
+        else:
+            raise ValueError(f"{dimension_label[-1]} is an invalid entry.  How did you get here?")
+        # Set up degrees of freedom
+        if dimension_label[-2] == 'response':
+            if control_dofs is None:
+                dofs = coordinate_array(np.arange(data.shape[-2])+1,0)
+            else:
+                dofs = control_dofs
+        elif dimension_label[-2] == 'excitation':
+            if excitation_dofs is None:
+                dofs = coordinate_array(np.arange(data.shape[-2])+1,0)
+            else:
+                dofs = excitation_dofs
+        elif dimension_label[-2] == 'tone':
+            dofs = coordinate_array(np.arange(data.shape[-2])+1,0)
+        else:
+            raise ValueError(f"{dimension_label[-2]} is an invalid entry.  How did you get here?")
+        if any([dimension == 'tone' for dimension in dimension_label]):
+            comment1 = control_file['names'].reshape(*[-1 if dimension == 'tone' else 1 for dimension in dimension_label][:-1])
+        else:
+            comment1 = ''
+        # Construct the TimeHistoryArray
+        return_data.append(data_array(FunctionTypes.TIME_RESPONSE,
+                                      abscissa,
+                                      data,
+                                      dofs,
+                                      comment1
+                                      ))
+    if return_single:
+        return_data = return_data[0]
+    return return_data
+        
