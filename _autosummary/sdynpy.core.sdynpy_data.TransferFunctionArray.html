@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.TransferFunctionArray &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.TransferFunctionArray &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -111,12 +111,14 @@
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.__init__"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.__init__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.apply_transformation"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.apply_transformation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.block_diagonal_frf()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_cmif"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.compute_cmif()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mif"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.compute_mif()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mmif"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.compute_mmif()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_nmif"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.compute_nmif()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.delay_response"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.delay_response()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.enforce_causality"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.enforce_causality()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.from_exodus()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.from_time_data"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.from_time_data()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.function_type"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.function_type</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.ifft"><code class="docutils literal notranslate"><span class="pre">TransferFunctionArray.ifft()</span></code></a></li>
@@ -138,6 +140,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_nonlinear_system.html">sdynpy.core.sdynpy_nonlinear_system</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
 </ul>
@@ -205,23 +208,29 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.apply_transformation" title="sdynpy.core.sdynpy_data.TransferFunctionArray.apply_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_transformation</span></code></a>([...])</p></td>
 <td><p>Applies reference and response transformations to the transfer functions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_cmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_cmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cmif</span></code></a>([part, tracking])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf" title="sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_diagonal_frf</span></code></a>(component_frfs[, ...])</p></td>
+<td><p>Assembles a block diagonal FRF TransferFunctionArray from the supplied FRFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_cmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_cmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cmif</span></code></a>([part, tracking])</p></td>
 <td><p>Computes a complex mode indicator function from the TransferFunctionArray</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mif</span></code></a>(mif_type, *mif_args, **mif_kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mif</span></code></a>(mif_type, *mif_args, **mif_kwargs)</p></td>
 <td><p>Compute a mode indicator functions from the transfer functions</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mmif</span></code></a>([part, mass_matrix])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_mmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mmif</span></code></a>([part, mass_matrix])</p></td>
 <td><p>Computes a Multi Mode indicator function from the TransferFunctionArray</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_nmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_nmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_nmif</span></code></a>([part])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.compute_nmif" title="sdynpy.core.sdynpy_data.TransferFunctionArray.compute_nmif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_nmif</span></code></a>([part])</p></td>
 <td><p>Computes a normal mode indicator function from the TransferFunctionArray</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.delay_response" title="sdynpy.core.sdynpy_data.TransferFunctionArray.delay_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delay_response</span></code></a>(dt)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.delay_response" title="sdynpy.core.sdynpy_data.TransferFunctionArray.delay_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delay_response</span></code></a>(dt)</p></td>
 <td><p>Adjusts the FRF phases as if the response had been shifted <cite>dt</cite> in time</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.enforce_causality" title="sdynpy.core.sdynpy_data.TransferFunctionArray.enforce_causality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enforce_causality</span></code></a>([method, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.enforce_causality" title="sdynpy.core.sdynpy_data.TransferFunctionArray.enforce_causality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enforce_causality</span></code></a>([method, ...])</p></td>
 <td><p>Enforces causality on the frequency response function via a conversion to a impulse response function, applying a cutoff window, then converting back to a frequency response function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus" title="sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus</span></code></a>(exo[, reference_coordinate, ...])</p></td>
+<td><p>Reads FRF data from a Sierra/SD ModalFRF Exodus file</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.from_time_data" title="sdynpy.core.sdynpy_data.TransferFunctionArray.from_time_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_time_data</span></code></a>(reference_data, response_data)</p></td>
 <td><p>Computes a transfer function from reference and response time histories</p></td>
@@ -245,7 +254,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_constraint_matrix" title="sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_constraint_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_constraint_matrix</span></code></a>(dofs, ...)</p></td>
-<td><p>Performs frequency based substructuring using the</p></td>
+<td><p>Performs frequency based substructuring using the supplied constraint matrix with accompanying dof list.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_coordinate" title="sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_coordinate</span></code></a>(dof_pairs)</p></td>
 <td><p>Performs frequency based substructuring by constraining pairs of degrees of freedom</p></td>
@@ -323,6 +332,39 @@ and Earthquake Engineering, Kos Island, 2013, pp. 4334-4347,
 doi: 10.7712/120113.4816.C1539.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">block_diagonal_frf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_frfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_node_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TransferFunctionArray.block_diagonal_frf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf" title="Permalink to this definition"></a></dt>
+<dd><p>Assembles a block diagonal FRF TransferFunctionArray from the supplied
+FRFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component_frfs</strong> (<em>iterable</em><em> of </em><em>TransferFunctionArrays</em>) – A set of FRFs to be assembled into a block diagonal FRF matrix.</p></li>
+<li><p><strong>coordinate_node_offset</strong> (<em>int</em><em>, </em><em>optional</em>) – An offset that is applied to the nodes in the supplied FRFs. The
+default is zero, meaning that an offset is not applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the objects in component FRFs are not TransferFunctionArrays.</p></li>
+<li><p><strong>ValueError</strong> – If the TransferFunctionArrays do not share the same abscissa.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The FRFs organized in block diagonal format.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray">TransferFunctionArray</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The coordinate_node_offset is incremented for each system. For example,
+if the first set of FRFs has nodes [1,2,3,4], the second set of FRFs
+has nodes [3,4,5,6], and the supplied offset is 10, the node numbers in
+the returned block diagonal FRFs would be [11,12,13,14,23,24,25,26].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -515,6 +557,39 @@ most logical choice.</p>
 <dt class="label" id="id2"><span class="brackets">1</span></dt>
 <dd><p>Zvonkin, M. (2015). Methods for checking and enforcing physical quality of linear electrical network models
 [Masters Theses, Missouri University of Science and Technology], Missouri S&amp;T Scholars’ Mine, <a class="reference external" href="https://scholarsmine.mst.edu/masters_theses/7490/">https://scholarsmine.mst.edu/masters_theses/7490/</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_exodus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_coordinate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xvali</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ImagDispX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yvali</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ImagDispY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DispZ'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zvali</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ImagDispZ'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TransferFunctionArray.from_exodus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus" title="Permalink to this definition"></a></dt>
+<dd><p>Reads FRF data from a Sierra/SD ModalFRF Exodus file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exo</strong> (<a class="reference internal" href="sdynpy.fem.sdynpy_exodus.Exodus.html#sdynpy.fem.sdynpy_exodus.Exodus" title="sdynpy.fem.sdynpy_exodus.Exodus"><em>Exodus</em></a><em> or </em><a class="reference internal" href="sdynpy.fem.sdynpy_exodus.ExodusInMemory.html#sdynpy.fem.sdynpy_exodus.ExodusInMemory" title="sdynpy.fem.sdynpy_exodus.ExodusInMemory"><em>ExodusInMemory</em></a>) – The exodus data from which FRF data will be created.</p></li>
+<li><p><strong>reference_coord</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – The coordinate to be assigned as the reference coordinate,
+by default 0</p></li>
+<li><p><strong>xval</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the real part of the
+X value, by default ‘DispX’</p></li>
+<li><p><strong>xvali</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the imaginary part of the
+X value, by default ‘ImagDispX’</p></li>
+<li><p><strong>yval</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the real part of the
+Y value, by default ‘DispY’</p></li>
+<li><p><strong>yvali</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the imaginary part of the
+Y value, by default ‘ImagDispY’</p></li>
+<li><p><strong>zval</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the real part of the
+Z value, by default ‘DispZ’</p></li>
+<li><p><strong>zvali</strong> (<em>str</em><em>, </em><em>optional</em>) – The variable name representing the imaginary part of the
+Z value, by default ‘ImagDispZ’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FRF data from the exodus file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray">TransferFunctionArray</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -730,12 +805,14 @@ purposes only.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_constraint_matrix">
 <span class="sig-name descname"><span class="pre">substructure_by_constraint_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dofs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TransferFunctionArray.substructure_by_constraint_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_constraint_matrix" title="Permalink to this definition"></a></dt>
-<dd><p>Performs frequency based substructuring using the</p>
+<dd><p>Performs frequency based substructuring using the supplied constraint
+matrix with accompanying dof list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dofs</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Coordinates to use in the constraints</p></li>
-<li><p><strong>constraint_matrix</strong> (<em>np.ndarray</em>) – Constraints to apply to the frequency response functions</p></li>
+<li><p><strong>dofs</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – Coordinates to use in the constraints.</p></li>
+<li><p><strong>constraint_matrix</strong> (<em>np.ndarray</em>) – Constraints to apply to the frequency response functions. Should be sized
+[number of constraints, number of dofs].</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -759,10 +836,10 @@ of freedom</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>dof_pairs</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em> or </em><em>None</em>) – Pairs of coordinates to constrain together.  To constain a coordinate
 to ground (i.e. fix it so it cannot move), the coordinate should be
-paired with None.</p>
+paired with None. This should be size [number of constraints, 2].</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Constrained frequency response functions</p>
+<dd class="field-even"><p>Constrained frequency response functions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray">TransferFunctionArray</a></p>
@@ -813,7 +890,7 @@ Only returned when compute_uv is True.</p></li>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596e69c990>
+<jinja2.runtime.BlockReference object at 0x7f6cacdeced0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

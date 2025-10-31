@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -134,9 +134,14 @@
     <span class="n">pseudorandom</span><span class="p">,</span> <span class="n">sine</span><span class="p">,</span> <span class="n">ramp_envelope</span><span class="p">,</span> <span class="n">chirp</span><span class="p">,</span> <span class="n">pulse</span><span class="p">,</span> <span class="n">sine_sweep</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_frf_inverse</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">frf_inverse</span><span class="p">,</span>
                                                     <span class="n">compute_tikhonov_modified_singular_values</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_harmonic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">digital_tracking_filter</span> <span class="k">as</span> <span class="n">dtf</span><span class="p">,</span>
+    <span class="n">vold_kalman_filter</span> <span class="k">as</span> <span class="n">vkf</span><span class="p">,</span>
+    <span class="n">vold_kalman_filter_generator</span> <span class="k">as</span> <span class="n">vkf_gen</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_exodus</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exodus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">eigh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -2182,6 +2187,145 @@
         <span class="k">return</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">SPECTRUM</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">ordinate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="TimeHistoryArray.zefft"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.zefft">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">zefft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">abscissa_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">closest_zero_crossing</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a FFTs from time histories with early times zeroed out</span>
+
+<span class="sd">        This computes an FFT time history with the first portion of</span>
+<span class="sd">        the original time history zeroed out.  This is useful</span>
+<span class="sd">        for analyzing ring-downs of nonlinear systems to</span>
+<span class="sd">        identify how the system changes over time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_steps : int, optional</span>
+<span class="sd">            The number of different levels of zeroing to</span>
+<span class="sd">            compute for each signal, by default 10</span>
+<span class="sd">        abscissa_range : iterable, optional</span>
+<span class="sd">            A length-2 iterable defining the earliest and</span>
+<span class="sd">            latest abscissa to use as a time to zero data until,</span>
+<span class="sd">            by default, it will spread `num_steps` zero locations</span>
+<span class="sd">            over the entire time signal.</span>
+<span class="sd">        closest_zero_crossing : bool, optional</span>
+<span class="sd">            If True, zeroing will start at a zero crossing in a</span>
+<span class="sd">            signal that is closest to the specified zero time.</span>
+<span class="sd">            Otherwise, the zeroing will start exactly</span>
+<span class="sd">            where specified, by default True</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SpectrumArray</span>
+<span class="sd">            A SpectrumArray with an additional dimension for the</span>
+<span class="sd">            `num_steps` specified.  These are outputs of the</span>
+<span class="sd">            `zero_early_time` method with the `fft` method</span>
+<span class="sd">            subsequently applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_early_time</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,</span><span class="n">abscissa_range</span><span class="p">,</span>
+                               <span class="n">closest_zero_crossing</span><span class="p">)</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span></div>
+                               
+
+<div class="viewcode-block" id="TimeHistoryArray.zero_early_time"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">zero_early_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">abscissa_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">closest_zero_crossing</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a time histories with early times zeroed out</span>
+
+<span class="sd">        This computes a time history with the first portion of</span>
+<span class="sd">        the original time history zeroed out.  This is useful</span>
+<span class="sd">        for analyzing ring-downs of nonlinear systems to</span>
+<span class="sd">        identify how the system changes over time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_steps : int, optional</span>
+<span class="sd">            The number of different levels of zeroing to</span>
+<span class="sd">            compute for each signal, by default 10</span>
+<span class="sd">        abscissa_range : iterable, optional</span>
+<span class="sd">            A length-2 iterable defining the earliest and</span>
+<span class="sd">            latest abscissa to use as a time to zero data until,</span>
+<span class="sd">            by default, it will spread `num_steps` zero locations</span>
+<span class="sd">            over the entire time signal.</span>
+<span class="sd">        closest_zero_crossing : bool, optional</span>
+<span class="sd">            If True, zeroing will start at a zero crossing in a</span>
+<span class="sd">            signal that is closest to the specified zero time.</span>
+<span class="sd">            Otherwise, the zeroing will start exactly</span>
+<span class="sd">            where specified, by default True</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TimeHistoryArray</span>
+<span class="sd">            A TimeHistoryArray with an additional dimension for the</span>
+<span class="sd">            `num_steps` specified.  Each of the `num_steps` set of</span>
+<span class="sd">            signals has a different initial zero point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="p">,[</span><span class="n">num_steps</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">closest_zero_crossing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">abscissa_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">step_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="o">//</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span>
+                <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span><span class="o">*</span><span class="n">step_size</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">abscissa_start_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="o">-</span><span class="n">abscissa_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">abscissa_end_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="o">-</span><span class="n">abscissa_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">step_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">abscissa_end_index</span> <span class="o">-</span> <span class="n">abscissa_start_index</span><span class="p">)</span><span class="o">//</span><span class="p">(</span><span class="n">num_steps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span><span class="o">*</span><span class="n">step_size</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">abscissa_start_index</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">zero_crossing_indices</span><span class="p">,</span> <span class="n">zero_crossing_abscissa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_zero_crossings</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">zero_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">abscissa_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">step_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="o">//</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span>
+                <span class="n">desired_zero_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_steps</span><span class="p">)</span><span class="o">*</span><span class="n">step_size</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">zero_crossings</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">zero_crossing_indices</span><span class="p">):</span>
+                    <span class="n">closest_zero_crossing_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">desired_index</span><span class="o">-</span><span class="n">zero_crossings</span><span class="p">))</span> <span class="k">for</span> <span class="n">desired_index</span> <span class="ow">in</span> <span class="n">desired_zero_indices</span><span class="p">]</span>
+                    <span class="n">zero_indices</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_crossings</span><span class="p">[</span><span class="n">closest_zero_crossing_indices</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">desired_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">abscissa_range</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">zero_abscissa</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">(</span><span class="n">zero_crossing_abscissa</span><span class="p">):</span>
+                    <span class="n">closest_zero_crossing_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">desired_abs</span><span class="o">-</span><span class="n">zero_abscissa</span><span class="p">))</span> <span class="k">for</span> <span class="n">desired_abs</span> <span class="ow">in</span> <span class="n">desired_abscissa</span><span class="p">]</span>
+                    <span class="n">zero_indices</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_crossing_indices</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">closest_zero_crossing_indices</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">step_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">signal_index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+                <span class="n">zero_index</span> <span class="o">=</span> <span class="n">zero_indices</span><span class="p">[</span><span class="n">signal_index</span><span class="o">+</span><span class="p">(</span><span class="n">step_index</span><span class="p">,)]</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[(</span><span class="n">step_index</span><span class="p">,)</span><span class="o">+</span><span class="n">signal_index</span><span class="o">+</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="n">zero_index</span><span class="o">+</span><span class="mi">1</span><span class="p">),)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="TimeHistoryArray.find_zero_crossings"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">find_zero_crossings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">return_abscissa</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_start</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finds zero crossings in the time history</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        return_abscissa : bool, optional</span>
+<span class="sd">            If True, returns abscissa values associated with the</span>
+<span class="sd">            zero crossing.  By default it is False.</span>
+<span class="sd">        include_start : bool, optional</span>
+<span class="sd">            If True, returns the first index as a zero crossing,</span>
+<span class="sd">            default is False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sign_changes_array : np.ndarray</span>
+<span class="sd">            An array of indices into the ordinates of the</span>
+<span class="sd">            function where sine changes occur.</span>
+<span class="sd">        abscissa_array : np.ndarray</span>
+<span class="sd">            An array of the abscissa values of the function</span>
+<span class="sd">            where sine changes occur.  Only returned if</span>
+<span class="sd">            return_abscissa is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sign_changes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="p">),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">include_start</span><span class="p">:</span>
+            <span class="n">sign_changes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">sign_changes_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_abscissa</span><span class="p">:</span>
+            <span class="n">abscissa_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
+            <span class="n">sign_changes_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">sign_changes</span><span class="p">[</span><span class="n">index</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">return_abscissa</span><span class="p">:</span>
+                <span class="n">abscissa_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="n">sign_changes_array</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">return_abscissa</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sign_changes_array</span><span class="p">,</span><span class="n">abscissa_array</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sign_changes_array</span></div>
+
+
 <div class="viewcode-block" id="TimeHistoryArray.cpsd"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cpsd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
              <span class="n">averages_to_keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
              <span class="n">only_asds</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
@@ -2352,6 +2496,98 @@
         <span class="n">return_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">return_val</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">filtered_ordinate</span>
         <span class="k">return</span> <span class="n">return_val</span></div>
+
+<div class="viewcode-block" id="TimeHistoryArray.vold_kalman_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">vold_kalman_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">filter_order</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                           <span class="n">bandwidth</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                           <span class="n">overlap</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># If a blocksize is specified we will use the generator approach.</span>
+        <span class="c1"># If not we will pass the entire thing to the VK filter.</span>
+        <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+        <span class="n">amplitude_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">phase_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span><span class="n">TimeHistoryArray</span><span class="p">):</span>
+            <span class="n">arguments</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="n">ordinate</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">block_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">block_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="p">:</span>
+                <span class="n">sig</span><span class="p">,</span><span class="n">amp</span><span class="p">,</span><span class="n">phs</span> <span class="o">=</span> <span class="n">vkf</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span><span class="n">signal</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span><span class="n">arguments</span><span class="p">,</span>
+                                  <span class="n">filter_order</span><span class="p">,</span><span class="n">bandwidth</span><span class="p">,</span><span class="n">method</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="n">amplitude_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">amp</span><span class="p">)</span>
+                <span class="n">phase_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">generator</span> <span class="o">=</span> <span class="n">vkf_gen</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">block_size</span><span class="p">,</span>
+                                    <span class="n">overlap</span><span class="p">,</span> <span class="n">filter_order</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
+                                    <span class="n">plot_results</span><span class="o">=</span><span class="n">plot_results</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span><span class="p">)</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">sample_index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">signal_amplitude_results</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">signal_phase_results</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">while</span> <span class="n">sample_index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="p">:</span>
+                    <span class="n">block_signal</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="n">sample_index</span><span class="p">:</span><span class="n">sample_index</span><span class="o">+</span><span class="n">block_size</span><span class="p">]</span>
+                    <span class="n">block_arguments</span> <span class="o">=</span> <span class="n">arguments</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">sample_index</span><span class="p">:</span><span class="n">sample_index</span><span class="o">+</span><span class="n">block_size</span><span class="p">]</span>
+                    <span class="n">last_signal</span> <span class="o">=</span> <span class="n">sample_index</span><span class="o">+</span><span class="n">block_size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span>
+                    <span class="n">sig</span><span class="p">,</span><span class="n">amp</span><span class="p">,</span><span class="n">phs</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">((</span><span class="n">block_signal</span><span class="p">,</span><span class="n">block_arguments</span><span class="p">,</span><span class="n">last_signal</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">sig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">signal_amplitude_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">amp</span><span class="p">)</span>
+                        <span class="n">signal_phase_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phs</span><span class="p">)</span>
+                    <span class="n">sample_index</span> <span class="o">+=</span> <span class="n">block_size</span>
+                <span class="n">amplitude_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">signal_amplitude_results</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">phase_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">signal_phase_results</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">final_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="n">arguments</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="p">)</span>
+        <span class="n">amplitude_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">amplitude_results</span><span class="p">,</span><span class="n">final_shape</span><span class="p">)</span>
+        <span class="n">phase_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">phase_results</span><span class="p">,</span><span class="n">final_shape</span><span class="p">)</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span>
+                                        <span class="n">amplitude_results</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)))</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span>
+                                    <span class="n">phase_results</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)))</span>
+        <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span><span class="n">phases</span></div>
+
+
+
+<div class="viewcode-block" id="TimeHistoryArray.digital_tracking_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digital_tracking_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> 
+                                <span class="n">cutoff_frequency_ratio</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span>
+                                <span class="n">filter_order</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">phase_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                <span class="n">amplitude_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                <span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+        <span class="n">amplitude_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">phase_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">TimeHistoryArray</span><span class="p">):</span>
+            <span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">.</span><span class="n">ordinate</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span><span class="n">TimeHistoryArray</span><span class="p">):</span>
+            <span class="n">arguments</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="n">ordinate</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
+            <span class="n">xs</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">ordinate</span>
+            <span class="n">amp</span><span class="p">,</span><span class="n">phs</span> <span class="o">=</span> <span class="n">dtf</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="n">xs</span><span class="p">,</span><span class="n">frequencies</span><span class="p">,</span><span class="n">arguments</span><span class="p">,</span><span class="n">cutoff_frequency_ratio</span><span class="p">,</span>
+                          <span class="n">filter_order</span><span class="p">,</span> <span class="n">phase_estimate</span><span class="p">,</span> <span class="n">amplitude_estimate</span><span class="p">,</span>
+                          <span class="n">block_size</span><span class="p">,</span> <span class="n">plot_results</span><span class="p">)</span>
+            <span class="n">amplitude_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">amp</span><span class="p">)</span>
+            <span class="n">phase_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phs</span><span class="p">)</span>
+        <span class="n">amplitude_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">amplitude_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">phase_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">phase_results</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">,</span><span class="n">amplitude_results</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">,</span><span class="n">phase_results</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">phases</span></div>
+
 
 <div class="viewcode-block" id="TimeHistoryArray.split_into_frames"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.split_into_frames">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">split_into_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">overlap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overlap_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -6503,16 +6739,97 @@
                 <span class="n">frf</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">return</span> <span class="n">frf</span></div>
 
+<div class="viewcode-block" id="TransferFunctionArray.block_diagonal_frf"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray.block_diagonal_frf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">block_diagonal_frf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">component_frfs</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">coordinate_node_offset</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assembles a block diagonal FRF TransferFunctionArray from the supplied</span>
+<span class="sd">        FRFs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_frfs : iterable of TransferFunctionArrays</span>
+<span class="sd">            A set of FRFs to be assembled into a block diagonal FRF matrix.</span>
+<span class="sd">        coordinate_node_offset : int, optional</span>
+<span class="sd">            An offset that is applied to the nodes in the supplied FRFs. The </span>
+<span class="sd">            default is zero, meaning that an offset is not applied.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the objects in component FRFs are not TransferFunctionArrays.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the TransferFunctionArrays do not share the same abscissa.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TransferFunctionArray</span>
+<span class="sd">            The FRFs organized in block diagonal format.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The coordinate_node_offset is incremented for each system. For example, </span>
+<span class="sd">        if the first set of FRFs has nodes [1,2,3,4], the second set of FRFs </span>
+<span class="sd">        has nodes [3,4,5,6], and the supplied offset is 10, the node numbers in </span>
+<span class="sd">        the returned block diagonal FRFs would be [11,12,13,14,23,24,25,26].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">number_references</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">number_responses</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">frfs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">component_frfs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frfs</span><span class="p">,</span> <span class="n">TransferFunctionArray</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The supplied FRFs must be TransferFunctionArrays&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">check_abscissa</span> <span class="o">=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">frfs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">check_abscissa</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The abscissa for the supplied FRFs does not match&#39;</span><span class="p">)</span>
+            <span class="n">number_responses</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">frfs</span><span class="o">.</span><span class="n">response_coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">number_references</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">frfs</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">reference_index_offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">response_index_offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">block_diagonal_frf_ord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_responses</span><span class="p">,</span> <span class="n">number_references</span><span class="p">,</span> <span class="n">check_abscissa</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">reference_coordinate_string</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">response_coordinate_string</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">frfs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">component_frfs</span><span class="p">):</span>
+            <span class="c1"># Ensuring the shape of the FRF matrix</span>
+            <span class="n">frfs</span> <span class="o">=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">reshape_to_matrix</span><span class="p">()</span>
+
+            <span class="c1"># Building the block diagonal FRF matrix</span>
+            <span class="n">response_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">response_index_offset</span><span class="p">,</span> <span class="n">response_index_offset</span><span class="o">+</span><span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reference_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">reference_index_offset</span><span class="p">,</span> <span class="n">reference_index_offset</span><span class="o">+</span><span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">block_diagonal_frf_ord</span><span class="p">[</span><span class="n">response_slice</span><span class="p">,</span> <span class="n">reference_slice</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">ordinate</span>
+
+            <span class="c1"># Building the string array for the FRF coordinates</span>
+            <span class="n">loop_res_coord</span> <span class="o">=</span> <span class="n">frfs</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">response_coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">loop_ref_coord</span> <span class="o">=</span> <span class="n">frfs</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">coordinate_node_offset</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Apply offset the node numbers</span>
+                <span class="n">loop_res_coord</span><span class="o">.</span><span class="n">node</span> <span class="o">+=</span> <span class="n">coordinate_node_offset</span> <span class="o">*</span> <span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">loop_ref_coord</span><span class="o">.</span><span class="n">node</span> <span class="o">+=</span> <span class="n">coordinate_node_offset</span> <span class="o">*</span> <span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">response_coordinate_string</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">loop_res_coord</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span>
+            <span class="n">reference_coordinate_string</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">loop_ref_coord</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span>
+            
+            <span class="c1"># Adding the slicing offset for the block diagonal FRFs</span>
+            <span class="n">response_index_offset</span> <span class="o">+=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">reference_index_offset</span> <span class="o">+=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">response_coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">response_coordinate_string</span><span class="p">)</span>
+        <span class="n">reference_coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">string_array</span><span class="o">=</span><span class="n">reference_coordinate_string</span><span class="p">)</span>
+        <span class="n">block_diagonal_frf_coordinate</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">,</span> <span class="n">reference_coordinate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transfer_function_array</span><span class="p">(</span><span class="n">check_abscissa</span><span class="p">,</span> <span class="n">block_diagonal_frf_ord</span><span class="p">,</span> <span class="n">block_diagonal_frf_coordinate</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="TransferFunctionArray.substructure_by_constraint_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray.substructure_by_constraint_matrix">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">substructure_by_constraint_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dofs</span><span class="p">,</span> <span class="n">constraint_matrix</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Performs frequency based substructuring using the</span>
+<span class="sd">        Performs frequency based substructuring using the supplied constraint</span>
+<span class="sd">        matrix with accompanying dof list. </span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dofs : CoordinateArray</span>
-<span class="sd">            Coordinates to use in the constraints</span>
+<span class="sd">            Coordinates to use in the constraints.</span>
 <span class="sd">        constraint_matrix : np.ndarray</span>
-<span class="sd">            Constraints to apply to the frequency response functions</span>
+<span class="sd">            Constraints to apply to the frequency response functions. Should be sized</span>
+<span class="sd">            [number of constraints, number of dofs].</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -6552,8 +6869,8 @@
                                      <span class="n">reference_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">flip_sign_references</span> <span class="o">*</span> <span class="n">constraint_matrix</span>
         <span class="c1"># Perform the constraint</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">rect_frfs</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">H_constrained</span> <span class="o">=</span> <span class="n">H</span> <span class="o">-</span> <span class="n">H</span> <span class="o">@</span> <span class="n">constraint_matrix_references</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
-            <span class="n">constraint_matrix_responses</span> <span class="o">@</span> <span class="n">H</span> <span class="o">@</span> <span class="n">constraint_matrix_references</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">constraint_matrix_responses</span> <span class="o">@</span> <span class="n">H</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">constraint_matrix_responses</span> <span class="o">@</span> <span class="n">H</span> <span class="o">@</span> <span class="n">constraint_matrix_references</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">H_constrained</span> <span class="o">=</span> <span class="n">H</span> <span class="o">-</span> <span class="n">H</span> <span class="o">@</span> <span class="n">constraint_matrix_references</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">kernel</span> <span class="o">@</span> <span class="n">constraint_matrix_responses</span> <span class="o">@</span> <span class="n">H</span>
         <span class="n">rect_frfs</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">H_constrained</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rect_frfs</span></div>
 
@@ -6567,13 +6884,12 @@
 <span class="sd">        dof_pairs : CoordinateArray or None</span>
 <span class="sd">            Pairs of coordinates to constrain together.  To constain a coordinate</span>
 <span class="sd">            to ground (i.e. fix it so it cannot move), the coordinate should be</span>
-<span class="sd">            paired with None.</span>
+<span class="sd">            paired with None. This should be size [number of constraints, 2].</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        TransferFunctionArray</span>
-<span class="sd">            Constrained frequency response functions</span>
-
+<span class="sd">            Constrained frequency response functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dof_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">constraint_matrix_values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -6596,7 +6912,76 @@
             <span class="n">constraint_matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="c1"># Apply Constraints</span>
         <span class="n">dof_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dof_list</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substructure_by_constraint_matrix</span><span class="p">(</span><span class="n">dof_list</span><span class="p">,</span> <span class="n">constraint_matrix</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substructure_by_constraint_matrix</span><span class="p">(</span><span class="n">dof_list</span><span class="p">,</span> <span class="n">constraint_matrix</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TransferFunctionArray.from_exodus"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_exodus</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">exo</span><span class="p">,</span> <span class="n">reference_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">xval</span> <span class="o">=</span> <span class="s1">&#39;DispX&#39;</span><span class="p">,</span> <span class="n">xvali</span> <span class="o">=</span> <span class="s1">&#39;ImagDispX&#39;</span><span class="p">,</span>
+                    <span class="n">yval</span> <span class="o">=</span> <span class="s1">&#39;DispY&#39;</span><span class="p">,</span> <span class="n">yvali</span> <span class="o">=</span> <span class="s1">&#39;ImagDispY&#39;</span><span class="p">,</span>
+                    <span class="n">zval</span> <span class="o">=</span> <span class="s1">&#39;DispZ&#39;</span><span class="p">,</span> <span class="n">zvali</span> <span class="o">=</span> <span class="s1">&#39;ImagDispZ&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads FRF data from a Sierra/SD ModalFRF Exodus file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        exo : Exodus or ExodusInMemory</span>
+<span class="sd">            The exodus data from which FRF data will be created.</span>
+<span class="sd">        reference_coord : CoordinateArray</span>
+<span class="sd">            The coordinate to be assigned as the reference coordinate,</span>
+<span class="sd">            by default 0</span>
+<span class="sd">        xval : str, optional</span>
+<span class="sd">            The variable name representing the real part of the</span>
+<span class="sd">            X value, by default &#39;DispX&#39;</span>
+<span class="sd">        xvali : str, optional</span>
+<span class="sd">            The variable name representing the imaginary part of the</span>
+<span class="sd">            X value, by default &#39;ImagDispX&#39;</span>
+<span class="sd">        yval : str, optional</span>
+<span class="sd">            The variable name representing the real part of the</span>
+<span class="sd">            Y value, by default &#39;DispY&#39;</span>
+<span class="sd">        yvali : str, optional</span>
+<span class="sd">            The variable name representing the imaginary part of the</span>
+<span class="sd">            Y value, by default &#39;ImagDispY&#39;</span>
+<span class="sd">        zval : str, optional</span>
+<span class="sd">            The variable name representing the real part of the</span>
+<span class="sd">            Z value, by default &#39;DispZ&#39;</span>
+<span class="sd">        zvali : str, optional</span>
+<span class="sd">            The variable name representing the imaginary part of the</span>
+<span class="sd">            Z value, by default &#39;ImagDispZ&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TransferFunctionArray</span>
+<span class="sd">            FRF data from the exodus file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exo</span><span class="p">,</span> <span class="n">Exodus</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">xval</span><span class="p">,</span> <span class="n">xvali</span><span class="p">,</span> <span class="n">yval</span><span class="p">,</span> <span class="n">yvali</span><span class="p">,</span> <span class="n">zval</span><span class="p">,</span> <span class="n">zvali</span><span class="p">]</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">exo</span> <span class="o">=</span> <span class="n">exo</span><span class="o">.</span><span class="n">load_into_memory</span><span class="p">(</span><span class="n">close</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span> <span class="n">timesteps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">node_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+            <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node_num_map</span>
+        <span class="k">if</span> <span class="n">reference_coordinate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reference_coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">real_val</span><span class="p">,</span> <span class="n">imag_val</span><span class="p">,</span><span class="n">coordinate_dir</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">xval</span><span class="p">,</span><span class="n">xvali</span><span class="p">,</span><span class="s1">&#39;X+&#39;</span><span class="p">],</span>
+                                                <span class="p">[</span><span class="n">yval</span><span class="p">,</span><span class="n">yvali</span><span class="p">,</span><span class="s1">&#39;Y+&#39;</span><span class="p">],</span>
+                                                <span class="p">[</span><span class="n">zval</span><span class="p">,</span><span class="n">zvali</span><span class="p">,</span><span class="s1">&#39;Z+&#39;</span><span class="p">]]:</span>
+            <span class="k">if</span> <span class="n">real_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">imag_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">real_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">real_val</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span>
+                <span class="p">)][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">imag_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">exo</span><span class="o">.</span><span class="n">nodal_vars</span> <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">imag_val</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span>
+                <span class="p">)][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">real_data</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">imag_data</span><span class="p">)</span>
+            <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_ids</span><span class="p">,</span><span class="n">coordinate_dir</span><span class="p">))</span>
+            
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
+        <span class="n">reference_coordinates</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">reference_coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference_coordinate</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">reference_coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">transfer_function_array</span><span class="p">(</span><span class="n">exo</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">coordinates</span><span class="p">)</span></div></div>
+
+
 
 <div class="viewcode-block" id="transfer_function_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.transfer_function_array.html#sdynpy.core.sdynpy_data.transfer_function_array">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">transfer_function_array</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span><span class="n">ordinate</span><span class="p">,</span><span class="n">coordinate</span><span class="p">,</span>
                             <span class="n">comment1</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment2</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -7301,6 +7686,7 @@
                           <span class="n">plot_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">srs_frequencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">return_velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_displacement</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="n">return_srs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_sine_table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">ignore_compensation_pulse</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                           <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a Sum of Decayed Sines signal given an SRS.</span>
 
@@ -7425,6 +7811,8 @@
 <span class="sd">            If True, the SRS of the generated signal will also be returned</span>
 <span class="sd">        return_sine_table : bool, optional</span>
 <span class="sd">            If True, a sine table will also be returned</span>
+<span class="sd">        ignore_compensation_pulse : bool, optional</span>
+<span class="sd">            If True, the compensation pulse will not be used.  Default is False.</span>
 <span class="sd">        verbose : True, optional</span>
 <span class="sd">            If True, additional diagnostics will be printed to the console.</span>
 
@@ -7464,7 +7852,27 @@
         <span class="k">if</span> <span class="n">return_sine_table</span><span class="p">:</span>
             <span class="n">sine_table</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="k">if</span> <span class="n">sine_delays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sine_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sine_delays</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sine_delays</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">sine_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">sine_delays</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="n">sine_delays</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sine_decays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sine_decays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sine_decays</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sine_decays</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">sine_decays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">sine_decays</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="n">sine_decays</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">srs_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">sine_delays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">delays</span> <span class="o">=</span> <span class="n">sine_delays</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delays</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">sine_decays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">decays</span> <span class="o">=</span> <span class="n">sine_decays</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">decays</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="k">if</span> <span class="n">sine_frequencies</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sine_tone_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">this_sine_tone_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">srs_fn</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">srs_fn</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
@@ -7478,12 +7886,12 @@
              <span class="o">*</span><span class="n">plot_stuff</span><span class="p">)</span> <span class="o">=</span> <span class="n">sp_sds</span><span class="p">(</span>
                  <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">sine_frequencies</span><span class="p">,</span>
                  <span class="n">this_sine_tone_range</span><span class="p">,</span> <span class="n">sine_tone_per_octave</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span>
-                 <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">srs_breakpoints</span><span class="p">,</span>
+                 <span class="n">decays</span><span class="p">,</span> <span class="n">delays</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">srs_breakpoints</span><span class="p">,</span>
                  <span class="n">srs_damping</span><span class="p">,</span> <span class="n">srs_type</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span>
                  <span class="n">compensation_decay</span><span class="p">,</span> <span class="n">number_of_iterations</span><span class="p">,</span> <span class="n">convergence</span><span class="p">,</span>
                  <span class="n">error_tolerance</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">num_time_constants</span><span class="p">,</span> <span class="n">decay_resolution</span><span class="p">,</span>
                  <span class="n">scale_factor</span><span class="p">,</span> <span class="n">acceleration_factor</span><span class="p">,</span> <span class="n">plot_results</span><span class="p">,</span>
-                 <span class="n">srs_frequencies</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+                 <span class="n">srs_frequencies</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
 
             <span class="n">acceleration</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">acceleration_signal</span>
             <span class="k">if</span> <span class="n">return_displacement</span><span class="p">:</span>
@@ -7659,7 +8067,239 @@
                         <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">abscissa_markers</span><span class="p">,</span><span class="n">marker_y</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">label</span><span class="p">,</span><span class="n">mx</span><span class="p">,</span><span class="n">my</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abscissa_marker_labels</span><span class="p">,</span><span class="n">abscissa_markers</span><span class="p">,</span><span class="n">marker_y</span><span class="p">):</span>
                             <span class="n">axis</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span><span class="n">my</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset pixels&#39;</span><span class="p">,</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">axis</span></div></div>
+        <span class="k">return</span> <span class="n">axis</span></div>
+
+<div class="viewcode-block" id="ShockResponseSpectrumArray.mimo_inverse"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.html#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mimo_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">transfer_function</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> 
+                     <span class="n">srs_damping</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">num_time_constants</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tau</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sine_decays</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">accuracy_weight</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_weight</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                     <span class="n">return_drive_signal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_drive_table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">return_projected_srs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_optimization_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">return_complex_targets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes an input signal that would recreate the specified SRS</span>
+<span class="sd">        </span>
+<span class="sd">        Computes an input signal that would recreate the specified SRSs if</span>
+<span class="sd">        played into a system with the specified transfer functions.  It uses</span>
+<span class="sd">        a phase-matching approach to compute a preferred phasing between</span>
+<span class="sd">        responses that are not specified by the SRS functions.  It then uses</span>
+<span class="sd">        the transfer functions to solve for drive signals that will achieve</span>
+<span class="sd">        those desired responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        transfer_function : TransferFunctionArray</span>
+<span class="sd">            The transfer functions to use in the MIMO calculation</span>
+<span class="sd">        sample_rate : float</span>
+<span class="sd">            The number of samples per second in the output signal</span>
+<span class="sd">        block_size : int</span>
+<span class="sd">            The number of samples in the output signal</span>
+<span class="sd">        srs_damping : float, optional</span>
+<span class="sd">            The damping used in SRS computations. The default is 0.03.</span>
+<span class="sd">        num_time_constants : int, optional</span>
+<span class="sd">            Number of decay time constants in the signal. One of this, tau, or</span>
+<span class="sd">            sine_decays must be specified.</span>
+<span class="sd">        tau : float, optional</span>
+<span class="sd">            The decay constant for the sine waves. One of this, num_time_constants,</span>
+<span class="sd">            or sine_decays must be specified.</span>
+<span class="sd">        sine_decays : ndarray, optional</span>
+<span class="sd">            An array of sine decay terms as used in the decayed sine table. One</span>
+<span class="sd">            of this, num_time_constants, or tau must be specified.</span>
+<span class="sd">        rcond : float, optional</span>
+<span class="sd">            A regularization parameter used on the MIMO inverse problem. The</span>
+<span class="sd">            default is no regularization.</span>
+<span class="sd">        accuracy_weight : float, optional</span>
+<span class="sd">            A weighting factor to give to the accuracy of the MIMO solution.</span>
+<span class="sd">            The default is 1.</span>
+<span class="sd">        input_weight : float, optional</span>
+<span class="sd">            A weighting factor to give to the magnitude of the drive signal in</span>
+<span class="sd">            the MIMO solution. The default is 0.</span>
+<span class="sd">        return_drive_signal : bool, optional</span>
+<span class="sd">            If True, return the calculated drive signal. The default is True.</span>
+<span class="sd">        return_drive_table : bool, optional</span>
+<span class="sd">            If True, return a DecayedSineTable containing the parameters of the</span>
+<span class="sd">            drive signal. The default is False.</span>
+<span class="sd">        return_projected_srs : bool, optional</span>
+<span class="sd">            If True, compute the response SRS achieved from the computed drive</span>
+<span class="sd">            signal. The default is False.</span>
+<span class="sd">        return_optimization_result : bool, optional</span>
+<span class="sd">            If True, return the optimization results. The default is False.</span>
+<span class="sd">        return_complex_targets : bool, optional</span>
+<span class="sd">            If True, return the complex targets of the MIMO calculation.</span>
+<span class="sd">            The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        drive_signal : TimeHistoryArray</span>
+<span class="sd">            A time history that when played through the transfer functions will</span>
+<span class="sd">            produce the specified SRS.  Only returned if return_drive_signal is</span>
+<span class="sd">            True.</span>
+<span class="sd">        drive_table : DecayedSineTable</span>
+<span class="sd">            A table containing frequency, amplitude, delay, and decay parameters</span>
+<span class="sd">            for each signal.  Only returned if return_drive_table is True.</span>
+<span class="sd">        projected_srs : ShockResponseSpectrumArray</span>
+<span class="sd">            A SRS computed from the predicted response of playing the drive</span>
+<span class="sd">            signal through the provided transfer functions.  Only returned if</span>
+<span class="sd">            return_projected_srs is True.</span>
+<span class="sd">        optimization_result : list of OptimizationResult</span>
+<span class="sd">            A set of results from the nonlinear optimizers.  Only returned if</span>
+<span class="sd">            return_optimization_result is True.</span>
+<span class="sd">        complex_targets : ndarray</span>
+<span class="sd">            The complex amplitudes of the response signals that were targeted</span>
+<span class="sd">            by the MIMO computation.  Only returned if return_complex_targets</span>
+<span class="sd">            is True.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">spec_channels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="n">drive_channels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">transfer_function</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">)</span>
+        <span class="n">transfer_function</span> <span class="o">=</span> <span class="n">transfer_function</span><span class="p">[</span><span class="n">outer_product</span><span class="p">(</span><span class="n">spec_channels</span><span class="p">,</span><span class="n">drive_channels</span><span class="p">)]</span>
+        
+        <span class="c1"># Define a function to do the optimization</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">optimize_phase_targets_pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b_amplitude</span><span class="p">,</span> <span class="n">weight_accuracy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">weight_magnitude</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi0</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Optimize the phase targets of b to balance the accuracy of Ax ≈ b and the magnitude of x,</span>
+<span class="sd">            using the pseudoinverse of A for computational efficiency.</span>
+
+<span class="sd">            Parameters:</span>
+<span class="sd">                A (ndarray): Complex matrix (m x n).</span>
+<span class="sd">                b_amplitude (ndarray): Desired amplitudes of b (real-valued, length m).</span>
+<span class="sd">                weight_accuracy (float): Weight for the accuracy term (default: 1.0).</span>
+<span class="sd">                weight_magnitude (float): Weight for the magnitude term (default: 1.0).</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                x_opt (ndarray): Optimal solution for x.</span>
+<span class="sd">                b_opt (ndarray): Optimal b with optimized phase targets.</span>
+<span class="sd">                result (OptimizeResult): Optimization result object from scipy.optimize.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+
+            <span class="c1"># Precompute the pseudoinverse of A</span>
+            <span class="n">A_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">)</span>
+
+            <span class="c1"># Objective function: balance accuracy of Ax ≈ b and magnitude of x</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+                <span class="c1"># Construct b with the current phase</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">b_amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
+                
+                <span class="c1"># Compute x using the pseudoinverse</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">A_pinv</span> <span class="o">@</span> <span class="n">b</span>
+                
+                <span class="c1"># Compute accuracy term: ||Ax - b||_2^2</span>
+                <span class="n">Ax</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">x</span>
+                <span class="n">accuracy_term</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Ax</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                
+                <span class="c1"># Compute magnitude term: ||x||_2^2</span>
+                <span class="n">magnitude_term</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                
+                <span class="c1"># Weighted objective function</span>
+                <span class="k">return</span> <span class="n">weight_accuracy</span> <span class="o">*</span> <span class="n">accuracy_term</span> <span class="o">+</span> <span class="n">weight_magnitude</span> <span class="o">*</span> <span class="n">magnitude_term</span>
+
+            <span class="c1"># Initial guess for phi (zero phase)</span>
+            <span class="k">if</span> <span class="n">phi0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">phi0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+            <span class="c1"># Optimize the phase of b</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;L-BFGS-B&#39;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">[(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)]</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span>
+
+            <span class="c1"># Optimal phase and corresponding b</span>
+            <span class="n">phi_opt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">b_opt</span> <span class="o">=</span> <span class="n">b_amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi_opt</span><span class="p">)</span>
+
+            <span class="c1"># Compute the optimal x using the pseudoinverse</span>
+            <span class="n">x_opt</span> <span class="o">=</span> <span class="n">A_pinv</span> <span class="o">@</span> <span class="n">b_opt</span>
+
+            <span class="k">return</span> <span class="n">x_opt</span><span class="p">,</span> <span class="n">b_opt</span><span class="p">,</span> <span class="n">result</span>
+        
+        <span class="c1"># Compute the sine table to determine the target amplitudes</span>
+        <span class="n">srs_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">)</span>
+        <span class="n">control_responses</span><span class="p">,</span> <span class="n">control_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_decayed_sines</span><span class="p">(</span>
+            <span class="n">sample_rate</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">srs_frequencies</span><span class="p">,</span>
+            <span class="n">srs_damping</span><span class="o">=</span><span class="n">srs_damping</span><span class="p">,</span>
+            <span class="n">num_time_constants</span><span class="o">=</span><span class="n">num_time_constants</span><span class="p">,</span>
+            <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span>
+            <span class="n">sine_decays</span><span class="o">=</span><span class="n">sine_decays</span><span class="p">,</span>
+            <span class="n">return_sine_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ignore_compensation_pulse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Set up the initial optimization problem</span>
+        <span class="n">x_opt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">b_opt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">A_all</span> <span class="o">=</span> <span class="n">transfer_function</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">srs_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">b_all</span> <span class="o">=</span> <span class="n">control_table</span><span class="o">.</span><span class="n">amplitude</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="c1"># Solve for the specification phases that result in the best accuracy and force</span>
+        <span class="k">for</span> <span class="n">A</span><span class="p">,</span><span class="n">b_amplitude</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">A_all</span><span class="p">,</span><span class="n">b_all</span><span class="p">):</span>
+            <span class="n">x_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">,</span> <span class="n">r_o</span> <span class="o">=</span> <span class="n">optimize_phase_targets_pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b_amplitude</span><span class="p">,</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">,</span> <span class="n">weight_accuracy</span><span class="o">=</span><span class="n">accuracy_weight</span><span class="p">,</span><span class="n">weight_magnitude</span><span class="o">=</span><span class="n">input_weight</span><span class="p">)</span>
+            <span class="n">x_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_o</span><span class="p">)</span>
+            <span class="n">b_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="n">x_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span>
+        <span class="n">b_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_opt</span><span class="p">)</span>
+        
+        <span class="c1"># Now that we know the phases, recompute the SRSs with adjusted phases</span>
+        <span class="c1"># to get better amplitude estimates</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">b_opt</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">delays</span> <span class="o">=</span> <span class="o">-</span><span class="n">phases</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">srs_frequencies</span><span class="p">)</span>
+        <span class="n">decays</span> <span class="o">=</span> <span class="n">control_table</span><span class="o">.</span><span class="n">decay</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="n">control_responses_phase_update</span><span class="p">,</span> <span class="n">control_tables_phase_update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_decayed_sines</span><span class="p">(</span>
+            <span class="n">sample_rate</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">srs_frequencies</span><span class="p">,</span>
+            <span class="n">srs_damping</span><span class="o">=</span><span class="n">srs_damping</span><span class="p">,</span>
+            <span class="n">return_sine_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sine_decays</span><span class="o">=</span><span class="n">decays</span><span class="p">,</span>
+            <span class="n">sine_delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span>
+            <span class="n">ignore_compensation_pulse</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Now again solve for the drive signals to match this preferred phasing</span>
+        <span class="n">x_opt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">angle_guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">b_opt</span><span class="p">)</span>
+        <span class="n">b_opt2</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">phi0</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">A_all</span><span class="p">,</span><span class="n">b_all</span><span class="p">,</span><span class="n">angle_guess</span><span class="p">):</span>
+            <span class="n">x_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">,</span> <span class="n">r_o</span> <span class="o">=</span> <span class="n">optimize_phase_targets_pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">,</span> <span class="n">phi0</span><span class="o">=</span><span class="n">phi0</span><span class="p">,</span> <span class="n">weight_accuracy</span><span class="o">=</span><span class="n">accuracy_weight</span><span class="p">,</span><span class="n">weight_magnitude</span><span class="o">=</span><span class="n">input_weight</span><span class="p">)</span>
+            <span class="n">x_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_o</span><span class="p">)</span>
+            <span class="n">b_opt2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="n">x_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">b_opt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_opt2</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="c1"># Extract the drive amplitudes and phases</span>
+        <span class="n">drive_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span>
+        <span class="n">drive_phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span>
+        <span class="n">drive_delays</span> <span class="o">=</span> <span class="o">-</span><span class="n">drive_phases</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">srs_frequencies</span><span class="p">)</span>
+        <span class="n">drive_decays</span> <span class="o">=</span> <span class="n">control_tables_phase_update</span><span class="o">.</span><span class="n">decay</span><span class="p">[</span><span class="mi">0</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># Create the drive table and signals</span>
+        <span class="n">drive_table</span> <span class="o">=</span> <span class="n">decayed_sine_table</span><span class="p">(</span><span class="n">srs_frequencies</span><span class="p">,</span> <span class="n">drive_amplitudes</span><span class="p">,</span> <span class="n">drive_decays</span><span class="p">,</span> <span class="n">drive_delays</span><span class="p">,</span> <span class="n">drive_channels</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">drive_signal</span> <span class="o">=</span> <span class="n">drive_table</span><span class="o">.</span><span class="n">construct_signal</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span><span class="n">block_size</span><span class="p">)</span>
+        
+        <span class="n">return_vals</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="n">return_drive_signal</span><span class="p">:</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drive_signal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_drive_table</span><span class="p">:</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drive_table</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_projected_srs</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">drive_signal</span><span class="o">.</span><span class="n">mimo_forward</span><span class="p">(</span><span class="n">transfer_function</span><span class="p">)</span>
+            <span class="n">response_srs</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">srs</span><span class="p">(</span><span class="n">frequencies</span><span class="o">=</span><span class="n">srs_frequencies</span><span class="p">,</span><span class="n">damping</span><span class="o">=</span><span class="n">srs_damping</span><span class="p">)</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response_srs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_optimization_result</span><span class="p">:</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_complex_targets</span><span class="p">:</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_opt2</span><span class="p">)</span>
+        
+        <span class="n">return_vals</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">return_vals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">return_vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">return_vals</span> <span class="o">=</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            
+        <span class="k">return</span> <span class="n">return_vals</span></div></div>
 
 <div class="viewcode-block" id="shock_response_spectrum_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.shock_response_spectrum_array.html#sdynpy.core.sdynpy_data.shock_response_spectrum_array">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">shock_response_spectrum_array</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span><span class="n">ordinate</span><span class="p">,</span><span class="n">coordinate</span><span class="p">,</span>
                                   <span class="n">comment1</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment2</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -7989,7 +8629,8 @@
     <span class="n">coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`coordinate` must have shape (...,1)&#39;</span><span class="p">)</span>
-    <span class="o">*</span><span class="n">shape</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">=</span> <span class="n">frequency</span><span class="o">.</span><span class="n">shape</span>
+    <span class="o">*</span><span class="n">other</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">=</span> <span class="n">frequency</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">st</span> <span class="o">=</span> <span class="n">DecayedSineTable</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">num_elements</span><span class="p">)</span>
     <span class="n">st</span><span class="o">.</span><span class="n">frequency</span> <span class="o">=</span> <span class="n">frequency</span>
     <span class="n">st</span><span class="o">.</span><span class="n">amplitude</span> <span class="o">=</span> <span class="n">amplitude</span>
@@ -9098,7 +9739,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596feaae50>
+<jinja2.runtime.BlockReference object at 0x7f6caeb5f050>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

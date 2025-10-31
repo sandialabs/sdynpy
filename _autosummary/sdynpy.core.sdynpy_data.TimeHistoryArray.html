@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.TimeHistoryArray &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.TimeHistoryArray &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -113,9 +113,11 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.burst_random_signal"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.burst_random_signal()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.chirp_signal"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.chirp_signal()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.cpsd()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.digital_tracking_filter()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.fft"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.fft()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.filter"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.filter()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_signal_shift"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.find_signal_shift()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.find_zero_crossings()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.from_exodus"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.from_exodus()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.function_type"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.function_type</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.haversine_signal"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.haversine_signal()</span></code></a></li>
@@ -135,6 +137,9 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.stft"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.stft()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.to_rattlesnake_specification"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.to_rattlesnake_specification()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.upsample"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.upsample()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.vold_kalman_filter()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zefft"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.zefft()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time"><code class="docutils literal notranslate"><span class="pre">TimeHistoryArray.zero_early_time()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -146,6 +151,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_nonlinear_system.html">sdynpy.core.sdynpy_nonlinear_system</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
 </ul>
@@ -222,14 +228,20 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd" title="sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cpsd</span></code></a>(samples_per_frame, overlap, window[, ...])</p></td>
 <td><p>Computes a CPSD matrix from the time histories</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.fft" title="sdynpy.core.sdynpy_data.TimeHistoryArray.fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft</span></code></a>([samples_per_frame, norm, rtol, atol])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter" title="sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">digital_tracking_filter</span></code></a>(frequencies, arguments)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.fft" title="sdynpy.core.sdynpy_data.TimeHistoryArray.fft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft</span></code></a>([samples_per_frame, norm, rtol, atol])</p></td>
 <td><p>Computes the frequency spectra of the time signal</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.filter" title="sdynpy.core.sdynpy_data.TimeHistoryArray.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>(filter_order, frequency[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.filter" title="sdynpy.core.sdynpy_data.TimeHistoryArray.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>(filter_order, frequency[, ...])</p></td>
 <td><p>Filter the signal using a butterworth filter of the specified order</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_signal_shift" title="sdynpy.core.sdynpy_data.TimeHistoryArray.find_signal_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_signal_shift</span></code></a>(other_signal[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_signal_shift" title="sdynpy.core.sdynpy_data.TimeHistoryArray.find_signal_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_signal_shift</span></code></a>(other_signal[, ...])</p></td>
 <td><p>Computes the shift between two sets of time signals</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings" title="sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_zero_crossings</span></code></a>([return_abscissa, ...])</p></td>
+<td><p>Finds zero crossings in the time history</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.from_exodus" title="sdynpy.core.sdynpy_data.TimeHistoryArray.from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus</span></code></a>(exo[, x_disp, y_disp, z_disp, ...])</p></td>
 <td><p>Reads time data from displacements in an Exodus file</p></td>
@@ -284,6 +296,15 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.upsample" title="sdynpy.core.sdynpy_data.TimeHistoryArray.upsample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upsample</span></code></a>(factor)</p></td>
 <td><p>Upsamples a time history using frequency domain zero padding.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter" title="sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vold_kalman_filter</span></code></a>(arguments[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zefft" title="sdynpy.core.sdynpy_data.TimeHistoryArray.zefft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zefft</span></code></a>([num_steps, abscissa_range, ...])</p></td>
+<td><p>Creates a FFTs from time histories with early times zeroed out</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time" title="sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero_early_time</span></code></a>([num_steps, abscissa_range, ...])</p></td>
+<td><p>Creates a time histories with early times zeroed out</p></td>
 </tr>
 </tbody>
 </table>
@@ -456,6 +477,11 @@ CPSD matrix)</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter">
+<span class="sig-name descname"><span class="pre">digital_tracking_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_frequency_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.digital_tracking_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.fft">
 <span class="sig-name descname"><span class="pre">fft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples_per_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'backward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">scipy_rfft_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.fft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.fft" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the frequency spectra of the time signal</p>
@@ -548,6 +574,32 @@ ignored. The default is 0.01.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings">
+<span class="sig-name descname"><span class="pre">find_zero_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_abscissa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.find_zero_crossings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings" title="Permalink to this definition"></a></dt>
+<dd><p>Finds zero crossings in the time history</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>return_abscissa</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, returns abscissa values associated with the
+zero crossing.  By default it is False.</p></li>
+<li><p><strong>include_start</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, returns the first index as a zero crossing,
+default is False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>sign_changes_array</strong> (<em>np.ndarray</em>) – An array of indices into the ordinates of the
+function where sine changes occur.</p></li>
+<li><p><strong>abscissa_array</strong> (<em>np.ndarray</em>) – An array of the abscissa values of the function
+where sine changes occur.  Only returned if
+return_abscissa is True.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1174,6 +1226,80 @@ original signal</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter">
+<span class="sig-name descname"><span class="pre">vold_kalman_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.vold_kalman_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.vold_kalman_filter" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.zefft">
+<span class="sig-name descname"><span class="pre">zefft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closest_zero_crossing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.zefft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zefft" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a FFTs from time histories with early times zeroed out</p>
+<p>This computes an FFT time history with the first portion of
+the original time history zeroed out.  This is useful
+for analyzing ring-downs of nonlinear systems to
+identify how the system changes over time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of different levels of zeroing to
+compute for each signal, by default 10</p></li>
+<li><p><strong>abscissa_range</strong> (<em>iterable</em><em>, </em><em>optional</em>) – A length-2 iterable defining the earliest and
+latest abscissa to use as a time to zero data until,
+by default, it will spread <cite>num_steps</cite> zero locations
+over the entire time signal.</p></li>
+<li><p><strong>closest_zero_crossing</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, zeroing will start at a zero crossing in a
+signal that is closest to the specified zero time.
+Otherwise, the zeroing will start exactly
+where specified, by default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A SpectrumArray with an additional dimension for the
+<cite>num_steps</cite> specified.  These are outputs of the
+<cite>zero_early_time</cite> method with the <cite>fft</cite> method
+subsequently applied.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_data.SpectrumArray.html#sdynpy.core.sdynpy_data.SpectrumArray" title="sdynpy.core.sdynpy_data.SpectrumArray">SpectrumArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time">
+<span class="sig-name descname"><span class="pre">zero_early_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abscissa_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closest_zero_crossing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#TimeHistoryArray.zero_early_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a time histories with early times zeroed out</p>
+<p>This computes a time history with the first portion of
+the original time history zeroed out.  This is useful
+for analyzing ring-downs of nonlinear systems to
+identify how the system changes over time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of different levels of zeroing to
+compute for each signal, by default 10</p></li>
+<li><p><strong>abscissa_range</strong> (<em>iterable</em><em>, </em><em>optional</em>) – A length-2 iterable defining the earliest and
+latest abscissa to use as a time to zero data until,
+by default, it will spread <cite>num_steps</cite> zero locations
+over the entire time signal.</p></li>
+<li><p><strong>closest_zero_crossing</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, zeroing will start at a zero crossing in a
+signal that is closest to the specified zero time.
+Otherwise, the zeroing will start exactly
+where specified, by default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TimeHistoryArray with an additional dimension for the
+<cite>num_steps</cite> specified.  Each of the <cite>num_steps</cite> set of
+signals has a different initial zero point.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray">TimeHistoryArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1189,7 +1315,7 @@ original signal</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596ebedad0>
+<jinja2.runtime.BlockReference object at 0x7f6cad860250>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

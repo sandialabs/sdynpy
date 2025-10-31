@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_nonlinear_system.SystemNL &mdash; SDynPy 0.21.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sdynpy.core.sdynpy_shape" href="sdynpy.core.sdynpy_shape.html" />
+    <link rel="prev" title="sdynpy.core.sdynpy_nonlinear_system" href="sdynpy.core.sdynpy_nonlinear_system.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_functionality.html">Core Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">SDynPy Programming Interface</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sdynpy.html">sdynpy</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sdynpy.core.html">sdynpy.core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_array.html">sdynpy.core.sdynpy_array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_colors.html">sdynpy.core.sdynpy_colors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.html">sdynpy.core.sdynpy_coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_data.html">sdynpy.core.sdynpy_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="sdynpy.core.sdynpy_nonlinear_system.html">sdynpy.core.sdynpy_nonlinear_system</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">sdynpy.core.sdynpy_nonlinear_system.SystemNL</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL"><code class="docutils literal notranslate"><span class="pre">SystemNL</span></code></a><ul>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__"><code class="docutils literal notranslate"><span class="pre">SystemNL.__init__()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy"><code class="docutils literal notranslate"><span class="pre">SystemNL.copy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator"><code class="docutils literal notranslate"><span class="pre">SystemNL.duffing_oscillator()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution"><code class="docutils literal notranslate"><span class="pre">SystemNL.eigensolution()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum"><code class="docutils literal notranslate"><span class="pre">SystemNL.elastic_pendulum()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system"><code class="docutils literal notranslate"><span class="pre">SystemNL.from_linear_system()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness"><code class="docutils literal notranslate"><span class="pre">SystemNL.local_stiffness()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.num_dof"><code class="docutils literal notranslate"><span class="pre">SystemNL.num_dof</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping"><code class="docutils literal notranslate"><span class="pre">SystemNL.polynomial_stiffness_damping()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test"><code class="docutils literal notranslate"><span class="pre">SystemNL.simulate_test()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate"><code class="docutils literal notranslate"><span class="pre">SystemNL.time_integrate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.demo.html">sdynpy.demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.doc.html">sdynpy.doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fem.html">sdynpy.fem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.fileio.html">sdynpy.fileio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.modal.html">sdynpy.modal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdynpy.signal_processing.html">sdynpy.signal_processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">SDynPy Programming Interface</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.html">sdynpy</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.html">sdynpy.core</a></li>
+          <li class="breadcrumb-item"><a href="sdynpy.core.sdynpy_nonlinear_system.html">sdynpy.core.sdynpy_nonlinear_system</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_nonlinear_system.SystemNL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sdynpy-core-sdynpy-nonlinear-system-systemnl">
+<h1>sdynpy.core.sdynpy_nonlinear_system.SystemNL<a class="headerlink" href="#sdynpy-core-sdynpy-nonlinear-system-systemnl" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SystemNL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_derivative_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceleration_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Function representing a Structural Dynamics System</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_derivative_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceleration_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_output_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a nonlinear system object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinate</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – The physical degrees of freedom associated with the system</p></li>
+<li><p><strong>state_derivative_function</strong> (<em>function</em>) – A function with calling signature (time, state, input) that returns
+the state derivative.</p></li>
+<li><p><strong>state_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of state degrees of freedom in the system.  If not provided,
+it will be assumed to be the same size as coordinate.</p></li>
+<li><p><strong>displacement_output_function</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>velocity_output_function</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>acceleration_output_function</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>excitation_output_function</strong> (<em>_type_</em><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(coordinate, state_derivative_function)</p></td>
+<td><p>Creates a nonlinear system object</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duffing_oscillator</span></code></a>(delta, alpha, beta[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eigensolution</span></code></a>([state_point, delta_state, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elastic_pendulum</span></code></a>(mass, stiffness, ...[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_linear_system</span></code></a>(system)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_stiffness</span></code></a>([state_point, delta_state, time])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polynomial_stiffness_damping</span></code></a>(coordinate, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate_test</span></code></a>(bandwidth, frame_length, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces[, dt, responses, ...])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.num_dof" title="sdynpy.core.sdynpy_nonlinear_system.SystemNL.num_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_dof</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">duffing_oscillator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.duffing_oscillator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution">
+<span class="sig-name descname"><span class="pre">eigensolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float64(1.4901161193847656e-08)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_conjugate_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.eigensolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elastic_pendulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unstretched_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9.81</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.elastic_pendulum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_linear_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System"><span class="pre">System</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.from_linear_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness">
+<span class="sig-name descname"><span class="pre">local_stiffness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float64(1.4901161193847656e-08)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.local_stiffness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.num_dof">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_dof</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.num_dof" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">polynomial_stiffness_damping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffnesses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dampings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.polynomial_stiffness_damping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test">
+<span class="sig-name descname"><span class="pre">simulate_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_averages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steady_state_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_time_between_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_cutoff_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multihammer_impact_spacing_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_integrate_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.simulate_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate">
+<span class="sig-name descname"><span class="pre">time_integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RK45'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_interpolation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_ivp_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">solve_ivp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_nonlinear_system.html#SystemNL.time_integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdynpy.core.sdynpy_nonlinear_system.html" class="btn btn-neutral float-left" title="sdynpy.core.sdynpy_nonlinear_system" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdynpy.core.sdynpy_shape.html" class="btn btn-neutral float-right" title="sdynpy.core.sdynpy_shape" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f6cadd76890>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sdynpy.core.sdynpy_nonlinear_system &mdash; SDynPy 0.21.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo_horizontal_light.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sdynpy_showcase.html">SDynPy Showcase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_functionality.html">Core Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">SDynpy Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modal_tutorials.html">Modal Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">SDynPy Programming Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SDynPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sdynpy.core.sdynpy_nonlinear_system</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sdynpy.core.sdynpy_nonlinear_system</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines a nonlinear system using a generic equation of motion.</span>
+
+<span class="sd">The SystemNL consists of a generic equation of motion that defines its behavior.</span>
+<span class="sd">The SystemNL also contains a CoordinateArray defining the degrees of freedom of</span>
+<span class="sd">the System.</span>
+
+<span class="sd">Copyright 2022 National Technology &amp; Engineering Solutions of Sandia,</span>
+<span class="sd">LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.</span>
+<span class="sd">Government retains certain rights in this software.</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_ivp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">approx_fprime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">eig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">filtfilt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span><span class="n">coordinate_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeHistoryArray</span><span class="p">,</span><span class="n">time_history_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">shape_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">generator</span>
+
+<div class="viewcode-block" id="SystemNL"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SystemNL</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function representing a Structural Dynamics System&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SystemNL.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span> <span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span>
+                 <span class="n">state_derivative_function</span><span class="p">,</span>
+                 <span class="n">state_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">displacement_output_function</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">velocity_output_function</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">acceleration_output_function</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">excitation_output_function</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a nonlinear system object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinate : CoordinateArray</span>
+<span class="sd">            The physical degrees of freedom associated with the system</span>
+<span class="sd">        state_derivative_function : function</span>
+<span class="sd">            A function with calling signature (time, state, input) that returns</span>
+<span class="sd">            the state derivative.</span>
+<span class="sd">        state_size : int, optional</span>
+<span class="sd">            The number of state degrees of freedom in the system.  If not provided,</span>
+<span class="sd">            it will be assumed to be the same size as coordinate.</span>
+<span class="sd">        displacement_output_function : _type_, optional</span>
+<span class="sd">            _description_, by default None</span>
+<span class="sd">        velocity_output_function : _type_, optional</span>
+<span class="sd">            _description_, by default None</span>
+<span class="sd">        acceleration_output_function : _type_, optional</span>
+<span class="sd">            _description_, by default None</span>
+<span class="sd">        excitation_output_function : _type_, optional</span>
+<span class="sd">            _description_, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">state_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_size</span> <span class="o">=</span> <span class="n">state_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_derivative_function</span> <span class="o">=</span> <span class="n">state_derivative_function</span>
+        <span class="k">if</span> <span class="n">displacement_output_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">default_disp_fn</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">sys_state</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="o">//</span><span class="mi">2</span><span class="p">][</span><span class="n">indices</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">displacement_output_function</span> <span class="o">=</span> <span class="n">default_disp_fn</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">displacement_output_function</span> <span class="o">=</span> <span class="n">displacement_output_function</span>
+        <span class="k">if</span> <span class="n">velocity_output_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">default_vel_fn</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">sys_state</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="o">//</span><span class="mi">2</span><span class="p">:][</span><span class="n">indices</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">velocity_output_function</span> <span class="o">=</span> <span class="n">default_vel_fn</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">velocity_output_function</span> <span class="o">=</span> <span class="n">velocity_output_function</span>
+        <span class="k">if</span> <span class="n">acceleration_output_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">default_accel_fn</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">state_derivative_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="o">//</span><span class="mi">2</span><span class="p">:][</span><span class="n">indices</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_output_function</span> <span class="o">=</span> <span class="n">default_accel_fn</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_output_function</span> <span class="o">=</span> <span class="n">acceleration_output_function</span>
+        <span class="k">if</span> <span class="n">excitation_output_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">default_ex_fn</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">,</span> <span class="n">excitation_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">excitation_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">excitation_coordinate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">sys_input</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">excitation_output_function</span> <span class="o">=</span> <span class="n">default_ex_fn</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">excitation_output_function</span> <span class="o">=</span> <span class="n">excitation_output_function</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_dof</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">size</span>
+
+<div class="viewcode-block" id="SystemNL.from_linear_system"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.from_linear_system">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_linear_system</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">system</span> <span class="p">:</span> <span class="n">System</span><span class="p">):</span>
+        <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">D</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">to_state_space</span><span class="p">()</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">coordinate</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">state_derivative_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">A</span><span class="nd">@sys_state</span> <span class="o">+</span> <span class="n">B</span><span class="nd">@sys_input</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">displacement_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">1</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span> <span class="o">+</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="mi">0</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">1</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_input</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">velocity_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">C</span><span class="p">[</span><span class="mi">1</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span> <span class="o">+</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="mi">1</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_input</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">acceleration_output_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">C</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span> <span class="o">+</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_input</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">excitation_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">excitation_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">excitation_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">excitation_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">C</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">4</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span> <span class="o">+</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">D</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">nc</span><span class="p">:</span><span class="mi">4</span><span class="o">*</span><span class="n">nc</span><span class="p">,:][</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_input</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">state_derivative_function</span><span class="p">,</span> 
+                   <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">displacement_output_function</span><span class="p">,</span>
+                   <span class="n">velocity_output_function</span><span class="p">,</span> <span class="n">acceleration_output_function</span><span class="p">,</span>
+                   <span class="n">excitation_output_function</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="SystemNL.duffing_oscillator"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.duffing_oscillator">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">duffing_oscillator</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;X+&#39;</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">state_derivative_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="n">sys_state</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="o">-</span> <span class="n">delta</span><span class="o">*</span><span class="n">sys_state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">alpha</span><span class="o">*</span><span class="n">sys_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">sys_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="n">sys_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">state_derivative_function</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SystemNL.elastic_pendulum"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.elastic_pendulum">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">elastic_pendulum</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">unstretched_length</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="mf">9.81</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">node</span><span class="p">,[</span><span class="s1">&#39;X+&#39;</span><span class="p">,</span><span class="s1">&#39;Y+&#39;</span><span class="p">])</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">mass</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">stiffness</span>
+        <span class="n">l_0</span> <span class="o">=</span> <span class="n">unstretched_length</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">gravity</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">state_derivative_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">sys_state</span><span class="p">,</span> <span class="n">sys_input</span><span class="p">):</span>
+            <span class="c1"># State vector x,y,xd,yd</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">xd</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">yd</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">xdd</span> <span class="o">=</span> <span class="n">k</span><span class="o">*</span><span class="n">l_0</span><span class="o">*</span><span class="n">x</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">l_0</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="n">k</span><span class="o">*</span><span class="n">x</span><span class="o">/</span><span class="n">m</span> <span class="o">+</span> <span class="n">sys_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ydd</span> <span class="o">=</span> <span class="o">-</span><span class="n">g</span> <span class="o">-</span> <span class="n">k</span><span class="o">*</span><span class="n">l_0</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">l_0</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="n">l_0</span><span class="o">/</span><span class="n">m</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="n">l_0</span><span class="o">*</span><span class="n">y</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">l_0</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="n">k</span><span class="o">*</span><span class="n">y</span><span class="o">/</span><span class="n">m</span> <span class="o">+</span> <span class="n">sys_input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Derivative vector xd, yd, xdd, ydd</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xd</span><span class="p">,</span><span class="n">yd</span><span class="p">,</span><span class="n">xdd</span><span class="p">,</span><span class="n">ydd</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">state_derivative_function</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SystemNL.polynomial_stiffness_damping"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.polynomial_stiffness_damping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">polynomial_stiffness_damping</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffnesses</span><span class="p">,</span> <span class="n">dampings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dampings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dampings</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="n">num_states</span> <span class="o">=</span> <span class="n">mass</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span>
+        <span class="n">A_dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span><span class="n">stiffness</span><span class="p">)</span> <span class="k">for</span> <span class="n">exponent</span><span class="p">,</span><span class="n">stiffness</span> <span class="ow">in</span> <span class="n">stiffnesses</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="o">+</span> <span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span><span class="n">damping</span><span class="p">)</span> <span class="k">for</span> <span class="n">exponent</span><span class="p">,</span><span class="n">damping</span> <span class="ow">in</span> <span class="n">dampings</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span> <span class="k">if</span> <span class="n">dampings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">B_dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span><span class="n">transformation</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">state_derivative</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">):</span>
+            <span class="c1"># Assemble the state derivative from the different pieces</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[:</span><span class="n">sys_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">xd</span> <span class="o">=</span> <span class="n">sys_state</span><span class="p">[</span><span class="n">sys_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">x</span><span class="o">**</span><span class="n">exponent</span> <span class="k">for</span> <span class="n">exponent</span> <span class="ow">in</span> <span class="n">stiffnesses</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">([</span><span class="n">xd</span><span class="o">**</span><span class="n">exponent</span> <span class="k">for</span> <span class="n">exponent</span> <span class="ow">in</span> <span class="n">dampings</span><span class="p">]</span> <span class="k">if</span> <span class="n">dampings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]))</span>
+            <span class="n">xdd</span> <span class="o">=</span> <span class="n">A_dd</span><span class="nd">@z</span><span class="o">+</span><span class="n">B_dd</span><span class="nd">@sys_input</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">xd</span><span class="p">,</span><span class="n">xdd</span><span class="p">))</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">displacement_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">transformation</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span><span class="p">[:</span><span class="n">sys_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">velocity_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">transformation</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_state</span><span class="p">[</span><span class="n">sys_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">acceleration_output_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">response_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">response_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">dstate</span> <span class="o">=</span> <span class="n">state_derivative</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">transformation</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span><span class="nd">@dstate</span><span class="p">[</span><span class="n">dstate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">excitation_output_function</span><span class="p">(</span><span class="n">sys_state</span><span class="p">,</span><span class="n">sys_input</span><span class="p">,</span> <span class="n">excitation_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">excitation_coordinate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indices</span><span class="p">,</span><span class="n">signs</span> <span class="o">=</span> <span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">excitation_coordinate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">sys_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="n">indices</span><span class="p">])</span><span class="nd">@sys_input</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span><span class="n">state_derivative</span><span class="p">,</span><span class="n">num_states</span><span class="p">,</span><span class="n">displacement_output_function</span><span class="p">,</span>
+                   <span class="n">velocity_output_function</span><span class="p">,</span><span class="n">acceleration_output_function</span><span class="p">,</span>
+                   <span class="n">excitation_output_function</span><span class="p">)</span></div>
+        
+        
+<div class="viewcode-block" id="SystemNL.time_integrate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.time_integrate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">responses</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">references</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                       <span class="n">displacement_derivative</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">initial_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;RK45&#39;</span><span class="p">,</span>
+                       <span class="n">force_interpolation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">output_times</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_ivp_result</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">solve_ivp_kwargs</span><span class="p">):</span>
+        <span class="c1"># Set up the inputs and the functions</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forces</span><span class="p">,</span> <span class="n">TimeHistoryArray</span><span class="p">):</span>
+            <span class="n">forces</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+            <span class="n">references</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">forces</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">ordinate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`dt` must be specified if `forces` is not a `TimeHistoryArray`&#39;</span><span class="p">)</span>
+        <span class="c1"># Construct the entire force vector over time</span>
+        <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">force_array</span> <span class="o">=</span> <span class="n">forces</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">force_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">reference_indices</span><span class="p">,</span> <span class="n">reference_signs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">find_indices</span><span class="p">(</span><span class="n">references</span><span class="p">)</span>
+            <span class="n">force_array</span><span class="p">[</span><span class="n">reference_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">reference_signs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">forces</span>
+        <span class="c1"># Create interpolator</span>
+        <span class="n">force_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span>
+        <span class="k">if</span> <span class="n">output_times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+           <span class="n">output_times</span> <span class="o">=</span> <span class="n">force_abscissa</span>
+        <span class="n">force_interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">force_abscissa</span><span class="p">,</span>
+                                      <span class="n">force_array</span><span class="p">,</span><span class="n">kind</span><span class="o">=</span><span class="n">force_interpolation</span><span class="p">,</span>
+                                      <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="n">force_array</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">force_array</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                                      <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">integration_function</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_derivative_function</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">force_interpolator</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">solve_ivp</span><span class="p">(</span><span class="n">integration_function</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">output_times</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">output_times</span><span class="p">)),</span>
+                           <span class="n">initial_state</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">output_times</span><span class="p">,</span> <span class="o">**</span><span class="n">solve_ivp_kwargs</span><span class="p">)</span>
+        <span class="c1"># Package the forces into a time history array</span>
+        <span class="n">forces_ordinate</span> <span class="o">=</span> <span class="n">force_interpolator</span><span class="p">(</span><span class="n">output_times</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Integration was not successful: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">output_times</span> <span class="o">=</span> <span class="n">output_times</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="n">result</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">forces_ordinate</span> <span class="o">=</span> <span class="n">forces_ordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="n">result</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">excitation_ordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitation_output_function</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">forces_ordinate</span><span class="p">,</span><span class="n">references</span><span class="p">)</span>
+        <span class="n">excitation_signals</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span>
+            <span class="n">output_times</span><span class="p">,</span>
+            <span class="n">excitation_ordinate</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">references</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">displacement_output_function</span>
+        <span class="k">elif</span> <span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_output_function</span>
+        <span class="k">elif</span> <span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">state</span><span class="p">,</span><span class="n">force</span><span class="p">,</span><span class="n">response</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_output_function</span><span class="p">(</span><span class="n">output_times</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">force</span><span class="p">,</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Displacement Derivative must be one of 0, 1, or 2.&#39;</span><span class="p">)</span>
+        <span class="n">response_ordinate</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="n">forces_ordinate</span><span class="p">,</span><span class="n">responses</span><span class="p">)</span>
+        <span class="n">response_signals</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span>
+            <span class="n">output_times</span><span class="p">,</span>
+            <span class="n">response_ordinate</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">responses</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">return_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_signals</span><span class="p">,</span><span class="n">excitation_signals</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">return_ivp_result</span><span class="p">:</span>
+            <span class="n">return_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">return_vals</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;SystemNL with </span><span class="si">{:}</span><span class="s1"> Coordinates (</span><span class="si">{:}</span><span class="s1"> internal states)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_dof</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SystemNL.local_stiffness"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.local_stiffness">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">local_stiffness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_point</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delta_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">1.4901161193847656e-08</span><span class="p">),</span> <span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">state_point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="p">)</span>
+        <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_derivative_function</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">state</span><span class="p">,</span><span class="n">forces</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">approx_fprime</span><span class="p">(</span><span class="n">state_point</span><span class="p">,</span><span class="n">fn</span><span class="p">,</span><span class="n">delta_state</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="SystemNL.eigensolution"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.eigensolution">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">eigensolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_point</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delta_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">1.4901161193847656e-08</span><span class="p">),</span> <span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">group_conjugate_pairs</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="n">stiffness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_stiffness</span><span class="p">(</span><span class="n">state_point</span><span class="p">,</span> <span class="n">delta_state</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">evals</span><span class="p">,</span> <span class="n">evects</span> <span class="o">=</span> <span class="n">eig</span><span class="p">(</span><span class="o">-</span><span class="n">stiffness</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">group_conjugate_pairs</span><span class="p">:</span>
+                <span class="c1"># print(&#39;Pairing Complex Conjugate Modes...&#39;)</span>
+                <span class="n">evals_reduced</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">evects_reduced</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">evals_handled</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,(</span><span class="n">evl</span><span class="p">,</span><span class="n">evc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">evals</span><span class="p">,</span><span class="n">evects</span><span class="o">.</span><span class="n">T</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">evals_handled</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">evals</span><span class="p">,</span><span class="n">evl</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">evects</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">evc</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="o">-</span><span class="n">evects</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">evc</span><span class="o">.</span><span class="n">conj</span><span class="p">()),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">match</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">match</span><span class="o">!=</span><span class="n">index</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;More than one conjugate eigenvalue was found for index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">matches</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No conjugate eigenvalue was found for index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="c1"># else:</span>
+                        <span class="c1"># print(f&#39;  Eigenvalue {index} {evl} matches {matches[0]}&#39;)</span>
+                    <span class="c1"># Choose which to keep</span>
+                    <span class="k">if</span> <span class="n">evl</span><span class="o">.</span><span class="n">imag</span> <span class="o">&gt;</span> <span class="n">evals</span><span class="p">[</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">imag</span><span class="p">:</span>
+                        <span class="n">evals_reduced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evl</span><span class="p">)</span>
+                        <span class="n">evects_reduced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evc</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">evals_reduced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evals</span><span class="p">[</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                        <span class="n">evects_reduced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evects</span><span class="p">[:,</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">evals_handled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="n">evals_handled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">evals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">evals_reduced</span><span class="p">)</span>
+                <span class="n">evects</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">evects_reduced</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not group conjugate pairs of modes... continuing.&#39;</span><span class="p">)</span>
+        <span class="c1"># Compute natural frequency, damping, and mode shape</span>
+        <span class="n">angular_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">evals</span><span class="p">)</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="n">angular_frequencies</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">angular_frequencies</span><span class="p">[</span><span class="n">angular_frequencies</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">dampings</span> <span class="o">=</span> <span class="o">-</span><span class="n">evals</span><span class="o">.</span><span class="n">real</span><span class="o">/</span><span class="n">angular_frequencies</span>
+        <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">displacement_output_function</span><span class="p">(</span><span class="n">evects</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="n">evects</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span><span class="n">shape_matrix</span><span class="p">,</span><span class="n">frequencies</span><span class="p">,</span><span class="n">dampings</span><span class="p">)</span>
+        <span class="n">shapes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">shapes</span></div>
+    
+<div class="viewcode-block" id="SystemNL.simulate_test"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.simulate_test">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_test</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>  <span class="c1"># The system itself</span>
+            <span class="n">bandwidth</span><span class="p">,</span>
+            <span class="n">frame_length</span><span class="p">,</span>
+            <span class="n">num_averages</span><span class="p">,</span>
+            <span class="n">excitation</span><span class="p">,</span>
+            <span class="n">references</span><span class="p">,</span>
+            <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># All Responses</span>
+            <span class="n">excitation_level</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">excitation_noise_level</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">response_noise_level</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">steady_state_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">excitation_min_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">excitation_max_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">signal_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">extra_time_between_frames</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">antialias_filter_cutoff_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">antialias_filter_order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">multihammer_impact_spacing_factor</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="n">time_integrate_kwargs</span> <span class="o">=</span> <span class="p">{},</span>
+            <span class="n">generator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="p">):</span>
+        <span class="n">available_excitations</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pseudorandom&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;burst random&#39;</span><span class="p">,</span> <span class="s1">&#39;chirp&#39;</span><span class="p">,</span> <span class="s1">&#39;hammer&#39;</span><span class="p">,</span> <span class="s1">&#39;multi-hammer&#39;</span><span class="p">,</span> <span class="s1">&#39;sine&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">available_excitations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Excitation must be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">available_excitations</span><span class="p">))</span>
+        <span class="c1"># Create the input signal</span>
+        <span class="n">num_signals</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">sample_rate</span> <span class="o">=</span> <span class="n">bandwidth</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">integration_oversample</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">frame_time</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">frame_time</span>
+        <span class="c1"># Create the signals</span>
+        <span class="k">if</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pseudorandom&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Pseudorandom generally not recommended for multi-reference excitation.&#39;</span><span class="p">)</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fft_lines&#39;</span><span class="p">:</span> <span class="n">frame_length</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                      <span class="s1">&#39;f_nyq&#39;</span><span class="p">:</span> <span class="n">bandwidth</span><span class="p">,</span>
+                      <span class="s1">&#39;signal_rms&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">,</span>
+                      <span class="s1">&#39;min_freq&#39;</span><span class="p">:</span> <span class="n">excitation_min_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;max_freq&#39;</span><span class="p">:</span> <span class="n">excitation_max_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;integration_oversample&#39;</span><span class="p">:</span> <span class="n">integration_oversample</span><span class="p">,</span>
+                      <span class="s1">&#39;averages&#39;</span><span class="p">:</span> <span class="n">num_averages</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">steady_state_time</span> <span class="o">/</span> <span class="n">frame_time</span><span class="p">))}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">pseudorandom</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_signals</span><span class="p">)</span>
+            <span class="p">])</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">num_signals</span><span class="p">,),</span>
+                      <span class="s1">&#39;n_samples&#39;</span><span class="p">:</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span> <span class="o">*</span> <span class="n">num_averages</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">steady_state_time</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">),</span>
+                      <span class="s1">&#39;rms&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">,</span>
+                      <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                      <span class="s1">&#39;low_frequency_cutoff&#39;</span><span class="p">:</span> <span class="n">excitation_min_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;high_frequency_cutoff&#39;</span><span class="p">:</span> <span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;burst random&#39;</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">num_signals</span><span class="p">,),</span>
+                      <span class="s1">&#39;n_samples&#39;</span><span class="p">:</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span><span class="p">,</span>
+                      <span class="s1">&#39;on_fraction&#39;</span><span class="p">:</span> <span class="n">signal_fraction</span><span class="p">,</span>
+                      <span class="s1">&#39;delay_fraction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                      <span class="s1">&#39;rms&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">,</span>
+                      <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                      <span class="s1">&#39;low_frequency_cutoff&#39;</span><span class="p">:</span> <span class="n">excitation_min_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;high_frequency_cutoff&#39;</span><span class="p">:</span> <span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signal_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">generator</span><span class="o">.</span><span class="n">burst_random</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_averages</span><span class="p">)]</span>
+            <span class="n">full_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">signal</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">signal_list</span><span class="p">):</span>
+                <span class="n">full_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_signals</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">extra_time_between_frames</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">))))</span>
+                <span class="n">full_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">full_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;chirp&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Chirp generally not recommended for multi-reference excitation.&#39;</span><span class="p">)</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frequency_min&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">excitation_min_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_min_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;frequency_max&#39;</span><span class="p">:</span> <span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">,</span>
+                      <span class="s1">&#39;signal_length&#39;</span><span class="p">:</span> <span class="n">frame_time</span><span class="p">,</span>
+                      <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">chirp</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_signals</span><span class="p">)</span>
+            <span class="p">])</span> <span class="o">*</span> <span class="n">excitation_level</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">signals</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_averages</span> <span class="o">+</span>
+                              <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">steady_state_time</span> <span class="o">/</span> <span class="n">frame_time</span><span class="p">))])</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hammer&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;Warning: Hammer impact generally not recommended for multi-reference excitation, consider multi-hammer instead&#39;</span><span class="p">)</span>
+            <span class="n">pulse_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">)</span>
+            <span class="n">signal_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span> <span class="o">*</span> <span class="n">num_averages</span> <span class="o">+</span> <span class="p">(</span><span class="n">num_averages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="o">*</span> <span class="n">extra_time_between_frames</span> <span class="o">*</span> <span class="n">sample_rate</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pulse_width</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)</span>
+            <span class="n">pulse_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_averages</span><span class="p">)[</span>
+                <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">frame_time</span> <span class="o">+</span> <span class="n">extra_time_between_frames</span><span class="p">)</span> <span class="o">+</span> <span class="n">pulse_width</span> <span class="o">+</span> <span class="n">extra_time_between_frames</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;signal_length&#39;</span><span class="p">:</span> <span class="n">signal_length</span><span class="p">,</span>
+                      <span class="s1">&#39;pulse_time&#39;</span><span class="p">:</span> <span class="n">pulse_times</span><span class="p">,</span>
+                      <span class="s1">&#39;pulse_width&#39;</span><span class="p">:</span> <span class="n">pulse_width</span><span class="p">,</span>
+                      <span class="s1">&#39;pulse_peak&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">,</span>
+                      <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                      <span class="s1">&#39;sine_exponent&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">pulse</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">signals</span><span class="p">,</span> <span class="p">[</span><span class="n">num_signals</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;multi-hammer&#39;</span><span class="p">:</span>
+            <span class="n">signal_length</span> <span class="o">=</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span>
+            <span class="n">pulse_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">bandwidth</span> <span class="k">if</span> <span class="n">excitation_max_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_max_frequency</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_signals</span><span class="p">):</span>
+                <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_averages</span><span class="p">):</span>
+                    <span class="n">pulse_times</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">last_pulse</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">while</span> <span class="n">last_pulse</span> <span class="o">&lt;</span> <span class="n">frame_time</span> <span class="o">*</span> <span class="n">signal_fraction</span><span class="p">:</span>
+                        <span class="n">next_pulse</span> <span class="o">=</span> <span class="n">last_pulse</span> <span class="o">+</span> <span class="n">pulse_width</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">*</span> <span class="n">multihammer_impact_spacing_factor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">pulse_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_pulse</span><span class="p">)</span>
+                        <span class="n">last_pulse</span> <span class="o">=</span> <span class="n">next_pulse</span>
+                    <span class="n">pulse_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pulse_times</span><span class="p">)</span>
+                    <span class="n">pulse_times</span> <span class="o">=</span> <span class="n">pulse_times</span><span class="p">[</span><span class="n">pulse_times</span> <span class="o">&lt;</span>
+                                              <span class="n">frame_time</span> <span class="o">*</span> <span class="n">signal_fraction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;signal_length&#39;</span><span class="p">:</span> <span class="n">signal_length</span><span class="p">,</span>
+                              <span class="s1">&#39;pulse_time&#39;</span><span class="p">:</span> <span class="n">pulse_times</span><span class="p">,</span>
+                              <span class="s1">&#39;pulse_width&#39;</span><span class="p">:</span> <span class="n">pulse_width</span><span class="p">,</span>
+                              <span class="s1">&#39;pulse_peak&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">,</span>
+                              <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                              <span class="s1">&#39;sine_exponent&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+                    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+                    <span class="n">signal</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">pulse</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">signals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">extra_time_between_frames</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+                    <span class="n">signals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+                <span class="n">signals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">extra_time_between_frames</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+                <span class="n">signals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">signals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">signals</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sine&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s1">&#39;Warning: Sine signal generally not recommended for multi-reference excitation&#39;</span><span class="p">)</span>
+            <span class="n">frequencies</span> <span class="o">=</span> <span class="n">excitation_max_frequency</span> <span class="k">if</span> <span class="n">excitation_min_frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">excitation_min_frequency</span>
+            <span class="n">num_samples</span> <span class="o">=</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span> <span class="o">*</span> <span class="n">num_averages</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">steady_state_time</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frequencies&#39;</span><span class="p">:</span> <span class="n">frequencies</span><span class="p">,</span>
+                      <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                      <span class="s1">&#39;num_samples&#39;</span><span class="p">:</span> <span class="n">num_samples</span><span class="p">,</span>
+                      <span class="s1">&#39;amplitudes&#39;</span><span class="p">:</span> <span class="n">excitation_level</span><span class="p">}</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="p">(</span><span class="n">num_signals</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Set up the integration</span>
+        <span class="n">responses</span><span class="p">,</span> <span class="n">references</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+            <span class="n">signals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">displacement_derivative</span><span class="p">,</span><span class="o">**</span><span class="n">time_integrate_kwargs</span><span class="p">)</span>
+        <span class="c1"># Now add noise</span>
+        <span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">+=</span> <span class="n">response_noise_level</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">references</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">+=</span> <span class="n">excitation_noise_level</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">references</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># Filter with antialiasing filters, divide filter order by 2 because of filtfilt</span>
+        <span class="k">if</span> <span class="n">antialias_filter_order</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lowpass_b</span><span class="p">,</span> <span class="n">lowpass_a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">antialias_filter_order</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                                          <span class="n">antialias_filter_cutoff_factor</span> <span class="o">*</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">)</span>
+            <span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">filtfilt</span><span class="p">(</span><span class="n">lowpass_b</span><span class="p">,</span> <span class="n">lowpass_a</span><span class="p">,</span> <span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span><span class="p">)</span>
+            <span class="n">references</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">=</span> <span class="n">filtfilt</span><span class="p">(</span><span class="n">lowpass_b</span><span class="p">,</span> <span class="n">lowpass_a</span><span class="p">,</span> <span class="n">references</span><span class="o">.</span><span class="n">ordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">integration_oversample</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">integration_oversample</span><span class="p">)</span>
+            <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">integration_oversample</span><span class="p">)</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="n">steady_state_time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span><span class="n">steady_state_time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span></div>
+    
+<div class="viewcode-block" id="SystemNL.copy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_nonlinear_system.SystemNL.html#sdynpy.core.sdynpy_nonlinear_system.SystemNL.copy">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SystemNL</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">state_derivative_function</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">state_size</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">displacement_output_function</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">velocity_output_function</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">acceleration_output_function</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">excitation_output_function</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+<jinja2.runtime.BlockReference object at 0x7f6cacaf8590>
+<img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

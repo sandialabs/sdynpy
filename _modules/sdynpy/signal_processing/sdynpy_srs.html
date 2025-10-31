@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_srs &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_srs &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -485,6 +485,7 @@
                       <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.02</span><span class="p">,</span>
                       <span class="n">acceleration_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
                       <span class="n">plot_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">srs_frequencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">ignore_compensation_pulse</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                       <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
                       <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -606,6 +607,8 @@
 <span class="sd">    srs_frequencies : np.ndarray, optional</span>
 <span class="sd">        If specified, these frequencies will be used to compute the SRS that</span>
 <span class="sd">        will be plotted when the `plot_results` value is `True`.</span>
+<span class="sd">    ignore_compensation_pulse : bool, optional</span>
+<span class="sd">        If True, the compensation pulse will be ignored.</span>
 <span class="sd">    verbose : True, optional</span>
 <span class="sd">        If True, additional diagnostics will be printed to the console.</span>
 
@@ -723,7 +726,7 @@
          <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span>
          <span class="n">scale_factor</span><span class="o">*</span><span class="n">required_srs</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">,</span>
          <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">srs_damping</span><span class="p">,</span> <span class="n">srs_type</span><span class="p">,</span> <span class="n">number_of_iterations</span><span class="p">,</span>
-         <span class="n">convergence</span><span class="p">,</span> <span class="n">error_tolerance</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+         <span class="n">convergence</span><span class="p">,</span> <span class="n">error_tolerance</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
 
     <span class="n">all_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">used_frequencies</span><span class="p">,</span>
                                       <span class="p">[</span><span class="n">used_comp_frequency</span><span class="p">]))</span>
@@ -784,7 +787,8 @@
                        <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span>
                        <span class="n">srs_damping</span><span class="p">,</span> <span class="n">srs_type</span><span class="p">,</span>
                        <span class="n">number_of_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">convergence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
-                       <span class="n">error_tolerance</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                       <span class="n">error_tolerance</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Optimizes the amplitudes of sums of decayed sines</span>
 
@@ -829,6 +833,8 @@
 <span class="sd">        The fraction of the error corrected each iteration. The default is 0.8.</span>
 <span class="sd">    error_tolerance : float, optional</span>
 <span class="sd">        Allowable relative error in the SRS. The default is 0.05.</span>
+<span class="sd">    ignore_compensation_pulse : bool, optional</span>
+<span class="sd">        If True, ignores the compensation pulse.  Default is false.</span>
 <span class="sd">    verbose : bool, optional</span>
 <span class="sd">        If True, information on the interations will be provided. The default</span>
 <span class="sd">        is False.</span>
@@ -864,12 +870,13 @@
                 <span class="n">required_srs</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">,</span>
                 <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">srs_damping</span><span class="p">,</span> <span class="n">srs_type</span><span class="p">,</span>
                 <span class="n">number_of_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">convergence</span><span class="o">=</span><span class="n">convergence</span><span class="p">,</span>
-                <span class="n">error_tolerance</span><span class="o">=</span><span class="n">error_tolerance</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">))</span>
+                <span class="n">error_tolerance</span><span class="o">=</span><span class="n">error_tolerance</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span><span class="o">=</span><span class="n">ignore_compensation_pulse</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">))</span>
         <span class="c1"># get the SRS error at each frequency term by first computing the signal</span>
         <span class="p">(</span><span class="n">this_signal</span><span class="p">,</span> <span class="n">this_compensation_frequency</span><span class="p">,</span> <span class="n">this_compensation_amplitude</span><span class="p">,</span>
          <span class="n">this_compensation_decay</span><span class="p">,</span> <span class="n">this_compensation_delay</span><span class="p">)</span> <span class="o">=</span> <span class="n">sum_decayed_sines_reconstruction_with_compensation</span><span class="p">(</span>
             <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">this_sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span>
-            <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
+            <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span><span class="o">=</span><span class="n">ignore_compensation_pulse</span><span class="p">)</span>
         <span class="c1"># Then computing the SRS of the signal</span>
         <span class="n">this_srs</span> <span class="o">=</span> <span class="n">srs</span><span class="p">(</span><span class="n">this_signal</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">srs_damping</span><span class="p">,</span>
                        <span class="n">srs_type</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -903,6 +910,7 @@
                                         <span class="n">damping_srs</span><span class="p">,</span> <span class="n">srs_type</span><span class="p">,</span>
                                         <span class="n">number_of_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">convergence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
                                         <span class="n">error_tolerance</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                                        <span class="n">ignore_compensation_pulse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterates on amplitudes of decayed sine waves to match a prescribed SRS</span>
@@ -949,6 +957,8 @@
 <span class="sd">        The fraction of the error corrected each iteration. The default is 0.8.</span>
 <span class="sd">    error_tolerance : float, optional</span>
 <span class="sd">        Allowable relative error in the SRS. The default is 0.05.</span>
+<span class="sd">    ignore_compensation_pulse : bool, optional</span>
+<span class="sd">        If True, do not use a compensation pulse.  Default is false.</span>
 <span class="sd">    verbose : bool, optional</span>
 <span class="sd">        If True, information on the interations will be provided. The default</span>
 <span class="sd">        is False.</span>
@@ -1004,8 +1014,12 @@
             <span class="n">this_pulse</span> <span class="o">=</span> <span class="n">sum_decayed_sines_reconstruction</span><span class="p">(</span>
                 <span class="n">frequency</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">decay</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
             <span class="c1"># Get the compensating pulse</span>
-            <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
-                <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_compensation_pulse</span><span class="p">:</span>
+                <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
+                    <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">compensation_amplitude</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">compensation_delay</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="c1"># Find the number of samples to shift the waveform</span>
             <span class="n">num_shift</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">compensation_delay</span><span class="o">*</span><span class="n">sample_rate</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num_shift</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">block_size</span><span class="p">:</span>
@@ -1055,8 +1069,12 @@
                 <span class="n">this_pulse</span> <span class="o">=</span> <span class="n">sum_decayed_sines_reconstruction</span><span class="p">(</span>
                     <span class="n">frequency</span><span class="p">,</span> <span class="n">new_amplitude</span><span class="p">,</span> <span class="n">decay</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
                 <span class="c1"># Get the compensating pulse</span>
-                <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
-                    <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_compensation_pulse</span><span class="p">:</span>
+                    <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
+                        <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">compensation_amplitude</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">compensation_delay</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="c1"># Find the number of samples to shift the waveform</span>
                 <span class="n">num_shift</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">compensation_delay</span><span class="o">*</span><span class="n">sample_rate</span><span class="p">))</span>
                 <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num_shift</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">block_size</span><span class="p">:</span>
@@ -1110,8 +1128,12 @@
                     <span class="n">this_pulse</span> <span class="o">=</span> <span class="n">sum_decayed_sines_reconstruction</span><span class="p">(</span>
                         <span class="n">frequency</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">decay</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
                     <span class="c1"># Get the compensating pulse</span>
-                    <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
-                        <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_compensation_pulse</span><span class="p">:</span>
+                        <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
+                            <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">compensation_amplitude</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">compensation_delay</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="c1"># Find the number of samples to shift the waveform</span>
                     <span class="n">num_shift</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">compensation_delay</span><span class="o">*</span><span class="n">sample_rate</span><span class="p">))</span>
                     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num_shift</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">block_size</span><span class="p">:</span>
@@ -1159,8 +1181,12 @@
                 <span class="k">if</span> <span class="n">iteration_count</span> <span class="o">&gt;</span> <span class="n">number_of_iterations</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Warning: SRS did not converge for frequency </span><span class="si">{:}</span><span class="s1">: </span><span class="si">{:0.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">frequency</span><span class="p">))</span>
                     <span class="k">break</span>
-    <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
-        <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_compensation_pulse</span><span class="p">:</span>
+        <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
+            <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">compensation_amplitude</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">compensation_delay</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span>
 
 
@@ -1223,7 +1249,7 @@
 <div class="viewcode-block" id="sum_decayed_sines_reconstruction_with_compensation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.signal_processing.sdynpy_srs.sum_decayed_sines_reconstruction_with_compensation.html#sdynpy.signal_processing.sdynpy_srs.sum_decayed_sines_reconstruction_with_compensation">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">sum_decayed_sines_reconstruction_with_compensation</span><span class="p">(</span>
         <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span>
         <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span> <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">,</span>
-        <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">):</span>
+        <span class="n">sample_rate</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">ignore_compensation_pulse</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -1245,6 +1271,8 @@
 <span class="sd">        The sample rate of the signal</span>
 <span class="sd">    block_size : int</span>
 <span class="sd">        The number of samples in the signal</span>
+<span class="sd">    ignore_compensation_pulse : bool, optional</span>
+<span class="sd">        If True, ignores the compensation pulse</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1263,9 +1291,13 @@
     <span class="n">sine_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sine_amplitudes</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
     <span class="n">sine_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sine_delays</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
     <span class="n">sine_decays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sine_decays</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-    <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
-        <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span>
-        <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_compensation_pulse</span><span class="p">:</span>
+        <span class="n">compensation_amplitude</span><span class="p">,</span> <span class="n">compensation_delay</span> <span class="o">=</span> <span class="n">sum_decayed_sines_compensating_pulse_parameters</span><span class="p">(</span>
+            <span class="n">sine_frequencies</span><span class="p">,</span> <span class="n">sine_amplitudes</span><span class="p">,</span> <span class="n">sine_decays</span><span class="p">,</span> <span class="n">sine_delays</span><span class="p">,</span>
+            <span class="n">compensation_frequency</span><span class="p">,</span> <span class="n">compensation_decay</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">compensation_amplitude</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">compensation_delay</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">sine_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">sine_frequencies</span><span class="p">,</span> <span class="p">[</span><span class="n">compensation_frequency</span><span class="p">]))</span>
     <span class="n">sine_amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">sine_amplitudes</span><span class="p">,</span> <span class="p">[</span><span class="n">compensation_amplitude</span><span class="p">]))</span>
     <span class="n">sine_delays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">sine_delays</span><span class="p">,</span> <span class="p">[</span><span class="n">compensation_delay</span><span class="p">]))</span>
@@ -1702,7 +1734,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596e935550>
+<jinja2.runtime.BlockReference object at 0x7f6caeb9e150>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

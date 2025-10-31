@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -134,7 +134,7 @@
 <h1>sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator<a class="headerlink" href="#sdynpy-signal-processing-sdynpy-harmonic-vold-kalman-filter-generator" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator">
-<span class="sig-name descname"><span class="pre">vold_kalman_filter_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_amp_phs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_harmonic.html#vold_kalman_filter_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vold_kalman_filter_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/signal_processing/sdynpy_harmonic.html#vold_kalman_filter_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.signal_processing.sdynpy_harmonic.vold_kalman_filter_generator" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts sinusoidal information using a Vold-Kalman Filter</p>
 <p>This uses an windowed-overlap-and-add process to solve for the signal while
 removing start and end effects of the filter.  Each time the generator is
@@ -146,6 +146,8 @@ section.</p>
 <li><p><strong>sample_rate</strong> (<em>float</em>) – The sample rate of the signal in Hz.</p></li>
 <li><p><strong>num_orders</strong> (<em>int</em>) – The number of orders that will be found in the signal</p></li>
 <li><p><strong>block_size</strong> (<em>int</em>) – The size of the blocks used in the analysis.</p></li>
+<li><p><strong>overlap</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of the block size to overlap when computing the results.  If
+not specified, it will default to 0.15.</p></li>
 <li><p><strong>filter_order</strong> (<em>int</em><em>, </em><em>optional</em>) – The order of the VK filter, which should be 1, 2, or 3. The default is
 2.  The low-pass filter roll-off is approximately -40 dB per times the
 filter order.</p></li>
@@ -159,8 +161,6 @@ This can be more efficient, but will result in errors if the
 frequencies of the sine waves cross.  The ‘multi’ solution will solve
 for all sinusoidal components simultaneously, resulting in a better
 estimate of crossing frequencies. The default is ‘multi’.</p></li>
-<li><p><strong>overlap</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of the block size to overlap when computing the results.  If
-not specified, it will default to 0.15.</p></li>
 <li><p><strong>plot_results</strong> (<em>bool</em>) – If True, will plot the data at multiple steps for diagnostics</p></li>
 </ul>
 </dd>
@@ -214,7 +214,7 @@ solved for.  Only returned if return_amp_phs is True.</p></li>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596bf177d0>
+<jinja2.runtime.BlockReference object at 0x7f6cadc2bad0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

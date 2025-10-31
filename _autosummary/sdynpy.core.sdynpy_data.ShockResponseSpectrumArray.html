@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.ShockResponseSpectrumArray &mdash; SDynPy 0.19.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.ShockResponseSpectrumArray &mdash; SDynPy 0.21.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -107,6 +107,7 @@
 <li class="toctree-l6"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.__init__"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray.__init__()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.function_type"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray.function_type</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray.mimo_inverse()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.plot"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray.plot()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines"><code class="docutils literal notranslate"><span class="pre">ShockResponseSpectrumArray.sum_decayed_sines()</span></code></a></li>
 </ul>
@@ -123,6 +124,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_geometry.html">sdynpy.core.sdynpy_geometry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_matrix.html">sdynpy.core.sdynpy_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_nonlinear_system.html">sdynpy.core.sdynpy_nonlinear_system</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_shape.html">sdynpy.core.sdynpy_shape</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sdynpy.core.sdynpy_system.html">sdynpy.core.sdynpy_system</a></li>
 </ul>
@@ -186,10 +188,13 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.plot" title="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([one_axis, subplots_kwargs, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse" title="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mimo_inverse</span></code></a>(transfer_function, sample_rate, ...)</p></td>
+<td><p>Computes an input signal that would recreate the specified SRS</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.plot" title="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([one_axis, subplots_kwargs, ...])</p></td>
 <td><p>Plot the shock response spectrum</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines" title="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_decayed_sines</span></code></a>(sample_rate, block_size[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines" title="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_decayed_sines</span></code></a>(sample_rate, block_size[, ...])</p></td>
 <td><p>Generate a Sum of Decayed Sines signal given an SRS.</p></td>
 </tr>
 </tbody>
@@ -210,6 +215,66 @@
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.function_type">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function_type</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.function_type" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the function type of the data array</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse">
+<span class="sig-name descname"><span class="pre">mimo_inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transfer_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_time_constants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_decays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_drive_signal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_drive_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_projected_srs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_optimization_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_complex_targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#ShockResponseSpectrumArray.mimo_inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.mimo_inverse" title="Permalink to this definition"></a></dt>
+<dd><p>Computes an input signal that would recreate the specified SRS</p>
+<p>Computes an input signal that would recreate the specified SRSs if
+played into a system with the specified transfer functions.  It uses
+a phase-matching approach to compute a preferred phasing between
+responses that are not specified by the SRS functions.  It then uses
+the transfer functions to solve for drive signals that will achieve
+those desired responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transfer_function</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray" title="sdynpy.core.sdynpy_data.TransferFunctionArray"><em>TransferFunctionArray</em></a>) – The transfer functions to use in the MIMO calculation</p></li>
+<li><p><strong>sample_rate</strong> (<em>float</em>) – The number of samples per second in the output signal</p></li>
+<li><p><strong>block_size</strong> (<em>int</em>) – The number of samples in the output signal</p></li>
+<li><p><strong>srs_damping</strong> (<em>float</em><em>, </em><em>optional</em>) – The damping used in SRS computations. The default is 0.03.</p></li>
+<li><p><strong>num_time_constants</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of decay time constants in the signal. One of this, tau, or
+sine_decays must be specified.</p></li>
+<li><p><strong>tau</strong> (<em>float</em><em>, </em><em>optional</em>) – The decay constant for the sine waves. One of this, num_time_constants,
+or sine_decays must be specified.</p></li>
+<li><p><strong>sine_decays</strong> (<em>ndarray</em><em>, </em><em>optional</em>) – An array of sine decay terms as used in the decayed sine table. One
+of this, num_time_constants, or tau must be specified.</p></li>
+<li><p><strong>rcond</strong> (<em>float</em><em>, </em><em>optional</em>) – A regularization parameter used on the MIMO inverse problem. The
+default is no regularization.</p></li>
+<li><p><strong>accuracy_weight</strong> (<em>float</em><em>, </em><em>optional</em>) – A weighting factor to give to the accuracy of the MIMO solution.
+The default is 1.</p></li>
+<li><p><strong>input_weight</strong> (<em>float</em><em>, </em><em>optional</em>) – A weighting factor to give to the magnitude of the drive signal in
+the MIMO solution. The default is 0.</p></li>
+<li><p><strong>return_drive_signal</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return the calculated drive signal. The default is True.</p></li>
+<li><p><strong>return_drive_table</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return a DecayedSineTable containing the parameters of the
+drive signal. The default is False.</p></li>
+<li><p><strong>return_projected_srs</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, compute the response SRS achieved from the computed drive
+signal. The default is False.</p></li>
+<li><p><strong>return_optimization_result</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return the optimization results. The default is False.</p></li>
+<li><p><strong>return_complex_targets</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return the complex targets of the MIMO calculation.
+The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>drive_signal</strong> (<em>TimeHistoryArray</em>) – A time history that when played through the transfer functions will
+produce the specified SRS.  Only returned if return_drive_signal is
+True.</p></li>
+<li><p><strong>drive_table</strong> (<em>DecayedSineTable</em>) – A table containing frequency, amplitude, delay, and decay parameters
+for each signal.  Only returned if return_drive_table is True.</p></li>
+<li><p><strong>projected_srs</strong> (<em>ShockResponseSpectrumArray</em>) – A SRS computed from the predicted response of playing the drive
+signal through the provided transfer functions.  Only returned if
+return_projected_srs is True.</p></li>
+<li><p><strong>optimization_result</strong> (<em>list of OptimizationResult</em>) – A set of results from the nonlinear optimizers.  Only returned if
+return_optimization_result is True.</p></li>
+<li><p><strong>complex_targets</strong> (<em>ndarray</em>) – The complex amplitudes of the response signals that were targeted
+by the MIMO computation.  Only returned if return_complex_targets
+is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -249,7 +314,7 @@ markers.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines">
-<span class="sig-name descname"><span class="pre">sum_decayed_sines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_tone_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_tone_per_octave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_amplitudes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_decays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_delays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MMAA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compensation_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compensation_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_time_constants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceleration_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_srs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sine_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#ShockResponseSpectrumArray.sum_decayed_sines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sum_decayed_sines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_tone_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_tone_per_octave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_amplitudes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_decays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_delays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MMAA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compensation_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compensation_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_time_constants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceleration_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srs_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_srs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sine_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_compensation_pulse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#ShockResponseSpectrumArray.sum_decayed_sines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.ShockResponseSpectrumArray.sum_decayed_sines" title="Permalink to this definition"></a></dt>
 <dd><p>Generate a Sum of Decayed Sines signal given an SRS.</p>
 <p>Note that there are many approaches to do this, with many optional arguments
 so please read the documentation carefully to understand which arguments
@@ -351,6 +416,7 @@ False</p></li>
 False</p></li>
 <li><p><strong>return_srs</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the SRS of the generated signal will also be returned</p></li>
 <li><p><strong>return_sine_table</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, a sine table will also be returned</p></li>
+<li><p><strong>ignore_compensation_pulse</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the compensation pulse will not be used.  Default is False.</p></li>
 <li><p><strong>verbose</strong> (<em>True</em><em>, </em><em>optional</em>) – If True, additional diagnostics will be printed to the console.</p></li>
 </ul>
 </dd>
@@ -388,7 +454,7 @@ delay, and decay parameters that are used to generate <cite>acceleration</cite>.
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f596d9ffa50>
+<jinja2.runtime.BlockReference object at 0x7f6caef45bd0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>
