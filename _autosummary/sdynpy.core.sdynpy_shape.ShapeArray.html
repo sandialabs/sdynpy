@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_shape.ShapeArray &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_shape.ShapeArray &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -95,6 +95,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.from_uff"><code class="docutils literal notranslate"><span class="pre">ShapeArray.from_uff()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.from_unv"><code class="docutils literal notranslate"><span class="pre">ShapeArray.from_unv()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.is_complex"><code class="docutils literal notranslate"><span class="pre">ShapeArray.is_complex()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.mac"><code class="docutils literal notranslate"><span class="pre">ShapeArray.mac()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.mode_table"><code class="docutils literal notranslate"><span class="pre">ShapeArray.mode_table()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.modeshape"><code class="docutils literal notranslate"><span class="pre">ShapeArray.modeshape</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.ndof"><code class="docutils literal notranslate"><span class="pre">ShapeArray.ndof</span></code></a></li>
@@ -102,13 +103,13 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom"><code class="docutils literal notranslate"><span class="pre">ShapeArray.optimize_degrees_of_freedom()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes"><code class="docutils literal notranslate"><span class="pre">ShapeArray.overlay_shapes()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_frequency"><code class="docutils literal notranslate"><span class="pre">ShapeArray.plot_frequency()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_mac"><code class="docutils literal notranslate"><span class="pre">ShapeArray.plot_mac()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.real_data_dtype"><code class="docutils literal notranslate"><span class="pre">ShapeArray.real_data_dtype()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.reduce"><code class="docutils literal notranslate"><span class="pre">ShapeArray.reduce()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.reduce_for_comparison"><code class="docutils literal notranslate"><span class="pre">ShapeArray.reduce_for_comparison()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.repack"><code class="docutils literal notranslate"><span class="pre">ShapeArray.repack()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment"><code class="docutils literal notranslate"><span class="pre">ShapeArray.shape_alignment()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.system"><code class="docutils literal notranslate"><span class="pre">ShapeArray.system()</span></code></a></li>
-<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.time_integrate"><code class="docutils literal notranslate"><span class="pre">ShapeArray.time_integrate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_complex"><code class="docutils literal notranslate"><span class="pre">ShapeArray.to_complex()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_real"><code class="docutils literal notranslate"><span class="pre">ShapeArray.to_real()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system"><code class="docutils literal notranslate"><span class="pre">ShapeArray.transform_coordinate_system()</span></code></a></li>
@@ -215,20 +216,26 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.is_complex" title="sdynpy.core.sdynpy_shape.ShapeArray.is_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_complex</span></code></a>()</p></td>
 <td><p>Returns true if the shape is a complex shape, False if shape is real</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.mode_table" title="sdynpy.core.sdynpy_shape.ShapeArray.mode_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode_table</span></code></a>([table_format, frequency_format, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.mac" title="sdynpy.core.sdynpy_shape.ShapeArray.mac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mac</span></code></a>()</p></td>
+<td><p>Computes the modal assurance criterion matrix of the shapes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.mode_table" title="sdynpy.core.sdynpy_shape.ShapeArray.mode_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode_table</span></code></a>([table_format, frequency_format, ...])</p></td>
 <td><p>Generates a table of modal information including frequency and damping</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.normalize" title="sdynpy.core.sdynpy_shape.ShapeArray.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(system_or_matrix[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.normalize" title="sdynpy.core.sdynpy_shape.ShapeArray.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>(system_or_matrix[, ...])</p></td>
 <td><p>Computes A-normalized or mass-normalized shapes</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom" title="sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_degrees_of_freedom</span></code></a>(sensors_to_keep)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom" title="sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_degrees_of_freedom</span></code></a>(sensors_to_keep)</p></td>
 <td><p>Creates a reduced set of shapes using optimal degrees of freedom</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes" title="sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_shapes</span></code></a>(geometries, shapes[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes" title="sdynpy.core.sdynpy_shape.ShapeArray.overlay_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_shapes</span></code></a>(geometries, shapes[, ...])</p></td>
 <td><p>Combines several shapes and geometries for comparitive visualization</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_frequency" title="sdynpy.core.sdynpy_shape.ShapeArray.plot_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_frequency</span></code></a>(interp_abscissa, interp_ordinate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_frequency" title="sdynpy.core.sdynpy_shape.ShapeArray.plot_frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_frequency</span></code></a>(interp_abscissa, interp_ordinate)</p></td>
 <td><p>Plots the frequencies of the shapes on curves of a 2D plot</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_mac" title="sdynpy.core.sdynpy_shape.ShapeArray.plot_mac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mac</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Plots the mac matrix of the shapes</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.real_data_dtype" title="sdynpy.core.sdynpy_shape.ShapeArray.real_data_dtype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real_data_dtype</span></code></a>(ndof)</p></td>
 <td><p>Data type of the underlying numpy structured array for real shapes</p></td>
@@ -248,22 +255,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.system" title="sdynpy.core.sdynpy_shape.ShapeArray.system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system</span></code></a>()</p></td>
 <td><p>Create system matrices from the shapes</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.time_integrate" title="sdynpy.core.sdynpy_shape.ShapeArray.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces, dt[, responses, ...])</p></td>
-<td><p>Integrate equations of motion created from shapes</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_complex" title="sdynpy.core.sdynpy_shape.ShapeArray.to_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_complex</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_complex" title="sdynpy.core.sdynpy_shape.ShapeArray.to_complex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_complex</span></code></a>()</p></td>
 <td><p>Creates complex shapes from real shapes</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_real" title="sdynpy.core.sdynpy_shape.ShapeArray.to_real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_real</span></code></a>([force_angle])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.to_real" title="sdynpy.core.sdynpy_shape.ShapeArray.to_real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_real</span></code></a>([force_angle])</p></td>
 <td><p>Creates real shapes from complex shapes by collapsing the complexity</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system" title="sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system" title="sdynpy.core.sdynpy_shape.ShapeArray.transform_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinate_system</span></code></a>(...[, ...])</p></td>
 <td><p>Performs coordinate system transformations on the shape</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix" title="sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix</span></code></a>(physical_coordinates)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix" title="sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix</span></code></a>(physical_coordinates)</p></td>
 <td><p>Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv" title="sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, specific_data_type, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv" title="sdynpy.core.sdynpy_shape.ShapeArray.write_to_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_to_unv</span></code></a>(filename[, specific_data_type, ...])</p></td>
 <td><p>Writes shape data to a unverisal file</p></td>
 </tr>
 </tbody>
@@ -532,6 +536,20 @@ function.  This can then be saved to a .mat file and loaded using
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.mac">
+<span class="sig-name descname"><span class="pre">mac</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.mac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.mac" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the modal assurance criterion matrix of the shapes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The modal assurance criterion matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>mac</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.mode_table">
 <span class="sig-name descname"><span class="pre">mode_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:0.2f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:0.2f}%'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.mode_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.mode_table" title="Permalink to this definition"></a></dt>
 <dd><p>Generates a table of modal information including frequency and damping</p>
@@ -668,6 +686,12 @@ default is {‘color’:’k’,’marker’:’x’,’linestyle’:”None”}
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.plot_mac">
+<span class="sig-name descname"><span class="pre">plot_mac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.plot_mac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.plot_mac" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the mac matrix of the shapes</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.real_data_dtype">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_data_dtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndof</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.real_data_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.real_data_dtype" title="Permalink to this definition"></a></dt>
 <dd><p>Data type of the underlying numpy structured array for real shapes</p>
@@ -768,40 +792,6 @@ to physical coordinates</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdynpy.core.sdynpy_shape.ShapeArray.time_integrate">
-<span class="sig-name descname"><span class="pre">time_integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_shape.html#ShapeArray.time_integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_shape.ShapeArray.time_integrate" title="Permalink to this definition"></a></dt>
-<dd><p>Integrate equations of motion created from shapes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>forces</strong> (<em>np.ndarray</em>) – Input force provided to the shapes, with number of rows equal to
-the number of references, and number of columns equal to the number
-of time steps in the simulation.</p></li>
-<li><p><strong>dt</strong> (<em>float</em>) – Time increment for the integration.  For accuracy, this is generally
-about 10x higher than the bandwidth of interest</p></li>
-<li><p><strong>responses</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Degrees of freedom to get response measurements. The default is None,
-which returns modal responses.</p></li>
-<li><p><strong>references</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Degrees of freedom at which to apply forces. The default is None,
-which means the input forces are treated as modal forces</p></li>
-<li><p><strong>displacement_derivative</strong> (<em>int</em><em>, </em><em>optional</em>) – The derivative to use for the responses.  0 corresponds to
-displacement, 1 corresponds to velocity, and 2 corresponds to
-acceleration. The default is 2.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – Complex shapes are not currently implemented</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>response_array</strong> (<em>TimeHistoryArray</em>) – Responses assembled into a TimeHistoryArray.</p></li>
-<li><p><strong>reference_array</strong> (<em>TimeHistoryArray</em>) – Input forces assembled into a TimeHistoryArray.</p></li>
-</ul>
-</p>
 </dd>
 </dl>
 </dd></dl>
@@ -941,7 +931,7 @@ which denotes acceleration shapes.</p></li>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cad68e290>
+<jinja2.runtime.BlockReference object at 0x7f0b40256f10>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

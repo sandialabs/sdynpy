@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_geometry &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -128,14 +128,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">coordinate_array</span><span class="p">,</span> <span class="n">from_nodelist</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">R</span><span class="p">,</span> <span class="n">lstsq_rigid_transform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing.sdynpy_camera</span><span class="w"> </span><span class="kn">import</span> <span class="n">point_on_pixel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..core.sdynpy_matrix</span><span class="w"> </span><span class="kn">import</span> <span class="n">matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_matrix</span><span class="w"> </span><span class="kn">import</span> <span class="n">matrix</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">Delaunay</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">block_diag</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">openpyxl</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">savemat</span> <span class="k">as</span> <span class="n">scipy_savemat</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="nb">repr</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">GPUInfo</span><span class="p">())</span>
@@ -5091,6 +5093,27 @@
                  <span class="n">element</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span>
                  <span class="n">traceline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traceline</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span></div>
 
+<div class="viewcode-block" id="Geometry.savemat"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.savemat">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">savemat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves the geometry to a .mat file</span>
+
+<span class="sd">        The .mat file will have fields &#39;node&#39;, &#39;coordinate_system&#39;, &#39;element&#39;,</span>
+<span class="sd">        and &#39;traceline&#39;, with each field storing the respective portion of the</span>
+<span class="sd">        geometry</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Filename to save the geometry to.  </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mat_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">assemble_mat_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span>
+                    <span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;coordinate_system&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;traceline&#39;</span><span class="p">]}</span>
+        <span class="n">scipy_savemat</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">mat_dict</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Geometry.rigid_body_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">rigid_body_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inertia</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">cg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">principal_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a set of shapes corresponding to the rigid body motions</span>
@@ -5133,7 +5156,7 @@
         <span class="n">full_coordinates</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">node</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
                                             <span class="p">[</span><span class="s1">&#39;X+&#39;</span><span class="p">,</span> <span class="s1">&#39;Y+&#39;</span><span class="p">,</span> <span class="s1">&#39;Z+&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="c1"># Assume local coordinates for now, transform later</span>
-        <span class="n">translation_shape_matrix</span> <span class="o">=</span> <span class="n">full_coordinates</span><span class="o">.</span><span class="n">local_direction</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">translation_shape_matrix</span> <span class="o">=</span> <span class="n">full_coordinates</span><span class="o">.</span><span class="n">local_direction</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mass</span><span class="p">)</span>
         <span class="n">rotation_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">translation_shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_coordinates</span><span class="p">)):</span>
@@ -5155,6 +5178,53 @@
         <span class="n">reduced_shape_matrix</span> <span class="o">=</span> <span class="n">transformed_shape</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span>
         <span class="n">output_shape</span> <span class="o">=</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">reduced_shape_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_shape</span></div>
+
+<div class="viewcode-block" id="Geometry.coordinate_transformation_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">coordinate_transformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_geometry</span> <span class="p">:</span> <span class="s1">&#39;Geometry&#39;</span><span class="p">,</span>
+                                         <span class="n">nodes</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">rotations</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a transformation matrix that transforms one geometry to a new</span>
+<span class="sd">        geometry with different coordinate systems defined.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        to_geometry : Geometry</span>
+<span class="sd">            Geometry object with coordinate systems that the transformation</span>
+<span class="sd">            matrix will transform into</span>
+<span class="sd">        nodes : np.ndarray, optional</span>
+<span class="sd">            An array of node id numbers to include in the transformation.</span>
+<span class="sd">            The default is to include all nodes in the geometry.</span>
+<span class="sd">        rotations : bool, optional</span>
+<span class="sd">            If True, create degrees of freedom for rotations as well as</span>
+<span class="sd">            translations.</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Matrix</span>
+<span class="sd">            A Matrix object that transforms data or shapes currently</span>
+<span class="sd">            represented by this Geometry to the Geometry specified in the</span>
+<span class="sd">            `to_geometry` argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="n">to_geometry</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rotations</span><span class="p">:</span>
+            <span class="n">dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                                                    <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dofs</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">transform_from_original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_deflection</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+        <span class="n">transform_to_new</span> <span class="o">=</span> <span class="n">to_geometry</span><span class="o">.</span><span class="n">global_deflection</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+        <span class="c1"># We need to transform this matrix into block-diagonal form.</span>
+        <span class="n">transform_from_original</span> <span class="o">=</span> <span class="n">transform_from_original</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">transform_to_new</span> <span class="o">=</span> <span class="n">transform_to_new</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">transform_from_original</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">transform_from_original</span><span class="p">)</span>
+        <span class="n">transform_to_new</span> <span class="o">=</span> <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="n">transform_to_new</span><span class="p">)</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">transform_to_new</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">transform_from_original</span><span class="p">)</span>
+        <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span><span class="n">dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">dofs</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">transformation_matrix</span></div>
 
 <div class="viewcode-block" id="Geometry.load"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_geometry.Geometry.html#sdynpy.core.sdynpy_geometry.Geometry.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -5398,7 +5468,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cad9bb190>
+<jinja2.runtime.BlockReference object at 0x7f0b4232e710>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

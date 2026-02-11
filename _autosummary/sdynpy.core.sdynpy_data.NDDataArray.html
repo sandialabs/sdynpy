@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data.NDDataArray &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data.NDDataArray &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -276,7 +276,7 @@ SDynPy data arrays inherit from this superclass.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix" title="sdynpy.core.sdynpy_data.NDDataArray.reshape_to_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape_to_matrix</span></code></a>([error_if_missing])</p></td>
 <td><p>Reshapes a data array to a matrix with response coordinates along the rows and reference coordinates along the columns</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="sdynpy.core.sdynpy_data.NDDataArray.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="sdynpy.core.sdynpy_data.NDDataArray.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename[, compress_abscissa])</p></td>
 <td><p>Save the array to a numpy file</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_data.NDDataArray.shape_filter" title="sdynpy.core.sdynpy_data.NDDataArray.shape_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape_filter</span></code></a>(shape[, filter_responses, ...])</p></td>
@@ -795,12 +795,17 @@ for all references.  Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_data.NDDataArray.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_abscissa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_data.html#NDDataArray.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_data.NDDataArray.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save the array to a numpy file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename that the array will be saved to.  Will be appended with
-.npz if not specified in the filename</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Filename that the array will be saved to.  Will be appended with
+.npz if not specified in the filename</p></li>
+<li><p><strong>compress_abscissa</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, abscissa will be stored as start and step instead of full
+arrays.  If abscissa cannot be compressed and maintain values, a
+ValueError will be raised.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1074,7 +1079,7 @@ fast values for FFT as specified by <cite>scipy.fft.next_fast_len</cite>.</p></l
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6caeaf9110>
+<jinja2.runtime.BlockReference object at 0x7f0b4033e410>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

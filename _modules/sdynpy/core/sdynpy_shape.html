@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_shape &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -596,7 +596,7 @@
             <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">responses</span> <span class="o">=</span> <span class="n">all_coords</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            
+
             <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">references</span> <span class="o">=</span> <span class="n">responses</span>
@@ -798,6 +798,7 @@
             <span class="c1"># Append it</span>
             <span class="bp">self</span> <span class="o">=</span> <span class="n">ShapeArray</span><span class="o">.</span><span class="n">concatenate_dofs</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span> <span class="n">append_shape</span><span class="p">))</span>
         <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># TODO: I think there might be a bug in how rotations are handled...</span>
         <span class="n">new_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;nij,nkj,...nk-&gt;...ni&#39;</span><span class="p">,</span> <span class="n">transform_to_new</span><span class="p">,</span>
                                      <span class="n">transform_from_original</span><span class="p">,</span> <span class="n">shape_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">new_shape_matrix</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">,</span>
@@ -872,7 +873,7 @@
         <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="ShapeArray.to_complex"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.to_complex">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_complex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates complex shapes from real shapes</span>
@@ -891,7 +892,7 @@
         <span class="k">return</span> <span class="n">shape_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="ShapeArray.normalize"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.normalize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">system_or_matrix</span><span class="p">,</span> <span class="n">return_modal_matrix</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes A-normalized or mass-normalized shapes</span>
@@ -1091,75 +1092,6 @@
         <span class="n">new_shape</span> <span class="o">=</span> <span class="n">ShapeArray</span><span class="o">.</span><span class="n">concatenate_dofs</span><span class="p">(</span><span class="n">new_shapes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_geometry</span><span class="p">,</span> <span class="n">new_shape</span></div>
 
-<div class="viewcode-block" id="ShapeArray.time_integrate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.time_integrate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Integrate equations of motion created from shapes</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        forces : np.ndarray</span>
-<span class="sd">            Input force provided to the shapes, with number of rows equal to</span>
-<span class="sd">            the number of references, and number of columns equal to the number</span>
-<span class="sd">            of time steps in the simulation.</span>
-<span class="sd">        dt : float</span>
-<span class="sd">            Time increment for the integration.  For accuracy, this is generally</span>
-<span class="sd">            about 10x higher than the bandwidth of interest</span>
-<span class="sd">        responses : CoordinateArray, optional</span>
-<span class="sd">            Degrees of freedom to get response measurements. The default is None,</span>
-<span class="sd">            which returns modal responses.</span>
-<span class="sd">        references : CoordinateArray, optional</span>
-<span class="sd">            Degrees of freedom at which to apply forces. The default is None,</span>
-<span class="sd">            which means the input forces are treated as modal forces</span>
-<span class="sd">        displacement_derivative : int, optional</span>
-<span class="sd">            The derivative to use for the responses.  0 corresponds to</span>
-<span class="sd">            displacement, 1 corresponds to velocity, and 2 corresponds to</span>
-<span class="sd">            acceleration. The default is 2.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        NotImplementedError</span>
-<span class="sd">            Complex shapes are not currently implemented</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        response_array : TimeHistoryArray</span>
-<span class="sd">            Responses assembled into a TimeHistoryArray.</span>
-<span class="sd">        reference_array : TimeHistoryArray</span>
-<span class="sd">            Input forces assembled into a TimeHistoryArray.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Complex Modes not Implemented&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">flat_self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">)</span>
-            <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">modal_mass</span> <span class="o">*</span> <span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">frequency</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">modal_mass</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span>
-                        <span class="n">flat_self</span><span class="o">.</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">flat_self</span><span class="o">.</span><span class="n">damping</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">phi_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">phi_out</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">responses</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-            <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">phi_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">phi_in</span> <span class="o">=</span> <span class="n">flat_self</span><span class="p">[</span><span class="n">references</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">modal_forces</span> <span class="o">=</span> <span class="n">phi_in</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">forces</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">dt</span>
-            <span class="n">modal_response</span> <span class="o">=</span> <span class="n">integrate_MCK</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">modal_forces</span><span class="o">.</span><span class="n">T</span><span class="p">)[</span>
-                <span class="n">displacement_derivative</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">phi_out</span> <span class="o">@</span> <span class="n">modal_response</span>
-            <span class="n">response_array</span> <span class="o">=</span> <span class="n">sdynpy_data</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdynpy_data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
-                                                    <span class="n">times</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span>
-                                                    <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-                                                    <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">responses</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
-            <span class="n">reference_array</span> <span class="o">=</span> <span class="n">sdynpy_data</span><span class="o">.</span><span class="n">data_array</span><span class="p">(</span><span class="n">sdynpy_data</span><span class="o">.</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
-                                                     <span class="n">times</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
-                                                     <span class="n">sdynpy_coordinate</span><span class="o">.</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">flat_self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-                                                     <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">response_array</span><span class="p">,</span> <span class="n">reference_array</span></div>
-
 <div class="viewcode-block" id="ShapeArray.optimize_degrees_of_freedom"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.optimize_degrees_of_freedom">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">optimize_degrees_of_freedom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensors_to_keep</span><span class="p">,</span>
                                     <span class="n">group_by_node</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ei&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1200,6 +1132,21 @@
         <span class="n">coordinate_array</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="ShapeArray.mac"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.mac">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the modal assurance criterion matrix of the shapes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mac</span>
+<span class="sd">            The modal assurance criterion matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">mac</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ShapeArray.plot_mac"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.plot_mac">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot_mac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots the mac matrix of the shapes&quot;&quot;&quot;</span>
+
+        <span class="n">matrix_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mac</span><span class="p">(),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="ShapeArray.system"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.system">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create system matrices from the shapes</span>
@@ -1224,13 +1171,23 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_complex</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Complex Modes Not Implemented Yet&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">sdynpy_system</span><span class="o">.</span><span class="n">System</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
-                                        <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
-                                                <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
-                                        <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span> <span class="o">*</span>
-                                                <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
-                                        <span class="bp">self</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="c1"># It can take a long time to sort through coordinates, so we should check if</span>
+            <span class="c1"># the coordinates are identical across all shapes already</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">):</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coordinate</span>
+                <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+                <span class="n">shape_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">sdynpy_system</span><span class="o">.</span><span class="n">System</span><span class="p">(</span>
+                <span class="n">coordinates</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">modal_mass</span><span class="p">),</span>
+                <span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ShapeArray.shape_alignment"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.shape_alignment">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape_alignment</span><span class="p">(</span><span class="n">shape_1</span><span class="p">,</span> <span class="n">shape_2</span><span class="p">,</span> <span class="n">node_id_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1309,7 +1266,7 @@
                 <span class="k">return</span> <span class="n">df</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown Table Format: </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_format</span><span class="p">))</span></div>
-            
+
 <div class="viewcode-block" id="ShapeArray.edit_comments"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.edit_comments">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">edit_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Opens up a table where the shape comments can be edited</span>
@@ -1343,7 +1300,7 @@
         <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plotter</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">plot_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ShapeCommentTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="ShapeArray.transformation_matrix"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeArray.html#sdynpy.core.sdynpy_shape.ShapeArray.transformation_matrix">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">transformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">physical_coordinates</span><span class="p">,</span> <span class="n">inversion</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.</span>
@@ -1379,19 +1336,19 @@
 
         <span class="c1"># Truncate Shapes to Physical Coordinates</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">physical_coordinates</span><span class="p">)</span>
-        
+
         <span class="c1"># Invert Matrix (if desired)</span>
         <span class="k">if</span> <span class="n">inversion</span><span class="p">:</span>
             <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_matrix</span>
-            
+
         <span class="c1"># Normalize Matrix (if desired)</span>
         <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
             <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">transformation_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">transformation_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">return</span> <span class="n">matrix</span><span class="p">(</span><span class="n">transformation_matrix</span><span class="p">,</span> <span class="n">modal_coordinates</span><span class="p">,</span> <span class="n">physical_coordinates</span><span class="p">)</span></div></div>
-        
+
 <div class="viewcode-block" id="ShapeCommentTable"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ShapeCommentTable</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
 <div class="viewcode-block" id="ShapeCommentTable.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">plotter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1419,14 +1376,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="c1"># Add a table widget</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Shape Comment Editor&#39;</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span> <span class="o">=</span> <span class="n">shapes</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="o">.</span><span class="n">accepted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="o">.</span><span class="n">rejected</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
         <span class="c1"># Columns will be key, frequency, damping, comment1, comment2, ... comment5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span> <span class="o">=</span> <span class="n">QTableWidget</span><span class="p">(</span><span class="n">shapes</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
@@ -1450,19 +1407,19 @@
                 <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">^</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">column</span><span class="p">,</span><span class="n">item</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_box</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-        
+
 <div class="viewcode-block" id="ShapeCommentTable.update_mode"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.update_mode">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">current_shape</span> <span class="o">=</span> <span class="n">row</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">reset_shape</span><span class="p">()</span></div>
-        
+
 <div class="viewcode-block" id="ShapeCommentTable.accept"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_shape.ShapeCommentTable.html#sdynpy.core.sdynpy_shape.ShapeCommentTable.accept">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,(</span><span class="n">shape_index</span><span class="p">,</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">()):</span>
             <span class="n">shape</span><span class="o">.</span><span class="n">comment1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
@@ -1471,7 +1428,7 @@
             <span class="n">shape</span><span class="o">.</span><span class="n">comment4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
             <span class="n">shape</span><span class="o">.</span><span class="n">comment5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
-    
+
 <span class="c1">#    def string_array(self):</span>
 <span class="c1">#        return create_coordinate_string_array(self.node,self.direction)</span>
 <span class="c1">#</span>
@@ -2006,7 +1963,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cadcef850>
+<jinja2.runtime.BlockReference object at 0x7f0b3fe1ab90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

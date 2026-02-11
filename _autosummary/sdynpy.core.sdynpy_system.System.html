@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_system.System &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_system.System &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -92,6 +92,8 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.get_indices_by_coordinate"><code class="docutils literal notranslate"><span class="pre">System.get_indices_by_coordinate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.load"><code class="docutils literal notranslate"><span class="pre">System.load()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.mass"><code class="docutils literal notranslate"><span class="pre">System.mass</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.massive_dofs"><code class="docutils literal notranslate"><span class="pre">System.massive_dofs</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.massless_dofs"><code class="docutils literal notranslate"><span class="pre">System.massless_dofs</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof"><code class="docutils literal notranslate"><span class="pre">System.ndof</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof_transformed"><code class="docutils literal notranslate"><span class="pre">System.ndof_transformed</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.reduce"><code class="docutils literal notranslate"><span class="pre">System.reduce()</span></code></a></li>
@@ -107,6 +109,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_coordinate"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_coordinate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_position"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_position()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="docutils literal notranslate"><span class="pre">System.substructure_by_shape()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_shakers"><code class="docutils literal notranslate"><span class="pre">System.substructure_shakers()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate"><code class="docutils literal notranslate"><span class="pre">System.time_integrate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space"><code class="docutils literal notranslate"><span class="pre">System.to_state_space()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation"><code class="docutils literal notranslate"><span class="pre">System.transformation</span></code></a></li>
@@ -165,12 +168,12 @@
 <h1>sdynpy.core.sdynpy_system.System<a class="headerlink" href="#sdynpy-core-sdynpy-system-system" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Matrix Equations representing a Structural Dynamics System</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><span class="pre">CoordinateArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Create a system representation including mass, stiffness, damping, and
 transformation matrices.</p>
 <dl class="field-list simple">
@@ -184,6 +187,8 @@ specified, the damping will be zero.</p></li>
 <li><p><strong>transformation</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – A transformation between internal “state” degrees of freedom and
 the physical degrees of freedom defined in <cite>coordinate</cite>. The
 default transformation is the identity matrix.</p></li>
+<li><p><strong>enforce_symmetry</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, raise a ValueError if the matrices provided are not
+symmetric.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -274,16 +279,19 @@ default transformation is the identity matrix.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_by_shape" title="sdynpy.core.sdynpy_system.System.substructure_by_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_by_shape</span></code></a>(constraint_shapes, ...)</p></td>
 <td><p>Constrain the system using a set of shapes in a least-squares sense.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces[, dt, responses, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.substructure_shakers" title="sdynpy.core.sdynpy_system.System.substructure_shakers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substructure_shakers</span></code></a>(shakers, coordinates)</p></td>
+<td><p>Uses substructuring to attach 4DoF Shaker Models to the Substructure</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="sdynpy.core.sdynpy_system.System.time_integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_integrate</span></code></a>(forces[, responses, ...])</p></td>
 <td><p>Integrate a system to produce responses to an excitation</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="sdynpy.core.sdynpy_system.System.to_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_state_space</span></code></a>([output_displacement, ...])</p></td>
-<td><p>Compute the state space representation of the system</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="sdynpy.core.sdynpy_system.System.to_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_state_space</span></code></a>([response_coordinates, ...])</p></td>
+<td><p>Creates state space matrices A, B, C, and D from a SDynPy System object</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix_at_coordinates</span></code></a>(coordinates)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates" title="sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_matrix_at_coordinates</span></code></a>(coordinates)</p></td>
 <td><p>Return the transformation matrix at the specified coordinates</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_shapes" title="sdynpy.core.sdynpy_system.System.transformation_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_shapes</span></code></a>([shape_indices])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.transformation_shapes" title="sdynpy.core.sdynpy_system.System.transformation_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformation_shapes</span></code></a>([shape_indices])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -312,6 +320,12 @@ default transformation is the identity matrix.</p></li>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.mass" title="sdynpy.core.sdynpy_system.System.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a></p></td>
 <td><p>Get or set the mass matrix of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.massive_dofs" title="sdynpy.core.sdynpy_system.System.massive_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">massive_dofs</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.massless_dofs" title="sdynpy.core.sdynpy_system.System.massless_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">massless_dofs</span></code></a></p></td>
+<td><p>Gets the massless degrees of freedom in the system</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System.ndof" title="sdynpy.core.sdynpy_system.System.ndof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndof</span></code></a></p></td>
 <td><p>Get the number of internal degrees of freedom of the system</p></td>
@@ -634,6 +648,17 @@ in the file</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.massive_dofs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">massive_dofs</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.massive_dofs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.massless_dofs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">massless_dofs</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.massless_dofs" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the massless degrees of freedom in the system</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.ndof">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ndof</span></span><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.ndof" title="Permalink to this definition"></a></dt>
 <dd><p>Get the number of internal degrees of freedom of the system</p>
@@ -772,7 +797,7 @@ stiffness_fraction*self.stiffness</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.simulate_test">
-<span class="sig-name descname"><span class="pre">simulate_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_averages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steady_state_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_time_between_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_cutoff_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multihammer_impact_spacing_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">generator_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.simulate_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">simulate_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_averages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steady_state_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_min_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_max_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_time_between_frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_cutoff_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias_filter_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multihammer_impact_spacing_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">generator_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.simulate_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.simulate_test" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -885,69 +910,142 @@ constraint matrix.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.substructure_shakers">
+<span class="sig-name descname"><span class="pre">substructure_shakers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shakers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.substructure_shakers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.substructure_shakers" title="Permalink to this definition"></a></dt>
+<dd><p>Uses substructuring to attach 4DoF Shaker Models to the Substructure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shakers</strong> (<em>array</em><em> of </em><a class="reference internal" href="sdynpy.fem.sdynpy_shaker.Shaker4DoF.html#sdynpy.fem.sdynpy_shaker.Shaker4DoF" title="sdynpy.fem.sdynpy_shaker.Shaker4DoF"><em>Shaker4DoF</em></a>) – 4-DoF electromechanical models of a shaker that are added to the
+System</p></li>
+<li><p><strong>coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a>) – The degrees of freedom at which the shakers should be attached.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A system with shakers attached to it.  The shaker degrees of freedom
+will be assigned based on the next power of 10 bigger than the
+current maximum node number.  Degrees of freedom end in 1 for
+armature force/displacement, 2 for body force/displacement, 3 for
+force gauge force/displacement, and 4 for drive voltage/current</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sdynpy.core.sdynpy_system.System" title="sdynpy.core.sdynpy_system.System">System</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.time_integrate">
-<span class="sig-name descname"><span class="pre">time_integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement_derivative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.time_integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">time_integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_oversample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.time_integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.time_integrate" title="Permalink to this definition"></a></dt>
 <dd><p>Integrate a system to produce responses to an excitation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>forces</strong> (<em>np.ndarray</em><em> or </em><a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><em>TimeHistoryArray</em></a>) – The forces applied to the system, which should be a signal with
-time-step <cite>dt</cite>.  If a <cite>TimeHistoryArray</cite> is passed, then <cite>dt</cite> and
-<cite>references</cite> will be taken from the <cite>TimeHistoryArray</cite>, and the
-arguments will be ignored.</p></li>
-<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>optional</em>) – The timestep used for the integration.  Must be specified if <cite>forces</cite>
-is a ndarray.  If <cite>forces</cite> is a TimeHistoryArray, then this argument
-is ignored.</p></li>
-<li><p><strong>responses</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Coordinates at which responses are desired. The default is all
-responses.</p></li>
-<li><p><strong>references</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – Coordinates at which responses are input. The default is all
-references.  Must be the same size as the number of rows in the
-<cite>forces</cite> array.  If <cite>forces</cite> is a <cite>TimeHistoryArray</cite>, then this
-argument is ignored.</p></li>
-<li><p><strong>displacement_derivative</strong> (<em>int</em><em>, </em><em>optional</em>) – The derivative of the displacement that the output will be
-represented as.  A derivative of 0 means displacements will be
-returned, a derivative of 1 will mean velocities will be returned,
-and a derivative of 2 will mean accelerations will be returned.
-The default is 2, which returns accelerations.</p></li>
+<li><p><strong>forces</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray"><em>TimeHistoryArray</em></a>) – The forces applied to the system, which should be a
+<cite>TimeHistoryArray</cite>.  The time step and excitation degrees of freedom
+will be taken from the <cite>TimeHistoryArray</cite></p></li>
+<li><p><strong>responses</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary with keys 0, 1, and 2 representing the displacement
+derivative and CoordinateArray values representing the degrees of
+freedom desired at that degree of freedom.  For example, a
+dictionary {0:sdpy.coordinate_array([101,102],[‘X+’,’X+’]),
+2:sdpy.coordinate_array([203,204],[‘X+’,’Y+’])} would give
+displacement results at 101X+ and 102X+ and acceleration results at
+203X+ and 204Y+.  The value of None can also be supplied to get all
+degrees of freedom at that derivative.  For example, {2:None} would
+get acceleration results at all degrees of freedom in the System.
+If not specified, the output will be given for displacement,
+velocity, and acceleration, for all degrees of freedom.  Rows of
+the output vector will be ordered first by derivative order then
+by degree of freedom order, so all displacements come before all
+velocities, and those before all accelerations.</p></li>
 <li><p><strong>initial_state</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The initial conditions of the integration. The default is zero
 displacement and zero velocity.</p></li>
 <li><p><strong>integration_oversample</strong> (<em>int</em>) – The amount of oversampling that will be applied to the force by
-zero-padding the fft</p></li>
+zero-padding the fft.  It is generally better to create the forces
+such that they are oversampled than to use this argument.</p></li>
+<li><p><strong>extra_outputs</strong> (<em>dict</em>) – A dictionary containing data to allow additional outputs to be
+obtained from the state space formulation.  The dictionary must
+have keys ‘C’, ‘D’, and ‘coordinate’.
+Values for ‘C’ and ‘D’ must contain NumPy ndarray objects that
+will be concatenated with the C and D matrices.  See the
+documentation for <cite>to_state_space</cite> for more information on these
+keys.  Additionally, the values of the ‘coordinate’ key must
+contain a CoordinateArray object with the same size as the number
+of rows of C and D.  These will be assigned as the coordinates of
+the extra signals in the outputted TimeHistoryArray.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>response_array</strong> (<em>TimeHistoryArray</em>) – The responses of the system to the forces applied</p></li>
-<li><p><strong>reference_array</strong> (<em>TimeHistoryArray</em>) – The forces applied to the system as a TimeHistoryArray</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>response_array</strong> – The responses of the system to the forces applied</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray" title="sdynpy.core.sdynpy_data.TimeHistoryArray">TimeHistoryArray</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_system.System.to_state_space">
-<span class="sig-name descname"><span class="pre">to_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_acceleration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.to_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="Permalink to this definition"></a></dt>
-<dd><p>Compute the state space representation of the system</p>
+<span class="sig-name descname"><span class="pre">to_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excitation_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_excitation_signals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_system.html#System.to_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_system.System.to_state_space" title="Permalink to this definition"></a></dt>
+<dd><p>Creates state space matrices A, B, C, and D from a SDynPy System object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_displacement</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
-displacement outputs.  The default is True.</p></li>
-<li><p><strong>output_velocity</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
-velocity outputs.  The default is True.</p></li>
-<li><p><strong>output_acceleration</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
-acceleration outputs.  The default is True.</p></li>
-<li><p><strong>output_force</strong> (<em>bool</em><em>, </em><em>optional</em>) – Provide rows in the output and feedforward matrices corresponding to
-force outputs.  The default is True.</p></li>
+<li><p><strong>response_coordinates</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary with keys 0, 1, and 2 representing the displacement
+derivative and CoordinateArray values representing the degrees of
+freedom desired at that degree of freedom.  For example, a
+dictionary {0:sdpy.coordinate_array([101,102],[‘X+’,’X+’]),
+2:sdpy.coordinate_array([203,204],[‘X+’,’Y+’])} would give
+displacement results at 101X+ and 102X+ and acceleration results at
+203X+ and 204Y+.  The value of None can also be supplied to get all
+degrees of freedom at that derivative.  For example, {2:None} would
+get acceleration results at all degrees of freedom in the System.
+If not specified, the output will be given for displacement,
+velocity, and acceleration, for all degrees of freedom.  Rows of
+the output vector will be ordered first by derivative order then
+by degree of freedom order, so all displacements come before all
+velocities, and those before all accelerations.</p></li>
+<li><p><strong>excitation_coordinates</strong> (<a class="reference internal" href="sdynpy.core.sdynpy_coordinate.CoordinateArray.html#sdynpy.core.sdynpy_coordinate.CoordinateArray" title="sdynpy.core.sdynpy_coordinate.CoordinateArray"><em>CoordinateArray</em></a><em>, </em><em>optional</em>) – The degrees of freedom to use as inputs in the state and output
+equations. The default is to provide inputs at all degrees of freedom.</p></li>
+<li><p><strong>output_excitation_signals</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the inputs to the system will be passed through and output
+as part of the output matrices C and D. The default is True.  These
+will be in the last rows of C and D, one for each of the excitation
+degrees of freedom.</p></li>
+<li><p><strong>extra_outputs</strong> (<em>dict</em>) – A dictionary containing data to allow additional outputs to be
+obtained from the state space formulation.  The dictionary must
+have keys ‘C’ and ‘D’.  These must contain NumPy ndarray objects that
+will be concatenated with the C and D matrices.  Both matrices
+should have number of rows equal to the number of extra outputs
+requested.  The number of columns of C should be equal to the
+number of states (2x number of massive degrees of freedom + 1x
+number of massless degrees of freedom).  States are ordered
+displacements of massive
+degrees of freedom, velocities of massive degrees of freedom,
+displacements of massless degrees of freedom.  Within each group,
+they will be ordered in the same order as the system matrices (not
+the transformation matrix).  The number of columns of the D matrix
+should be equivalent to the number of excitation coordinates
+provided.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>A_state</strong> (<em>np.ndarray</em>) – The state matrix</p></li>
-<li><p><strong>B_state</strong> (<em>np.ndarray</em>) – The input matrix</p></li>
-<li><p><strong>C_state</strong> (<em>np.ndarray</em>) – The output matrix.</p></li>
-<li><p><strong>D_state</strong> (<em>np.ndarray</em>) – The feedforward matrix.</p></li>
+<li><p><strong>A</strong> (<em>ndarray</em>) – The state matrix.  States are ordered displacements of massive
+degrees of freedom, velocities of massive degrees of freedom,
+displacements of massless degrees of freedom.  Within each group,
+they will be ordered in the same order as the system matrices (not
+the transformation matrix).</p></li>
+<li><p><strong>B</strong> (<em>ndarray</em>) – The input matrix.  Inputs are in the same order as the
+excitation_coordinate argument.  States are in the order as
+described for the A return value.</p></li>
+<li><p><strong>C</strong> (<em>ndarray</em>) – The output matrix.  States are in the order as described for the A
+return value.  Outputs are ordered as follows: displacement
+responses, velocity responses, acceleration responses,
+excitation signals, extra outputs.  Within each group,
+the coordinates are ordered the same way as the provided
+response_coordinate and excitation_coordinate arguments.</p></li>
+<li><p><strong>D</strong> (<em>ndarray</em>) – The feedforward matrix.  Input order is described in the return
+value for B.  Output order is described in the return value for C.</p></li>
 </ul>
 </p>
 </dd>
@@ -1002,7 +1100,7 @@ coordinates input to the function.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cac10c950>
+<jinja2.runtime.BlockReference object at 0x7f0b41f50cd0>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

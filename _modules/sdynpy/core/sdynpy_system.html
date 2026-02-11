@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_system &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -116,6 +116,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_coordinate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">from_nodelist</span><span class="p">,</span> <span class="n">outer_product</span><span class="p">,</span> <span class="n">coordinate_array</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_beam</span><span class="w"> </span><span class="kn">import</span> <span class="n">beamkm</span><span class="p">,</span> <span class="n">rect_beam_props</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_exodus</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exodus</span><span class="p">,</span> <span class="n">ExodusInMemory</span><span class="p">,</span> <span class="n">reduce_exodus_to_surfaces</span><span class="p">,</span> <span class="n">read_sierra_matlab_matrix_file</span><span class="p">,</span> <span class="n">read_sierra_matlab_map_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..fem.sdynpy_shaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shaker4DoF</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">frf</span> <span class="k">as</span> <span class="n">spfrf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..signal_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">generator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">eigh</span><span class="p">,</span> <span class="n">block_diag</span><span class="p">,</span> <span class="n">null_space</span><span class="p">,</span> <span class="n">eig</span>
@@ -130,7 +131,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix Equations representing a Structural Dynamics System&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="System.__init__"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">:</span> <span class="n">CoordinateArray</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enforce_symmetry</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a system representation including mass, stiffness, damping, and</span>
 <span class="sd">        transformation matrices.</span>
@@ -150,6 +151,9 @@
 <span class="sd">            A transformation between internal &quot;state&quot; degrees of freedom and</span>
 <span class="sd">            the physical degrees of freedom defined in `coordinate`. The</span>
 <span class="sd">            default transformation is the identity matrix.</span>
+<span class="sd">        enforce_symmetry : bool, optional</span>
+<span class="sd">            If True, raise a ValueError if the matrices provided are not</span>
+<span class="sd">            symmetric.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -193,18 +197,19 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;coordinate must be 1D and have the same size as transformation.shape[0] or mass.shape[0] if no transformation is specified&#39;</span><span class="p">)</span>
         <span class="c1"># Check symmetry</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">mass</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="ow">and</span> <span class="n">enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mass matrix must be symmetric&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">stiffness</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="o">*</span><span class="n">stiffness</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">stiffness</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="o">*</span><span class="n">stiffness</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="ow">and</span> <span class="n">enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;stiffness matrix must be symmetric&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">damping</span><span class="p">,</span> <span class="n">damping</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">damping</span><span class="p">,</span> <span class="n">damping</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="ow">and</span> <span class="n">enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;damping matrix must be symmetric&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate</span> <span class="o">=</span> <span class="n">coordinate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mass</span> <span class="o">=</span> <span class="n">mass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stiffness</span> <span class="o">=</span> <span class="n">stiffness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_damping</span> <span class="o">=</span> <span class="n">damping</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transformation</span> <span class="o">=</span> <span class="n">transformation</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transformation</span> <span class="o">=</span> <span class="n">transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span> <span class="o">=</span> <span class="n">enforce_symmetry</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;System with </span><span class="si">{:}</span><span class="s1"> DoFs (</span><span class="si">{:}</span><span class="s1"> internal DoFs)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndof_transformed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndof</span><span class="p">)</span>
@@ -297,7 +302,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mass and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mass should be a 2D, square array&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mass matrix must be symmetric&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mass</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -313,7 +318,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mass and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Stiffness should be a 2D, square array&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;stiffness matrix must be symmetric&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stiffness</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -329,7 +334,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;damping and Stiffness matrices must be the same shape&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;damping should be a 2D, square array&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;damping matrix must be symmetric&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_damping</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -347,168 +352,268 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of physical degrees of freedom of the system&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="System.to_state_space"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.to_state_space">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_displacement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_velocity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_acceleration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">output_force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                       <span class="n">response_coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">massless_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the massless degrees of freedom in the system&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">massive_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">massless_dofs</span>
+
+<div class="viewcode-block" id="System.to_state_space"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.to_state_space">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response_coordinates</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">excitation_coordinates</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                       <span class="n">output_excitation_signals</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">extra_outputs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute the state space representation of the system</span>
+<span class="sd">        Creates state space matrices A, B, C, and D from a SDynPy System object</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        output_displacement : bool, optional</span>
-<span class="sd">            Provide rows in the output and feedforward matrices corresponding to</span>
-<span class="sd">            displacement outputs.  The default is True.</span>
-<span class="sd">        output_velocity : bool, optional</span>
-<span class="sd">            Provide rows in the output and feedforward matrices corresponding to</span>
-<span class="sd">            velocity outputs.  The default is True.</span>
-<span class="sd">        output_acceleration : bool, optional</span>
-<span class="sd">            Provide rows in the output and feedforward matrices corresponding to</span>
-<span class="sd">            acceleration outputs.  The default is True.</span>
-<span class="sd">        output_force : bool, optional</span>
-<span class="sd">            Provide rows in the output and feedforward matrices corresponding to</span>
-<span class="sd">            force outputs.  The default is True.</span>
+<span class="sd">        response_coordinates : dict, optional</span>
+<span class="sd">            A dictionary with keys 0, 1, and 2 representing the displacement</span>
+<span class="sd">            derivative and CoordinateArray values representing the degrees of</span>
+<span class="sd">            freedom desired at that degree of freedom.  For example, a</span>
+<span class="sd">            dictionary {0:sdpy.coordinate_array([101,102],[&#39;X+&#39;,&#39;X+&#39;]),</span>
+<span class="sd">            2:sdpy.coordinate_array([203,204],[&#39;X+&#39;,&#39;Y+&#39;])} would give</span>
+<span class="sd">            displacement results at 101X+ and 102X+ and acceleration results at</span>
+<span class="sd">            203X+ and 204Y+.  The value of None can also be supplied to get all</span>
+<span class="sd">            degrees of freedom at that derivative.  For example, {2:None} would</span>
+<span class="sd">            get acceleration results at all degrees of freedom in the System.</span>
+<span class="sd">            If not specified, the output will be given for displacement,</span>
+<span class="sd">            velocity, and acceleration, for all degrees of freedom.  Rows of</span>
+<span class="sd">            the output vector will be ordered first by derivative order then</span>
+<span class="sd">            by degree of freedom order, so all displacements come before all</span>
+<span class="sd">            velocities, and those before all accelerations.</span>
+<span class="sd">        excitation_coordinates : CoordinateArray, optional</span>
+<span class="sd">            The degrees of freedom to use as inputs in the state and output</span>
+<span class="sd">            equations. The default is to provide inputs at all degrees of freedom.</span>
+<span class="sd">        output_excitation_signals : bool, optional</span>
+<span class="sd">            If True, the inputs to the system will be passed through and output</span>
+<span class="sd">            as part of the output matrices C and D. The default is True.  These</span>
+<span class="sd">            will be in the last rows of C and D, one for each of the excitation</span>
+<span class="sd">            degrees of freedom.</span>
+<span class="sd">        extra_outputs : dict</span>
+<span class="sd">            A dictionary containing data to allow additional outputs to be</span>
+<span class="sd">            obtained from the state space formulation.  The dictionary must</span>
+<span class="sd">            have keys &#39;C&#39; and &#39;D&#39;.  These must contain NumPy ndarray objects that</span>
+<span class="sd">            will be concatenated with the C and D matrices.  Both matrices</span>
+<span class="sd">            should have number of rows equal to the number of extra outputs</span>
+<span class="sd">            requested.  The number of columns of C should be equal to the</span>
+<span class="sd">            number of states (2x number of massive degrees of freedom + 1x</span>
+<span class="sd">            number of massless degrees of freedom).  States are ordered</span>
+<span class="sd">            displacements of massive</span>
+<span class="sd">            degrees of freedom, velocities of massive degrees of freedom,</span>
+<span class="sd">            displacements of massless degrees of freedom.  Within each group,</span>
+<span class="sd">            they will be ordered in the same order as the system matrices (not</span>
+<span class="sd">            the transformation matrix).  The number of columns of the D matrix</span>
+<span class="sd">            should be equivalent to the number of excitation coordinates</span>
+<span class="sd">            provided.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A_state : np.ndarray</span>
-<span class="sd">            The state matrix</span>
-<span class="sd">        B_state : np.ndarray</span>
-<span class="sd">            The input matrix</span>
-<span class="sd">        C_state : np.ndarray</span>
-<span class="sd">            The output matrix.</span>
-<span class="sd">        D_state : np.ndarray</span>
-<span class="sd">            The feedforward matrix.</span>
-
+<span class="sd">        A : ndarray</span>
+<span class="sd">            The state matrix.  States are ordered displacements of massive</span>
+<span class="sd">            degrees of freedom, velocities of massive degrees of freedom,</span>
+<span class="sd">            displacements of massless degrees of freedom.  Within each group,</span>
+<span class="sd">            they will be ordered in the same order as the system matrices (not</span>
+<span class="sd">            the transformation matrix).</span>
+<span class="sd">        B : ndarray</span>
+<span class="sd">            The input matrix.  Inputs are in the same order as the</span>
+<span class="sd">            excitation_coordinate argument.  States are in the order as</span>
+<span class="sd">            described for the A return value.</span>
+<span class="sd">        C : ndarray</span>
+<span class="sd">            The output matrix.  States are in the order as described for the A</span>
+<span class="sd">            return value.  Outputs are ordered as follows: displacement</span>
+<span class="sd">            responses, velocity responses, acceleration responses,</span>
+<span class="sd">            excitation signals, extra outputs.  Within each group,</span>
+<span class="sd">            the coordinates are ordered the same way as the provided</span>
+<span class="sd">            response_coordinate and excitation_coordinate arguments.</span>
+<span class="sd">        D : ndarray</span>
+<span class="sd">            The feedforward matrix.  Input order is described in the return</span>
+<span class="sd">            value for B.  Output order is described in the return value for C.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ndofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndof</span>
-        <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
-        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
-        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span>
         <span class="k">if</span> <span class="n">response_coordinates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">phi_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response_coordinates</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
-            <span class="c1"># If you want the state variables back, the transformation is the</span>
-            <span class="c1"># identity matrix.</span>
-            <span class="n">phi_response</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">phi_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">input_coordinates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">response_coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">}</span>
+        <span class="n">phi_response</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">derivative</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">derivative</span> <span class="ow">in</span> <span class="n">response_coordinates</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">[</span><span class="n">derivative</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">response_coordinates</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
+                    <span class="c1"># If you want the state variables back, the transformation is the</span>
+                    <span class="c1"># identity matrix.</span>
+                    <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">response_coordinates</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">[</span><span class="n">derivative</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">excitation_coordinates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">phi_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">phi_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">input_coordinates</span><span class="p">)</span>
-        <span class="n">tdofs_response</span> <span class="o">=</span> <span class="n">phi_response</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">phi_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="n">excitation_coordinates</span><span class="p">)</span>
         <span class="n">tdofs_input</span> <span class="o">=</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c1"># A = [[     0,     I],</span>
-        <span class="c1">#      [M^-1*K,M^-1*C]]</span>
 
-        <span class="n">A_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ndofs</span><span class="p">)],</span>
-                            <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)]])</span>
+        <span class="n">massless_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ix_11</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">,</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">ix_12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">,</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">ix_22</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">massless_dofs</span><span class="p">,</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">ix_21</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">massless_dofs</span><span class="p">,</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">n2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">n1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">)</span>
+        <span class="n">M_11</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">[</span><span class="n">ix_11</span><span class="p">]</span>
+        <span class="n">K_11</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="p">[</span><span class="n">ix_11</span><span class="p">]</span>
+        <span class="n">K_22</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="p">[</span><span class="n">ix_22</span><span class="p">]</span>
+        <span class="n">K_12</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="p">[</span><span class="n">ix_12</span><span class="p">]</span>
+        <span class="n">K_21</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="p">[</span><span class="n">ix_21</span><span class="p">]</span>
+        <span class="n">C_11</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">[</span><span class="n">ix_11</span><span class="p">]</span>
+        <span class="n">C_22</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">[</span><span class="n">ix_22</span><span class="p">]</span>
+        <span class="n">C_12</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">[</span><span class="n">ix_12</span><span class="p">]</span>
+        <span class="n">C_21</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">[</span><span class="n">ix_21</span><span class="p">]</span>
+        <span class="n">Z_11</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span><span class="n">n1</span><span class="p">))</span>
+        <span class="n">Z_12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span><span class="n">n2</span><span class="p">))</span>
+        <span class="n">Z_1i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span><span class="n">tdofs_input</span><span class="p">))</span>
+        <span class="n">Z_2i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n2</span><span class="p">,</span><span class="n">tdofs_input</span><span class="p">))</span>
+        <span class="n">I_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span>
+        <span class="n">I_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">tdofs_input</span><span class="p">)</span>
+        <span class="n">Phi_i1</span> <span class="o">=</span> <span class="n">phi_input</span><span class="p">[:,</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">]</span>
+        <span class="n">Phi_i2</span> <span class="o">=</span> <span class="n">phi_input</span><span class="p">[:,</span><span class="n">massless_dofs</span><span class="p">]</span>
 
-        <span class="c1"># B = [[     0],</span>
-        <span class="c1">#      [  M^-1]]</span>
+        <span class="n">tdofs_response</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Phi_r1</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Phi_r2</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Z_r1</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Z_r2</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">Z_ri</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">derivative</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">tdofs_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">Phi_r1</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">][:,</span><span class="o">~</span><span class="n">massless_dofs</span><span class="p">]</span>
+            <span class="n">Phi_r2</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">][:,</span><span class="n">massless_dofs</span><span class="p">]</span>
+            <span class="n">Z_r1</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">],</span><span class="n">n1</span><span class="p">))</span>
+            <span class="n">Z_r2</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">],</span><span class="n">n2</span><span class="p">))</span>
+            <span class="n">Z_ri</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">[</span><span class="n">derivative</span><span class="p">],</span><span class="n">tdofs_input</span><span class="p">))</span>
 
-        <span class="n">B_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ndofs</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">T</span><span class="p">)]])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">Phi_r2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;It looks like you are asking for the second order derivative of a degree of freedom that only has a first-order derivative defined.  Acceleration of massless degrees of freedom cannot be computed and will be set to zero.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># C = [[     I,     0],   # Displacements</span>
-        <span class="c1">#      [     0,     I],   # Velocities</span>
-        <span class="c1">#      [M^-1*K,M^-1*C],   # Accelerations</span>
-        <span class="c1">#      [     0,     0]]   # Forces</span>
+        <span class="c1"># Degree of freedom ordering = [x1,v1,x2] (Disp 1, Vel 1, Disp 2)</span>
+        <span class="c1"># Input ordering [V] (Voltages)</span>
 
-        <span class="n">C_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">phi_response</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">phi_response</span><span class="p">],</span>
-                            <span class="p">[</span><span class="o">-</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">),</span> <span class="o">-</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">)],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_input</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_input</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">))]])</span>
+        <span class="c1">#             # x1, v1, x2</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">Z_11</span><span class="p">,</span><span class="n">I_1</span><span class="p">,</span> <span class="n">Z_12</span><span class="p">],</span>
+                      <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_21</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">K_11</span><span class="p">),</span>
+                       <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_11</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">C_21</span><span class="p">),</span>
+                       <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_22</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">K_12</span><span class="p">)],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_21</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">C_21</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_22</span><span class="p">)]])</span>
 
-        <span class="c1"># D = [[     0],   # Displacements</span>
-        <span class="c1">#      [     0],   # Velocities</span>
-        <span class="c1">#      [  M^-1],   # Accelerations</span>
-        <span class="c1">#      [     I]]   # Forces</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">Z_1i</span><span class="p">],</span>
+                      <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">Phi_i1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">Phi_i2</span><span class="o">.</span><span class="n">T</span><span class="p">)],</span>
+                      <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">Phi_i2</span><span class="o">.</span><span class="n">T</span><span class="p">)]])</span>
 
-        <span class="n">D_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tdofs_response</span><span class="p">,</span> <span class="n">tdofs_input</span><span class="p">))],</span>
-                            <span class="p">[</span><span class="n">phi_response</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">phi_input</span><span class="o">.</span><span class="n">T</span><span class="p">)],</span>
-                            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">tdofs_input</span><span class="p">)]])</span>
-        <span class="n">displacement_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span>
-        <span class="n">velocity_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span> <span class="o">+</span> <span class="n">tdofs_response</span>
-        <span class="n">acceleration_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_response</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tdofs_response</span>
-        <span class="n">force_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">tdofs_input</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">tdofs_response</span>
-        <span class="n">output_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">tdofs_response</span> <span class="o">+</span> <span class="n">tdofs_input</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">output_displacement</span><span class="p">:</span>
-            <span class="n">output_indices</span><span class="p">[</span><span class="n">displacement_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">output_velocity</span><span class="p">:</span>
-            <span class="n">output_indices</span><span class="p">[</span><span class="n">velocity_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">output_acceleration</span><span class="p">:</span>
-            <span class="n">output_indices</span><span class="p">[</span><span class="n">acceleration_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">output_force</span><span class="p">:</span>
-            <span class="n">output_indices</span><span class="p">[</span><span class="n">force_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">C_state</span> <span class="o">=</span> <span class="n">C_state</span><span class="p">[</span><span class="n">output_indices</span><span class="p">]</span>
-        <span class="n">D_state</span> <span class="o">=</span> <span class="n">D_state</span><span class="p">[</span><span class="n">output_indices</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">A_state</span><span class="p">,</span> <span class="n">B_state</span><span class="p">,</span> <span class="n">C_state</span><span class="p">,</span> <span class="n">D_state</span></div>
+        <span class="c1"># Contributions from the massive degrees of freedom</span>
+        <span class="n">C1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+            <span class="c1"># For displacements, just the states x1</span>
+            <span class="p">[</span><span class="n">Phi_r1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Z_r1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Z_r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="c1"># For velocities, just the states v1</span>
+            <span class="p">[</span><span class="n">Z_r1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Phi_r1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Z_r2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="c1"># For acceleration, we want the row of A corresponding to v1dot</span>
+            <span class="p">[</span><span class="n">Phi_r1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_21</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">K_11</span><span class="p">),</span>
+                                    <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_11</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">C_21</span><span class="p">),</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_22</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">K_12</span><span class="p">)]])],</span>
+            <span class="c1"># For the inputs, we pass through the inputs</span>
+            <span class="p">[</span><span class="n">Z_1i</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">Z_1i</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">Z_2i</span><span class="o">.</span><span class="n">T</span><span class="p">]])</span>
 
-<div class="viewcode-block" id="System.time_integrate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.time_integrate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Contributions from the massless degrees of freedom</span>
+        <span class="n">C2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+            <span class="c1"># For displacements, just the states x2</span>
+            <span class="p">[</span><span class="n">Z_r1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Z_r1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Phi_r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="c1"># For the velocities, we want the row of A corresponding to x2dot</span>
+            <span class="p">[</span><span class="n">Phi_r2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_21</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">C_21</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">K_22</span><span class="p">)]])],</span>
+            <span class="c1"># For the accelerations, we will have zeros</span>
+            <span class="p">[</span><span class="n">Z_r1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">Z_r1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">Z_r2</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+            <span class="c1"># For the inputs, we will pass through the inputs</span>
+            <span class="p">[</span><span class="n">Z_1i</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">Z_1i</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">Z_2i</span><span class="o">.</span><span class="n">T</span><span class="p">]])</span>
+
+        <span class="n">C</span> <span class="o">=</span> <span class="n">C1</span><span class="o">+</span><span class="n">C2</span>
+
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">([</span>
+            <span class="c1"># For the displacements, we will have zeros</span>
+            <span class="p">[</span><span class="n">Z_ri</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="c1"># For the velocities, we want the row of B corresponding to x2dot</span>
+            <span class="p">[</span><span class="n">Phi_r2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">Phi_i2</span><span class="o">.</span><span class="n">T</span><span class="p">)],</span>
+            <span class="c1"># For the accelerations, we want the row of B corresponding to v1dot</span>
+            <span class="p">[</span><span class="n">Phi_r1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">Phi_i1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M_11</span><span class="p">,</span><span class="n">C_12</span><span class="p">)</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C_22</span><span class="p">,</span><span class="n">Phi_i2</span><span class="o">.</span><span class="n">T</span><span class="p">))],</span>
+            <span class="c1"># For the inputs, we will pass through the inputs</span>
+            <span class="p">[</span><span class="n">I_i</span><span class="p">]</span>
+            <span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_excitation_signals</span><span class="p">:</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="p">[:</span><span class="o">-</span><span class="n">tdofs_input</span><span class="p">]</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">D</span><span class="p">[:</span><span class="o">-</span><span class="n">tdofs_input</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">extra_outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">C</span><span class="p">,</span><span class="n">extra_outputs</span><span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">]))</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">D</span><span class="p">,</span><span class="n">extra_outputs</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">D</span></div>
+
+<div class="viewcode-block" id="System.time_integrate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.time_integrate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forces</span><span class="p">,</span> <span class="n">responses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">extra_outputs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Integrate a system to produce responses to an excitation</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        forces : np.ndarray or TimeHistoryArray</span>
-<span class="sd">            The forces applied to the system, which should be a signal with</span>
-<span class="sd">            time-step `dt`.  If a `TimeHistoryArray` is passed, then `dt` and</span>
-<span class="sd">            `references` will be taken from the `TimeHistoryArray`, and the</span>
-<span class="sd">            arguments will be ignored.</span>
-<span class="sd">        dt : float, optional</span>
-<span class="sd">            The timestep used for the integration.  Must be specified if `forces`</span>
-<span class="sd">            is a ndarray.  If `forces` is a TimeHistoryArray, then this argument</span>
-<span class="sd">            is ignored.</span>
-<span class="sd">        responses : CoordinateArray, optional</span>
-<span class="sd">            Coordinates at which responses are desired. The default is all</span>
-<span class="sd">            responses.</span>
-<span class="sd">        references : CoordinateArray, optional</span>
-<span class="sd">            Coordinates at which responses are input. The default is all</span>
-<span class="sd">            references.  Must be the same size as the number of rows in the</span>
-<span class="sd">            `forces` array.  If `forces` is a `TimeHistoryArray`, then this</span>
-<span class="sd">            argument is ignored.</span>
-<span class="sd">        displacement_derivative : int, optional</span>
-<span class="sd">            The derivative of the displacement that the output will be</span>
-<span class="sd">            represented as.  A derivative of 0 means displacements will be</span>
-<span class="sd">            returned, a derivative of 1 will mean velocities will be returned,</span>
-<span class="sd">            and a derivative of 2 will mean accelerations will be returned.</span>
-<span class="sd">            The default is 2, which returns accelerations.</span>
+<span class="sd">        forces : TimeHistoryArray</span>
+<span class="sd">            The forces applied to the system, which should be a</span>
+<span class="sd">            `TimeHistoryArray`.  The time step and excitation degrees of freedom</span>
+<span class="sd">            will be taken from the `TimeHistoryArray`</span>
+<span class="sd">        responses : dict, optional</span>
+<span class="sd">            A dictionary with keys 0, 1, and 2 representing the displacement</span>
+<span class="sd">            derivative and CoordinateArray values representing the degrees of</span>
+<span class="sd">            freedom desired at that degree of freedom.  For example, a</span>
+<span class="sd">            dictionary {0:sdpy.coordinate_array([101,102],[&#39;X+&#39;,&#39;X+&#39;]),</span>
+<span class="sd">            2:sdpy.coordinate_array([203,204],[&#39;X+&#39;,&#39;Y+&#39;])} would give</span>
+<span class="sd">            displacement results at 101X+ and 102X+ and acceleration results at</span>
+<span class="sd">            203X+ and 204Y+.  The value of None can also be supplied to get all</span>
+<span class="sd">            degrees of freedom at that derivative.  For example, {2:None} would</span>
+<span class="sd">            get acceleration results at all degrees of freedom in the System.</span>
+<span class="sd">            If not specified, the output will be given for displacement,</span>
+<span class="sd">            velocity, and acceleration, for all degrees of freedom.  Rows of</span>
+<span class="sd">            the output vector will be ordered first by derivative order then</span>
+<span class="sd">            by degree of freedom order, so all displacements come before all</span>
+<span class="sd">            velocities, and those before all accelerations.</span>
 <span class="sd">        initial_state : np.ndarray, optional</span>
 <span class="sd">            The initial conditions of the integration. The default is zero</span>
 <span class="sd">            displacement and zero velocity.</span>
 <span class="sd">        integration_oversample : int</span>
 <span class="sd">            The amount of oversampling that will be applied to the force by</span>
-<span class="sd">            zero-padding the fft</span>
+<span class="sd">            zero-padding the fft.  It is generally better to create the forces</span>
+<span class="sd">            such that they are oversampled than to use this argument.</span>
+<span class="sd">        extra_outputs : dict</span>
+<span class="sd">            A dictionary containing data to allow additional outputs to be</span>
+<span class="sd">            obtained from the state space formulation.  The dictionary must</span>
+<span class="sd">            have keys &#39;C&#39;, &#39;D&#39;, and &#39;coordinate&#39;.</span>
+<span class="sd">            Values for &#39;C&#39; and &#39;D&#39; must contain NumPy ndarray objects that</span>
+<span class="sd">            will be concatenated with the C and D matrices.  See the</span>
+<span class="sd">            documentation for `to_state_space` for more information on these</span>
+<span class="sd">            keys.  Additionally, the values of the &#39;coordinate&#39; key must</span>
+<span class="sd">            contain a CoordinateArray object with the same size as the number</span>
+<span class="sd">            of rows of C and D.  These will be assigned as the coordinates of</span>
+<span class="sd">            the extra signals in the outputted TimeHistoryArray.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        response_array : TimeHistoryArray</span>
 <span class="sd">            The responses of the system to the forces applied</span>
-<span class="sd">        reference_array : TimeHistoryArray</span>
-<span class="sd">            The forces applied to the system as a TimeHistoryArray</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span><span class="p">,</span> <span class="n">TimeHistoryArray</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forces</span><span class="p">,</span> <span class="n">TimeHistoryArray</span><span class="p">):</span>
-            <span class="n">dt</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">abscissa_spacing</span>
-            <span class="n">references</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">forces</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">ordinate</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`dt` must be specified if `forces` is not a `TimeHistoryArray`&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">responses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)</span>
-        <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_state_space</span><span class="p">(</span><span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
-                                         <span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
-                                         <span class="n">displacement_derivative</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span>
-                                         <span class="kc">False</span><span class="p">,</span>
-                                         <span class="n">responses</span><span class="p">,</span> <span class="n">references</span>
-                                         <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_array</span><span class="p">,</span> <span class="n">FunctionTypes</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">forces</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">ordinate</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_state_space</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+                                         <span class="n">extra_outputs</span><span class="o">=</span><span class="n">extra_outputs</span><span class="p">)</span>
         <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
         <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">forces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">dt</span>
         <span class="n">linear_system</span> <span class="o">=</span> <span class="n">StateSpace</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>
@@ -517,25 +622,29 @@
         <span class="n">times_out</span><span class="p">,</span> <span class="n">time_response</span><span class="p">,</span> <span class="n">x_out</span> <span class="o">=</span> <span class="n">lsim</span><span class="p">(</span><span class="n">linear_system</span><span class="p">,</span> <span class="n">forces</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">time_response</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">time_response</span> <span class="o">=</span> <span class="n">time_response</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">response_coordinates</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">responses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">response_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">responses</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
-            <span class="n">response_coordinate</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndof</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">response_coordinate</span> <span class="o">=</span> <span class="n">responses</span>
+            <span class="n">responses</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">derivative</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">derivative</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">responses</span><span class="p">[</span><span class="n">derivative</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">responses</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
+                    <span class="c1"># If you want the state variables back, the transformation is the</span>
+                    <span class="c1"># identity matrix.</span>
+                    <span class="n">response_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndof</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">responses</span><span class="p">[</span><span class="n">derivative</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">response_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">response_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">responses</span><span class="p">[</span><span class="n">derivative</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">extra_outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">response_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extra_outputs</span><span class="p">[</span><span class="s1">&#39;coordinate&#39;</span><span class="p">])</span>
+        <span class="n">response_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">response_coordinates</span><span class="p">)</span>
         <span class="n">response_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
                                     <span class="n">times</span><span class="p">,</span> <span class="n">time_response</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
-                                    <span class="n">response_coordinate</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
-        <span class="n">reference_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">references</span>
-        <span class="n">reference_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span>
-                                     <span class="n">times</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">forces</span><span class="p">),</span>
-                                     <span class="n">reference_coordinate</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+                                    <span class="n">response_coordinates</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">integration_oversample</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">response_array</span> <span class="o">=</span> <span class="n">response_array</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
                 <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">integration_oversample</span><span class="p">))</span>
-            <span class="n">reference_array</span> <span class="o">=</span> <span class="n">reference_array</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
-                <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">integration_oversample</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">response_array</span><span class="p">,</span> <span class="n">reference_array</span></div>
+        <span class="k">return</span> <span class="n">response_array</span></div>
 
 <div class="viewcode-block" id="System.eigensolution"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.eigensolution">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">eigensolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_modes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">complex_modes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -643,7 +752,6 @@
                               <span class="n">psi</span><span class="o">.</span><span class="n">T</span><span class="nd">@self</span><span class="o">.</span><span class="n">K</span><span class="nd">@psi</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
                               <span class="n">psi</span><span class="o">.</span><span class="n">T</span><span class="nd">@self</span><span class="o">.</span><span class="n">C</span><span class="nd">@psi</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
                               <span class="n">psi_t</span><span class="p">)</span></div>
-            
 
 <div class="viewcode-block" id="System.transformation_shapes"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.transformation_shapes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">transformation_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">shape_array</span>
@@ -752,7 +860,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span>
-                 <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">,</span> <span class="n">coordinate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span></div>
+                 <span class="n">transformation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">,</span> <span class="n">coordinate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span>
+                 <span class="n">enforce_symmetry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.load"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -773,13 +882,28 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coordinate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">),</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span>
-                   <span class="n">data</span><span class="p">[</span><span class="s1">&#39;stiffness&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;damping&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;transformation&#39;</span><span class="p">])</span></div>
+                   <span class="n">data</span><span class="p">[</span><span class="s1">&#39;stiffness&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;damping&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;transformation&#39;</span><span class="p">],</span>
+                   <span class="kc">True</span> <span class="k">if</span> <span class="s1">&#39;enforce_symmetry&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;enforce_symmetry&#39;</span><span class="p">])</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">new_system</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">new_system</span><span class="o">.</span><span class="n">mass</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">new_system</span><span class="o">.</span><span class="n">stiffness</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">new_system</span><span class="o">.</span><span class="n">damping</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">new_system</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">new_system</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">mass</span> <span class="o">*=</span> <span class="n">value</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">stiffness</span> <span class="o">*=</span> <span class="n">value</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">damping</span> <span class="o">*=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">new_system</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">new_system</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">mass</span> <span class="o">*=</span> <span class="n">value</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">stiffness</span> <span class="o">*=</span> <span class="n">value</span>
+        <span class="n">new_system</span><span class="o">.</span><span class="n">damping</span> <span class="o">*=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">new_system</span>
 
 <div class="viewcode-block" id="System.concatenate"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.concatenate">[docs]</a>    <span class="nd">@classmethod</span>
@@ -811,7 +935,8 @@
                    <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">mass</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]),</span>
                    <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">stiffness</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]),</span>
                    <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">damping</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]),</span>
-                   <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">transformation</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]))</span></div>
+                   <span class="n">block_diag</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">transformation</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]),</span>
+                   <span class="n">enforce_symmetry</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">_enforce_symmetry</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">])</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.substructure_by_position"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.substructure_by_position">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">substructure_by_position</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">systems</span><span class="p">,</span> <span class="n">geometries</span><span class="p">,</span> <span class="n">distance_threshold</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -906,7 +1031,8 @@
         <span class="n">new_stiffness</span> <span class="o">=</span> <span class="n">substructuring_transform_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span> <span class="o">@</span> <span class="n">substructuring_transform_matrix</span>
         <span class="n">new_damping</span> <span class="o">=</span> <span class="n">substructuring_transform_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="o">@</span> <span class="n">substructuring_transform_matrix</span>
         <span class="n">new_transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span> <span class="o">@</span> <span class="n">substructuring_transform_matrix</span>
-        <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">new_mass</span><span class="p">,</span> <span class="n">new_stiffness</span><span class="p">,</span> <span class="n">new_damping</span><span class="p">,</span> <span class="n">new_transform</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">new_mass</span><span class="p">,</span> <span class="n">new_stiffness</span><span class="p">,</span> <span class="n">new_damping</span><span class="p">,</span> <span class="n">new_transform</span><span class="p">,</span>
+                      <span class="n">enforce_symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.transformation_matrix_at_coordinates"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.transformation_matrix_at_coordinates">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">transformation_matrix_at_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1031,6 +1157,52 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">constraint_matrix</span></div>
 
+<div class="viewcode-block" id="System.substructure_shakers"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.substructure_shakers">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">substructure_shakers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">shakers</span><span class="p">,</span><span class="n">coordinates</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses substructuring to attach 4DoF Shaker Models to the Substructure</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shakers : array of Shaker4DoF</span>
+<span class="sd">            4-DoF electromechanical models of a shaker that are added to the</span>
+<span class="sd">            System</span>
+<span class="sd">        coordinates : CoordinateArray</span>
+<span class="sd">            The degrees of freedom at which the shakers should be attached.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        System</span>
+<span class="sd">            A system with shakers attached to it.  The shaker degrees of freedom</span>
+<span class="sd">            will be assigned based on the next power of 10 bigger than the</span>
+<span class="sd">            current maximum node number.  Degrees of freedom end in 1 for</span>
+<span class="sd">            armature force/displacement, 2 for body force/displacement, 3 for</span>
+<span class="sd">            force gauge force/displacement, and 4 for drive voltage/current</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">constraint_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">shaker_systems</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">max_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">shaker_node_offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">max_node</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">shaker_node_offset</span> <span class="o">==</span> <span class="n">max_node</span><span class="p">:</span>
+            <span class="n">shaker_node_offset</span> <span class="o">*=</span> <span class="mi">10</span>
+        <span class="k">if</span> <span class="n">shaker_node_offset</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">shaker_node_offset</span> <span class="o">=</span> <span class="mi">100</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">direction</span><span class="p">,</span><span class="n">shaker</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span><span class="n">shakers</span><span class="p">)):</span>
+            <span class="n">M</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">K</span> <span class="o">=</span> <span class="n">shaker</span><span class="o">.</span><span class="n">MCK</span><span class="p">()</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">shaker_node_offset</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">shaker_systems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">System</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">enforce_symmetry</span> <span class="o">=</span> <span class="kc">False</span><span class="p">))</span>
+            <span class="n">constraint_dof</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">shaker_node_offset</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">constraint_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">direction</span><span class="p">,</span><span class="n">constraint_dof</span><span class="p">])</span>
+
+        <span class="n">constraint_pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">constraint_pairs</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
+
+        <span class="n">combined_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">+</span><span class="n">shaker_systems</span><span class="p">)</span>
+
+        <span class="n">constrained_system</span> <span class="o">=</span> <span class="n">combined_system</span><span class="o">.</span><span class="n">substructure_by_coordinate</span><span class="p">(</span><span class="n">constraint_pairs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">constrained_system</span></div>
+
 <div class="viewcode-block" id="System.copy"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.copy">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a copy of the system object</span>
@@ -1042,7 +1214,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-                      <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.set_proportional_damping"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.set_proportional_damping">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_proportional_damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mass_fraction</span><span class="p">,</span> <span class="n">stiffness_fraction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1206,7 +1379,7 @@
         <span class="n">mass</span> <span class="o">=</span> <span class="p">(</span><span class="n">mass</span> <span class="o">+</span> <span class="n">mass</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">stiffness</span> <span class="o">=</span> <span class="p">(</span><span class="n">stiffness</span> <span class="o">+</span> <span class="n">stiffness</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">damping</span> <span class="o">=</span> <span class="p">(</span><span class="n">damping</span> <span class="o">+</span> <span class="n">damping</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="p">,</span> <span class="n">transformation</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">System</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">stiffness</span><span class="p">,</span> <span class="n">damping</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_symmetry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.reduce_guyan"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.reduce_guyan">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">reduce_guyan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1488,7 +1661,6 @@
         <span class="n">system</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">K</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">system</span></div>
 
-
 <div class="viewcode-block" id="System.simulate_test"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_system.System.html#sdynpy.core.sdynpy_system.System.simulate_test">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_test</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>  <span class="c1"># The system itself</span>
             <span class="n">bandwidth</span><span class="p">,</span>
@@ -1506,10 +1678,10 @@
             <span class="n">signal_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
             <span class="n">extra_time_between_frames</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
             <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-            <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">antialias_filter_cutoff_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">antialias_filter_order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">multihammer_impact_spacing_factor</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="n">extra_outputs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="o">**</span><span class="n">generator_kwargs</span>
     <span class="p">):</span>
         <span class="n">available_excitations</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pseudorandom&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span>
@@ -1517,11 +1689,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">available_excitations</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Excitation must be one of </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">available_excitations</span><span class="p">))</span>
         <span class="c1"># Create the input signal</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">references</span><span class="p">)</span>
         <span class="n">num_signals</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">size</span>
         <span class="n">sample_rate</span> <span class="o">=</span> <span class="n">bandwidth</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">integration_oversample</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">frame_time</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">frame_length</span> <span class="o">*</span> <span class="n">integration_oversample</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">frame_time</span>
         <span class="c1"># Create the signals</span>
         <span class="k">if</span> <span class="n">excitation</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pseudorandom&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">num_signals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -1638,8 +1810,11 @@
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">generator_kwargs</span><span class="p">)</span>
             <span class="n">signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="p">(</span><span class="n">num_signals</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="c1"># Set up the integration</span>
-        <span class="n">responses</span><span class="p">,</span> <span class="n">references</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-            <span class="n">signals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">displacement_derivative</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.sdynpy_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">time_history_array</span>
+        <span class="n">abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">signals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">time_history_array</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span><span class="n">signals</span><span class="p">,</span><span class="n">references</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+            <span class="n">references</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">extra_outputs</span> <span class="o">=</span> <span class="n">extra_outputs</span><span class="p">)</span>
         <span class="c1"># Now add noise</span>
         <span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">+=</span> <span class="n">response_noise_level</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">responses</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">references</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">+=</span> <span class="n">excitation_noise_level</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">references</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1670,7 +1845,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cac7b1a10>
+<jinja2.runtime.BlockReference object at 0x7f0b40777a50>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

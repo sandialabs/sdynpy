@@ -1357,7 +1357,7 @@ Running the Integration to Generate Synthetic Test Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We will now loop through each of our excitation degrees of freedom and integrate
-the System's response to the force located at that postiion using
+the System's response to the force located at that position using
 :py:func:`System.time_integrate<sdynpy.core.sdynpy_system.System.time_integrate>`.
 This will give us references and responses as
 :py:class:`TimeHistoryArray<sdynpy.core.sdynpy_data.TimeHistoryArray>` objects.
@@ -1386,8 +1386,14 @@ object, which we can plot on our erroneous geometry.
     for rb_coordinate in rb_coordinates:
         # Perform time integration to get the responses to our sine wave
         print('Integrating Rigid Body Excitation at {:}'.format(str(rb_coordinate)))
-        responses,references = test_system.time_integrate(
-            force,dt,references=rb_coordinate)
+        references = sdpy.time_history_array(
+            abscissa = np.arange(force.shape[-1])*dt,
+            ordinate = force,
+            coordinate = rb_coordinate)
+        responses = test_system.time_integrate(
+            forces = references,
+            responses = {2:test_system.coordinate} # key of 2 is for acceleration
+            )
         # Plot the responses and references
         fig,ax = plt.subplots(2,1,sharex=True,
                               num='Rigid Body Test {:}'.format(str(rb_coordinate)))
@@ -1667,6 +1673,10 @@ test bandwidth.
     random_forces = sdpy.generator.random(
         drive_points.shape,modal_frames*samples_per_frame,dt=dt,
         high_frequency_cutoff=test_bandwidth)
+    references_modal = sdpy.time_history_array(
+        np.arange(random_forces.shape[-1])*dt,
+        random_forces,
+        drive_points[:,np.newaxis])
     # Look at the signal statistics
     rms = np.sqrt(np.mean(random_forces**2,axis=-1))
     fig,ax = plt.subplots(2,1,num='Random Excitation')
@@ -1699,8 +1709,9 @@ use a window function and apply an overlap.
 .. code-block:: python
 
     # Now let's run the modal test
-    responses_modal,references_modal = test_system.time_integrate(
-            random_forces,dt,references=drive_points)
+    responses_modal = test_system.time_integrate(
+        references_modal,
+        {2:test_system.coordinate}) # 2 for acceleration
     
     # Now let's downsample to the actual measurement (removing the 10x integration
     # oversample)

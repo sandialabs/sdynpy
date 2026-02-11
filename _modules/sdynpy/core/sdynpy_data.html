@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_data &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_data &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -513,7 +513,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abscissa_marker_labels</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
                 <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">abscissa_marker_labels</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">index</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">abscissa</span> <span class="o">=</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">abscissa_markers</span><span class="p">)]</span>
-        
+
         <span class="k">if</span> <span class="n">one_axis</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">figure</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">ordinate</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
@@ -625,7 +625,6 @@
         <span class="k">if</span> <span class="n">abscissa_marker_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;abscissa_marker_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">abscissa_marker_type</span>
         <span class="k">return</span> <span class="n">GUIPlot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-        
 
 <div class="viewcode-block" id="NDDataArray.plot_image"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.plot_image">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reduction_function</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">colorbar_scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span>
                    <span class="n">colorbar_min</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">colorbar_max</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -682,31 +681,36 @@
 <span class="sd">            2D Array of NDDataArray</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flattened_functions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="n">response_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_coordinate</span><span class="p">)</span>
-        <span class="n">reference_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_coordinate</span><span class="p">)</span>
-        <span class="n">output_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">response_coords</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">reference_coords</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="p">)</span>
+        <span class="n">flattened_functions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">unique_coords</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="s2">&quot;coordinate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">coordinate_combinations</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">unique_coords</span><span class="p">)</span>
+        <span class="n">output_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">coordinate_combinations</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">error_if_missing</span><span class="p">:</span>
-            <span class="n">keep_response_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">response_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">row_index</span><span class="p">,</span> <span class="n">response_coord</span> <span class="ow">in</span> <span class="n">response_coords</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">col_index</span><span class="p">,</span> <span class="n">reference_coord</span> <span class="ow">in</span> <span class="n">reference_coords</span><span class="o">.</span><span class="n">ndenumerate</span><span class="p">():</span>
-                <span class="n">current_function</span> <span class="o">=</span> <span class="n">flattened_functions</span><span class="p">[</span>
-                    <span class="p">(</span><span class="n">flattened_functions</span><span class="o">.</span><span class="n">response_coordinate</span> <span class="o">==</span> <span class="n">response_coord</span><span class="p">)</span>
-                    <span class="o">&amp;</span>
-                    <span class="p">(</span><span class="n">flattened_functions</span><span class="o">.</span><span class="n">reference_coordinate</span> <span class="o">==</span> <span class="n">reference_coord</span><span class="p">)]</span>
-                <span class="k">if</span> <span class="n">current_function</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">error_if_missing</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No function exists with reference coordinate </span><span class="si">{:}</span><span class="s1"> and response coordinate </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="nb">str</span><span class="p">(</span><span class="n">reference_coord</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">response_coord</span><span class="p">)))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">keep_response_indices</span><span class="p">[</span><span class="n">row_index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">current_function</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Multiple functions exist (</span><span class="si">{:}</span><span class="s1">) with reference coordinate </span><span class="si">{:}</span><span class="s1"> and response coordinate </span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">current_function</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">reference_coord</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">response_coord</span><span class="p">)))</span>
-                <span class="n">output_array</span><span class="p">[</span><span class="n">row_index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">current_function</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_coords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;error_if_missing == False is currently not implemented for data with dimension &gt; 2&quot;</span>
+                <span class="p">)</span>
+            <span class="n">keep_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">coordinate_combinations</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">coordinate_combinations</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">coordinate_combinations</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">current_function</span> <span class="o">=</span> <span class="n">flattened_functions</span><span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">flattened_functions</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">==</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">abs</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">current_function</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">error_if_missing</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No function exists with coordinates </span><span class="si">{</span><span class="n">coordinates</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">keep_indices</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">current_function</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Multiple functions exist (</span><span class="si">{</span><span class="n">current_function</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">) with coordinates </span><span class="si">{</span><span class="n">coordinate</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="n">output_array</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_function</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">error_if_missing</span><span class="p">:</span>
+            <span class="n">keep_response_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">keep_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">output_array</span> <span class="o">=</span> <span class="n">output_array</span><span class="p">[</span><span class="n">keep_response_indices</span><span class="p">,:]</span>
         <span class="k">return</span> <span class="n">output_array</span></div>
 
@@ -1133,6 +1137,213 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">this</span><span class="o">.</span><span class="n">ordinate</span> <span class="o">*=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">this</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">):</span>
+            <span class="c1"># We assume that if the matrix supplied has a &quot;shape&quot; to it, that</span>
+            <span class="c1"># means that the multiplication should be done over &quot;stacks&quot; of</span>
+            <span class="c1"># matrices and functions, so we should broadcast the arrays.</span>
+            <span class="c1"># We have to make some assumptions, though.  Otherwise there is</span>
+            <span class="c1"># ambiguity.  For example, if you had one 3x2 FRF matrix that</span>
+            <span class="c1"># you wanted to multiply by 3 different matrices, there is a</span>
+            <span class="c1"># difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)</span>
+            <span class="c1"># Therefore we will force the user to supply the correct</span>
+            <span class="c1"># dimensionality to the matrix and the functions, and we will</span>
+            <span class="c1"># do a kind of &quot;reverse&quot; broadcasting starting at the first</span>
+            <span class="c1"># dimensions.  Therefore, if a user has (3,) matrices and</span>
+            <span class="c1"># wants to specify multiplying those (3,) matrices by a</span>
+            <span class="c1"># single (3,2) FRF, they must pass a (1,3,2) FRF matrix</span>
+            <span class="c1"># so the 1-dimension corresponds to the 3-dimension of the</span>
+            <span class="c1"># matrix.  If they wanted each of the 3 rows of the (3,2)</span>
+            <span class="c1"># FRF to be multiplied by one of the 3 matrices, they should</span>
+            <span class="c1"># pass a (3,) matrix and a (3,2) FRF.  If they want each of</span>
+            <span class="c1"># the 3 rows of the (3,2) FRF to be multiplied by a single</span>
+            <span class="c1"># matrix, then they should make the matrix shape (1,) which</span>
+            <span class="c1"># will be expanded out.</span>
+            <span class="n">matrix_shape</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">data_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">matrix_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">matrix_shape</span><span class="p">)</span>
+            <span class="n">data_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_shape</span><span class="p">)</span>
+            <span class="c1"># Make sure that the data dimension is greater than or equal to the matrix dimension due</span>
+            <span class="c1"># to the broadcasting rules</span>
+            <span class="k">if</span> <span class="n">data_dim</span> <span class="o">&lt;</span> <span class="n">matrix_dim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrix must have fewer dimensions than data&quot;</span><span class="p">)</span>
+            <span class="c1"># Now make sure the first however many dimensions are broadcastable</span>
+            <span class="n">data_shape_for_broadcasting</span> <span class="o">=</span> <span class="n">data_shape</span><span class="p">[:</span><span class="n">matrix_dim</span><span class="p">]</span>
+            <span class="n">broadcast_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_shapes</span><span class="p">(</span><span class="n">matrix_shape</span><span class="p">,</span> <span class="n">data_shape_for_broadcasting</span><span class="p">)</span>
+            <span class="c1"># We don&#39;t know the size of the output array until we&#39;ve actually computed the first,</span>
+            <span class="c1"># so we set it to None as a placeholder</span>
+            <span class="n">output_data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># Now we iterate through the broadcasted shape</span>
+            <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">broadcast_shape</span><span class="p">):</span>
+                <span class="c1"># Replace indices with 0s if the original data was expanded from a length-1</span>
+                <span class="c1"># dimension</span>
+                <span class="n">matrix_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">index</span> <span class="k">if</span> <span class="n">matrix_shape</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">data_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">index</span> <span class="k">if</span> <span class="n">data_shape_for_broadcasting</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># Extract the data we are working with.</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">matrix_indices</span><span class="p">]</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">data_indices</span><span class="p">]</span>
+                <span class="c1"># For the data, we need the matrix row degrees of freedom on the last</span>
+                <span class="c1"># dimension, and all combinations of the remaining dimensions preceding it</span>
+                <span class="n">unique_dofs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="s2">&quot;coordinate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">unique_dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">dimension</span><span class="p">]))</span>
+                <span class="n">unique_dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">)</span>
+                <span class="n">coordinate_combinations</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">unique_dofs</span><span class="p">)</span>
+                <span class="c1"># Extract that data from the array</span>
+                <span class="n">data_sorted</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_combinations</span><span class="p">]</span>
+                <span class="c1"># Ensure that the abscissa is consistent</span>
+                <span class="n">output_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">data_sorted</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">output_abscissa</span><span class="p">,</span> <span class="n">data_sorted</span><span class="o">.</span><span class="n">abscissa</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data to be multiplied does not have common abscissa&quot;</span><span class="p">)</span>
+                <span class="c1"># We currently have a matrix with shape (n,m) and data with ordinate shape (...,n,k)</span>
+                <span class="c1"># where k is the number of samples in the data and n is the number of columns of data</span>
+                <span class="c1"># and rows of the matrix.  We will turn the ordinate of the data into a</span>
+                <span class="c1"># (...,k,n) array</span>
+                <span class="n">ordinate_for_multiplication</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data_sorted</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># After we do the multiplication to get the new ordinate, we have to return</span>
+                <span class="c1"># the array to its proper shape with columns in front of samples</span>
+                <span class="n">new_ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">((</span><span class="n">ordinate_for_multiplication</span> <span class="o">@</span> <span class="n">matrix</span><span class="o">.</span><span class="n">matrix</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+                <span class="c1"># The new coordinates will be the outer product of the unique dofs, but now with</span>
+                <span class="c1"># the column coordinates of the matrix replacing the row coordinates</span>
+                <span class="n">unique_dofs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">column_coordinate</span>
+                <span class="n">output_combinations</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">unique_dofs</span><span class="p">)</span>
+                <span class="c1"># Now we can assign these values to the output array.  We may need to still</span>
+                <span class="c1"># initialize it, however.</span>
+                <span class="k">if</span> <span class="n">output_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># We need to compute the final shape of the array, which will be the shape of</span>
+                    <span class="c1"># of the broadcast and the shape of the data.</span>
+                    <span class="o">*</span><span class="n">this_data_shape</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">=</span> <span class="n">new_ordinate</span><span class="o">.</span><span class="n">shape</span>
+                    <span class="n">output_data_shape</span> <span class="o">=</span> <span class="n">broadcast_shape</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">this_data_shape</span><span class="p">)</span>
+                    <span class="n">output_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">output_data_shape</span><span class="p">,</span> <span class="n">num_elements</span><span class="p">)</span>
+                <span class="c1"># Now we can assign the values</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ordinate</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_abscissa</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_combinations</span>
+            <span class="k">return</span> <span class="n">output_data</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">):</span>
+            <span class="c1"># We assume that if the matrix supplied has a &quot;shape&quot; to it, that</span>
+            <span class="c1"># means that the multiplication should be done over &quot;stacks&quot; of</span>
+            <span class="c1"># matrices and functions, so we should broadcast the arrays.</span>
+            <span class="c1"># We have to make some assumptions, though.  Otherwise there is</span>
+            <span class="c1"># ambiguity.  For example, if you had one 3x2 FRF matrix that</span>
+            <span class="c1"># you wanted to multiply by 3 different matrices, there is a</span>
+            <span class="c1"># difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)</span>
+            <span class="c1"># Therefore we will force the user to supply the correct</span>
+            <span class="c1"># dimensionality to the matrix and the functions, and we will</span>
+            <span class="c1"># do a kind of &quot;reverse&quot; broadcasting starting at the first</span>
+            <span class="c1"># dimensions.  Therefore, if a user has (3,) matrices and</span>
+            <span class="c1"># wants to specify multiplying those (3,) matrices by a</span>
+            <span class="c1"># single (3,2) FRF, they must pass a (1,3,2) FRF matrix</span>
+            <span class="c1"># so the 1-dimension corresponds to the 3-dimension of the</span>
+            <span class="c1"># matrix.  If they wanted each of the 3 rows of the (3,2)</span>
+            <span class="c1"># FRF to be multiplied by one of the 3 matrices, they should</span>
+            <span class="c1"># pass a (3,) matrix and a (3,2) FRF.  If they want each of</span>
+            <span class="c1"># the 3 rows of the (3,2) FRF to be multiplied by a single</span>
+            <span class="c1"># matrix, then they should make the matrix shape (1,) which</span>
+            <span class="c1"># will be expanded out.</span>
+            <span class="c1"># print(&quot;Extracting Dimensions:&quot;)</span>
+            <span class="n">matrix_shape</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">data_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">matrix_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">matrix_shape</span><span class="p">)</span>
+            <span class="n">data_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_shape</span><span class="p">)</span>
+            <span class="c1"># print(f&quot;{matrix_shape=}\n{data_shape=}&quot;)</span>
+            <span class="c1"># Make sure that the data dimension is greater than or equal to the matrix dimension due</span>
+            <span class="c1"># to the broadcasting rules</span>
+            <span class="k">if</span> <span class="n">data_dim</span> <span class="o">&lt;</span> <span class="n">matrix_dim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Matrix must have fewer dimensions than data&quot;</span><span class="p">)</span>
+            <span class="c1"># Now make sure the first however many dimensions are broadcastable</span>
+            <span class="n">data_shape_for_broadcasting</span> <span class="o">=</span> <span class="n">data_shape</span><span class="p">[:</span><span class="n">matrix_dim</span><span class="p">]</span>
+            <span class="n">broadcast_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_shapes</span><span class="p">(</span><span class="n">matrix_shape</span><span class="p">,</span> <span class="n">data_shape_for_broadcasting</span><span class="p">)</span>
+            <span class="c1"># print(f&quot;{broadcast_shape=}&quot;)</span>
+            <span class="c1"># We don&#39;t know the size of the output array until we&#39;ve actually computed the first,</span>
+            <span class="c1"># so we set it to None as a placeholder</span>
+            <span class="n">output_data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># Now we iterate through the broadcasted shape</span>
+            <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">broadcast_shape</span><span class="p">):</span>
+                <span class="c1"># print(f&quot;Multiplying {indices=}&quot;)</span>
+                <span class="c1"># Replace indices with 0s if the original data was expanded from a length-1</span>
+                <span class="c1"># dimension</span>
+                <span class="n">matrix_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">index</span> <span class="k">if</span> <span class="n">matrix_shape</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">data_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">index</span> <span class="k">if</span> <span class="n">data_shape_for_broadcasting</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># print(f&quot;  {matrix_indices=}\n  {data_indices=}&quot;)</span>
+                <span class="c1"># Extract the data we are working with.</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">matrix_indices</span><span class="p">]</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">data_indices</span><span class="p">]</span>
+                <span class="c1"># For the data, we need the matrix column degrees of freedom on the first</span>
+                <span class="c1"># dimension, then all combinations of the remaining dimensions</span>
+                <span class="c1"># print(f&quot;Setting up coordinates&quot;)</span>
+                <span class="n">unique_dofs</span> <span class="o">=</span> <span class="p">[</span><span class="n">matrix</span><span class="o">.</span><span class="n">column_coordinate</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="s2">&quot;coordinate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">unique_dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">dimension</span><span class="p">]))</span>
+                <span class="n">coordinate_combinations</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">unique_dofs</span><span class="p">)</span>
+                <span class="c1"># print(f&quot;{unique_dofs=}&quot;)</span>
+                <span class="c1"># Extract that data from the array</span>
+                <span class="n">data_sorted</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">coordinate_combinations</span><span class="p">]</span>
+                <span class="c1"># Ensure that the abscissa is consistent</span>
+                <span class="n">output_abscissa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">data_sorted</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">output_abscissa</span><span class="p">,</span> <span class="n">data_sorted</span><span class="o">.</span><span class="n">abscissa</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data to be multiplied does not have common abscissa&quot;</span><span class="p">)</span>
+                <span class="c1"># We currently have a matrix with shape (n,m) and data with ordinate shape (m,...,k)</span>
+                <span class="c1"># where k is the number of samples in the data and m is the number of rows of data</span>
+                <span class="c1"># and columns of the matrix.  We will turn the ordinate of the data into a</span>
+                <span class="c1"># (...,k,m,1) array</span>
+                <span class="c1"># print(&quot;Setting up Multiplication&quot;)</span>
+                <span class="n">ordinate_for_multiplication</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">data_sorted</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span>
+                    <span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span>
+                <span class="p">]</span>
+                <span class="c1"># print(f&quot;{ordinate_for_multiplication.shape=}&quot;)</span>
+                <span class="c1"># After we do the multiplication to get the new ordinate, we have to return</span>
+                <span class="c1"># the array to its proper shape with rows out front and the last 1 dimension removed</span>
+                <span class="n">new_ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">matrix</span> <span class="o">@</span> <span class="n">ordinate_for_multiplication</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="c1"># print(&quot;Multiplication Finished!&quot;)</span>
+                <span class="c1"># print(f&quot;{new_ordinate.shape=}&quot;)</span>
+                <span class="c1"># The new coordinates will be the outer product of the unique dofs, but now with</span>
+                <span class="c1"># the row coordinates of the matrix replacing the column coordinates</span>
+                <span class="n">unique_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">row_coordinate</span>
+                <span class="n">output_combinations</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="o">*</span><span class="n">unique_dofs</span><span class="p">)</span>
+                <span class="c1"># print(f&quot;Output Dofs: {unique_dofs=}&quot;)</span>
+                <span class="c1"># Now we can assign these values to the output array.  We may need to still</span>
+                <span class="c1"># initialize it, however.</span>
+                <span class="k">if</span> <span class="n">output_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># We need to compute the final shape of the array, which will be the shape of</span>
+                    <span class="c1"># of the broadcast and the shape of the data.</span>
+                    <span class="o">*</span><span class="n">this_data_shape</span><span class="p">,</span> <span class="n">num_elements</span> <span class="o">=</span> <span class="n">new_ordinate</span><span class="o">.</span><span class="n">shape</span>
+                    <span class="n">output_data_shape</span> <span class="o">=</span> <span class="n">broadcast_shape</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">this_data_shape</span><span class="p">)</span>
+                    <span class="c1"># print(f&quot;Setting up output with {output_data_shape=} and {num_elements=}&quot;)</span>
+                    <span class="n">output_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">output_data_shape</span><span class="p">,</span> <span class="n">num_elements</span><span class="p">)</span>
+                <span class="c1"># Now we can assign the values</span>
+                <span class="c1"># print(f&quot;Assigning Data to {indices=}&quot;)</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ordinate</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_abscissa</span>
+                <span class="n">output_data</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_combinations</span>
+            <span class="k">return</span> <span class="n">output_data</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1636,7 +1847,7 @@
 
         <span class="k">return</span> <span class="n">output_struct</span></div>
 
-<div class="viewcode-block" id="NDDataArray.save"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.save">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="NDDataArray.save"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.save">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">compress_abscissa</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the array to a numpy file</span>
 
@@ -1645,10 +1856,25 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            Filename that the array will be saved to.  Will be appended with</span>
 <span class="sd">            .npz if not specified in the filename</span>
+<span class="sd">        compress_abscissa : bool, optional</span>
+<span class="sd">            If True, abscissa will be stored as start and step instead of full</span>
+<span class="sd">            arrays.  If abscissa cannot be compressed and maintain values, a</span>
+<span class="sd">            ValueError will be raised.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span>
-                 <span class="n">function_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">function_type</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">compress_abscissa</span><span class="p">:</span>
+            <span class="n">abscissa_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abscissa_spacing</span>
+            <span class="n">abscissa_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">abscissa_start</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot compress abscissa with varying start values&#39;</span><span class="p">)</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s1">&#39;abscissa&#39;</span><span class="p">]</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)[</span><span class="n">fields</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                     <span class="n">function_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_type</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                     <span class="n">abscissa_start</span> <span class="o">=</span> <span class="n">abscissa_start</span><span class="p">,</span>
+                     <span class="n">abscissa_step</span> <span class="o">=</span> <span class="n">abscissa_step</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">),</span>
+                     <span class="n">function_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">function_type</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="NDDataArray.load"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -1683,8 +1909,24 @@
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Class </span><span class="si">{:}</span><span class="s1"> has no from_unv attribute defined&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fn_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
-                <span class="n">_function_type_class_map</span><span class="p">[</span><span class="n">FunctionTypes</span><span class="p">(</span><span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;function_type&#39;</span><span class="p">])])</span></div>
+            <span class="k">if</span> <span class="s1">&#39;abscissa_start&#39;</span> <span class="ow">in</span> <span class="n">fn_data</span><span class="p">:</span>
+                <span class="c1"># This is file with compressed abscissa</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">descr</span>
+                <span class="n">nelem</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ordinate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ordinate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">new_cls</span> <span class="o">=</span> <span class="n">_function_type_class_map</span><span class="p">[</span><span class="n">FunctionTypes</span><span class="p">(</span><span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;function_type&#39;</span><span class="p">])]</span>
+                <span class="n">new_obj</span> <span class="o">=</span> <span class="n">new_cls</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">nelem</span><span class="p">)</span>
+                <span class="n">abscissa</span> <span class="o">=</span> <span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;abscissa_start&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nelem</span><span class="p">)</span><span class="o">*</span><span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;abscissa_step&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">dtype</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">dt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_obj</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">new_obj</span><span class="p">[</span><span class="n">dt</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dt</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">new_obj</span><span class="p">[</span><span class="s1">&#39;abscissa&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">abscissa</span>
+                <span class="k">return</span> <span class="n">new_obj</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
+                    <span class="n">_function_type_class_map</span><span class="p">[</span><span class="n">FunctionTypes</span><span class="p">(</span><span class="n">fn_data</span><span class="p">[</span><span class="s1">&#39;function_type&#39;</span><span class="p">])])</span></div>
 
 <div class="viewcode-block" id="NDDataArray.to_imat_struct"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.to_imat_struct">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_imat_struct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">SetRecord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">CreateDate</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ModifyDate</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                        <span class="n">OwnerName</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">AbscissaDataType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">AbscissaTypeQual</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1900,7 +2142,7 @@
         <span class="k">return</span> <span class="n">return_functions</span></div>
 
     <span class="n">from_uff</span> <span class="o">=</span> <span class="n">from_unv</span>
-    
+
 <div class="viewcode-block" id="NDDataArray.get_reciprocal_data"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.get_reciprocal_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_reciprocal_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">return_indices</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets reciprocal pairs of data from an NDDataArray.</span>
@@ -1947,7 +2189,7 @@
             <span class="k">return</span> <span class="n">equal_indices</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">equal_indices</span><span class="p">]</span></div>
-        
+
 <div class="viewcode-block" id="NDDataArray.get_drive_points"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.get_drive_points">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_drive_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">return_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns data arrays where the reference is equal to the response</span>
@@ -1982,7 +2224,7 @@
             <span class="k">return</span> <span class="n">equal_indices</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">equal_logical</span><span class="p">]</span></div>
-        
+
 <div class="viewcode-block" id="NDDataArray.shape_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.NDDataArray.html#sdynpy.core.sdynpy_data.NDDataArray.shape_filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">shape_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span> <span class="n">filter_responses</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">filter_references</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                      <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2029,7 +2271,7 @@
             <span class="n">coords</span> <span class="o">=</span> <span class="n">response_coords</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">coords</span><span class="p">]</span>
         <span class="n">data_type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">function_type</span>
-        
+
         <span class="k">if</span> <span class="n">filter_responses</span><span class="p">:</span>
             <span class="n">response_shape_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="n">response_coords</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">)</span>
             <span class="n">output_response_coords</span> <span class="o">=</span> <span class="n">coordinate_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">response_shape_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
@@ -2042,18 +2284,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">reference_shape_matrix</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">output_reference_coords</span> <span class="o">=</span> <span class="n">reference_coords</span>
-            
+
         <span class="k">if</span> <span class="n">output_reference_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">output_coords</span> <span class="o">=</span> <span class="n">outer_product</span><span class="p">(</span><span class="n">output_response_coords</span><span class="p">,</span><span class="n">output_reference_coords</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output_coords</span> <span class="o">=</span> <span class="n">output_response_coords</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            
+
         <span class="n">ordinate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ordinate</span>
         <span class="k">if</span> <span class="n">response_shape_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mi,i...s-&gt;m...s&#39;</span><span class="p">,</span><span class="n">response_shape_matrix</span><span class="p">,</span><span class="n">ordinate</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reference_shape_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mj,...js-&gt;...ms&#39;</span><span class="p">,</span><span class="n">reference_shape_matrix</span><span class="p">,</span><span class="n">ordinate</span><span class="p">)</span>
-        
+
         <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">data_array</span><span class="p">(</span><span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
                                    <span class="n">abscissa</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">abscissa</span><span class="p">,</span>
                                    <span class="n">ordinate</span><span class="o">=</span><span class="n">ordinate</span><span class="p">,</span>
@@ -2220,9 +2462,7 @@
 <span class="sd">            `zero_early_time` method with the `fft` method</span>
 <span class="sd">            subsequently applied.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_early_time</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,</span><span class="n">abscissa_range</span><span class="p">,</span>
-                               <span class="n">closest_zero_crossing</span><span class="p">)</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span></div>
-                               
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_early_time</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">abscissa_range</span><span class="p">,</span> <span class="n">closest_zero_crossing</span><span class="p">)</span><span class="o">.</span><span class="n">fft</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TimeHistoryArray.zero_early_time"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.zero_early_time">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">zero_early_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">abscissa_range</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">closest_zero_crossing</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -2287,7 +2527,6 @@
                 <span class="n">output</span><span class="o">.</span><span class="n">ordinate</span><span class="p">[(</span><span class="n">step_index</span><span class="p">,)</span><span class="o">+</span><span class="n">signal_index</span><span class="o">+</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="n">zero_index</span><span class="o">+</span><span class="mi">1</span><span class="p">),)]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">output</span></div>
 
-
 <div class="viewcode-block" id="TimeHistoryArray.find_zero_crossings"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.find_zero_crossings">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">find_zero_crossings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">return_abscissa</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_start</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Finds zero crossings in the time history</span>
 
@@ -2324,7 +2563,6 @@
             <span class="k">return</span> <span class="n">sign_changes_array</span><span class="p">,</span><span class="n">abscissa_array</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">sign_changes_array</span></div>
-
 
 <div class="viewcode-block" id="TimeHistoryArray.cpsd"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.cpsd">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">cpsd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
              <span class="n">averages_to_keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2554,8 +2792,6 @@
                                     <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)))</span>
         <span class="k">return</span> <span class="n">amplitude</span><span class="p">,</span><span class="n">phases</span></div>
 
-
-
 <div class="viewcode-block" id="TimeHistoryArray.digital_tracking_filter"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.digital_tracking_filter">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">digital_tracking_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">arguments</span><span class="p">,</span> 
                                 <span class="n">cutoff_frequency_ratio</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span>
                                 <span class="n">filter_order</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">phase_estimate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2587,7 +2823,6 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">phases</span></div>
-
 
 <div class="viewcode-block" id="TimeHistoryArray.split_into_frames"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.split_into_frames">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">split_into_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">overlap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overlap_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2691,11 +2926,10 @@
         <span class="k">if</span> <span class="n">check_cola</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">sig</span><span class="o">.</span><span class="n">check_COLA</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">samples_per_frame</span><span class="p">,</span> <span class="n">overlap_samples</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;COLA Check Failed: specified window and overlap do not result in a constant overlap-add condition, see scipy.check_COLA for more information&#39;</span><span class="p">)</span>
-                
+
         <span class="k">return</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">TIME_RESPONSE</span><span class="p">,</span> <span class="n">new_abscissa</span><span class="p">,</span> <span class="n">new_ordinate</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">)</span></div>
-    
 
 <div class="viewcode-block" id="TimeHistoryArray.mimo_forward"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.mimo_forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">mimo_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfer_function</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3330,6 +3564,33 @@
         <span class="n">fft_zp</span> <span class="o">=</span> <span class="n">fft</span><span class="o">.</span><span class="n">zero_pad</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">num_elements</span><span class="o">*</span><span class="p">(</span><span class="n">factor</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">fft_zp</span><span class="o">.</span><span class="n">ifft</span><span class="p">()</span><span class="o">*</span><span class="n">factor</span></div>
 
+<div class="viewcode-block" id="TimeHistoryArray.resample"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.resample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses Scipy.signal.resample to resample the time history array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_samples : int</span>
+<span class="sd">            The number of samples in the desired signal.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TimeHistoryArray</span>
+<span class="sd">            A TimeHistoryArray object with resampled abscissa and ordinate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xr</span><span class="p">,</span> <span class="n">tr</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abscissa</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">time_history_array</span><span class="p">(</span>
+            <span class="n">tr</span><span class="p">,</span>
+            <span class="n">xr</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment1</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment2</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment3</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment4</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment5</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
 <div class="viewcode-block" id="TimeHistoryArray.apply_transformation"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TimeHistoryArray.html#sdynpy.core.sdynpy_data.TimeHistoryArray.apply_transformation">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">invert_transformation</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Applies a transformations to the time traces.</span>
@@ -3365,7 +3626,7 @@
 
         <span class="n">physical_coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_coordinate</span><span class="p">)</span>
         <span class="n">original_data_ordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">physical_coordinate</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]]</span><span class="o">.</span><span class="n">ordinate</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        
+
         <span class="k">if</span> <span class="n">invert_transformation</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">)</span> <span class="o">==</span> <span class="n">physical_coordinate</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The physical coordinates in the transformation do no match the spectra&#39;</span><span class="p">)</span>
@@ -3376,7 +3637,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The physical coordinates in the transformation do no match the spectra&#39;</span><span class="p">)</span>
             <span class="n">transformed_coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">)</span>
             <span class="n">transformation_matrix</span> <span class="o">=</span> <span class="n">transformation</span><span class="p">[</span><span class="n">transformed_coordinate</span><span class="p">,</span> <span class="n">physical_coordinate</span><span class="p">]</span>
-        
+
         <span class="k">if</span> <span class="n">transformation_matrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The transformation array must be two dimensional&#39;</span><span class="p">)</span>
 
@@ -4001,8 +4262,7 @@
                                   <span class="n">abscissa</span><span class="p">,</span><span class="n">output_signals</span><span class="p">,</span><span class="n">coordinates</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
                                   <span class="n">comment1</span><span class="p">,</span> <span class="n">comment2</span><span class="p">,</span> <span class="n">comment3</span><span class="p">,</span> <span class="n">comment4</span><span class="p">,</span> <span class="n">comment5</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">time_history</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div></div>
-        
-        
+
 
 <div class="viewcode-block" id="time_history_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.time_history_array.html#sdynpy.core.sdynpy_data.time_history_array">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">time_history_array</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span><span class="n">ordinate</span><span class="p">,</span><span class="n">coordinate</span><span class="p">,</span><span class="n">comment1</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment2</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment3</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment4</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">comment5</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -5762,7 +6022,6 @@
             <span class="k">return</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">,</span>
                               <span class="n">freq</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">frf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">coordinate</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="TransferFunctionArray.ifft"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray.ifft">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">ifft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;backward&quot;</span><span class="p">,</span>  <span class="n">odd_num_samples</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
              <span class="o">**</span><span class="n">scipy_irfft_kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -5812,7 +6071,7 @@
                 <span class="o">+</span> <span class="s1">&#39; and it is assumed that this is due to some high pass cut-off.&#39;</span>
                 <span class="o">+</span> <span class="s1">&#39; The data is being zero padded at low frequencies.&#39;</span><span class="p">)</span>
         <span class="n">num_elements</span> <span class="o">=</span> <span class="n">first_frequency_bin</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements</span>
-        
+
         <span class="k">if</span> <span class="n">odd_num_samples</span><span class="p">:</span>
             <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">num_elements</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -6315,7 +6574,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abscissa_marker_labels</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
                 <span class="n">abscissa_marker_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">abscissa_marker_labels</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">index</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">abscissa</span> <span class="o">=</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">abscissa_markers</span><span class="p">)]</span>
-                
+
         <span class="n">part_fns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;imag&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span>
                     <span class="s1">&#39;real&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
                     <span class="s1">&#39;mag&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">,</span>
@@ -6381,7 +6640,7 @@
                 <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Phase&#39;</span><span class="p">)</span>
                 <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
                 <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
-                
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">figure</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">subplots_kwargs</span><span class="p">)</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">abscissa</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">part_fns</span><span class="p">[</span><span class="n">part</span><span class="p">](</span>
@@ -6685,7 +6944,7 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The physical coordinates in the response transformation do no match the transfer functions&#39;</span><span class="p">)</span>
                 <span class="n">transformed_response_coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">response_transformation</span><span class="o">.</span><span class="n">row_coordinate</span><span class="p">)</span>
                 <span class="n">response_transformation_matrix</span> <span class="o">=</span> <span class="n">response_transformation</span><span class="p">[</span><span class="n">transformed_response_coordinate</span><span class="p">,</span> <span class="n">physical_response_coordinate</span><span class="p">]</span>
-                
+
         <span class="n">transformed_frf_ordinate</span> <span class="o">=</span> <span class="n">response_transformation_matrix</span> <span class="o">@</span> <span class="n">original_frf_ordinate</span> <span class="o">@</span> <span class="n">reference_transformation_matrix</span>
 
         <span class="k">return</span> <span class="n">data_array</span><span class="p">(</span><span class="n">FunctionTypes</span><span class="o">.</span><span class="n">FREQUENCY_RESPONSE_FUNCTION</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">abscissa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">transformed_frf_ordinate</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> 
@@ -6808,7 +7067,7 @@
                 <span class="n">loop_ref_coord</span><span class="o">.</span><span class="n">node</span> <span class="o">+=</span> <span class="n">coordinate_node_offset</span> <span class="o">*</span> <span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">response_coordinate_string</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">loop_res_coord</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span>
             <span class="n">reference_coordinate_string</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">loop_ref_coord</span><span class="o">.</span><span class="n">string_array</span><span class="p">())</span>
-            
+
             <span class="c1"># Adding the slicing offset for the block diagonal FRFs</span>
             <span class="n">response_index_offset</span> <span class="o">+=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">reference_index_offset</span> <span class="o">+=</span> <span class="n">frfs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -6913,7 +7172,7 @@
         <span class="c1"># Apply Constraints</span>
         <span class="n">dof_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dof_list</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substructure_by_constraint_matrix</span><span class="p">(</span><span class="n">dof_list</span><span class="p">,</span> <span class="n">constraint_matrix</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="TransferFunctionArray.from_exodus"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.TransferFunctionArray.html#sdynpy.core.sdynpy_data.TransferFunctionArray.from_exodus">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_exodus</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">exo</span><span class="p">,</span> <span class="n">reference_coordinate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">xval</span> <span class="o">=</span> <span class="s1">&#39;DispX&#39;</span><span class="p">,</span> <span class="n">xvali</span> <span class="o">=</span> <span class="s1">&#39;ImagDispX&#39;</span><span class="p">,</span>
@@ -6972,7 +7231,7 @@
                 <span class="p">)][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
             <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">real_data</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">imag_data</span><span class="p">)</span>
             <span class="n">coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coordinate_array</span><span class="p">(</span><span class="n">node_ids</span><span class="p">,</span><span class="n">coordinate_dir</span><span class="p">))</span>
-            
+
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">CoordinateArray</span><span class="p">)</span>
         <span class="n">reference_coordinates</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -6980,7 +7239,6 @@
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">reference_coordinates</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">transfer_function_array</span><span class="p">(</span><span class="n">exo</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">coordinates</span><span class="p">)</span></div></div>
-
 
 
 <div class="viewcode-block" id="transfer_function_array"><a class="viewcode-back" href="../../../_autosummary/sdynpy.core.sdynpy_data.transfer_function_array.html#sdynpy.core.sdynpy_data.transfer_function_array">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">transfer_function_array</span><span class="p">(</span><span class="n">abscissa</span><span class="p">,</span><span class="n">ordinate</span><span class="p">,</span><span class="n">coordinate</span><span class="p">,</span>
@@ -8235,7 +8493,7 @@
             <span class="n">x_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">,</span> <span class="n">r_o</span> <span class="o">=</span> <span class="n">optimize_phase_targets_pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b_amplitude</span><span class="p">,</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">,</span> <span class="n">weight_accuracy</span><span class="o">=</span><span class="n">accuracy_weight</span><span class="p">,</span><span class="n">weight_magnitude</span><span class="o">=</span><span class="n">input_weight</span><span class="p">)</span>
             <span class="n">x_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_o</span><span class="p">)</span>
             <span class="n">b_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_o</span><span class="p">)</span>
 
         <span class="n">x_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span>
         <span class="n">b_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_opt</span><span class="p">)</span>
@@ -8265,7 +8523,7 @@
             <span class="n">x_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">,</span> <span class="n">r_o</span> <span class="o">=</span> <span class="n">optimize_phase_targets_pinv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">rcond</span><span class="o">=</span><span class="n">rcond</span><span class="p">,</span> <span class="n">phi0</span><span class="o">=</span><span class="n">phi0</span><span class="p">,</span> <span class="n">weight_accuracy</span><span class="o">=</span><span class="n">accuracy_weight</span><span class="p">,</span><span class="n">weight_magnitude</span><span class="o">=</span><span class="n">input_weight</span><span class="p">)</span>
             <span class="n">x_opt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_o</span><span class="p">)</span>
             <span class="n">b_opt2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_o</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r_o</span><span class="p">)</span>
 
         <span class="n">x_opt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_opt</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
         <span class="n">b_opt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_opt2</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
@@ -9739,7 +9997,7 @@
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6caeb5f050>
+<jinja2.runtime.BlockReference object at 0x7f0b3fe19f10>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sdynpy.core.sdynpy_geometry.Geometry &mdash; SDynPy 0.21.0 documentation</title>
+  <title>sdynpy.core.sdynpy_geometry.Geometry &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
@@ -93,6 +93,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.camera_visualization"><code class="docutils literal notranslate"><span class="pre">Geometry.camera_visualization()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.compress_ids"><code class="docutils literal notranslate"><span class="pre">Geometry.compress_ids()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.convert_elements_to_tracelines"><code class="docutils literal notranslate"><span class="pre">Geometry.convert_elements_to_tracelines()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix"><code class="docutils literal notranslate"><span class="pre">Geometry.coordinate_transformation_matrix()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.copy"><code class="docutils literal notranslate"><span class="pre">Geometry.copy()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.force_kinematic_transformation"><code class="docutils literal notranslate"><span class="pre">Geometry.force_kinematic_transformation()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_excel_template"><code class="docutils literal notranslate"><span class="pre">Geometry.from_excel_template()</span></code></a></li>
@@ -120,6 +121,7 @@
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.response_kinematic_transformation"><code class="docutils literal notranslate"><span class="pre">Geometry.response_kinematic_transformation()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes"><code class="docutils literal notranslate"><span class="pre">Geometry.rigid_body_shapes()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.save"><code class="docutils literal notranslate"><span class="pre">Geometry.save()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.savemat"><code class="docutils literal notranslate"><span class="pre">Geometry.savemat()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.split_tracelines_into_segments"><code class="docutils literal notranslate"><span class="pre">Geometry.split_tracelines_into_segments()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.write_excel_template"><code class="docutils literal notranslate"><span class="pre">Geometry.write_excel_template()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.write_to_unv"><code class="docutils literal notranslate"><span class="pre">Geometry.write_to_unv()</span></code></a></li>
@@ -243,86 +245,92 @@ ElementArray((0,)), an empty element array.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.convert_elements_to_tracelines" title="sdynpy.core.sdynpy_geometry.Geometry.convert_elements_to_tracelines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_elements_to_tracelines</span></code></a>([keep_ids, ...])</p></td>
 <td><p>Transforms all elements in the geometry into tracelines</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.copy" title="sdynpy.core.sdynpy_geometry.Geometry.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix" title="sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinate_transformation_matrix</span></code></a>(to_geometry)</p></td>
+<td><p>Creates a transformation matrix that transforms one geometry to a new geometry with different coordinate systems defined.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.copy" title="sdynpy.core.sdynpy_geometry.Geometry.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
 <td><p>Return's a copy of the current Geometry</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.force_kinematic_transformation" title="sdynpy.core.sdynpy_geometry.Geometry.force_kinematic_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">force_kinematic_transformation</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.force_kinematic_transformation" title="sdynpy.core.sdynpy_geometry.Geometry.force_kinematic_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">force_kinematic_transformation</span></code></a>(...[, ...])</p></td>
 <td><p>Creates a kinematic force transformation from the rigid body body shapes for the associated geometry and force coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_excel_template" title="sdynpy.core.sdynpy_geometry.Geometry.from_excel_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_excel_template</span></code></a>(path_to_xlsx)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_excel_template" title="sdynpy.core.sdynpy_geometry.Geometry.from_excel_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_excel_template</span></code></a>(path_to_xlsx)</p></td>
 <td><p>Create a geometry from Excel file template</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_exodus" title="sdynpy.core.sdynpy_geometry.Geometry.from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus</span></code></a>(exo[, blocks, local, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_exodus" title="sdynpy.core.sdynpy_geometry.Geometry.from_exodus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_exodus</span></code></a>(exo[, blocks, local, ...])</p></td>
 <td><p>Generate a geometry from exodus file data</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct" title="sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_imat_struct</span></code></a>(imat_fem_struct)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct" title="sdynpy.core.sdynpy_geometry.Geometry.from_imat_struct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_imat_struct</span></code></a>(imat_fem_struct)</p></td>
 <td><p>Constructs a Geometry from an imat_fem class saved to a Matlab structure</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_uff" title="sdynpy.core.sdynpy_geometry.Geometry.from_uff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_uff</span></code></a>(unv_dict)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_uff" title="sdynpy.core.sdynpy_geometry.Geometry.from_uff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_uff</span></code></a>(unv_dict)</p></td>
 <td><p>Create a geometry from universal file format data from readunv</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_unv" title="sdynpy.core.sdynpy_geometry.Geometry.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_dict)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.from_unv" title="sdynpy.core.sdynpy_geometry.Geometry.from_unv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_unv</span></code></a>(unv_dict)</p></td>
 <td><p>Create a geometry from universal file format data from readunv</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_deflection" title="sdynpy.core.sdynpy_geometry.Geometry.global_deflection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_deflection</span></code></a>(coordinate_array)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_deflection" title="sdynpy.core.sdynpy_geometry.Geometry.global_deflection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_deflection</span></code></a>(coordinate_array)</p></td>
 <td><p>Direction of local deflection in the global coordinate system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_geometry_table" title="sdynpy.core.sdynpy_geometry.Geometry.global_geometry_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_geometry_table</span></code></a>([...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_geometry_table" title="sdynpy.core.sdynpy_geometry.Geometry.global_geometry_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_geometry_table</span></code></a>([...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_node_coordinate</span></code></a>([node_ids])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.global_node_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_node_coordinate</span></code></a>([node_ids])</p></td>
 <td><p>Position of the Geometry's nodes in the global coordinate system</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.load" title="sdynpy.core.sdynpy_geometry.Geometry.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.load" title="sdynpy.core.sdynpy_geometry.Geometry.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
 <td><p>Loads a geometry from a numpy .npz or .unv file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.map_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.map_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_coordinate</span></code></a>(dof_list, to_geometry[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.map_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.map_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_coordinate</span></code></a>(dof_list, to_geometry[, ...])</p></td>
 <td><p>Map degrees of freedom from one geometry to the closest aligned on a second geometry.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.map_ids" title="sdynpy.core.sdynpy_geometry.Geometry.map_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_ids</span></code></a>([node_id_map, traceline_id_map, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.map_ids" title="sdynpy.core.sdynpy_geometry.Geometry.map_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_ids</span></code></a>([node_id_map, traceline_id_map, ...])</p></td>
 <td><p>Maps id numbers from an original set of ids to a new set of ids.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.modify_ids" title="sdynpy.core.sdynpy_geometry.Geometry.modify_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modify_ids</span></code></a>([node_change, traceline_change, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.modify_ids" title="sdynpy.core.sdynpy_geometry.Geometry.modify_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modify_ids</span></code></a>([node_change, traceline_change, ...])</p></td>
 <td><p>Shifts the id numbers in the geometry</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_grid" title="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_by_global_grid</span></code></a>(grid_spacing[, x_min, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_grid" title="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_by_global_grid</span></code></a>(grid_spacing[, x_min, ...])</p></td>
 <td><p>Selects nodes in a grid</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position" title="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_by_global_position</span></code></a>(global_position_array)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position" title="sdynpy.core.sdynpy_geometry.Geometry.node_by_global_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_by_global_position</span></code></a>(global_position_array)</p></td>
 <td><p>Select node by closest position</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries" title="sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_geometries</span></code></a>(geometries[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries" title="sdynpy.core.sdynpy_geometry.Geometry.overlay_geometries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay_geometries</span></code></a>(geometries[, ...])</p></td>
 <td><p>Combines several geometries, offsetting the id numbers to avoid conflicts</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot" title="sdynpy.core.sdynpy_geometry.Geometry.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([node_size, line_width, opacity, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot" title="sdynpy.core.sdynpy_geometry.Geometry.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([node_size, line_width, opacity, ...])</p></td>
 <td><p>Plots the geometry in an interactive 3D window.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_coordinate</span></code></a>([coordinates, arrow_scale, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate" title="sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_coordinate</span></code></a>([coordinates, arrow_scale, ...])</p></td>
 <td><p>Plots coordinate arrows on the geometry</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_deflection_shape</span></code></a>(deflection_shape_data)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_deflection_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_deflection_shape</span></code></a>(deflection_shape_data)</p></td>
 <td><p>Plot deflection shapes shapes on the geometry</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_shape</span></code></a>(shape[, plot_kwargs, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_shape" title="sdynpy.core.sdynpy_geometry.Geometry.plot_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_shape</span></code></a>(shape[, plot_kwargs, ...])</p></td>
 <td><p>Plot mode shapes on the geometry</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_transient" title="sdynpy.core.sdynpy_geometry.Geometry.plot_transient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transient</span></code></a>(displacement_data[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.plot_transient" title="sdynpy.core.sdynpy_geometry.Geometry.plot_transient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_transient</span></code></a>(displacement_data[, ...])</p></td>
 <td><p>Create a TransientPlotter object to plot displacements over time</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.reduce" title="sdynpy.core.sdynpy_geometry.Geometry.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(node_list)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.reduce" title="sdynpy.core.sdynpy_geometry.Geometry.reduce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reduce</span></code></a>(node_list)</p></td>
 <td><p>Reduce the geometry to only contain nodes in <cite>node_list</cite></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.remove_duplicate_tracelines" title="sdynpy.core.sdynpy_geometry.Geometry.remove_duplicate_tracelines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_tracelines</span></code></a>([in_place])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.remove_duplicate_tracelines" title="sdynpy.core.sdynpy_geometry.Geometry.remove_duplicate_tracelines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_tracelines</span></code></a>([in_place])</p></td>
 <td><p>Removes tracelines that are effectively equivalent to each other.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.response_kinematic_transformation" title="sdynpy.core.sdynpy_geometry.Geometry.response_kinematic_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_kinematic_transformation</span></code></a>(...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.response_kinematic_transformation" title="sdynpy.core.sdynpy_geometry.Geometry.response_kinematic_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_kinematic_transformation</span></code></a>(...[, ...])</p></td>
 <td><p>Creates a kinematic response transformation from the rigid body body shapes for the associated geometry and response coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes" title="sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_shapes</span></code></a>(coordinates[, mass, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes" title="sdynpy.core.sdynpy_geometry.Geometry.rigid_body_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rigid_body_shapes</span></code></a>(coordinates[, mass, ...])</p></td>
 <td><p>Creates a set of shapes corresponding to the rigid body motions</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.save" title="sdynpy.core.sdynpy_geometry.Geometry.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.save" title="sdynpy.core.sdynpy_geometry.Geometry.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
 <td><p>Saves the geometry to a numpy .npz file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.savemat" title="sdynpy.core.sdynpy_geometry.Geometry.savemat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">savemat</span></code></a>(filename)</p></td>
+<td><p>Saves the geometry to a .mat file</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry.split_tracelines_into_segments" title="sdynpy.core.sdynpy_geometry.Geometry.split_tracelines_into_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_tracelines_into_segments</span></code></a>([in_place])</p></td>
 <td><p>Splits long tracelines into many length-2 tracelines</p></td>
@@ -451,6 +459,33 @@ created and returned. The default is False.</p></li>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry">Geometry</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix">
+<span class="sig-name descname"><span class="pre">coordinate_transformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><span class="pre">Geometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.coordinate_transformation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.coordinate_transformation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a transformation matrix that transforms one geometry to a new
+geometry with different coordinate systems defined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_geometry</strong> (<a class="reference internal" href="#sdynpy.core.sdynpy_geometry.Geometry" title="sdynpy.core.sdynpy_geometry.Geometry"><em>Geometry</em></a>) – Geometry object with coordinate systems that the transformation
+matrix will transform into</p></li>
+<li><p><strong>nodes</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – An array of node id numbers to include in the transformation.
+The default is to include all nodes in the geometry.</p></li>
+<li><p><strong>rotations</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, create degrees of freedom for rotations as well as
+translations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Matrix object that transforms data or shapes currently
+represented by this Geometry to the Geometry specified in the
+<cite>to_geometry</cite> argument.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sdynpy.core.sdynpy_matrix.Matrix.html#sdynpy.core.sdynpy_matrix.Matrix" title="sdynpy.core.sdynpy_matrix.Matrix">Matrix</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1245,6 +1280,23 @@ geometry</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.savemat">
+<span class="sig-name descname"><span class="pre">savemat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.savemat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.savemat" title="Permalink to this definition"></a></dt>
+<dd><p>Saves the geometry to a .mat file</p>
+<p>The .mat file will have fields ‘node’, ‘coordinate_system’, ‘element’,
+and ‘traceline’, with each field storing the respective portion of the
+geometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename to save the geometry to.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdynpy.core.sdynpy_geometry.Geometry.split_tracelines_into_segments">
 <span class="sig-name descname"><span class="pre">split_tracelines_into_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sdynpy/core/sdynpy_geometry.html#Geometry.split_tracelines_into_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sdynpy.core.sdynpy_geometry.Geometry.split_tracelines_into_segments" title="Permalink to this definition"></a></dt>
 <dd><p>Splits long tracelines into many length-2 tracelines</p>
@@ -1328,7 +1380,7 @@ readunv.  Only returned if filename is None.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cacb50c50>
+<jinja2.runtime.BlockReference object at 0x7f0b43467610>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

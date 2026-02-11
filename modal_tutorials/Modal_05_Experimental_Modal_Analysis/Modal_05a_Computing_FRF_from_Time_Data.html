@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 05 Part A: Computing Frequency Response from Time Data &mdash; SDynPy 0.21.0 documentation</title>
+  <title>Modal Tutorial 05 Part A: Computing Frequency Response from Time Data &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
@@ -203,14 +203,15 @@ every excitation location that we wish to compute the excitation location at.</p
 <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">*</span><span class="n">sample_length</span><span class="p">)</span>
 <span class="n">excitation_signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span>
     <span class="n">excitation_frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">,</span><span class="n">excitation_amplitude</span><span class="p">)</span>
-
+<span class="n">references</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">excitation_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span>
+    <span class="n">excitation_signal</span><span class="p">,</span>
+    <span class="n">excitation_location</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 <span class="c1"># Now integrate the equations of motion and compute responses at</span>
 <span class="c1"># all the nodes in the vertical direction</span>
-<span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-    <span class="n">excitation_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
-    <span class="n">response_locations</span><span class="p">,</span> <span class="c1"># Responses</span>
-    <span class="n">excitation_location</span><span class="p">,</span> <span class="c1"># Excitation</span>
-    <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># Get accelerations</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">references</span><span class="p">,</span>
+    <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_locations</span><span class="p">})</span> <span class="c1"># Get accelerations</span>
 
 <span class="c1"># Plot the responses and the references</span>
 <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;Excitation and Response to Sinusoidal Input&#39;</span><span class="p">,</span>
@@ -282,7 +283,7 @@ every excitation location that we wish to compute the excitation location at.</p
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;sdynpy.core.sdynpy_geometry.ShapePlotter at 0x1b17302cca0&gt;
+&lt;sdynpy.core.sdynpy_geometry.ShapePlotter at 0x26d69bd8950&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -313,14 +314,15 @@ every excitation location that we wish to compute the excitation location at.</p
         <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_rate</span><span class="o">*</span><span class="n">sample_length</span><span class="p">)</span>
         <span class="n">excitation_signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span>
             <span class="n">excitation_frequency</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">num_samples</span><span class="p">,</span><span class="n">excitation_amplitude</span><span class="p">)</span>
-
+        <span class="n">references</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">excitation_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span>
+            <span class="n">excitation_signal</span><span class="p">,</span>
+            <span class="n">excitation_location</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
         <span class="c1"># Now integrate the equations of motion and compute responses at</span>
         <span class="c1"># all the nodes in the vertical direction</span>
-        <span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-            <span class="n">excitation_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
-            <span class="n">response_locations</span><span class="p">,</span> <span class="c1"># Responses</span>
-            <span class="n">excitation_location</span><span class="p">,</span> <span class="c1"># Excitation</span>
-            <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># Get accelerations</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+            <span class="n">references</span><span class="p">,</span>
+            <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_locations</span><span class="p">})</span> <span class="c1"># Get accelerations</span>
 
         <span class="n">steady_state_responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">extract_elements_by_abscissa</span><span class="p">(</span>
             <span class="mf">1.5</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
@@ -419,12 +421,14 @@ and re-aligning shakers, which can be very tedious as well if there are a large 
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy the signal 3 times to allow the system to come to steady state</span>
 <span class="n">excitation_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">excitation_signal</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">excitation_location</span> <span class="o">=</span> <span class="n">excitation_locations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-    <span class="n">excitation_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
-    <span class="n">response_locations</span><span class="p">,</span> <span class="c1"># Responses</span>
-    <span class="n">excitation_location</span><span class="p">,</span> <span class="c1"># Excitation</span>
-    <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># Get accelerations</span>
+<span class="n">references</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">excitation_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span>
+    <span class="n">excitation_signal</span><span class="p">,</span>
+    <span class="n">excitation_location</span><span class="p">)</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">references</span><span class="p">,</span>
+    <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_locations</span><span class="p">},</span> <span class="c1"># Get accelerations</span>
+    <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">steady_state_responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
     <span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="n">num_samples</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
 <span class="n">steady_state_references</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
@@ -456,12 +460,14 @@ and re-aligning shakers, which can be very tedious as well if there are a large 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">excitation_location</span> <span class="o">=</span> <span class="n">excitation_locations</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">responses</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-    <span class="n">excitation_signal</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span>
-    <span class="n">response_locations</span><span class="p">,</span> <span class="c1"># Responses</span>
-    <span class="n">excitation_location</span><span class="p">,</span> <span class="c1"># Excitation</span>
-    <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># Get accelerations</span>
+<span class="n">references</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">excitation_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span>
+    <span class="n">excitation_signal</span><span class="p">,</span>
+    <span class="n">excitation_location</span><span class="p">)</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">references</span><span class="p">,</span>
+    <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_locations</span><span class="p">},</span> <span class="c1"># Get accelerations</span>
+    <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">steady_state_responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
     <span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="n">num_samples</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
 <span class="n">steady_state_references</span> <span class="o">=</span> <span class="n">references</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span>
@@ -671,7 +677,7 @@ single input when multiple inputs are present. In the multiple-input testing cas
 <p>At this point, we can simulate a modal test. We will do this using the <code class="docutils literal notranslate"><span class="pre">simulate_test</span></code> method of the <code class="docutils literal notranslate"><span class="pre">system</span></code> object, specifying a bandwidth of 50 Hz, a frame length of 2000 samples, 50 averages, pseudorandom excitation, our reference and response degrees of freedom, and an amount of time to wait for the system to hit steady state. We pass all of this information into the <code class="docutils literal notranslate"><span class="pre">simulate_test</span></code> method. Output from the method is our response and reference signals from the test that we will compute
 frequency response functions from.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simulate a test</span>
@@ -681,14 +687,14 @@ frequency response functions from.</p>
     <span class="n">num_averages</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">excitation</span> <span class="o">=</span> <span class="s1">&#39;pseudorandom&#39;</span><span class="p">,</span>
     <span class="n">references</span> <span class="o">=</span> <span class="n">references</span><span class="p">,</span>
-    <span class="n">responses</span> <span class="o">=</span> <span class="n">responses</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">responses</span><span class="p">},</span>
     <span class="n">steady_state_time</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Now, we will go to compute frequency response functions. As noted previously, the various frequency response function estimators minimize noise differently, so we will add some noise to the signals in order to investigate this effect. We will add gaussian noise with standard deviation equal to a quarter of the RMS value for both the references and the responses.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create noisy signals</span>
@@ -707,7 +713,7 @@ frequency response functions from.</p>
 </div>
 <p>We can see the effect of the noise on the signal by plotting the noise-free and noisy signals.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">guiplot</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">GUIPlot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">reference_signals</span><span class="p">,</span><span class="n">response_signals</span><span class="p">)),</span>
@@ -719,7 +725,7 @@ frequency response functions from.</p>
 <p>At this point, we will compute frequency response functions for different noise schemes for various estimators. In this case, we will only consider H1, H2, and Hv, though others could be considered as well. In this case, we don’t consider Hcd, as it is nominally identical to H1 as presented here. H3 would simply be the average of H1 and H2. We will compute frequency response functions for the no-noise case, as well as cases where noise is either on the reference or the response or both, so we
 set up dictionaries to hold this information.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frf_no_noise</span> <span class="o">=</span> <span class="p">{}</span>
@@ -734,7 +740,7 @@ set up dictionaries to hold this information.</p>
 <p>We then go through a for loop over all frequency response function estimators and compute the frequency response function for each noise case using the <code class="docutils literal notranslate"><span class="pre">sdynpy.TransferFunctionArray.from_time_data</span></code> method. We pass the reference and response signals, the technique used to compute the frequency response function, and the number of samples per measurement frame. We then use the <code class="docutils literal notranslate"><span class="pre">extract_elements</span></code> method of the <code class="docutils literal notranslate"><span class="pre">TransferFunctionArray</span></code> objects to get the same frequency lines that are in the
 truth data. We store</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">frf_type</span> <span class="ow">in</span> <span class="n">frf_types</span><span class="p">:</span>
@@ -754,8 +760,8 @@ truth data. We store</p>
 </div>
 </div>
 <p>Finally, we can plot the frequency response functions as well as the error.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loop through all FRF noise cases</span>
@@ -783,34 +789,6 @@ truth data. We store</p>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|FRF|&#39;</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;|Error|&#39;</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_0.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_0.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_1.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_1.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_2.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_2.png" />
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_3.png" src="../../_images/modal_tutorials_Modal_05_Experimental_Modal_Analysis_Modal_05a_Computing_FRF_from_Time_Data_37_3.png" />
 </div>
 </div>
 <p>We see some interesting results. in the above plots. Starting with the no-noise case, all estimators provide an equivalent estimate of the frequency response function. This is intuitive, as they all are trying to compute the same quantity, and if there are no errors, they should all be able to precisely compute that quantity.</p>
@@ -858,7 +836,7 @@ favorably.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cab76dbd0>
+<jinja2.runtime.BlockReference object at 0x7f0b43deda90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

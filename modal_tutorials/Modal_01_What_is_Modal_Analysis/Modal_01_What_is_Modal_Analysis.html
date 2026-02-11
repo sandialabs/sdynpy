@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 01: What is modal analysis? &mdash; SDynPy 0.21.0 documentation</title>
+  <title>Modal Tutorial 01: What is modal analysis? &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
@@ -146,8 +146,13 @@ the modes of the structure.</p>
                                                      <span class="s1">&#39;275Z+&#39;</span><span class="p">,</span>  <span class="c1"># Right Wing vertical</span>
                                                      <span class="s1">&#39;249Z+&#39;</span><span class="p">])</span> <span class="c1"># Left Wing Vertical</span>
 <span class="n">load_signals</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">load_locations</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">num_samples</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">)</span>
-<span class="n">responses</span><span class="p">,</span><span class="n">loads</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">load_signals</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span><span class="n">references</span><span class="o">=</span><span class="n">load_locations</span><span class="p">,</span>
-                                             <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">loads</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">load_signals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span>
+                                <span class="n">load_signals</span><span class="p">,</span>
+                                <span class="n">load_locations</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+<span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">loads</span><span class="p">,</span>
+    <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="n">modal_system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">},</span>
+    <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># Draw the forces that we are putting into the structure</span>
 <span class="n">geometry</span><span class="o">.</span><span class="n">plot_coordinate</span><span class="p">(</span><span class="n">load_locations</span><span class="p">,</span><span class="n">label_dofs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">)</span>
@@ -236,9 +241,13 @@ system.</strong></p>
 <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">frequency</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">ax</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
     <span class="n">load_signal</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span><span class="n">num_samples</span><span class="p">)</span>
-    <span class="n">responses</span><span class="p">,</span><span class="n">loads</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">load_signal</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span>
-                                                  <span class="n">responses</span><span class="o">=</span><span class="n">response_location</span><span class="p">,</span><span class="n">references</span><span class="o">=</span><span class="n">force_location</span><span class="p">,</span>
-                                                  <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">loads</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">load_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">load_signal</span><span class="p">,</span>
+        <span class="n">force_location</span><span class="p">)</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">loads</span><span class="p">,</span>
+                                            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_location</span><span class="p">},</span>
+                                            <span class="n">integration_oversample</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="c1"># Only plot the last second</span>
     <span class="n">loads</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">sample_rate</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">responses</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">sample_rate</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -268,9 +277,12 @@ range of interest.</p>
                                     <span class="n">frequency_max</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
                                     <span class="n">signal_length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
                                     <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">chirp_responses</span><span class="p">,</span><span class="n">chirp_loads</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">chirp_signal</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span>
-                                                          <span class="n">responses</span><span class="o">=</span><span class="n">response_location</span><span class="p">,</span><span class="n">references</span><span class="o">=</span><span class="n">force_location</span><span class="p">,</span>
-                                                          <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">chirp_loads</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">chirp_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">chirp_signal</span><span class="p">,</span>
+    <span class="n">force_location</span><span class="p">)</span>
+<span class="n">chirp_responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">chirp_loads</span><span class="p">,</span>
+                                              <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">response_location</span><span class="p">})</span>
 <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">chirp_loads</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">})</span>
 <span class="n">chirp_responses</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">})</span>
@@ -315,8 +327,8 @@ Text(0.5, 1.0, &#39;Response to Increasing Excitation Frequency&#39;)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([&lt;AxesSubplot:ylabel=&#39;Phase&#39;&gt;, &lt;AxesSubplot:ylabel=&#39;Amplitude&#39;&gt;],
-      dtype=object)
+array([&lt;Axes: ylabel=&#39;Phase&#39;&gt;,
+       &lt;Axes: xlabel=&#39;Frequency&#39;, ylabel=&#39;Amplitude&#39;&gt;], dtype=object)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -378,9 +390,13 @@ from the chirp time data or from the FRFs.</p>
                                     <span class="n">frequency_max</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
                                     <span class="n">signal_length</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
                                     <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">chirp_responses</span><span class="p">,</span><span class="n">chirp_loads</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span><span class="n">chirp_signal</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span>
-                                                          <span class="n">references</span><span class="o">=</span><span class="n">force_location</span><span class="p">,</span>
-                                                          <span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">chirp_loads</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">chirp_signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">chirp_signal</span><span class="p">,</span>
+    <span class="n">force_location</span><span class="p">)</span>
+<span class="n">chirp_responses</span> <span class="o">=</span> <span class="n">modal_system</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">chirp_loads</span><span class="p">,</span>
+    <span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">modal_system</span><span class="o">.</span><span class="n">coordinate</span><span class="p">})</span>
 <span class="n">chirp_responses</span> <span class="o">=</span> <span class="n">chirp_responses</span><span class="o">.</span><span class="n">extract_elements</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 <span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span><span class="o">/</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="mi">8</span>
 <span class="n">frequency_response_function</span> <span class="o">=</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span><span class="o">.</span><span class="n">compute_frf</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span><span class="n">references</span> <span class="o">=</span> <span class="n">force_location</span><span class="p">)</span>
@@ -411,7 +427,7 @@ analysis.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cad6f49d0>
+<jinja2.runtime.BlockReference object at 0x7f0b431af410>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>

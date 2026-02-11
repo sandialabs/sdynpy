@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modal Tutorial 04: Modal Analysis &mdash; SDynPy 0.21.0 documentation</title>
+  <title>Modal Tutorial 04: Modal Analysis &mdash; SDynPy 0.22.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
@@ -278,7 +278,7 @@ lambda =
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 f =
-[3.2105527460540504, 6.832680064485663]
+[np.float64(3.2105527460540504), np.float64(6.832680064485663)]
 </pre></div></div>
 </div>
 <p>Note that these are the frequencies at which the peaks were located in the free response curve in the example in the previous tutorial. This makes sense: when the structure was excited with free response in the previous tutorial, the system responded at two frequencies. In order for that response to be valid, those frequencies must also satisfy the characteristic equation that was just derived, so they must be the same frequencies.</p>
@@ -577,12 +577,19 @@ Modal Damping Matrix:
 <span class="c1"># No external forces</span>
 <span class="n">force_signals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1000</span>
-
+<span class="n">forces</span> <span class="o">=</span> <span class="n">sdpy</span><span class="o">.</span><span class="n">time_history_array</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">force_signals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span>
+    <span class="n">force_signals</span><span class="p">,</span>
+    <span class="n">system_physical_damping</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
 <span class="c1"># Integrate equations of motion</span>
-<span class="n">responses_modal</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system_modal_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-    <span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state_modal</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">responses_physical</span><span class="p">,</span><span class="n">forces</span> <span class="o">=</span> <span class="n">system_physical_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
-    <span class="n">force_signals</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span><span class="n">displacement_derivative</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">responses_modal</span> <span class="o">=</span> <span class="n">system_modal_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">forces</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="n">system_modal_damping</span><span class="o">.</span><span class="n">coordinate</span><span class="p">},</span>
+    <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state_modal</span><span class="p">)</span>
+<span class="n">responses_physical</span> <span class="o">=</span> <span class="n">system_physical_damping</span><span class="o">.</span><span class="n">time_integrate</span><span class="p">(</span>
+    <span class="n">forces</span><span class="p">,</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="n">system_physical_damping</span><span class="o">.</span><span class="n">coordinate</span><span class="p">},</span>
+    <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">)</span>
 
 <span class="c1"># Plot the responses</span>
 <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
@@ -724,7 +731,7 @@ Computed 29 Modes of the plate system
    Index,  Frequency,    Damping,     # DoFs
     (0,),     0.0000,    0.0000%,        270
     (1,),     0.0000,    0.0000%,        270
-    (2,),     0.0002,    0.0000%,        270
+    (2,),     0.0000,    0.0000%,        270
     (3,),     0.0002,    0.0000%,        270
     (4,),     0.0002,    0.0000%,        270
     (5,),     0.0002,    0.0000%,        270
@@ -768,7 +775,7 @@ Computed 29 Modes of the plate system
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([0.00000000e+00, 0.00000000e+00, 1.68587394e-04, 1.68587394e-04,
+array([0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.68587394e-04,
        1.68587394e-04, 1.68587394e-04, 6.74788054e+01, 1.02077709e+02,
        1.85188450e+02, 2.14780834e+02, 2.32287546e+02, 3.11962560e+02,
        3.55586672e+02, 3.61396270e+02, 3.64793564e+02, 3.70025026e+02,
@@ -819,19 +826,20 @@ Shape Matrix Shape (29, 270)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([[ 2.87845506e-01, -4.09847824e-01,  2.26589551e-01, ...,
-         1.38717885e-01,  4.19171311e-01,  6.29348485e-01],
-       [ 1.16437174e-02, -2.74485641e-01, -7.44773478e-02, ...,
-        -7.90028325e-01, -6.69589392e-01,  3.67067932e-01],
-       [ 1.14736558e-01,  7.97525145e-03, -1.14529355e-01, ...,
-        -4.18747047e-01, -2.21629035e-01, -3.16191482e-01],
+array([[ 3.56422534e-01, -3.37309128e-01,  2.49584730e-02, ...,
+        -2.21948182e-01,  3.11214633e-03,  5.04895086e-01],
+       [ 2.10310002e-03, -2.33077009e-01,  5.02766684e-01, ...,
+        -1.20362290e-01,  5.93881988e-01,  3.91084316e-01],
+       [-3.21181612e-02,  1.36119220e-01,  1.81611567e-01, ...,
+         3.81791393e-01,  5.46844926e-01, -5.33238438e-01],
        ...,
-       [ 1.48712418e-15, -3.68911588e-15, -7.12167411e-01, ...,
-        -4.07189408e+00,  5.29814800e+00, -3.82376881e-14],
-       [-8.23884395e-16, -2.25809218e-14,  5.09546603e-01, ...,
-        -9.85048039e+00, -3.35203567e-01, -8.70009100e-14],
-       [ 3.29780204e-16, -1.19001068e-14, -2.19373036e-01, ...,
-         8.01245326e-01,  7.55525400e+00, -4.88140699e-15]])
+       [-1.38922955e-14, -1.29205319e-14,  7.12167411e-01, ...,
+         4.07189408e+00, -5.29814800e+00, -4.06783916e-15],
+       [ 6.92745011e-15,  8.49649650e-15,  5.09546603e-01, ...,
+        -9.85048039e+00, -3.35203567e-01,  1.07390954e-13],
+       [-4.35922878e-15,  1.68990069e-14,  2.19373036e-01, ...,
+        -8.01245326e-01, -7.55525400e+00,  1.46442210e-13]],
+      shape=(29, 270))
 </pre></div></div>
 </div>
 <p>Note that the mode shape matrix is stored with the degree of freedom on the last axis of the array, which is transposed compared to the description of the matrix above (for example, the shape of the matrix is 29 modes by 270 degrees of freedom, whereas the <span class="math notranslate nohighlight">\(\Phi\)</span> matrix shown previously would have had a shape of 270 degrees of freedom by 29 modes). This is due to how NumPy stores its data in structured arrays, so the user must be aware that they may need to transpose their array prior to
@@ -859,19 +867,20 @@ Modeshape Shape (270, 29)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([[ 2.87845506e-01,  1.16437174e-02,  1.14736558e-01, ...,
-         1.48712418e-15, -8.23884395e-16,  3.29780204e-16],
-       [-4.09847824e-01, -2.74485641e-01,  7.97525145e-03, ...,
-        -3.68911588e-15, -2.25809218e-14, -1.19001068e-14],
-       [ 2.26589551e-01, -7.44773478e-02, -1.14529355e-01, ...,
-        -7.12167411e-01,  5.09546603e-01, -2.19373036e-01],
+array([[ 3.56422534e-01,  2.10310002e-03, -3.21181612e-02, ...,
+        -1.38922955e-14,  6.92745011e-15, -4.35922878e-15],
+       [-3.37309128e-01, -2.33077009e-01,  1.36119220e-01, ...,
+        -1.29205319e-14,  8.49649650e-15,  1.68990069e-14],
+       [ 2.49584730e-02,  5.02766684e-01,  1.81611567e-01, ...,
+         7.12167411e-01,  5.09546603e-01,  2.19373036e-01],
        ...,
-       [ 1.38717885e-01, -7.90028325e-01, -4.18747047e-01, ...,
-        -4.07189408e+00, -9.85048039e+00,  8.01245326e-01],
-       [ 4.19171311e-01, -6.69589392e-01, -2.21629035e-01, ...,
-         5.29814800e+00, -3.35203567e-01,  7.55525400e+00],
-       [ 6.29348485e-01,  3.67067932e-01, -3.16191482e-01, ...,
-        -3.82376881e-14, -8.70009100e-14, -4.88140699e-15]])
+       [-2.21948182e-01, -1.20362290e-01,  3.81791393e-01, ...,
+         4.07189408e+00, -9.85048039e+00, -8.01245326e-01],
+       [ 3.11214633e-03,  5.93881988e-01,  5.46844926e-01, ...,
+        -5.29814800e+00, -3.35203567e-01, -7.55525400e+00],
+       [ 5.04895086e-01,  3.91084316e-01, -5.33238438e-01, ...,
+        -4.06783916e-15,  1.07390954e-13,  1.46442210e-13]],
+      shape=(270, 29))
 </pre></div></div>
 </div>
 <p>We can easily verify that the mode shapes diagonalize the system. For example we can compare the structure of the mass and stiffnesss matrices, which will show all of the interconnections between degrees of freedom, to the modal mass and stiffness matrices computed by <span class="math notranslate nohighlight">\(\Phi^T \mathbf{M} \Phi\)</span> and <span class="math notranslate nohighlight">\(\Phi^T\mathbf{K}\Phi\)</span> to see that indeed the matrices are diagonalized.</p>
@@ -892,11 +901,26 @@ array([[ 2.87845506e-01,  1.16437174e-02,  1.14736558e-01, ...,
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\Users\dprohe\AppData\Local\Temp\ipykernel_30584\1137872133.py:2: MatplotlibDeprecationWarning: Passing the precision parameter of spy() positionally is deprecated since Matplotlib 3.10; the parameter will become keyword-only in 3.12.
+  ax[0,0].spy(plate_system.M,1e-6)
+C:\Users\dprohe\AppData\Local\Temp\ipykernel_30584\1137872133.py:3: MatplotlibDeprecationWarning: Passing the precision parameter of spy() positionally is deprecated since Matplotlib 3.10; the parameter will become keyword-only in 3.12.
+  ax[1,0].spy(plate_system.K,1e-6)
+C:\Users\dprohe\AppData\Local\Temp\ipykernel_30584\1137872133.py:5: MatplotlibDeprecationWarning: Passing the precision parameter of spy() positionally is deprecated since Matplotlib 3.10; the parameter will become keyword-only in 3.12.
+  ax[0,1].spy(plate_shapes.modeshape.T@plate_system.M@plate_shapes.modeshape,1e-6)
+C:\Users\dprohe\AppData\Local\Temp\ipykernel_30584\1137872133.py:6: MatplotlibDeprecationWarning: Passing the precision parameter of spy() positionally is deprecated since Matplotlib 3.10; the parameter will become keyword-only in 3.12.
+  ax[1,1].spy(plate_shapes.modeshape.T@plate_system.K@plate_shapes.modeshape,1e-6)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/modal_tutorials_Modal_04_Modal_Analysis_Modal_04_Modal_Analysis_38_0.png" src="../../_images/modal_tutorials_Modal_04_Modal_Analysis_Modal_04_Modal_Analysis_38_0.png" />
+<img alt="../../_images/modal_tutorials_Modal_04_Modal_Analysis_Modal_04_Modal_Analysis_38_1.png" src="../../_images/modal_tutorials_Modal_04_Modal_Analysis_Modal_04_Modal_Analysis_38_1.png" />
 </div>
 </div>
 <p>Clearly the physical matrices have some structured coupling between physical degrees of freedom due to the interconnected elements in the model. When we transform into the modal space, we see that the system is diagonalized. Note that because we have not solved for all of the modes in the eigensolution, the number of degrees of freedom in the modal matrices are smaller than the number of physical degrees of freedom, with one for each mode solved. One may also note that the first six entries in
@@ -1124,7 +1148,8 @@ array([[&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;
        ...,
        [&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;45RY+&#39;, &#39;45RZ+&#39;],
        [&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;45RY+&#39;, &#39;45RZ+&#39;],
-       [&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;45RY+&#39;, &#39;45RZ+&#39;]], dtype=&#39;&lt;U5&#39;))
+       [&#39;1X+&#39;, &#39;1Y+&#39;, &#39;1Z+&#39;, ..., &#39;45RX+&#39;, &#39;45RY+&#39;, &#39;45RZ+&#39;]],
+      shape=(29, 270), dtype=&#39;&lt;U5&#39;))
 </pre></div></div>
 </div>
 <p>We can see that not only are there translational coordinates in our mode shape matrix (<code class="docutils literal notranslate"><span class="pre">X+</span></code>,<code class="docutils literal notranslate"><span class="pre">Y+</span></code>,<code class="docutils literal notranslate"><span class="pre">Z+</span></code>), but there are also rotational degrees of freedom in our shape matrix (<code class="docutils literal notranslate"><span class="pre">RX+</span></code>,<code class="docutils literal notranslate"><span class="pre">RY+</span></code>,<code class="docutils literal notranslate"><span class="pre">RZ+</span></code>) which correspond to rotations about the <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span>, and <span class="math notranslate nohighlight">\(z\)</span> directions, respectively. We can see how those degrees of freedom map to the geometry by plotting them using the <code class="docutils literal notranslate"><span class="pre">Geometry.plot_coordinate</span></code> method.</p>
@@ -1218,7 +1243,7 @@ node. Solve the eigensolution and plot the mode shapes on the geometry.</p>
   <hr/>
 
   <div role="contentinfo">
-<jinja2.runtime.BlockReference object at 0x7f6cabfe63d0>
+<jinja2.runtime.BlockReference object at 0x7f0b43432d90>
 <img src="_images/snl.jpg" alt="Sandia National Laboratories" style="height:40px">
 
   </div>
