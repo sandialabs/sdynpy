@@ -173,14 +173,12 @@ def read_system_id_data(file):
                            outer_product(response_dofs))
     return frfs, response_cpsd, reference_cpsd, response_noise_cpsd, reference_noise_cpsd, coherence
 
-
-def read_random_spectral_data(file, coordinate_override_column=None):
-    if isinstance(file, str):
-        ds = nc4.Dataset(file, 'r')
-    elif isinstance(file, nc4.Dataset):
+def read_system_id_nc4(file, coordinate_override_column=None):
+    if isinstance(file,str):
+        ds = nc4.Dataset(file,'r')
+    elif isinstance(file,nc4.Dataset):
         ds = file
-    coordinate_override_column = None
-
+    
     environment = [group for group in ds.groups if not group == 'channels'][0]
 
     # Get the channels in the group
@@ -202,9 +200,261 @@ def read_random_spectral_data(file, coordinate_override_column=None):
 
     control_indices = ds[environment]['control_channel_indices'][:]
 
-    control_coordinates = coordinates[control_indices]
+    if 'response_transformation_matrix' in ds[environment].variables:
+        control_coordinates = coordinate_array(np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1,0)
+        response_transform_comment1 = np.array([f'Unknown :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment2 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment3 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment4 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment5 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        control_indices = np.arange(ds[environment]['response_transformation_matrix'].shape[0])
+    else:
+        control_coordinates = coordinates[control_indices]
 
-    drive_coordinates = coordinates[drives]
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        drive_coordinates = coordinate_array(np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1,0)
+        drive_transform_comment1 = np.array([f'Unknown :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment2 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment3 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment4 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment5 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drives = np.ones(ds[environment]['reference_transformation_matrix'].shape[0],dtype=bool)
+    else:
+        drive_coordinates = coordinates[drives]
+
+    # Load the spectral data
+    frequency_spacing = ds.sample_rate/ds[environment].sysid_frame_size
+    fft_lines = ds[environment].dimensions['sysid_fft_lines'].size
+    frequencies = np.arange(fft_lines)*frequency_spacing
+
+    frf_array = np.moveaxis(
+        np.array(ds[environment]['frf_data_real'][:]
+                 + 1j*ds[environment]['frf_data_imag'][:]),
+        0, -1)
+
+    response_cpsd_array = np.moveaxis(
+        np.array(ds[environment]['response_cpsd_real'][:]
+                 + 1j*ds[environment]['response_cpsd_imag'][:]),
+        0, -1)
+
+    drive_cpsd_array = np.moveaxis(
+        np.array(ds[environment]['reference_cpsd_real'][:]
+                 + 1j*ds[environment]['reference_cpsd_imag'][:]),
+        0, -1)
+
+    response_noise_cpsd_array = np.moveaxis(
+        np.array(ds[environment]['response_noise_cpsd_real'][:]
+                 + 1j*ds[environment]['response_noise_cpsd_imag'][:]),
+        0, -1)
+
+    drive_noise_cpsd_array = np.moveaxis(
+        np.array(ds[environment]['reference_noise_cpsd_real'][:]
+                 + 1j*ds[environment]['reference_noise_cpsd_imag'][:]),
+        0, -1)
+
+    coherence_array = np.moveaxis(np.array(ds[environment]['frf_coherence'][:]),
+                                  0,-1)
+
+    response_coordinates_cpsd = outer_product(control_coordinates, control_coordinates)
+    drive_coordinates_cpsd = outer_product(drive_coordinates, drive_coordinates)
+    frf_coordinates = outer_product(control_coordinates,drive_coordinates)
+    coherence_coordinates = control_coordinates[:,np.newaxis]
+
+    comment1 = np.char.add(np.char.add(np.array(ds['channels']['channel_type'][:], dtype='<U80'),
+                                       np.array(' :: ')),
+                           np.array(ds['channels']['unit'][:], dtype='<U80'))
+    comment2 = np.char.add(np.char.add(np.array(ds['channels']['physical_device'][:], dtype='<U80'),
+                                       np.array(' :: ')),
+                           np.array(ds['channels']['physical_channel'][:], dtype='<U80'))
+    comment3 = np.char.add(np.char.add(np.array(ds['channels']['feedback_device'][:], dtype='<U80'),
+                                       np.array(' :: ')),
+                           np.array(ds['channels']['feedback_channel'][:], dtype='<U80'))
+    comment4 = np.array(ds['channels']['comment'][:], dtype='<U80')
+    comment5 = np.array(ds['channels']['make'][:], dtype='<U80')
+    for key in ('model', 'serial_number', 'triax_dof'):
+        comment5 = np.char.add(comment5, np.array(' '))
+        comment5 = np.char.add(comment5, np.array(ds['channels'][key][:], dtype='<U80'))
+
+    full_comment1 = comment1[environment_channels]
+    full_comment2 = comment2[environment_channels]
+    full_comment3 = comment3[environment_channels]
+    full_comment4 = comment4[environment_channels]
+    full_comment5 = comment5[environment_channels]
+    
+    if 'response_transformation_matrix' in ds[environment].variables:
+        comment1 = response_transform_comment1
+        comment2 = response_transform_comment2
+        comment3 = response_transform_comment3
+        comment4 = response_transform_comment4
+        comment5 = response_transform_comment5
+    else:
+        comment1 = full_comment1
+        comment2 = full_comment2
+        comment3 = full_comment3
+        comment4 = full_comment4
+        comment5 = full_comment5
+    comment1_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment2_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment3_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment4_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment5_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment1_coherence = np.empty(response_coordinates_cpsd.shape[0], dtype=comment1.dtype)
+    comment2_coherence = np.empty(response_coordinates_cpsd.shape[0], dtype=comment1.dtype)
+    comment3_coherence = np.empty(response_coordinates_cpsd.shape[0], dtype=comment1.dtype)
+    comment4_coherence = np.empty(response_coordinates_cpsd.shape[0], dtype=comment1.dtype)
+    comment5_coherence = np.empty(response_coordinates_cpsd.shape[0], dtype=comment1.dtype)
+    for i, idx in enumerate(control_indices):
+        comment1_coherence[i] = comment1[idx]
+        comment2_coherence[i] = comment2[idx]
+        comment3_coherence[i] = comment3[idx]
+        comment4_coherence[i] = comment4[idx]
+        comment5_coherence[i] = comment5[idx]
+        for j, jdx in enumerate(control_indices):
+            comment1_response_cpsd[i, j] = comment1[idx] + ' // ' + comment1[jdx]
+            comment2_response_cpsd[i, j] = comment2[idx] + ' // ' + comment2[jdx]
+            comment3_response_cpsd[i, j] = comment3[idx] + ' // ' + comment3[jdx]
+            comment4_response_cpsd[i, j] = comment4[idx] + ' // ' + comment4[jdx]
+            comment5_response_cpsd[i, j] = comment5[idx] + ' // ' + comment5[jdx]
+        
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        comment1 = drive_transform_comment1
+        comment2 = drive_transform_comment2
+        comment3 = drive_transform_comment3
+        comment4 = drive_transform_comment4
+        comment5 = drive_transform_comment5
+    else:
+        comment1 = full_comment1
+        comment2 = full_comment2
+        comment3 = full_comment3
+        comment4 = full_comment4
+        comment5 = full_comment5
+    comment1_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment2_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment3_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment4_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment5_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    drive_indices = np.where(drives)[0]
+    for i, idx in enumerate(drive_indices):
+        for j, jdx in enumerate(drive_indices):
+            comment1_drive_cpsd[i, j] = comment1[idx] + ' // ' + comment1[jdx]
+            comment2_drive_cpsd[i, j] = comment2[idx] + ' // ' + comment2[jdx]
+            comment3_drive_cpsd[i, j] = comment3[idx] + ' // ' + comment3[jdx]
+            comment4_drive_cpsd[i, j] = comment4[idx] + ' // ' + comment4[jdx]
+            comment5_drive_cpsd[i, j] = comment5[idx] + ' // ' + comment5[jdx]
+                
+    if 'response_transformation_matrix' in ds[environment].variables:
+        rcomment1 = response_transform_comment1
+        rcomment2 = response_transform_comment2
+        rcomment3 = response_transform_comment3
+        rcomment4 = response_transform_comment4
+        rcomment5 = response_transform_comment5
+    else:
+        rcomment1 = full_comment1
+        rcomment2 = full_comment2
+        rcomment3 = full_comment3
+        rcomment4 = full_comment4
+        rcomment5 = full_comment5
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        dcomment1 = drive_transform_comment1
+        dcomment2 = drive_transform_comment2
+        dcomment3 = drive_transform_comment3
+        dcomment4 = drive_transform_comment4
+        dcomment5 = drive_transform_comment5
+    else:
+        dcomment1 = full_comment1
+        dcomment2 = full_comment2
+        dcomment3 = full_comment3
+        dcomment4 = full_comment4
+        dcomment5 = full_comment5
+        
+    comment1_frf = np.empty((frf_coordinates.shape[0], frf_coordinates.shape[1]), dtype=comment1.dtype)
+    comment2_frf = np.empty((frf_coordinates.shape[0], frf_coordinates.shape[1]), dtype=comment1.dtype)
+    comment3_frf = np.empty((frf_coordinates.shape[0], frf_coordinates.shape[1]), dtype=comment1.dtype)
+    comment4_frf = np.empty((frf_coordinates.shape[0], frf_coordinates.shape[1]), dtype=comment1.dtype)
+    comment5_frf = np.empty((frf_coordinates.shape[0], frf_coordinates.shape[1]), dtype=comment1.dtype)
+    for i, idx in enumerate(control_indices):
+        for j, jdx in enumerate(drive_indices):
+            comment1_frf[i, j] = rcomment1[idx] + ' // ' + dcomment1[jdx]
+            comment2_frf[i, j] = rcomment2[idx] + ' // ' + dcomment2[jdx]
+            comment3_frf[i, j] = rcomment3[idx] + ' // ' + dcomment3[jdx]
+            comment4_frf[i, j] = rcomment4[idx] + ' // ' + dcomment4[jdx]
+            comment5_frf[i, j] = rcomment5[idx] + ' // ' + dcomment5[jdx]
+
+    # Save the data to SDynpy objects
+    response_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                               frequencies, response_cpsd_array, response_coordinates_cpsd,
+                               comment1_response_cpsd, comment2_response_cpsd, comment3_response_cpsd,
+                               comment4_response_cpsd, comment5_response_cpsd)
+    response_noise_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                               frequencies, response_noise_cpsd_array, response_coordinates_cpsd,
+                               comment1_response_cpsd, comment2_response_cpsd, comment3_response_cpsd,
+                               comment4_response_cpsd, comment5_response_cpsd)
+    drive_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                               frequencies, drive_cpsd_array, drive_coordinates_cpsd,
+                               comment1_drive_cpsd, comment2_drive_cpsd, comment3_drive_cpsd,
+                               comment4_drive_cpsd, comment5_drive_cpsd)
+    drive_noise_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
+                               frequencies, drive_noise_cpsd_array, drive_coordinates_cpsd,
+                               comment1_drive_cpsd, comment2_drive_cpsd, comment3_drive_cpsd,
+                               comment4_drive_cpsd, comment5_drive_cpsd)
+    frfs = data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
+                      frequencies, frf_array, frf_coordinates,
+                      comment1_frf,comment2_frf,comment3_frf,comment4_frf,comment5_frf)
+    coherence = data_array(FunctionTypes.MULTIPLE_COHERENCE,
+                           frequencies,coherence_array,coherence_coordinates,
+                           comment1_coherence,comment2_coherence,comment3_coherence,
+                           comment4_coherence,comment5_coherence)
+
+    return frfs, response_cpsd, drive_cpsd, response_noise_cpsd, drive_noise_cpsd, coherence
+
+def read_random_spectral_data(file, coordinate_override_column=None):
+    if isinstance(file, str):
+        ds = nc4.Dataset(file, 'r')
+    elif isinstance(file, nc4.Dataset):
+        ds = file
+
+    environment = [group for group in ds.groups if not group == 'channels'][0]
+
+    # Get the channels in the group
+    if coordinate_override_column is None:
+        nodes = [int(''.join(char for char in node if char in '0123456789'))
+                 for node in ds['channels']['node_number']]
+        directions = np.array(ds['channels']['node_direction'][:], dtype='<U3')
+        coordinates = coordinate_array(nodes, directions)
+    else:
+        coordinates = coordinate_array(string_array=ds['channels'][coordinate_override_column])
+    drives = ds['channels']['feedback_device'][:] != ''
+
+    # Cull down to just those in the environment
+    environment_index = np.where(ds['environment_names'][:] == environment)[0][0]
+    environment_channels = ds['environment_active_channels'][:, environment_index].astype(bool)
+    
+    drives = drives[environment_channels]
+    coordinates = coordinates[environment_channels]
+
+    control_indices = ds[environment]['control_channel_indices'][:]
+
+    if 'response_transformation_matrix' in ds[environment].variables:
+        control_coordinates = coordinate_array(np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1,0)
+        response_transform_comment1 = np.array([f'Unknown :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment2 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment3 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment4 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment5 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        control_indices = np.arange(ds[environment]['response_transformation_matrix'].shape[0])
+    else:
+        control_coordinates = coordinates[control_indices]
+
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        drive_coordinates = coordinate_array(np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1,0)
+        drive_transform_comment1 = np.array([f'Unknown :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment2 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment3 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment4 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment5 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drives = np.ones(ds[environment]['reference_transformation_matrix'].shape[0],dtype=bool)
+    else:
+        drive_coordinates = coordinates[drives]
 
     # Load the spectral data
     frequencies = np.array(ds[environment]['specification_frequency_lines'][:])
@@ -224,8 +474,8 @@ def read_random_spectral_data(file, coordinate_override_column=None):
                  + 1j*ds[environment]['drive_cpsd_imag'][:]),
         0, -1)
 
-    response_coordinates = outer_product(control_coordinates, control_coordinates)
-    drive_coordinates = outer_product(drive_coordinates, drive_coordinates)
+    response_coordinates_cpsd = outer_product(control_coordinates, control_coordinates)
+    drive_coordinates_cpsd = outer_product(drive_coordinates, drive_coordinates)
 
     comment1 = np.char.add(np.char.add(np.array(ds['channels']['channel_type'][:], dtype='<U80'),
                                        np.array(' :: ')),
@@ -242,52 +492,78 @@ def read_random_spectral_data(file, coordinate_override_column=None):
         comment5 = np.char.add(comment5, np.array(' '))
         comment5 = np.char.add(comment5, np.array(ds['channels'][key][:], dtype='<U80'))
 
-    comment1 = comment1[environment_channels]
-    comment2 = comment2[environment_channels]
-    comment3 = comment3[environment_channels]
-    comment4 = comment4[environment_channels]
-    comment5 = comment5[environment_channels]
-
-    comment1_response = np.empty((response_coordinates.shape[0], response_coordinates.shape[1]), dtype=comment1.dtype)
-    comment2_response = np.empty((response_coordinates.shape[0], response_coordinates.shape[1]), dtype=comment1.dtype)
-    comment3_response = np.empty((response_coordinates.shape[0], response_coordinates.shape[1]), dtype=comment1.dtype)
-    comment4_response = np.empty((response_coordinates.shape[0], response_coordinates.shape[1]), dtype=comment1.dtype)
-    comment5_response = np.empty((response_coordinates.shape[0], response_coordinates.shape[1]), dtype=comment1.dtype)
+    full_comment1 = comment1[environment_channels]
+    full_comment2 = comment2[environment_channels]
+    full_comment3 = comment3[environment_channels]
+    full_comment4 = comment4[environment_channels]
+    full_comment5 = comment5[environment_channels]
+    
+    if 'response_transformation_matrix' in ds[environment].variables:
+        comment1 = response_transform_comment1
+        comment2 = response_transform_comment2
+        comment3 = response_transform_comment3
+        comment4 = response_transform_comment4
+        comment5 = response_transform_comment5
+    else:
+        comment1 = full_comment1
+        comment2 = full_comment2
+        comment3 = full_comment3
+        comment4 = full_comment4
+        comment5 = full_comment5
+    comment1_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment2_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment3_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment4_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment5_response_cpsd = np.empty((response_coordinates_cpsd.shape[0], response_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
     for i, idx in enumerate(control_indices):
         for j, jdx in enumerate(control_indices):
-            comment1_response[i, j] = comment1[idx] + ' // ' + comment1[jdx]
-            comment2_response[i, j] = comment2[idx] + ' // ' + comment2[jdx]
-            comment3_response[i, j] = comment3[idx] + ' // ' + comment3[jdx]
-            comment4_response[i, j] = comment4[idx] + ' // ' + comment4[jdx]
-            comment5_response[i, j] = comment5[idx] + ' // ' + comment5[jdx]
-
-    comment1_drive = np.empty((drive_coordinates.shape[0], drive_coordinates.shape[1]), dtype=comment1.dtype)
-    comment2_drive = np.empty((drive_coordinates.shape[0], drive_coordinates.shape[1]), dtype=comment1.dtype)
-    comment3_drive = np.empty((drive_coordinates.shape[0], drive_coordinates.shape[1]), dtype=comment1.dtype)
-    comment4_drive = np.empty((drive_coordinates.shape[0], drive_coordinates.shape[1]), dtype=comment1.dtype)
-    comment5_drive = np.empty((drive_coordinates.shape[0], drive_coordinates.shape[1]), dtype=comment1.dtype)
+            comment1_response_cpsd[i, j] = comment1[idx] + ' // ' + comment1[jdx]
+            comment2_response_cpsd[i, j] = comment2[idx] + ' // ' + comment2[jdx]
+            comment3_response_cpsd[i, j] = comment3[idx] + ' // ' + comment3[jdx]
+            comment4_response_cpsd[i, j] = comment4[idx] + ' // ' + comment4[jdx]
+            comment5_response_cpsd[i, j] = comment5[idx] + ' // ' + comment5[jdx]
+    
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        comment1 = drive_transform_comment1
+        comment2 = drive_transform_comment2
+        comment3 = drive_transform_comment3
+        comment4 = drive_transform_comment4
+        comment5 = drive_transform_comment5
+    else:
+        comment1 = full_comment1
+        comment2 = full_comment2
+        comment3 = full_comment3
+        comment4 = full_comment4
+        comment5 = full_comment5
+    comment1_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment2_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment3_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment4_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
+    comment5_drive_cpsd = np.empty((drive_coordinates_cpsd.shape[0], drive_coordinates_cpsd.shape[1]), dtype=comment1.dtype)
     drive_indices = np.where(drives)[0]
     for i, idx in enumerate(drive_indices):
         for j, jdx in enumerate(drive_indices):
-            comment1_drive[i, j] = comment1[idx] + ' // ' + comment1[jdx]
-            comment2_drive[i, j] = comment2[idx] + ' // ' + comment2[jdx]
-            comment3_drive[i, j] = comment3[idx] + ' // ' + comment3[jdx]
-            comment4_drive[i, j] = comment4[idx] + ' // ' + comment4[jdx]
-            comment5_drive[i, j] = comment5[idx] + ' // ' + comment5[jdx]
+            comment1_drive_cpsd[i, j] = comment1[idx] + ' // ' + comment1[jdx]
+            comment2_drive_cpsd[i, j] = comment2[idx] + ' // ' + comment2[jdx]
+            comment3_drive_cpsd[i, j] = comment3[idx] + ' // ' + comment3[jdx]
+            comment4_drive_cpsd[i, j] = comment4[idx] + ' // ' + comment4[jdx]
+            comment5_drive_cpsd[i, j] = comment5[idx] + ' // ' + comment5[jdx]
+                
+    
 
     # Save the data to SDynpy objects
     response_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
-                               frequencies, response_cpsd, response_coordinates,
-                               comment1_response, comment2_response, comment3_response,
-                               comment4_response, comment5_response)
+                               frequencies, response_cpsd, response_coordinates_cpsd,
+                               comment1_response_cpsd, comment2_response_cpsd, comment3_response_cpsd,
+                               comment4_response_cpsd, comment5_response_cpsd)
     spec_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
-                           frequencies, spec_cpsd, response_coordinates,
-                           comment1_response, comment2_response, comment3_response,
-                           comment4_response, comment5_response)
+                           frequencies, spec_cpsd, response_coordinates_cpsd,
+                           comment1_response_cpsd, comment2_response_cpsd, comment3_response_cpsd,
+                           comment4_response_cpsd, comment5_response_cpsd)
     drive_cpsd = data_array(FunctionTypes.POWER_SPECTRAL_DENSITY,
-                            frequencies, drive_cpsd, drive_coordinates,
-                            comment1_drive, comment2_drive, comment3_drive,
-                            comment4_drive, comment5_drive)
+                            frequencies, drive_cpsd, drive_coordinates_cpsd,
+                            comment1_drive_cpsd, comment2_drive_cpsd, comment3_drive_cpsd,
+                            comment4_drive_cpsd, comment5_drive_cpsd)
     return response_cpsd, spec_cpsd, drive_cpsd
 
 
@@ -461,9 +737,27 @@ def read_transient_control_data(file, coordinate_override_column=None):
 
     control_indices = ds[environment]['control_channel_indices'][:]
 
-    control_coordinates = coordinates[control_indices]
+    if 'response_transformation_matrix' in ds[environment].variables:
+        control_coordinates = coordinate_array(np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1,0)
+        response_transform_comment1 = np.array([f'Unknown :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment2 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment3 = np.array([f'Transformed Response {i} :: Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment4 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        response_transform_comment5 = np.array([f'Transformed Response {i}' for i in np.arange(ds[environment]['response_transformation_matrix'].shape[0])+1],dtype='<U80')
+        control_indices = np.arange(ds[environment]['response_transformation_matrix'].shape[0])
+    else:
+        control_coordinates = coordinates[control_indices]
 
-    drive_coordinates = coordinates[drives]
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        drive_coordinates = coordinate_array(np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1,0)
+        drive_transform_comment1 = np.array([f'Unknown :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment2 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment3 = np.array([f'Transformed Drive {i} :: Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment4 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drive_transform_comment5 = np.array([f'Transformed Drive {i}' for i in np.arange(ds[environment]['reference_transformation_matrix'].shape[0])+1],dtype='<U80')
+        drives = np.ones(ds[environment]['reference_transformation_matrix'].shape[0],dtype=bool)
+    else:
+        drive_coordinates = coordinates[drives]
 
     # Load the time data
     timesteps = np.arange(ds[environment].dimensions['signal_samples'].size)/ds.sample_rate
@@ -492,25 +786,53 @@ def read_transient_control_data(file, coordinate_override_column=None):
         comment5 = np.char.add(comment5, np.array(' '))
         comment5 = np.char.add(comment5, np.array(ds['channels'][key][:], dtype='<U80'))
 
-    comment1 = comment1[environment_channels]
-    comment2 = comment2[environment_channels]
-    comment3 = comment3[environment_channels]
-    comment4 = comment4[environment_channels]
-    comment5 = comment5[environment_channels]
+    full_comment1 = comment1[environment_channels]
+    full_comment2 = comment2[environment_channels]
+    full_comment3 = comment3[environment_channels]
+    full_comment4 = comment4[environment_channels]
+    full_comment5 = comment5[environment_channels]
+
+    if 'response_transformation_matrix' in ds[environment].variables:
+        comment1 = response_transform_comment1
+        comment2 = response_transform_comment2
+        comment3 = response_transform_comment3
+        comment4 = response_transform_comment4
+        comment5 = response_transform_comment5
+    else:
+        comment1 = full_comment1[control_indices]
+        comment2 = full_comment2[control_indices]
+        comment3 = full_comment3[control_indices]
+        comment4 = full_comment4[control_indices]
+        comment5 = full_comment5[control_indices]
 
     # Save the data to SDynpy objects
     response_signal = data_array(FunctionTypes.TIME_RESPONSE,
                                  timesteps, response_signal, response_coordinates,
-                                 comment1[control_indices], comment2[control_indices], comment3[control_indices],
-                                 comment4[control_indices], comment5[control_indices])
+                                 comment1, comment2, comment3,
+                                 comment4, comment5)
     spec_signal = data_array(FunctionTypes.TIME_RESPONSE,
                              timesteps, spec_signal, response_coordinates,
-                             comment1[control_indices], comment2[control_indices], comment3[control_indices],
-                             comment4[control_indices], comment5[control_indices])
+                             comment1, comment2, comment3,
+                             comment4, comment5)
+    
+    if 'reference_transformation_matrix' in ds[environment].variables:
+        comment1 = drive_transform_comment1
+        comment2 = drive_transform_comment2
+        comment3 = drive_transform_comment3
+        comment4 = drive_transform_comment4
+        comment5 = drive_transform_comment5
+    else:
+        comment1 = full_comment1[drives]
+        comment2 = full_comment2[drives]
+        comment3 = full_comment3[drives]
+        comment4 = full_comment4[drives]
+        comment5 = full_comment5[drives]
+
     drive_signal = data_array(FunctionTypes.TIME_RESPONSE,
                               timesteps, drive_signal, drive_coordinates,
-                              comment1[drives], comment2[drives], comment3[drives],
-                              comment4[drives], comment5[drives])
+                              comment1, comment2, comment3,
+                              comment4, comment5)
+    
     return response_signal, spec_signal, drive_signal
 
 

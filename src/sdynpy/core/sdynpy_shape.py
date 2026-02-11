@@ -509,7 +509,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             index = (0,) * (dim - 1)
             responses = all_coords[index]
         else:
-            
+
             responses = responses.flatten()
         if references is None:
             references = responses
@@ -711,6 +711,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             # Append it
             self = ShapeArray.concatenate_dofs((self, append_shape))
         shape_matrix = self[coordinates].reshape(*self.shape, *coordinates.shape)
+        # TODO: I think there might be a bug in how rotations are handled...
         new_shape_matrix = np.einsum('nij,nkj,...nk->...ni', transform_to_new,
                                      transform_from_original, shape_matrix)
         return shape_array(coordinates.flatten(), new_shape_matrix.reshape(*self.shape, -1), self.frequency, self.damping, self.modal_mass,
@@ -785,7 +786,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         return shape_array(self.coordinate, matrix.real, self.frequency, self.damping.real,
                            self.modal_mass.real, self.comment1, self.comment2, self.comment3,
                            self.comment4, self.comment5)
-    
+
     def to_complex(self):
         """
         Creates complex shapes from real shapes
@@ -804,7 +805,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         return shape_array(self.coordinate, matrix, self.frequency, self.damping.real,
                            self.modal_mass.real, self.comment1, self.comment2, self.comment3,
                            self.comment4, self.comment5)
-    
+
     def normalize(self,system_or_matrix, return_modal_matrix = False):
         """
         Computes A-normalized or mass-normalized shapes
@@ -1004,75 +1005,6 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         new_shape = ShapeArray.concatenate_dofs(new_shapes)
         return new_geometry, new_shape
 
-    def time_integrate(self, forces, dt, responses=None, references=None,
-                       displacement_derivative=2):
-        """
-        Integrate equations of motion created from shapes
-
-        Parameters
-        ----------
-        forces : np.ndarray
-            Input force provided to the shapes, with number of rows equal to
-            the number of references, and number of columns equal to the number
-            of time steps in the simulation.
-        dt : float
-            Time increment for the integration.  For accuracy, this is generally
-            about 10x higher than the bandwidth of interest
-        responses : CoordinateArray, optional
-            Degrees of freedom to get response measurements. The default is None,
-            which returns modal responses.
-        references : CoordinateArray, optional
-            Degrees of freedom at which to apply forces. The default is None,
-            which means the input forces are treated as modal forces
-        displacement_derivative : int, optional
-            The derivative to use for the responses.  0 corresponds to
-            displacement, 1 corresponds to velocity, and 2 corresponds to
-            acceleration. The default is 2.
-
-        Raises
-        ------
-        NotImplementedError
-            Complex shapes are not currently implemented
-
-        Returns
-        -------
-        response_array : TimeHistoryArray
-            Responses assembled into a TimeHistoryArray.
-        reference_array : TimeHistoryArray
-            Input forces assembled into a TimeHistoryArray.
-
-        """
-        if self.is_complex():
-            raise NotImplementedError('Complex Modes not Implemented')
-        else:
-            flat_self = self.flatten()
-            M = np.diag(flat_self.modal_mass)
-            K = np.diag(flat_self.modal_mass * (flat_self.frequency * 2 * np.pi)**2)
-            C = np.diag(flat_self.modal_mass * (2 * 2 * np.pi *
-                        flat_self.frequency * flat_self.damping))
-            if responses is None:
-                phi_out = np.eye(flat_self.size)
-            else:
-                phi_out = flat_self[responses].T
-            if references is None:
-                phi_in = np.eye(flat_self.size)
-            else:
-                phi_in = flat_self[references].T
-            modal_forces = phi_in.T @ forces.reshape(-1, forces.shape[-1])
-            times = np.arange(forces.shape[-1]) * dt
-            modal_response = integrate_MCK(M, C, K, times, modal_forces.T)[
-                displacement_derivative].T
-            response = phi_out @ modal_response
-            response_array = sdynpy_data.data_array(sdynpy_data.FunctionTypes.TIME_RESPONSE,
-                                                    times, response,
-                                                    sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis]
-                                                    if responses is None else np.atleast_1d(responses)[:, np.newaxis])
-            reference_array = sdynpy_data.data_array(sdynpy_data.FunctionTypes.TIME_RESPONSE,
-                                                     times, forces.reshape(-1, forces.shape[-1]),
-                                                     sdynpy_coordinate.coordinate_array(np.arange(flat_self.size) + 1, 0)[:, np.newaxis]
-                                                     if references is None else np.atleast_1d(references)[:, np.newaxis])
-            return response_array, reference_array
-
     def optimize_degrees_of_freedom(self, sensors_to_keep,
                                     group_by_node=False, method='ei'):
         """
@@ -1113,6 +1045,21 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         coordinate_array = coordinate_array[indices]
         return self.reduce(coordinate_array)
 
+    def mac(self):
+        """Computes the modal assurance criterion matrix of the shapes
+
+        Returns
+        -------
+        mac
+            The modal assurance criterion matrix
+        """
+        return mac(self)
+
+    def plot_mac(self, *args, **kwargs):
+        """Plots the mac matrix of the shapes"""
+
+        matrix_plot(self.mac(), *args, **kwargs)
+
     def system(self):
         """
         Create system matrices from the shapes
@@ -1137,13 +1084,23 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         if self.is_complex():
             raise NotImplementedError('Complex Modes Not Implemented Yet')
         else:
-            coordinates = np.unique(self.coordinate)
-            return sdynpy_system.System(coordinates, np.diag(self.flatten().modal_mass),
-                                        np.diag((2 * np.pi * self.frequency.flatten())
-                                                ** 2 * self.flatten().modal_mass),
-                                        np.diag(2 * (2 * np.pi * self.frequency) *
-                                                self.damping * self.flatten().modal_mass),
-                                        self[coordinates].T)
+            self = self.ravel()
+            # It can take a long time to sort through coordinates, so we should check if
+            # the coordinates are identical across all shapes already
+            if np.all(self[0].coordinate == self.coordinate):
+                coordinates = self[0].coordinate
+                shape_matrix = self.shape_matrix
+            else:
+                coordinates = np.unique(self.coordinate)
+                shape_matrix = self[coordinates]
+
+            return sdynpy_system.System(
+                coordinates,
+                np.diag(self.modal_mass),
+                np.diag((2 * np.pi * self.frequency) ** 2 * self.modal_mass),
+                np.diag(2 * (2 * np.pi * self.frequency) * self.damping * self.modal_mass),
+                shape_matrix.T,
+            )
 
     @staticmethod
     def shape_alignment(shape_1, shape_2, node_id_map=None):
@@ -1222,7 +1179,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
                 return df
             else:
                 raise ValueError('Unknown Table Format: {:}'.format(table_format))
-            
+
     def edit_comments(self, geometry = None):
         """
         Opens up a table where the shape comments can be edited
@@ -1256,7 +1213,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
         if geometry is not None:
             plotter = geometry.plot_shape(self)
         return ShapeCommentTable(self, plotter)
-    
+
     def transformation_matrix(self, physical_coordinates, inversion=True, normalized = True):
         """
         Creates a transformation matrix that describes a transformation from a physical coordinate array into modal space using the provided mode shapes.
@@ -1292,19 +1249,19 @@ class ShapeArray(sdynpy_array.SdynpyArray):
 
         # Truncate Shapes to Physical Coordinates
         self = self.reduce(physical_coordinates)
-        
+
         # Invert Matrix (if desired)
         if inversion:
             transformation_matrix = np.linalg.pinv(self.shape_matrix.T)
         else:
             transformation_matrix = self.shape_matrix
-            
+
         # Normalize Matrix (if desired)
         if normalized:
             transformation_matrix = (transformation_matrix.T / np.abs(transformation_matrix).max(axis=1)).T
 
         return matrix(transformation_matrix, modal_coordinates, physical_coordinates)
-        
+
 class ShapeCommentTable(QDialog):
     def __init__(self, shapes, plotter = None, parent = None):
         """
@@ -1332,14 +1289,14 @@ class ShapeCommentTable(QDialog):
         super().__init__(parent)
         # Add a table widget
         self.setWindowTitle('Shape Comment Editor')
-        
+
         self.plotter = plotter
         self.shapes = shapes
-        
+
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-        
+
         self.layout = QVBoxLayout()
         # Columns will be key, frequency, damping, comment1, comment2, ... comment5
         self.mode_table = QTableWidget(shapes.size, 8)
@@ -1363,19 +1320,19 @@ class ShapeCommentTable(QDialog):
                 if column <= 2:
                     item.setFlags(item.flags() ^ Qt.ItemIsEditable)
                 self.mode_table.setItem(row,column,item)
-        
+
         self.layout.addWidget(self.mode_table)
         self.layout.addWidget(self.button_box)
         self.setLayout(self.layout)
-        
+
         self.show()
-        
+
     def update_mode(self):
         row = self.mode_table.currentRow()
         if self.plotter is not None:
             self.plotter.current_shape = row
             self.plotter.reset_shape()
-        
+
     def accept(self):
         for index,(shape_index,shape) in enumerate(self.shapes.ndenumerate()):
             shape.comment1 = self.mode_table.item(index,3).text()
@@ -1384,7 +1341,7 @@ class ShapeCommentTable(QDialog):
             shape.comment4 = self.mode_table.item(index,6).text()
             shape.comment5 = self.mode_table.item(index,7).text()
         super().accept()
-    
+
 #    def string_array(self):
 #        return create_coordinate_string_array(self.node,self.direction)
 #

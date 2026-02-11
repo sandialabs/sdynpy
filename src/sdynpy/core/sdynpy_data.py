@@ -426,7 +426,7 @@ class NDDataArray(SdynpyArray):
             elif isinstance(abscissa_marker_labels,str):
                 abscissa_marker_labels = [abscissa_marker_labels.format(
                     index = i, abscissa = v) for i,v in enumerate(abscissa_markers)]
-        
+
         if one_axis is True:
             figure, axis = plt.subplots(**subplots_kwargs)
             lines = axis.plot(self.flatten().abscissa.T, self.flatten().ordinate.T.real, **plot_kwargs)
@@ -538,7 +538,6 @@ class NDDataArray(SdynpyArray):
         if abscissa_marker_type is not None:
             kwargs['abscissa_marker_type'] = abscissa_marker_type
         return GUIPlot(*args,**kwargs)
-        
 
     def plot_image(self,ax = None, reduction_function = None, colorbar_scale = 'linear',
                    colorbar_min = None, colorbar_max = None):
@@ -595,31 +594,36 @@ class NDDataArray(SdynpyArray):
             2D Array of NDDataArray
 
         """
-        flattened_functions = self.flatten()
-        response_coords = np.unique(self.response_coordinate)
-        reference_coords = np.unique(self.reference_coordinate)
-        output_array = self.__class__(
-            (response_coords.size, reference_coords.size), self.num_elements)
+        flattened_functions = np.ravel(self)
+        unique_coords = [
+            np.unique(self.coordinate[..., i]) for i in range(self.dtype["coordinate"].shape[0])
+        ]
+        coordinate_combinations = outer_product(*unique_coords)
+        output_array = self.__class__(coordinate_combinations.shape[:-1], self.num_elements)
         if not error_if_missing:
-            keep_response_indices = np.ones(response_coords.shape,dtype=bool)
-        for row_index, response_coord in response_coords.ndenumerate():
-            for col_index, reference_coord in reference_coords.ndenumerate():
-                current_function = flattened_functions[
-                    (flattened_functions.response_coordinate == response_coord)
-                    &
-                    (flattened_functions.reference_coordinate == reference_coord)]
-                if current_function.size == 0:
-                    if error_if_missing:
-                        raise ValueError('No function exists with reference coordinate {:} and response coordinate {:}'.format(
-                            str(reference_coord), str(response_coord)))
-                    else:
-                        keep_response_indices[row_index] = False
-                        continue
-                if current_function.size > 1:
-                    raise ValueError('Multiple functions exist ({:}) with reference coordinate {:} and response coordinate {:}'.format(
-                        current_function.size, str(reference_coord), str(response_coord)))
-                output_array[row_index[0], col_index[0]] = current_function
+            if len(unique_coords) > 2:
+                raise NotImplementedError(
+                    "error_if_missing == False is currently not implemented for data with dimension > 2"
+                )
+            keep_indices = np.ones(coordinate_combinations.shape[:-1], dtype=bool)
+        for indices in np.ndindex(coordinate_combinations.shape[:-1]):
+            coordinates = coordinate_combinations[indices]
+            current_function = flattened_functions[
+                np.all(flattened_functions.coordinate.abs() == coordinates.abs(), axis=-1)
+            ]
+            if current_function.size == 0:
+                if error_if_missing:
+                    raise ValueError(f"No function exists with coordinates {coordinates}")
+                else:
+                    keep_indices[indices] = False
+                    continue
+            if current_function.size > 1:
+                raise ValueError(
+                    f"Multiple functions exist ({current_function.size}) with coordinates {coordinate}"
+                )
+            output_array[indices] = current_function
         if not error_if_missing:
+            keep_response_indices = np.all(keep_indices, axis=-1)
             output_array = output_array[keep_response_indices,:]
         return output_array
 
@@ -1046,6 +1050,213 @@ class NDDataArray(SdynpyArray):
         else:
             this.ordinate *= val
         return this
+
+    def __matmul__(self, other):
+        if isinstance(other, Matrix):
+            # We assume that if the matrix supplied has a "shape" to it, that
+            # means that the multiplication should be done over "stacks" of
+            # matrices and functions, so we should broadcast the arrays.
+            # We have to make some assumptions, though.  Otherwise there is
+            # ambiguity.  For example, if you had one 3x2 FRF matrix that
+            # you wanted to multiply by 3 different matrices, there is a
+            # difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)
+            # Therefore we will force the user to supply the correct
+            # dimensionality to the matrix and the functions, and we will
+            # do a kind of "reverse" broadcasting starting at the first
+            # dimensions.  Therefore, if a user has (3,) matrices and
+            # wants to specify multiplying those (3,) matrices by a
+            # single (3,2) FRF, they must pass a (1,3,2) FRF matrix
+            # so the 1-dimension corresponds to the 3-dimension of the
+            # matrix.  If they wanted each of the 3 rows of the (3,2)
+            # FRF to be multiplied by one of the 3 matrices, they should
+            # pass a (3,) matrix and a (3,2) FRF.  If they want each of
+            # the 3 rows of the (3,2) FRF to be multiplied by a single
+            # matrix, then they should make the matrix shape (1,) which
+            # will be expanded out.
+            matrix_shape = other.shape
+            data_shape = self.shape
+            matrix_dim = len(matrix_shape)
+            data_dim = len(data_shape)
+            # Make sure that the data dimension is greater than or equal to the matrix dimension due
+            # to the broadcasting rules
+            if data_dim < matrix_dim:
+                raise ValueError("Matrix must have fewer dimensions than data")
+            # Now make sure the first however many dimensions are broadcastable
+            data_shape_for_broadcasting = data_shape[:matrix_dim]
+            broadcast_shape = np.broadcast_shapes(matrix_shape, data_shape_for_broadcasting)
+            # We don't know the size of the output array until we've actually computed the first,
+            # so we set it to None as a placeholder
+            output_data = None
+            # Now we iterate through the broadcasted shape
+            for indices in np.ndindex(broadcast_shape):
+                # Replace indices with 0s if the original data was expanded from a length-1
+                # dimension
+                matrix_indices = tuple(
+                    [
+                        index if matrix_shape[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                data_indices = tuple(
+                    [
+                        index if data_shape_for_broadcasting[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                # Extract the data we are working with.
+                matrix = other[matrix_indices]
+                data = self[data_indices]
+                # For the data, we need the matrix row degrees of freedom on the last
+                # dimension, and all combinations of the remaining dimensions preceding it
+                unique_dofs = []
+                for dimension in range(1, data.dtype["coordinate"].shape[0]):
+                    unique_dofs.append(np.unique(data.coordinate[..., dimension]))
+                unique_dofs.append(matrix.row_coordinate)
+                coordinate_combinations = outer_product(*unique_dofs)
+                # Extract that data from the array
+                data_sorted = data[coordinate_combinations]
+                # Ensure that the abscissa is consistent
+                output_abscissa = np.ravel(data_sorted)[0].abscissa
+                if not np.allclose(output_abscissa, data_sorted.abscissa):
+                    raise ValueError("Data to be multiplied does not have common abscissa")
+                # We currently have a matrix with shape (n,m) and data with ordinate shape (...,n,k)
+                # where k is the number of samples in the data and n is the number of columns of data
+                # and rows of the matrix.  We will turn the ordinate of the data into a
+                # (...,k,n) array
+                ordinate_for_multiplication = np.moveaxis(data_sorted.ordinate, -2, -1)
+                # After we do the multiplication to get the new ordinate, we have to return
+                # the array to its proper shape with columns in front of samples
+                new_ordinate = np.moveaxis((ordinate_for_multiplication @ matrix.matrix), -1, -2)
+                # The new coordinates will be the outer product of the unique dofs, but now with
+                # the column coordinates of the matrix replacing the row coordinates
+                unique_dofs[-1] = matrix.column_coordinate
+                output_combinations = outer_product(*unique_dofs)
+                # Now we can assign these values to the output array.  We may need to still
+                # initialize it, however.
+                if output_data is None:
+                    # We need to compute the final shape of the array, which will be the shape of
+                    # of the broadcast and the shape of the data.
+                    *this_data_shape, num_elements = new_ordinate.shape
+                    output_data_shape = broadcast_shape + tuple(this_data_shape)
+                    output_data = self.__class__(output_data_shape, num_elements)
+                # Now we can assign the values
+                output_data.ordinate[indices] = new_ordinate
+                output_data.abscissa[indices] = output_abscissa
+                output_data.coordinate[indices] = output_combinations
+            return output_data
+        return NotImplemented
+
+    def __rmatmul__(self, other):
+        if isinstance(other, Matrix):
+            # We assume that if the matrix supplied has a "shape" to it, that
+            # means that the multiplication should be done over "stacks" of
+            # matrices and functions, so we should broadcast the arrays.
+            # We have to make some assumptions, though.  Otherwise there is
+            # ambiguity.  For example, if you had one 3x2 FRF matrix that
+            # you wanted to multiply by 3 different matrices, there is a
+            # difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)
+            # Therefore we will force the user to supply the correct
+            # dimensionality to the matrix and the functions, and we will
+            # do a kind of "reverse" broadcasting starting at the first
+            # dimensions.  Therefore, if a user has (3,) matrices and
+            # wants to specify multiplying those (3,) matrices by a
+            # single (3,2) FRF, they must pass a (1,3,2) FRF matrix
+            # so the 1-dimension corresponds to the 3-dimension of the
+            # matrix.  If they wanted each of the 3 rows of the (3,2)
+            # FRF to be multiplied by one of the 3 matrices, they should
+            # pass a (3,) matrix and a (3,2) FRF.  If they want each of
+            # the 3 rows of the (3,2) FRF to be multiplied by a single
+            # matrix, then they should make the matrix shape (1,) which
+            # will be expanded out.
+            # print("Extracting Dimensions:")
+            matrix_shape = other.shape
+            data_shape = self.shape
+            matrix_dim = len(matrix_shape)
+            data_dim = len(data_shape)
+            # print(f"{matrix_shape=}\n{data_shape=}")
+            # Make sure that the data dimension is greater than or equal to the matrix dimension due
+            # to the broadcasting rules
+            if data_dim < matrix_dim:
+                raise ValueError("Matrix must have fewer dimensions than data")
+            # Now make sure the first however many dimensions are broadcastable
+            data_shape_for_broadcasting = data_shape[:matrix_dim]
+            broadcast_shape = np.broadcast_shapes(matrix_shape, data_shape_for_broadcasting)
+            # print(f"{broadcast_shape=}")
+            # We don't know the size of the output array until we've actually computed the first,
+            # so we set it to None as a placeholder
+            output_data = None
+            # Now we iterate through the broadcasted shape
+            for indices in np.ndindex(broadcast_shape):
+                # print(f"Multiplying {indices=}")
+                # Replace indices with 0s if the original data was expanded from a length-1
+                # dimension
+                matrix_indices = tuple(
+                    [
+                        index if matrix_shape[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                data_indices = tuple(
+                    [
+                        index if data_shape_for_broadcasting[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                # print(f"  {matrix_indices=}\n  {data_indices=}")
+                # Extract the data we are working with.
+                matrix = other[matrix_indices]
+                data = self[data_indices]
+                # For the data, we need the matrix column degrees of freedom on the first
+                # dimension, then all combinations of the remaining dimensions
+                # print(f"Setting up coordinates")
+                unique_dofs = [matrix.column_coordinate]
+                for dimension in range(1, data.dtype["coordinate"].shape[0]):
+                    unique_dofs.append(np.unique(data.coordinate[..., dimension]))
+                coordinate_combinations = outer_product(*unique_dofs)
+                # print(f"{unique_dofs=}")
+                # Extract that data from the array
+                data_sorted = data[coordinate_combinations]
+                # Ensure that the abscissa is consistent
+                output_abscissa = np.ravel(data_sorted)[0].abscissa
+                if not np.allclose(output_abscissa, data_sorted.abscissa):
+                    raise ValueError("Data to be multiplied does not have common abscissa")
+                # We currently have a matrix with shape (n,m) and data with ordinate shape (m,...,k)
+                # where k is the number of samples in the data and m is the number of rows of data
+                # and columns of the matrix.  We will turn the ordinate of the data into a
+                # (...,k,m,1) array
+                # print("Setting up Multiplication")
+                ordinate_for_multiplication = np.moveaxis(data_sorted.ordinate, 0, -1)[
+                    ..., np.newaxis
+                ]
+                # print(f"{ordinate_for_multiplication.shape=}")
+                # After we do the multiplication to get the new ordinate, we have to return
+                # the array to its proper shape with rows out front and the last 1 dimension removed
+                new_ordinate = np.moveaxis(
+                    (matrix.matrix @ ordinate_for_multiplication)[..., 0], -1, 0
+                )
+                # print("Multiplication Finished!")
+                # print(f"{new_ordinate.shape=}")
+                # The new coordinates will be the outer product of the unique dofs, but now with
+                # the row coordinates of the matrix replacing the column coordinates
+                unique_dofs[0] = matrix.row_coordinate
+                output_combinations = outer_product(*unique_dofs)
+                # print(f"Output Dofs: {unique_dofs=}")
+                # Now we can assign these values to the output array.  We may need to still
+                # initialize it, however.
+                if output_data is None:
+                    # We need to compute the final shape of the array, which will be the shape of
+                    # of the broadcast and the shape of the data.
+                    *this_data_shape, num_elements = new_ordinate.shape
+                    output_data_shape = broadcast_shape + tuple(this_data_shape)
+                    # print(f"Setting up output with {output_data_shape=} and {num_elements=}")
+                    output_data = self.__class__(output_data_shape, num_elements)
+                # Now we can assign the values
+                # print(f"Assigning Data to {indices=}")
+                output_data.ordinate[indices] = new_ordinate
+                output_data.abscissa[indices] = output_abscissa
+                output_data.coordinate[indices] = output_combinations
+            return output_data
+        return NotImplemented
 
     def __truediv__(self, val):
         this = deepcopy(self)
@@ -1549,7 +1760,7 @@ class NDDataArray(SdynpyArray):
 
         return output_struct
 
-    def save(self, filename):
+    def save(self, filename, compress_abscissa = False):
         """
         Save the array to a numpy file
 
@@ -1558,10 +1769,25 @@ class NDDataArray(SdynpyArray):
         filename : str
             Filename that the array will be saved to.  Will be appended with
             .npz if not specified in the filename
+        compress_abscissa : bool, optional
+            If True, abscissa will be stored as start and step instead of full
+            arrays.  If abscissa cannot be compressed and maintain values, a
+            ValueError will be raised.
 
         """
-        np.savez(filename, data=self.view(np.ndarray),
-                 function_type=self.function_type.value)
+        if compress_abscissa:
+            abscissa_step = self.abscissa_spacing
+            abscissa_start = np.ravel(self.abscissa)[0]
+            if not np.all(abscissa_start==self.abscissa[...,0]):
+                raise ValueError('Cannot compress abscissa with varying start values')
+            fields = [field for field in self.fields if field != 'abscissa']
+            np.savez(filename, data = self.view(np.ndarray)[fields].copy(),
+                     function_type = self.function_type.value,
+                     abscissa_start = abscissa_start,
+                     abscissa_step = abscissa_step)
+        else:
+            np.savez(filename, data=self.view(np.ndarray),
+                     function_type=self.function_type.value)
 
     @classmethod
     def load(cls, filename):
@@ -1596,8 +1822,24 @@ class NDDataArray(SdynpyArray):
                 raise AttributeError('Class {:} has no from_unv attribute defined'.format(cls))
         else:
             fn_data = np.load(filename, allow_pickle=True)
-            return fn_data['data'].view(
-                _function_type_class_map[FunctionTypes(fn_data['function_type'])])
+            if 'abscissa_start' in fn_data:
+                # This is file with compressed abscissa
+                data = fn_data['data']
+                dtype = data.dtype.descr
+                nelem = data['ordinate'].shape[-1]
+                shape = data['ordinate'].shape[:-1]
+                new_cls = _function_type_class_map[FunctionTypes(fn_data['function_type'])]
+                new_obj = new_cls(shape,nelem)
+                abscissa = fn_data['abscissa_start'] + np.arange(nelem)*fn_data['abscissa_step']
+                for dt in dtype:
+                    if dt[0] not in new_obj.fields:
+                        continue
+                    new_obj[dt[0]] = data[dt[0]]
+                new_obj['abscissa'] = abscissa
+                return new_obj
+            else:
+                return fn_data['data'].view(
+                    _function_type_class_map[FunctionTypes(fn_data['function_type'])])
 
     def to_imat_struct(self, Version=None, SetRecord=None, CreateDate: datetime = None, ModifyDate: datetime = None,
                        OwnerName=None, AbscissaDataType=None, AbscissaTypeQual=None,
@@ -1813,7 +2055,7 @@ class NDDataArray(SdynpyArray):
         return return_functions
 
     from_uff = from_unv
-    
+
     def get_reciprocal_data(self,return_indices = False):
         """
         Gets reciprocal pairs of data from an NDDataArray.
@@ -1860,7 +2102,7 @@ class NDDataArray(SdynpyArray):
             return equal_indices
         else:
             return self[equal_indices]
-        
+
     def get_drive_points(self,return_indices=False):
         """
         Returns data arrays where the reference is equal to the response
@@ -1895,7 +2137,7 @@ class NDDataArray(SdynpyArray):
             return equal_indices
         else:
             return self[equal_logical]
-        
+
     def shape_filter(self,shape, filter_responses = True, filter_references = False,
                      rcond=None):
         """
@@ -1942,7 +2184,7 @@ class NDDataArray(SdynpyArray):
             coords = response_coords[:,np.newaxis]
             data = self[coords]
         data_type=data.function_type
-        
+
         if filter_responses:
             response_shape_matrix = np.linalg.pinv(shape[response_coords].T,rcond=rcond)
             output_response_coords = coordinate_array(np.arange(response_shape_matrix.shape[0])+1,0)
@@ -1955,18 +2197,18 @@ class NDDataArray(SdynpyArray):
         else:
             reference_shape_matrix = None
             output_reference_coords = reference_coords
-            
+
         if output_reference_coords is not None:
             output_coords = outer_product(output_response_coords,output_reference_coords)
         else:
             output_coords = output_response_coords[:,np.newaxis]
-            
+
         ordinate = data.ordinate
         if response_shape_matrix is not None:
             ordinate = np.einsum('mi,i...s->m...s',response_shape_matrix,ordinate)
         if reference_shape_matrix is not None:
             ordinate = np.einsum('mj,...js->...ms',reference_shape_matrix,ordinate)
-        
+
         filtered_data = data_array(data_type=data_type,
                                    abscissa=data.reshape(-1)[0].abscissa,
                                    ordinate=ordinate,
@@ -2133,9 +2375,7 @@ class TimeHistoryArray(NDDataArray):
             `zero_early_time` method with the `fft` method
             subsequently applied.
         """
-        return self.zero_early_time(num_steps,abscissa_range,
-                               closest_zero_crossing).fft()
-                               
+        return self.zero_early_time(num_steps, abscissa_range, closest_zero_crossing).fft()
 
     def zero_early_time(self, num_steps = 10, abscissa_range = None,
                         closest_zero_crossing = True):
@@ -2200,7 +2440,6 @@ class TimeHistoryArray(NDDataArray):
                 output.ordinate[(step_index,)+signal_index+(slice(None,zero_index+1),)] = 0
         return output
 
-
     def find_zero_crossings(self,return_abscissa=False, include_start = False):
         """Finds zero crossings in the time history
 
@@ -2237,7 +2476,6 @@ class TimeHistoryArray(NDDataArray):
             return sign_changes_array,abscissa_array
         else:
             return sign_changes_array
-
 
     def cpsd(self, samples_per_frame: int, overlap: float, window: str,
              averages_to_keep: int = None,
@@ -2467,8 +2705,6 @@ class TimeHistoryArray(NDDataArray):
                                     np.reshape(self.comment5,self.shape+(1,)))
         return amplitude,phases
 
-
-
     def digital_tracking_filter(self, frequencies, arguments, 
                                 cutoff_frequency_ratio = 0.15,
                                 filter_order = 2, phase_estimate = None,
@@ -2500,7 +2736,6 @@ class TimeHistoryArray(NDDataArray):
                                     self.comment2, self.comment3, self.comment4,
                                     self.comment5)
         return amplitudes, phases
-
 
     def split_into_frames(self, samples_per_frame=None, frame_length=None,
                           overlap=None, overlap_samples=None, window=None,
@@ -2604,11 +2839,10 @@ class TimeHistoryArray(NDDataArray):
         if check_cola:
             if not sig.check_COLA(window, samples_per_frame, overlap_samples):
                 raise ValueError('COLA Check Failed: specified window and overlap do not result in a constant overlap-add condition, see scipy.check_COLA for more information')
-                
+
         return data_array(FunctionTypes.TIME_RESPONSE, new_abscissa, new_ordinate,
                           self.coordinate, self.comment1, self.comment2, self.comment3,
                           self.comment4, self.comment5)
-    
 
     def mimo_forward(self, transfer_function):
         """
@@ -3243,6 +3477,33 @@ class TimeHistoryArray(NDDataArray):
         fft_zp = fft.zero_pad(fft.num_elements*(factor-1))
         return fft_zp.ifft()*factor
 
+    def resample(self, num_samples):
+        """
+        Uses Scipy.signal.resample to resample the time history array
+
+        Parameters
+        ----------
+        num_samples : int
+            The number of samples in the desired signal.
+
+        Returns
+        -------
+        TimeHistoryArray
+            A TimeHistoryArray object with resampled abscissa and ordinate
+
+        """
+        xr, tr = sig.resample(self.ordinate, num_samples, self.abscissa, axis=-1)
+        return time_history_array(
+            tr,
+            xr,
+            self.coordinate,
+            self.comment1,
+            self.comment2,
+            self.comment3,
+            self.comment4,
+            self.comment5,
+        )
+
     def apply_transformation(self, transformation, invert_transformation=False):
         """
         Applies a transformations to the time traces.
@@ -3278,7 +3539,7 @@ class TimeHistoryArray(NDDataArray):
 
         physical_coordinate = np.unique(self.response_coordinate)
         original_data_ordinate = np.moveaxis(self[physical_coordinate[...,np.newaxis]].ordinate, -1, 0)[..., np.newaxis]
-        
+
         if invert_transformation:
             if not np.all(np.unique(transformation.row_coordinate) == physical_coordinate):
                 raise ValueError('The physical coordinates in the transformation do no match the spectra')
@@ -3289,7 +3550,7 @@ class TimeHistoryArray(NDDataArray):
                 raise ValueError('The physical coordinates in the transformation do no match the spectra')
             transformed_coordinate = np.unique(transformation.row_coordinate)
             transformation_matrix = transformation[transformed_coordinate, physical_coordinate]
-        
+
         if transformation_matrix.ndim != 2:
             raise ValueError('The transformation array must be two dimensional')
 
@@ -3914,8 +4175,7 @@ class TimeHistoryArray(NDDataArray):
                                   abscissa,output_signals,coordinates.flatten()[:,np.newaxis],
                                   comment1, comment2, comment3, comment4, comment5)
         return time_history.reshape(coordinates.shape)
-        
-        
+
 
 def time_history_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
     """
@@ -5675,7 +5935,6 @@ class TransferFunctionArray(NDDataArray):
             return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                               freq, np.moveaxis(frf, 0, -1), coordinate)
 
-
     def ifft(self, norm="backward",  odd_num_samples = False,
              **scipy_irfft_kwargs):
         """
@@ -5725,7 +5984,7 @@ class TransferFunctionArray(NDDataArray):
                 + ' and it is assumed that this is due to some high pass cut-off.'
                 + ' The data is being zero padded at low frequencies.')
         num_elements = first_frequency_bin+self.num_elements
-        
+
         if odd_num_samples:
             num_samples = 2*(num_elements-1)+1
         else:
@@ -6228,7 +6487,7 @@ class TransferFunctionArray(NDDataArray):
             elif isinstance(abscissa_marker_labels,str):
                 abscissa_marker_labels = [abscissa_marker_labels.format(
                     index = i, abscissa = v) for i,v in enumerate(abscissa_markers)]
-                
+
         part_fns = {'imag':np.imag,
                     'real':np.real,
                     'mag':np.abs,
@@ -6294,7 +6553,7 @@ class TransferFunctionArray(NDDataArray):
                 axis[0].set_ylabel('Phase')
                 axis[1].set_ylabel('Amplitude')
                 axis[1].set_xlabel('Frequency')
-                
+
             else:
                 figure, axis = plt.subplots(1, 1, **subplots_kwargs)
                 lines = axis.plot(self.flatten().abscissa.T, part_fns[part](
@@ -6598,7 +6857,7 @@ class TransferFunctionArray(NDDataArray):
                     raise ValueError('The physical coordinates in the response transformation do no match the transfer functions')
                 transformed_response_coordinate = np.unique(response_transformation.row_coordinate)
                 response_transformation_matrix = response_transformation[transformed_response_coordinate, physical_response_coordinate]
-                
+
         transformed_frf_ordinate = response_transformation_matrix @ original_frf_ordinate @ reference_transformation_matrix
 
         return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION, self.ravel().abscissa[0], np.moveaxis(transformed_frf_ordinate, 0, -1), 
@@ -6721,7 +6980,7 @@ class TransferFunctionArray(NDDataArray):
                 loop_ref_coord.node += coordinate_node_offset * (ii+1)
             response_coordinate_string.extend(loop_res_coord.string_array())
             reference_coordinate_string.extend(loop_ref_coord.string_array())
-            
+
             # Adding the slicing offset for the block diagonal FRFs
             response_index_offset += frfs.shape[0]
             reference_index_offset += frfs.shape[1]
@@ -6826,7 +7085,7 @@ class TransferFunctionArray(NDDataArray):
         # Apply Constraints
         dof_list = np.array(dof_list).view(CoordinateArray)
         return self.substructure_by_constraint_matrix(dof_list, constraint_matrix)
-    
+
     @classmethod
     def from_exodus(cls, exo, reference_coordinate = None,
                     xval = 'DispX', xvali = 'ImagDispX',
@@ -6885,7 +7144,7 @@ class TransferFunctionArray(NDDataArray):
                 )][0].data
             data.append(real_data+1j*imag_data)
             coordinates.append(coordinate_array(node_ids,coordinate_dir))
-            
+
         data = np.array(data).transpose(0,2,1)
         coordinates = np.array(coordinates).view(CoordinateArray)
         reference_coordinates = coordinates.copy()
@@ -6893,7 +7152,6 @@ class TransferFunctionArray(NDDataArray):
         coordinates = np.concatenate((coordinates[...,np.newaxis],reference_coordinates[...,np.newaxis]),axis=-1)
 
         return transfer_function_array(exo.time,data,coordinates)
-
 
 
 def transfer_function_array(abscissa,ordinate,coordinate,
@@ -8148,7 +8406,7 @@ class ShockResponseSpectrumArray(NDDataArray):
             x_o, b_o, r_o = optimize_phase_targets_pinv(A, b_amplitude,rcond=rcond, weight_accuracy=accuracy_weight,weight_magnitude=input_weight)
             x_opt.append(x_o)
             b_opt.append(b_o)
-            result.append(result)
+            result.append(r_o)
 
         x_opt = np.array(x_opt)
         b_opt = np.array(b_opt)
@@ -8178,7 +8436,7 @@ class ShockResponseSpectrumArray(NDDataArray):
             x_o, b_o, r_o = optimize_phase_targets_pinv(A, np.abs(b),rcond=rcond, phi0=phi0, weight_accuracy=accuracy_weight,weight_magnitude=input_weight)
             x_opt.append(x_o)
             b_opt2.append(b_o)
-            result.append(result)
+            result.append(r_o)
 
         x_opt = np.array(x_opt).T
         b_opt2 = np.array(b_opt2).T

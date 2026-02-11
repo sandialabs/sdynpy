@@ -1479,14 +1479,27 @@ initial signal processing parameters prior to generating the signal.
   :figclass: align-center
   
   Random signal used to excite the structure
-  
+
+Rather than using the :py:mod:`sdpy.generator<sdynpy.signal_processing.sdynpy_generator>` module,
+which generates NumPy arrays which are typically then transformed to 
+:py:class:`TimeHistoryArray<sdynpy.core.sdynpy_data.TimeHistoryArray>` objects, we could directly
+generate :py:class:`TimeHistoryArray<sdynpy.core.sdynpy_data.TimeHistoryArray>` objects using the class
+methods :py:func:`pseudorandom_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.pseudorandom_signal>`,
+:py:func:`random_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.random_signal>`,
+:py:func:`sine_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.sine_signal>`,
+:py:func:`burst_random_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.burst_random_signal>`,
+:py:func:`chirp_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.chirp_signal>`,
+:py:func:`pulse_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.pulse_signal>`,
+:py:func:`haversine_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.haversine_signal>`, or
+:py:func:`sine_sweep_signal<sdynpy.core.sdynpy_data.TimeHistoryArray.sine_sweep_signal>`.
+
 Performing the Time Integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   
 We can then apply the signal to the structure using the
 :py:func:`time_integrate<sdynpy.core.sdynpy_system.System.time_integrate>`
 method of the :py:class:`System<sdynpy.core.sdynpy_system.System>` class.
-We need to chose which degrees of freedom to plot on the structure.  Recall
+We need to chose which degrees of freedom to excite on the structure.  Recall
 we can plot degrees of freedom using the
 :py:func:`plot_coordinate<sdynpy.core.sdynpy_geometry.Geometry.plot_coordinate>`
 method of the :py:class:`Geometry<sdynpy.core.sdynpy_geometry.Geometry>` object.
@@ -1560,21 +1573,24 @@ generate this list of node identification numbers from our ``geometry`` object.
 
 We can then integrate equations of motion for the system using the
 :py:func:`time_integrate<sdynpy.core.sdynpy_system.System.time_integrate>`
-method of the :py:class:`System<sdynpy.core.sdynpy_system.System>`.
+method of the :py:class:`System<sdynpy.core.sdynpy_system.System>`.  Note
+that SDynPy allows users to select response degrees of freedom that are
+displacements, velocities, or accelerations.  These are specified by a
+dictionary with keys being the displacement derivative and
+values being a :py:class:`CoordinateArray<sdynpy.core.sdynpy_coordinate.CoordinateArray>`
+specifying the degrees of freedom desired with that derivative.  For example,
+a key of 2 denotes the second derivative of displacement, which will be an
+acceleration.
 
 .. code-block:: python
 
-    responses,forces = modal_system.time_integrate(
-        signals, dt, responses = response_dofs, references=excitation_dofs,
-        displacement_derivative = 2,
+    abscissa = np.arange(total_samples)*dt
+    forces = sdpy.time_history_array(abscissa,signals,excitation_dofs[:,np.newaxis])
+    response_dict = {2:response_dofs}
+
+    responses = modal_system.time_integrate(
+        forces, response_dict,
         integration_oversample = 10)
-        
-In addition to variables previously defined, we have also defined keyword
-arguments ``displacement_derivative = 2`` and ``integration_oversample = 10``.
-The ``displacement_derivative`` keyword specifies what data type to return.
-Specifying a two for this value will return an acceleration quantity, which is
-the second derivative of displacement.  Specifying zero or one for this value
-will result in displacement or velocity being returned, respectively.
 
 The ``integration_oversample`` keyword determines the degree of oversampling
 that occurs in the integration.  The defined forces used a sample rate of
@@ -1593,10 +1609,8 @@ sufficient for integration accuracy due to the linear system assumption.
 
 Let's investigate the output of the
 :py:func:`time_integrate<sdynpy.core.sdynpy_system.System.time_integrate>`
-method.  Two outputs were produced, ``responses`` and ``forces``.  These are the
-responses to the input signal, as well as the input signal itself, both
-transformed into SDynPy
-:py:class:`TimeHistoryArray<sdynpy.core.sdynpy_data.TimeHistoryArray>` objects.
+method.  The output ``responses`` was produced in addition to the 
+constructed ``forces`` time history.
 
 .. code-block:: console
 

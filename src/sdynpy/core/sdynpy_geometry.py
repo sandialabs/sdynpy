@@ -41,14 +41,16 @@ from .sdynpy_colors import colormap, coord_colormap
 from .sdynpy_coordinate import CoordinateArray, coordinate_array, from_nodelist
 from ..signal_processing.sdynpy_rotation import R, lstsq_rigid_transform
 from ..signal_processing.sdynpy_camera import point_on_pixel
-from ..core.sdynpy_matrix import matrix
+from .sdynpy_matrix import matrix
 import time
 import os
 from PIL import Image
 from scipy.spatial import Delaunay
+from scipy.linalg import block_diag
 import pandas as pd
 import openpyxl
 import warnings
+from scipy.io import savemat as scipy_savemat
 
 try:
     repr(pv.GPUInfo())
@@ -5004,6 +5006,27 @@ class Geometry:
                  element=self.element.view(np.ndarray),
                  traceline=self.traceline.view(np.ndarray))
 
+    def savemat(self, filename):
+        """Saves the geometry to a .mat file
+
+        The .mat file will have fields 'node', 'coordinate_system', 'element',
+        and 'traceline', with each field storing the respective portion of the
+        geometry
+
+        Parameters
+        ----------
+        filename : str
+            Filename to save the geometry to.  
+
+        Returns
+        -------
+        None.
+        """
+
+        mat_dict = {key: getattr(self, key).assemble_mat_dict() for key in
+                    ['node', 'coordinate_system', 'element', 'traceline']}
+        scipy_savemat(filename,mat_dict)
+
     def rigid_body_shapes(self, coordinates, mass=1, inertia=np.eye(3), cg=np.zeros(3), principal_axes=False):
         """
         Creates a set of shapes corresponding to the rigid body motions
@@ -5046,7 +5069,7 @@ class Geometry:
         full_coordinates = coordinate_array(np.unique(coordinates.node)[:, np.newaxis],
                                             ['X+', 'Y+', 'Z+']).flatten()
         # Assume local coordinates for now, transform later
-        translation_shape_matrix = full_coordinates.local_direction().T
+        translation_shape_matrix = full_coordinates.local_direction().T/np.sqrt(mass)
         rotation_shape_matrix = np.zeros(translation_shape_matrix.shape)
         for i in range(3):
             for j in range(len(full_coordinates)):
@@ -5068,6 +5091,53 @@ class Geometry:
         reduced_shape_matrix = transformed_shape[coordinates]
         output_shape = shape_array(coordinates, reduced_shape_matrix)
         return output_shape
+
+    def coordinate_transformation_matrix(self, to_geometry : 'Geometry',
+                                         nodes : np.ndarray = None,
+                                         rotations : bool = False):
+        """
+        Creates a transformation matrix that transforms one geometry to a new
+        geometry with different coordinate systems defined.
+
+        Parameters
+        ----------
+        to_geometry : Geometry
+            Geometry object with coordinate systems that the transformation
+            matrix will transform into
+        nodes : np.ndarray, optional
+            An array of node id numbers to include in the transformation.
+            The default is to include all nodes in the geometry.
+        rotations : bool, optional
+            If True, create degrees of freedom for rotations as well as
+            translations.
+            
+
+        Returns
+        -------
+        Matrix
+            A Matrix object that transforms data or shapes currently
+            represented by this Geometry to the Geometry specified in the
+            `to_geometry` argument.
+        """
+        if nodes is None:
+            nodes = np.intersect1d(self.node.id,to_geometry.node.id)
+        else:
+            nodes = np.ravel(nodes)
+        if rotations:
+            dofs = coordinate_array(nodes[:,np.newaxis,np.newaxis],[[1, 2, 3],
+                                                                    [4, 5, 6]])
+        else:
+            dofs = coordinate_array(nodes[:,np.newaxis],[1, 2, 3])
+        transform_from_original = self.global_deflection(dofs)
+        transform_to_new = to_geometry.global_deflection(dofs)
+        # We need to transform this matrix into block-diagonal form.
+        transform_from_original = transform_from_original.reshape(-1,3,3)
+        transform_to_new = transform_to_new.reshape(-1,3,3)
+        transform_from_original = block_diag(*transform_from_original)
+        transform_to_new = block_diag(*transform_to_new)
+        transform = transform_to_new @ np.linalg.pinv(transform_from_original)
+        transformation_matrix = matrix(transform,dofs.flatten(),dofs.flatten())
+        return transformation_matrix
 
     @classmethod
     def load(cls, filename):

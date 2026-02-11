@@ -380,6 +380,13 @@ class Matrix(SdynpyArray):
         mat = np.linalg.pinv(self.matrix,**pinv_params)
         return matrix(matrix=mat,row_coordinate = self.column_coordinate,
                       column_coordinate = self.row_coordinate)
+    
+    def __matmul__(self,other):
+        if not isinstance(other,Matrix):
+            # If it is not another matrix, rely on the other data to define what
+            # matrix multiplication means
+            return NotImplemented
+        return super().__matmul__(other)
 
 
 def matrix(matrix, row_coordinate, column_coordinate, buffer=None, offset=0,

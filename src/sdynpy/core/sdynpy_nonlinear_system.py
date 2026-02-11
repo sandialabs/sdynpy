@@ -124,6 +124,8 @@ class SystemNL:
 
     @classmethod
     def from_linear_system(cls,system : System):
+        if system.massless_dofs.sum() > 0:
+            raise NotImplementedError('Linear systems with massless degrees of freedom are not yet implemented!')
         A,B,C,D = system.to_state_space()
         coordinates = system.coordinate
         nc = coordinates.shape[0]

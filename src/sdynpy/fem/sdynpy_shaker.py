@@ -81,7 +81,7 @@ import matplotlib.pyplot as plt
 #     and force gauge.
 #     '''
 
-#     # Cresistanceate the matrices
+#     # Create the matrices
 #     M_shaker = np.array([[m_armature,  0,  0,  0],
 #                          [ 0, m_body,  0,  0],
 #                          [ 0,  0, m_forcegauge,  0],

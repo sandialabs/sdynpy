@@ -670,8 +670,8 @@ the responses.
 .. code-block:: python
 
     responses,references = modal_system.time_integrate(
-        input_signal.ordinate, np.mean(np.diff(input_signal.abscissa)),
-        responses = control_dofs.flatten(), references = excitation_locations)
+        input_signal,
+        {2:control_dofs.flatten()}) # 2 for acceleration
 
     control_buzz = responses.downsample(output_oversample).cpsd(frequencies.size*2,
                                                                 0.5,'hann')
