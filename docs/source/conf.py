@@ -49,14 +49,15 @@ html_theme_options = {'navigation_depth': 8,
                       'display_version':False}
 html_logo = 'images/logo_horizontal_light.svg'
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary',
-    'matplotlib.sphinxext.plot_directive',
-    'sphinxcontrib.bibtex',
-    'nbsphinx',
-    'sphinx_copybutton'
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "matplotlib.sphinxext.plot_directive",
+    "sphinxcontrib.bibtex",
+    "nbsphinx",
+    "sphinx_copybutton",
 ]
 # autodoc_mock_imports = ["sdynpy"]
 latex_engine = 'xelatex'
