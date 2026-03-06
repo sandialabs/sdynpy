@@ -1,0 +1,46 @@
+SOLUTION
+        case 'cbr'
+                cbr
+                nmodes = 30
+                shift = -1e6
+                correction = vectors
+                rbmdof = '123'
+        case 'eig'
+                eigen
+                nmodes = 50
+                shift = -1e6
+END
+
+FILE
+        geometry_file 'block_c.exo'
+END
+
+OUTPUTS
+    DISP
+    Maa
+    Kaa
+    MFile
+END
+
+ECHO
+   mass=block
+END
+
+CBMODEL
+    nodeset = 1
+    format = netcdf
+    file = 'block_c-cbr.nc4'
+    globalsolution = yes
+END
+
+
+BLOCK 3
+        MATERIAL 1
+END
+
+MATERIAL 1
+	// Aluminum
+        E= 70.33e9 // Pa
+        nu = 0.33
+        density 2704.32669 // kg/m^3
+END
