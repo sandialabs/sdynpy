@@ -28,6 +28,12 @@ import copy
 from ..core.sdynpy_geometry import global_coord, local_coord, global_deflection, _exodus_elem_type_map
 
 _inverse_exodus_elem_type_map = {val: key for key, val in _exodus_elem_type_map.items()}
+_inverse_exodus_elem_type_map[61] = "tri3"
+_inverse_exodus_elem_type_map[91] = "tri3"
+_inverse_exodus_elem_type_map[41] = "tri3"
+_inverse_exodus_elem_type_map[64] = "quad4"
+_inverse_exodus_elem_type_map[94] = "quad4"
+_inverse_exodus_elem_type_map[44] = "quad4"
 
 __version__ = '0.99'
 
@@ -2481,7 +2487,7 @@ class ExodusInMemory:
                 global_var_dict['data'] = shapes[name]
             # Now add displacement data for the shapes
             coordinates = shapes[0].coordinate.copy()
-            indices = np.in1d(coordinates.node, node_data.id)
+            indices = np.isin(coordinates.node, node_data.id)
             coordinates = coordinates[indices]
             # Keep only displacements
             coordinates = coordinates[(abs(coordinates.direction) <= 3) &
@@ -2517,7 +2523,7 @@ class ExodusInMemory:
                 fexo.time = data[0].abscissa
                 # Now add displacement data for the shapes
                 coordinates = data.response_coordinate
-                indices = np.in1d(coordinates.node, node_data.id)
+                indices = np.isin(coordinates.node, node_data.id)
                 coordinates = coordinates[indices]
                 # Keep only displacements
                 coordinates = coordinates[(abs(coordinates.direction) <= 3)

@@ -568,7 +568,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             coord_array = nodelist_or_coordinate_array
         else:
             coord_array = np.unique(self.coordinate)
-            coord_array = coord_array[np.in1d(coord_array.node, nodelist_or_coordinate_array)]
+            coord_array = coord_array[np.isin(coord_array.node, nodelist_or_coordinate_array)]
         shape_matrix = self[coord_array.flatten()]
         return shape_array(coord_array.flatten(), shape_matrix, self.frequency, self.damping,
                            self.modal_mass, self.comment1, self.comment2, self.comment3,

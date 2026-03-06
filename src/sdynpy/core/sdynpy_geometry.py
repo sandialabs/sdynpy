@@ -492,9 +492,11 @@ class TransientPlotter(GeometryPlotter):
             coordinates = np.unique(self.displacement_data.coordinate)
         else:
             coordinates = np.unique(self.transformation_shapes.coordinate)
-        coordinates = coordinates[np.in1d(coordinates.node, self.plot_geometry.node.id)
-                                  & (np.abs(coordinates.direction) > 0)
-                                  & (np.abs(coordinates.direction) < 4)]
+        coordinates = coordinates[
+            np.isin(coordinates.node, self.plot_geometry.node.id)
+            & (np.abs(coordinates.direction) > 0)
+            & (np.abs(coordinates.direction) < 4)
+        ]
         global_deflections = self.plot_geometry.global_deflection(coordinates).T
         if self.transformation_shapes is None:
             shape_array = self.displacement_data[coordinates[:, np.newaxis]].ordinate
@@ -916,7 +918,7 @@ class ShapePlotter(GeometryPlotter):
         coordinates = self.shapes[self.current_shape].coordinate
         nodes = coordinates.node
         # Only do coordinates that are in the geometry node array
-        self.indices = np.in1d(coordinates.node, self.geometry.node.id)
+        self.indices = np.isin(coordinates.node, self.geometry.node.id)
         coordinates = coordinates[self.indices]
         nodes = nodes[self.indices]
         direction = coordinates.direction
@@ -1933,10 +1935,9 @@ class ElementArray(SdynpyArray):
         """
         output_list = []
         for key, element in self.ndenumerate():
-            if np.all(np.in1d(element.connectivity, node_list)):
+            if np.all(np.isin(element.connectivity, node_list)):
                 output_list.append(element)
         return np.array(output_list, self.dtype).view(ElementArray)
-
 
     def remove(self, element_list):
         """
@@ -2605,7 +2606,7 @@ class TracelineArray(SdynpyArray):
         """
         output_list = []
         for key, traceline in self.ndenumerate():
-            if np.all(np.in1d(traceline.connectivity, node_list) | (traceline.connectivity == 0)):
+            if np.all(np.isin(traceline.connectivity, node_list) | (traceline.connectivity == 0)):
                 output_list.append(traceline)
         return np.array(output_list, self.dtype).view(TracelineArray)
 
@@ -2630,7 +2631,6 @@ class TracelineArray(SdynpyArray):
             if traceline.id not in traceline_list:
                 output_list.append(traceline)
         return np.array(output_list, self.dtype).view(TracelineArray)
-                
 
     @staticmethod
     def from_unv(unv_data_dict, combine=True):
@@ -2918,18 +2918,18 @@ class Geometry:
         See documentation for from_excel_template for instructions on filling
         out the template to create a geometry.
         """
-        
+
         # Create a new workbook
         workbook = openpyxl.Workbook()
-        
+
         # Add multiple sheets to the workbook
         sheet_names = ['Coordinate Systems', 'Nodes', 'Elements', 'Trace Lines']
         for sheet_name in sheet_names:
             workbook.create_sheet(sheet_name)
-        
+
         # Remove the default sheet created at the start
         del workbook['Sheet']
-        
+
         # Define column names for each sheet
         columns = {
             'Coordinate Systems': ['ID', 'Name', 'Color', 'Type', 'X Location', 'Y Location', 'Z Location', 'Rotation 1 Angle', 'Rotation 1 Axis', 'Rotation 2 Angle', 'Rotation 2 Axis', 'Rotation 3 Angle', 'Rotation 3 Axis'],
@@ -2937,7 +2937,7 @@ class Geometry:
             'Elements': ['ID', 'Color', 'Type', 'Node 1', 'Node 2', 'Node 3', 'Node 4', 'Node 5'],
             'Trace Lines': ['ID', 'Description', 'Color', 'Node 1', 'Node 2', 'Node 3', 'Node 4', 'Node 5']
         }
-        
+
         # Create data validations
         data_validation_ID = openpyxl.worksheet.datavalidation.DataValidation(type="whole", operator='greaterThan', formula1='-1',allow_blank=True,error='Must be interger greater than -1',errorStyle='stop',showErrorMessage=True)
         data_validation_Color = openpyxl.worksheet.datavalidation.DataValidation(type="list", formula1='"Black,Blue,Gray Blue,Light Blue,Cyan,Dark Olive,Dark Green,Green,Yellow,Golden Orange,Orange,Red,Magenta,Light Magenta,Pink,White"',allow_blank=True,error='Must be value from list',errorStyle='stop',showErrorMessage=True)
@@ -2946,7 +2946,7 @@ class Geometry:
         data_validation_ElemType = openpyxl.worksheet.datavalidation.DataValidation(type="list", formula1='"beam,triangle,quadrilateral,tetrahedral"',allow_blank=True,error='Must be value from list',errorStyle='stop',showErrorMessage=True)
         data_validation_Node = openpyxl.worksheet.datavalidation.DataValidation(type="whole", operator='greaterThan', formula1='-1',allow_blank=True,error='Must be value from list',errorStyle='stop',showErrorMessage=True)
         data_validation_Decimal = openpyxl.worksheet.datavalidation.DataValidation(type="decimal",allow_blank=True,error='Must be decimal',errorStyle='stop',showErrorMessage=True)
-        
+
         # Specify Columns for data validation
         table_height = 10
         data_validation_ID_A = copy.deepcopy(data_validation_ID)
@@ -2969,22 +2969,22 @@ class Geometry:
         data_validation_ID_Nodes.add('F2:G'+str(table_height+1))
         data_validation_ElemType.add('C2:C'+str(table_height+1))
         data_validation_Node.add('D2:H'+str(table_height+1))
-        
+
         # Add data and tables to each sheet
         for sheet_name in sheet_names:
             sheet = workbook[sheet_name]
-            
+
             # Define the column headers
             headers = columns[sheet_name]
-            
+
             # Write the headers into the first row
             for col_num, header in enumerate(headers, start=1):
                 sheet.cell(row=1, column=col_num, value=header)
-        
+
             table_range = f'A1:{chr(65 + len(headers) - 1)}{table_height + 1}'
-        
+
             table = openpyxl.worksheet.table.Table(displayName=sheet_name.replace(' ','_'), ref=table_range)
-            
+
             # Apply table style
             style = openpyxl.worksheet.table.TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,showLastColumn=False, showRowStripes=True, showColumnStripes=False)
             table.tableStyleInfo = style
@@ -3006,14 +3006,14 @@ class Geometry:
         sheet.add_data_validation(data_validation_ID_Nodes)
         sheet.add_data_validation(data_validation_Color_B)
         sheet.add_data_validation(data_validation_Decimal_Nodes)
-        
+
         # Apply Data Validations for "Elements" Sheet
         sheet = workbook['Elements']
         sheet.add_data_validation(data_validation_ID_A)
         sheet.add_data_validation(data_validation_Color_B)
         sheet.add_data_validation(data_validation_ElemType)
         sheet.add_data_validation(data_validation_Node)
-        
+
         # Apply Data Validations for "Trace Lines" Sheet
         sheet = workbook['Trace Lines']
         sheet.add_data_validation(data_validation_ID_A)
@@ -3090,7 +3090,7 @@ class Geometry:
 
         """
 
-        #% Read Geometry Information from Excel File
+        # % Read Geometry Information from Excel File
         df_coordinate_systems = pd.read_excel(io = path_to_xlsx,sheet_name='Coordinate Systems')
         df_nodes = pd.read_excel(io = path_to_xlsx,sheet_name='Nodes')
         df_elements = pd.read_excel(io = path_to_xlsx,sheet_name='Elements')
@@ -3127,7 +3127,7 @@ class Geometry:
         df_elements = df_elements.replace({'Color':color_number_dict})
         df_trace_lines = df_trace_lines.replace({'Color':color_number_dict})
 
-        #% Add Coordinate Systems
+        # % Add Coordinate Systems
         # Start with an empty coordinate system
         coordinate_systems = coordinate_system_array([])
         for row_index, df_coordinate_system in df_coordinate_systems.iterrows():
@@ -3144,7 +3144,7 @@ class Geometry:
             origin = np.array((df_coordinate_system['X Location'],df_coordinate_system['Y Location'],df_coordinate_system['Z Location']))[np.newaxis,:]
             coordinate_systems = np.concatenate((coordinate_systems,coordinate_system_array(id=df_coordinate_system['ID'], name=df_coordinate_system['Name'], color=df_coordinate_system['Color']-1, cs_type=df_coordinate_system['Type'], matrix = np.concatenate((T,origin),axis=0))),axis=None)
 
-        #% Add Nodes
+        # % Add Nodes
         # print(df_nodes['Color'])
         nodes = node_array(
             id=np.array(df_nodes['ID']),
@@ -3154,7 +3154,7 @@ class Geometry:
             def_cs=np.array(df_nodes['Definition CS']),
             disp_cs=np.array(df_nodes['Displacement CS']))
 
-        #% Add Elements
+        # % Add Elements
         elements = element_array([])
         element_connection_length_dict = {
                                         2:21, # 21 : 'Linear Beam'
@@ -3173,7 +3173,7 @@ class Geometry:
             new_element = element_array(id=df_element['ID'], type=element_type, color=df_element['Color']-1,connectivity=connectivity)
             elements = np.concatenate((elements,new_element),axis=None)
 
-        #% Add Tracelines
+        # % Add Tracelines
         tracelines = traceline_array([])
         for row_index, df_trace_line in df_trace_lines.iterrows():
             connectivity=df_trace_line[3:].values
@@ -3285,7 +3285,7 @@ class Geometry:
                 normal_vectors /= np.linalg.norm(normal_vectors, axis=-1, keepdims=True)
                 block_nodes = np.unique(block.connectivity)
                 if local_nodes is not None:
-                    block_nodes = local_node_indices[np.in1d(local_node_indices, block_nodes)]
+                    block_nodes = local_node_indices[np.isin(local_node_indices, block_nodes)]
                 for index in block_nodes:
                     node_elements = np.any(block.connectivity == index, axis=-1)
                     node_normals = normal_vectors[node_elements]
@@ -3330,7 +3330,6 @@ class Geometry:
         else:
             css = coordinate_system_array((1,))
         return Geometry(nodes, css, tls, elems)
-
 
     @classmethod
     def camera_visualization(cls, K, RT, image_size, size=1, colors=1):
@@ -3748,7 +3747,7 @@ class Geometry:
             return new_geometry, 10**(node_length)
         else:
             return new_geometry
-    
+
     def map_coordinate(self,dof_list,to_geometry,node_map=None,
                        plot_maps = False):
         """
@@ -3815,9 +3814,9 @@ class Geometry:
             if plot_maps:
                 plotter = self.plot_coordinate(dof_list[index])
                 to_geometry.plot_coordinate(output_dof_list[index],plot_kwargs={'plotter':plotter})
-        
+
         return output_dof_list
-    
+
     def convert_elements_to_tracelines(self,keep_ids = False, start_id = None,
                                        in_place = False):
         """
@@ -3879,7 +3878,7 @@ class Geometry:
         geometry.element = ElementArray((0,))
         if not in_place:
             return geometry
-        
+
     def split_tracelines_into_segments(self, in_place = False):
         """
         Splits long tracelines into many length-2 tracelines
@@ -3908,7 +3907,7 @@ class Geometry:
             return geometry
         else:
             self.traceline = temp_geometry.traceline
-            
+
     def remove_duplicate_tracelines(self, in_place = False):
         """
         Removes tracelines that are effectively equivalent to each other.
@@ -4027,8 +4026,7 @@ class Geometry:
         css = self.coordinate_system.flatten()
         elems = self.element.flatten()
         tls = self.traceline.flatten()
-        
-        
+
         num_labels = ((1 if (label_nodes is True or (label_nodes is not False and len(label_nodes) > 0)) else 0)
                       + (1 if (label_tracelines is True or (label_tracelines is not False and len(label_tracelines) > 0)) else 0)
                       + (1 if (label_elements is True or (label_elements is not False and len(label_elements) > 0)) else 0))
@@ -4097,7 +4095,7 @@ class Geometry:
                     solid_element_colors.append(element.color)
                 else:
                     raise ValueError('Unknown element type {:}'.format(element.type))
-    
+
             for index, tl in tls.ndenumerate():
                 for conn_group in split_list(tl.connectivity, 0):
                     if len(conn_group) == 0:
@@ -4174,7 +4172,7 @@ class Geometry:
                                             face_element_connectivity) == 0 else face_element_connectivity,
                                         lines=None if len(line_connectivity) == 0 else line_connectivity)
                 face_mesh.cell_data['color'] = line_colors + face_element_colors
-    
+
                 plotter.add_mesh(face_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                                  show_edges=show_edges,  # True if line_width > 0 else False,
                                  show_scalar_bar=False, line_width=line_width,
@@ -4186,12 +4184,12 @@ class Geometry:
                                                  np.array(solid_element_types, dtype='uint8'),
                                                  np.array(global_node_positions))
                 solid_mesh.cell_data['color'] = solid_element_colors
-    
+
                 plotter.add_mesh(solid_mesh, scalars='color', cmap=colormap, clim=[0, 15],
                                  show_edges=show_edges,  # True if line_width > 0 else False,
                                  show_scalar_bar=False, line_width=line_width,
                                  opacity=opacity)
-    
+
             if node_size > 0:
                 point_mesh = pv.PolyData(global_node_positions)
                 point_mesh.cell_data['color'] = node_colors
@@ -4201,7 +4199,7 @@ class Geometry:
                                  opacity=opacity)
             else:
                 point_mesh = None
-            
+
             if (label_nodes is True or (label_nodes is not False and len(label_nodes) > 0)):
                 try:
                     label_node_ids = [id_num for id_num in label_nodes]
@@ -4209,14 +4207,13 @@ class Geometry:
                 except TypeError:
                     label_node_ids = [id_num for id_num in self.node.id]
                     label_node_indices = node_index_map(label_node_ids)
-                
-                    
+
                 node_label_mesh = pv.PolyData(global_node_positions[label_node_indices])
                 node_label_mesh['NODE_ID'] = [
                     ('N' if num_labels > 1 else '') + str(val) for val in label_node_ids]
                 plotter.add_point_labels(node_label_mesh, 'NODE_ID', tolerance=0.0, shape=None,
                                          show_points=False, always_visible=True, font_size=label_font_size)
-                
+
             if (label_tracelines is True or (label_tracelines is not False and len(label_tracelines) > 0)):
                 try:
                     label_traceline_ids = [id_num for id_num in label_tracelines]
@@ -4224,7 +4221,7 @@ class Geometry:
                 except TypeError:
                     label_traceline_ids = [id_num for id_num in self.traceline.id]
                     label_traceline_indices = tl_index_map(label_traceline_ids)
-                
+
                 # Need to get the point to plot for each traceline
                 traceline_locations = []
                 for idx in label_traceline_indices:
@@ -4234,13 +4231,13 @@ class Geometry:
                     center_nodes = [connectivity[len(connectivity)//2-1],connectivity[len(connectivity)//2]]
                     position = np.mean(global_node_positions[node_index_map(center_nodes)],axis=0)
                     traceline_locations.append(position)
-                    
+
                 tl_label_mesh = pv.PolyData(np.array(traceline_locations))
                 tl_label_mesh['TL_ID'] = [
                     ('L' if num_labels > 1 else '') + str(val) for val in label_traceline_ids]
                 plotter.add_point_labels(tl_label_mesh, 'TL_ID', tolerance=0.0, shape=None,
                                          show_points=False, always_visible=True, font_size=label_font_size)
-                
+
             if (label_elements is True or (label_elements is not False and len(label_elements) > 0)):
                 try:
                     label_element_ids = [id_num for id_num in label_elements]
@@ -4248,7 +4245,7 @@ class Geometry:
                 except TypeError:
                     label_element_ids = [id_num for id_num in self.element.id]
                     label_element_indices = elem_index_map(label_element_ids)
-                
+
                 # Need to get the point to plot for each traceline
                 element_locations = []
                 for idx in label_element_indices:
@@ -4257,13 +4254,13 @@ class Geometry:
                     # Find the middle of the traceline
                     position = np.mean(global_node_positions[node_index_map(connectivity)],axis=0)
                     element_locations.append(position)
-                    
+
                 elem_label_mesh = pv.PolyData(np.array(element_locations))
                 elem_label_mesh['ELEM_ID'] = [
                     ('E' if num_labels > 1 else '') + str(val) for val in label_element_ids]
                 plotter.add_point_labels(elem_label_mesh, 'ELEM_ID', tolerance=0.0, shape=None,
                                          show_points=False, always_visible=True, font_size=label_font_size)
-                
+
         else:
             face_map = []
             face_mesh = []
@@ -4294,7 +4291,7 @@ class Geometry:
                                  line_width=line_width,opacity=opacity,label='Line: {:} {:}'.format(*self.node.id[node_indices[inverse]]))
                 line_map.append(self.node.id[node_indices[inverse]])
                 line_mesh.append(mesh)
-            
+
             point_map = []
             point_mesh = []
             for node,position,color in zip(self.node.id,global_node_positions,self.node.color):
@@ -4306,7 +4303,7 @@ class Geometry:
                                      opacity=opacity)
                     point_map.append(node)
                     point_mesh.append(mesh)
-            
+
             if label_nodes:
                 try:
                     label_node_ids = [id_num for id_num in label_nodes]
@@ -4314,13 +4311,13 @@ class Geometry:
                 except TypeError:
                     label_node_ids = [id_num for id_num in self.node.id]
                     label_node_indices = node_index_map(label_node_ids)
-                
+
                 for index,label in zip(label_node_indices,label_node_ids):
                     node_label_mesh = pv.PolyData(global_node_positions[index])
                     node_label_mesh['NODE_ID'] = [str(label)]
                     plotter.add_point_labels(node_label_mesh, 'NODE_ID', tolerance=0.0, shape=None,
                                              show_points=False, always_visible=True, font_size=label_font_size)
-            
+
         if view_from is not None:
             focus = plotter.camera.focal_point
             distance = plotter.camera.distance
@@ -4355,7 +4352,7 @@ class Geometry:
             df_dict[f'Direction {label}'] = column
         df = pd.DataFrame(df_dict)
         return df
-            
+
     def plot_coordinate(self, coordinates: CoordinateArray = None,
                         arrow_scale=0.1,
                         arrow_scale_type='bbox', label_dofs=False,
@@ -4422,7 +4419,7 @@ class Geometry:
 
         def build_coord_mesh(coordinates, geom, scale_factors=None):
             nodes = coordinates.node
-            indices = np.in1d(coordinates.node, geom.node.id)
+            indices = np.isin(coordinates.node, geom.node.id)
             coordinates = coordinates[indices]
             nodes = nodes[indices]
             local_deformations = coordinates.local_direction()
@@ -4469,7 +4466,7 @@ class Geometry:
                 for coordinate_straight in coordinates_straight:
                     [coord_mesh_straight, points_straight, global_deflections_straight] = build_coord_mesh(
                         coordinate_straight[np.newaxis], self, straight_scaling)
-        
+
                     if arrow_ends_on_node:
                         arrow_start = (-1.0, 0.0, 0.0)
                     else:
@@ -4483,7 +4480,7 @@ class Geometry:
             else:
                 [coord_mesh_straight, points_straight, global_deflections_straight] = build_coord_mesh(
                     coordinates_straight, self, straight_scaling)
-    
+
                 if arrow_ends_on_node:
                     arrow_start = (-1.0, 0.0, 0.0)
                 else:
@@ -4515,11 +4512,11 @@ class Geometry:
                 for coordinate_rotation in coordinates_rotation:
                     [coord_mesh_rotation, points_rotation, global_deflections_rotation] = build_coord_mesh(
                         coordinate_rotation[np.newaxis], self, rotation_scaling)
-        
+
                     arrow_index = np.arange(4)
                     head_location_angles = 1 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
                     tail_location_angles = 3 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
-        
+
                     r = 1
                     arrow_head_locations = np.array([np.zeros(
                         head_location_angles.size), r * np.sin(head_location_angles), r * np.cos(head_location_angles)]).T
@@ -4527,12 +4524,12 @@ class Geometry:
                         tail_location_angles.size), r * np.sin(tail_location_angles), r * np.cos(tail_location_angles)]).T
                     cone_vectors = np.array([np.zeros(head_location_angles.size), np.sin(
                         head_location_angles - np.pi / 2), np.cos(head_location_angles - np.pi / 2)]).T
-        
+
                     arc = pv.merge([pv.CircularArc(pointa=start, pointb=stop, center=(0, 0, 0)).tube(
                         radius=0.05) for start, stop in zip(arrow_head_locations, arrow_tail_locations)])
                     cone = pv.merge([pv.Cone(center=cone_center, direction=cone_vector, height=0.3, radius=0.1, resolution=20)
                                     for cone_center, cone_vector in zip(arrow_head_locations, cone_vectors)])
-        
+
                     curved_arrow = pv.merge([arc, cone])
                     coord_arrows_rotation = coord_mesh_rotation.glyph(
                         orient='Coordinates', scale=scale, factor=arrow_factor, geom=curved_arrow)
@@ -4543,11 +4540,11 @@ class Geometry:
             else:
                 [coord_mesh_rotation, points_rotation, global_deflections_rotation] = build_coord_mesh(
                     coordinates_rotation, self, rotation_scaling)
-    
+
                 arrow_index = np.arange(4)
                 head_location_angles = 1 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
                 tail_location_angles = 3 / 8 * np.pi + 1 / 2 * np.pi * arrow_index
-    
+
                 r = 1
                 arrow_head_locations = np.array([np.zeros(
                     head_location_angles.size), r * np.sin(head_location_angles), r * np.cos(head_location_angles)]).T
@@ -4555,24 +4552,24 @@ class Geometry:
                     tail_location_angles.size), r * np.sin(tail_location_angles), r * np.cos(tail_location_angles)]).T
                 cone_vectors = np.array([np.zeros(head_location_angles.size), np.sin(
                     head_location_angles - np.pi / 2), np.cos(head_location_angles - np.pi / 2)]).T
-    
+
                 arc = pv.merge([pv.CircularArc(pointa=start, pointb=stop, center=(0, 0, 0)).tube(
                     radius=0.05) for start, stop in zip(arrow_head_locations, arrow_tail_locations)])
                 cone = pv.merge([pv.Cone(center=cone_center, direction=cone_vector, height=0.3, radius=0.1, resolution=20)
                                 for cone_center, cone_vector in zip(arrow_head_locations, cone_vectors)])
-    
+
                 curved_arrow = pv.merge([arc, cone])
                 coord_arrows_rotation = coord_mesh_rotation.glyph(
                     orient='Coordinates', scale=scale, factor=arrow_factor, geom=curved_arrow)
                 # Make Colors of Rotations same as Straight
                 coord_arrows_rotation['Direction'] = coord_arrows_rotation['Direction'] - 3
-    
+
                 plotter.add_mesh(coord_arrows_rotation, scalars='Direction',
                                  cmap=coord_colormap, clim=[1, 6], show_scalar_bar=False)
 
             if label_dofs:
                 nodes = coordinates_rotation.node
-                indices = np.in1d(coordinates_rotation.node, self.node.id)
+                indices = np.isin(coordinates_rotation.node, self.node.id)
                 nodes = nodes[indices]
                 local_deformations = coordinates_rotation.local_direction()
                 local_deformation_transformation = np.array(([arrow_head_locations[0, 0], arrow_head_locations[0, 1], arrow_head_locations[0, 2]],
@@ -4924,7 +4921,7 @@ class Geometry:
         virtual_point_coordinate = coordinate_array(node=virtual_point_node_number, direction=[1,2,3,4,5,6])
 
         return matrix(transformation_array, virtual_point_coordinate, response_coordinate)
-    
+
     def force_kinematic_transformation(self, force_coordinate, 
                                        virtual_point_node_number,
                                        virtual_point_location=[0,0,0]):

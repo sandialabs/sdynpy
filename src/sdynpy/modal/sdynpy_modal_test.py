@@ -76,7 +76,7 @@ def read_modal_fit_data(modal_fit_data):
     return shapes, experimental_frfs, resynthesized_frfs, residual_frfs
 
 class ModalTest:
-    
+
     def __init__(self,
                  geometry = None,
                  time_histories = None,
@@ -132,7 +132,7 @@ class ModalTest:
         self.excitation_information = None
         # Figures to save to documentation
         self.documentation_figures = {}
-        
+
     @classmethod
     def from_rattlesnake_modal_data(cls, input_file, geometry = None,
                                     fit_modes = None, resynthesized_frfs = None,
@@ -141,7 +141,7 @@ class ModalTest:
             input_file = nc4.Dataset(input_file)
 
         environment = input_file.groups[input_file['environment_names'][0]]
-            
+
         time_histories, frfs, coherence, channel_table = read_modal_data(input_file)
         time_histories = data_join(time_histories)
 
@@ -180,7 +180,7 @@ class ModalTest:
         response_units = channel_table['Unit'][environment['response_channel_indices'][...]].to_numpy()
         if np.all(response_units == response_units[0]):
             response_units = response_units[0]
-            
+
         out.set_units(response_units, reference_units)
 
         if environment.signal_generator_type == 'burst':
@@ -214,52 +214,53 @@ class ModalTest:
             f' Hz.  The signal level was {environment.signal_generator_level:} V peak amplitude.'}
 
         return out
-    
+
     def set_rigid_body_shapes(self,rigid_body_shapes):
         self.rigid_body_shapes = rigid_body_shapes
-    
+
     def set_units(self,response_unit, reference_unit):
         self.response_unit = response_unit
         self.reference_unit = reference_unit
-        
+
     def set_geometry(self, geometry):
         self.geometry = geometry
-    
+
     def set_time_histories(self, time_histories):
         self.time_histories = time_histories
         self.sample_rate = 1/time_histories.abscissa
-    
+
     def set_autopower_spectra(self, autopower_spectra):
         self.autopower_spectra = autopower_spectra
-    
+
     def set_frfs(self, frfs):
         self.frfs = frfs
-    
+
     def set_coherence(self, coherence):
         self.coherence = coherence
-    
+
     def set_fit_modes(self, fit_modes):
         self.fit_modes = fit_modes
-        
+
     def set_resynthesized_frfs(self, resynthesized_frfs):
         self.resynthesized_frfs = resynthesized_frfs
-    
+
     def set_channel_table(self,channel_table):
         self.channel_table = channel_table
-    
+
     def compute_spectral_quantities_SignalProcessingGUI(self):
         if self.time_histories is None:
             raise ValueError('Time Histories must be defined in order to compute spectral quantities')
         self.spgui = SignalProcessingGUI(self.time_histories)
         if self.geometry is not None:
             self.spgui.geometry = self.geometry
-    
+
     @property
     def response_indices(self):
         response_indices = np.arange(self.time_histories.size)[
-            ~np.in1d(np.arange(self.time_histories.size),self.reference_indices)]
+            ~np.isin(np.arange(self.time_histories.size), self.reference_indices)
+        ]
         return response_indices
-    
+
     def retrieve_spectral_quantities_SignalProcessingGUI(self):
         self.reference_indices = np.array([self.spgui.referencesSelector.item(i).data(
             Qt.UserRole) for i in range(self.spgui.referencesSelector.count())])
@@ -283,7 +284,7 @@ class ModalTest:
         self.autopower_spectra_reference_indices = np.arange(len(self.reference_indices))
         self.frfs = self.spgui.frf_data
         self.coherence = self.spgui.coherence_data
-        
+
     def compute_spectral_quantities(
             self, reference_indices, start_time, end_time, num_samples_per_frame,
             overlap, window, frf_estimator):
@@ -302,23 +303,23 @@ class ModalTest:
         self.overlap = overlap
         self.window = window
         self.frf_estimator = frf_estimator
-        
+
         # Separate into references and responses
         time_data = self.time_histories.extract_elements_by_abscissa(start_time, end_time)
         references = time_data[self.reference_indices]
-        
+
         responses = time_data[self.response_indices]
-        
+
         self.num_averages = int(time_data.num_elements - (1-overlap)*num_samples_per_frame)//num_samples_per_frame + 1
-        
+
         # Compute FRFs, Coherence, and Autospectra
         self.frfs = TransferFunctionArray.from_time_data(
             references, responses, num_samples_per_frame, overlap, frf_estimator,
             window)
-        
+
         self.autopower_spectra = PowerSpectralDensityArray.from_time_data(
             time_data, num_samples_per_frame, overlap, window, only_asds = True)
-        
+
         if len(self.reference_indices) > 1:
             self.coherence = MultipleCoherenceArray.from_time_data(
                 responses, num_samples_per_frame, overlap, window, 
@@ -326,7 +327,7 @@ class ModalTest:
         else:
             self.coherence = CoherenceArray.from_time_data(
                 responses, num_samples_per_frame, overlap, window, references)
-        
+
     def define_spectral_processing_parameters(
             self, reference_indices, num_samples_per_frame, num_averages, 
             start_time, end_time, trigger, trigger_channel_index,
@@ -347,17 +348,17 @@ class ModalTest:
         self.window = window
         self.frf_estimator = frf_estimator
         self.sample_rate = sample_rate
-    
+
     def fit_modes_PolyPy(self):
         if self.frfs is None:
             raise ValueError('FRFs must be defined in order to fit modes')
         self.ppgui = PolyPy_GUI(self.frfs)
-    
+
     def retrieve_modes_PolyPy(self):
         self.ppgui.compute_shapes()
         self.fit_modes = self.ppgui.shapes
         self.resynthesized_frfs = self.resynthesized_frfs
-        
+
         self.fit_modes_information = {'text':[
             'Modes were fit to the data using the PolyPy curve fitter implemented in SDynPy in {:} bands.'.format(len(self.ppgui.stability_diagrams))]}
         figure_index = 0
@@ -410,16 +411,16 @@ class ModalTest:
             ('All frequency lines were used to fit mode shapes.' if self.ppgui.all_frequency_lines_checkbox.isChecked() else
             'Mode shapes were fit using {:} frequency lines around each resonance, and {:} frequency lines were used to fit residuals.'.format(
                 self.ppgui.lines_at_resonance_spinbox.value(),self.ppgui.lines_at_residuals_spinbox.value())))
-    
+
     def fit_modes_SMAC(self):
         raise NotImplementedError('SMAC has not been implemented yet')
-    
+
     def retrieve_modes_SMAC(self):
         raise NotImplementedError('SMAC has not been implemented yet')
-    
+
     def fit_modes_opoly(self):
         raise NotImplementedError('Opoly has not been implemented yet')
-        
+
     def retrieve_modes_opoly(self,fit_modes,
                              opoly_progress = None,
                              opoly_shape_info = None,
@@ -630,7 +631,7 @@ class ModalTest:
             # fig_bytes = bio.read()
             self.fit_modes_information = {'text':[
                 'Modes were fit to the data using the OPoly (version {:}) curve fitter implemented in the IMAT Matlab toolbox.'.format(opoly_settings['OPoly Version'])]}
-            
+
             self.fit_modes_information['text'].append((
                 'The frequency band from {:0.2f} to {:0.2f} was analyzed with polynomials from order {:} to {:} using the {:} method.  '+
                 '{:} poles were selected from this band.  The stabilization diagram is shown in Figure {{figure1ref:}}.'
@@ -644,19 +645,19 @@ class ModalTest:
                 '{:} modes were used to fit the data.  {:} residuals were used when fitting the mode shapes.').format(
                     opoly_settings['Shapes Model']['Type'].title(),
                     opoly_settings['Shapes Model']['Residuals'].replace('+',' and ').title()))
-    
+
     def edit_mode_comments(self,mif = 'cmif'):
         if self.fit_modes is None:
             raise ValueError('Modes have not yet been fit or assigned.')
         getattr(self,'plot_{:}'.format(mif))(measured=True,resynthesized=True,mark_modes=True)
         return self.fit_modes.edit_comments(self.geometry)
-    
+
     def compute_resynthesized_frfs(self):
         self.resynthesized_frfs = self.fit_modes.compute_frf(self.frfs.flatten()[0].abscissa,
                                                              np.unique(self.frfs.response_coordinate),
                                                              np.unique(self.frfs.reference_coordinate),
                                                              )[self.frfs.coordinate]
-    
+
     def plot_reference_autospectra(self, plot_kwargs = {}, subplots_kwargs = {}):
         if self.autopower_spectra is None:
             raise ValueError('Autopower Spectra have not yet been computed or assigned')
@@ -668,7 +669,7 @@ class ModalTest:
             a.set_xlabel('Frequency (Hz)')
             a.set_yscale('log')
         return ax.flatten()[0].figure, ax
-    
+
     def plot_drive_point_frfs(self, part='imag', plot_kwargs = {}, subplots_kwargs = {}):
         if self.frfs is None:
             raise ValueError('FRFs have not yet been computed or assigned')
@@ -678,7 +679,7 @@ class ModalTest:
                 a.set_ylabel(a.get_ylabel()+'\n({:}/{:})'.format(self.response_unit, self.reference_unit))
             a.set_xlabel('Frequency (Hz)')
         return ax.flatten()[0].figure, ax
-    
+
     def plot_reciprocal_frfs(self, plot_kwargs = {}, subplots_kwargs = {}):
         if self.frfs is None:
             raise ValueError('FRFs have not yet been computed or assigned')
@@ -693,7 +694,7 @@ class ModalTest:
             if self.reference_unit is not None and self.response_unit is not None:
                 ax.set_ylabel(ax.get_ylabel()+'\n({:}/{:})'.format(self.response_unit, self.reference_unit))
         return axes.flatten()[0].figure,axes
-    
+
     def plot_coherence_image(self):
         if self.coherence is None:
             raise ValueError('Coherence has not yet been computed or assigned')
@@ -701,7 +702,7 @@ class ModalTest:
         ax.set_ylabel('Degree of Freedom')
         ax.set_xlabel('Frequency (Hz)')
         return ax.figure, ax
-        
+
     def plot_drive_point_frf_coherence(self, plot_kwargs = {}, subplots_kwargs = {}):
         if self.frfs is None:
             raise ValueError('FRFs have not yet been computed or assigned')
@@ -713,7 +714,7 @@ class ModalTest:
                 a.set_ylabel(a.get_ylabel()+'\n({:}/{:})'.format(self.response_unit, self.reference_unit))
             a.set_xlabel('Frequency (Hz)')
         return frf_ax.flatten()[0].figure, frf_ax, coh_ax
-    
+
     def plot_cmif(self, measured = True, resynthesized = False, mark_modes = False,
                   measured_plot_kwargs = {}, resynthesized_plot_kwargs = {},
                   subplots_kwargs = {}):
@@ -798,7 +799,7 @@ class ModalTest:
         else:
             ax.set_ylabel('Complex Mode Indicator Function')
         return fig, ax
-    
+
     def plot_qmif(self, measured = True, resynthesized = False, mark_modes = False,
                   measured_plot_kwargs = {}, resynthesized_plot_kwargs = {},
                   subplots_kwargs = {}):
@@ -871,7 +872,7 @@ class ModalTest:
         else:
             ax.set_ylabel('Quadrature Mode Indicator Function')
         return fig, ax
-    
+
     def plot_psmif(self, measured = True, resynthesized = False, mark_modes = False,
                    measured_plot_kwargs = {}, resynthesized_plot_kwargs = {},
                    subplots_kwargs = {}):
@@ -943,7 +944,7 @@ class ModalTest:
         else:
             ax.set_ylabel('Principal Singular Value\nMode Indicator Function')
         return fig, ax
-    
+
     def plot_nmif(self, measured = True, resynthesized = False, mark_modes = False,
                   measured_plot_kwargs = {}, resynthesized_plot_kwargs = {},
                   subplots_kwargs = {}):
@@ -1077,7 +1078,7 @@ class ModalTest:
         ax.set_xlabel('Frequency (Hz)')
         ax.set_ylabel('Multi Mode Indicator Function')
         return fig, ax
-    
+
     def plot_deflection_shapes(self):
         if self.frfs is None:
             raise ValueError('FRFs have not yet been computed or assigned')
@@ -1088,22 +1089,21 @@ class ModalTest:
         for frf in frfs.T:
             plotters.append(self.geometry.plot_deflection_shape(frf))
         return plotters
-    
+
     def plot_mac(self, *matrix_plot_args, **matrix_plot_kwargs):
         if self.fit_modes is None:
             raise ValueError('Modes have not yet been fit or assigned.')
         mac_matrix = mac(self.fit_modes)
         ax = matrix_plot(mac_matrix, *matrix_plot_args, **matrix_plot_kwargs)
         return ax.figure, ax
-    
+
     def plot_modeshape(self):
         if self.fit_modes is None:
             raise ValueError('Modes have not yet been fit or assigned.')
         if self.geometry is None:
             raise ValueError('Geometry must be assigned to plot deflection shapes')
         return self.geometry.plot_shape(self.fit_modes)
-    
-    
+
     def plot_figures_for_documentation(self,
                                        plot_geometry = True,
                                        geometry_kwargs = {},
@@ -1264,7 +1264,6 @@ class ModalTest:
             else:
                 fig,ax = self.plot_mac(**mac_kwargs)
                 self.documentation_figures['mac'] = fig
-                
 
     def create_documentation_latex(
             self,
@@ -1418,32 +1417,34 @@ class ModalTest:
             subfigure_captions_mode_shape=None,
             max_subfigures_per_page_mode_shape=None, max_subfigures_first_page_mode_shape=None,
         ):
-        
+
         if one_file:
             all_strings = []
-        
+
         if len(self.documentation_figures) == 0:
             print('Warning, you may need to create documentation figures by calling create_figures_for_documentation prior to calling this function!')
         # Set up the files
         if figure_root is None:
             figure_root = os.path.join(latex_root,'figures')
-            
+
         Path(figure_root).mkdir(parents=True,exist_ok=True)
         Path(latex_root).mkdir(parents=True,exist_ok=True)
-        
+
         if animation_style_geometry is None:
             animation_style_geometry = global_animation_style
         if 'geometry' in self.documentation_figures and (animation_style_geometry is None or animation_style_geometry.lower() != '3d'):
             geometry = self.documentation_figures['geometry']
         else:
             geometry = self.geometry
-            
+
         if isinstance(geometry,GeometryPlotter) and not isinstance(coordinate_array,GeometryPlotter):
             if isinstance(coordinate_array,CoordinateArray):
                 coordinate_array = self.geometry.plot_coordinate(coordinate_array,**plot_coordinate_kwargs)
             elif coordinate_array == 'local':
                 css_to_plot = self.geometry.coordinate_system.id[[not np.allclose(matrix,np.eye(3)) for matrix in self.geometry.coordinate_system.matrix[...,:3,:3]]]
-                nodes_to_plot = self.geometry.node.id[np.in1d(self.geometry.node.disp_cs,css_to_plot)]
+                nodes_to_plot = self.geometry.node.id[
+                    np.isin(self.geometry.node.disp_cs, css_to_plot)
+                ]
                 coordinate_array = sd_coordinate_array(nodes_to_plot,[1,2,3],force_broadcast=True)
                 coordinate_array = self.geometry.plot_coordinate(coordinate_array,**plot_coordinate_kwargs)
             else:
@@ -1459,7 +1460,7 @@ class ModalTest:
             coordinate_figure_save_name, latex_root, figure_root,
             None if one_file else os.path.join(latex_root,'geometry.tex') if include_name_geometry is None else include_name_geometry
         )
-        
+
         if one_file:
             all_strings.append(geometry_string)
 
@@ -1483,15 +1484,15 @@ class ModalTest:
             coherence_figure = self.documentation_figures['coherence']
         else:
             coherence_figure = None
-        
+
         if animation_style_rigid_body is None:
             animation_style_rigid_body = global_animation_style
-        
+
         if 'rigid_body_shapes' in self.documentation_figures and (animation_style_rigid_body is None or animation_style_rigid_body.lower() != '3d'):
             rigid_shapes = self.documentation_figures['rigid_body_shapes']
         else:
             rigid_shapes = self.rigid_body_shapes
-        
+
         if 'rigid_body_complex_plane_0' in self.documentation_figures:
             complex_plane_figures = []
             i = 0
@@ -1507,7 +1508,7 @@ class ModalTest:
             residual_figure = self.documentation_figures['rigid_body_residuals']
         else:
             residual_figure = None
-        
+
         print('Creating Test Parameters Section')
         test_parameters_string = (
                          'The data acquisition system was set to acquire {sample_rate:} '
@@ -1544,7 +1545,7 @@ class ModalTest:
                 f.write(test_parameters_string)
         else:
             all_strings.append(test_parameters_string)
-            
+
         print('Creating Rigid Body Analysis')
         rigid_body_string = create_rigid_body_analysis(
             self.geometry, rigid_shapes, complex_plane_figures, residual_figure, figure_label_rigid_body,
@@ -1558,10 +1559,10 @@ class ModalTest:
             rigid_body_check_kwargs,
             None if one_file else os.path.join(latex_root,'rigid_body.tex') if include_name_rigid_body is None else include_name_rigid_body
         )
-        
+
         if one_file:
             all_strings.append(rigid_body_string)
-        
+
         print('Creating Data Quality Summary')
         data_quality_string = create_data_quality_summary(
             reference_autospectra_figure, drive_point_frfs_figure, reciprocal_frfs_figure, frf_coherence_figure, coherence_figure,
@@ -1581,7 +1582,7 @@ class ModalTest:
             reference_autospectra_figure_save_names,
             drive_point_frfs_figure_save_names, reciprocal_frfs_figure_save_names, frf_coherence_figure_save_names, coherence_figure_save_names
         )
-        
+
         if one_file:
             all_strings.append(data_quality_string)
 
@@ -1605,13 +1606,13 @@ class ModalTest:
             mac_plot_figure_label, mac_plot_figure_caption, mac_plot_graphics_options, mac_plot_figure_placement,
             resynthesis_plot_figure_label, resynthesis_plot_figure_caption, resynthesis_plot_graphics_options, resynthesis_plot_figure_placement
         )
-        
+
         if one_file:
             all_strings.append(mode_fitting_string)
 
         if animation_style_mode_shape is None:
             animation_style_mode_shape = global_animation_style
-        
+
         if 'mode_shapes' in self.documentation_figures and (animation_style_mode_shape is None or animation_style_mode_shape.lower() not in ['3d','one3d']):
             shapes = self.documentation_figures['mode_shapes']
         else:
@@ -1626,11 +1627,10 @@ class ModalTest:
             shape_animation_frames, shape_animation_frame_rate, plot_shape_kwargs,
             None if one_file else os.path.join(latex_root,'mode_shape.tex') if include_name_mode_shape is None else include_name_mode_shape
         )
-        
+
         if one_file:
             all_strings.append(mode_shape_string)
-        
-        
+
         if self.channel_table is not None:
             print('Creating the Channel Table')
             channel_table_string = latex_table(self.channel_table,table_label = 'tab:channel_table',
@@ -1640,7 +1640,7 @@ class ModalTest:
                     f.write(channel_table_string)
             else:
                 all_strings.append(channel_table_string)
-                
+
         if one_file:
             final_string = '\n\n\n'.join(all_strings)
             if one_file is True:
@@ -1651,11 +1651,8 @@ class ModalTest:
                     f.write(final_string)
             return final_string
 
-    
     def create_documentation_word(self):
         raise NotImplementedError('Not Implemented Yet')
-    
+
     def create_documentation_pptx(self):
         raise NotImplementedError('Not Implemented Yet')
-    
-    

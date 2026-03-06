@@ -240,19 +240,19 @@ def create_geometry_overview(geometry, plot_kwargs = {},
                              figure_root = None,
                              include_name = None,
                              ):
-    
+
     if geometry_figure_save_name is None:
         if figure_root is None:
             geometry_figure_save_name = os.path.join(latex_root,'geometry')
         else:
             geometry_figure_save_name = os.path.join(figure_root,'geometry')
-    
+
     if coordinate_figure_save_name is None:
         if figure_root is None:
             coordinate_figure_save_name = os.path.join(latex_root,'coordinate')
         else:
             coordinate_figure_save_name = os.path.join(figure_root,'coordinate')
-    
+
     plot_local_coords = False
     if isinstance(geometry,Geometry):
         geom_plotter = geometry.plot(**plot_kwargs,plot_individual_items=True)[0]
@@ -274,7 +274,7 @@ def create_geometry_overview(geometry, plot_kwargs = {},
         if geometry is None:
             raise ValueError('If `coordinate_array` is local, then `geometry` must be a `Geometry` object.')
         css_to_plot = geometry.coordinate_system.id[[not np.allclose(matrix,np.eye(3)) for matrix in geometry.coordinate_system.matrix[...,:3,:3]]]
-        nodes_to_plot = geometry.node.id[np.in1d(geometry.node.disp_cs,css_to_plot)]
+        nodes_to_plot = geometry.node.id[np.isin(geometry.node.disp_cs, css_to_plot)]
         coordinate_array = sd_coordinate_array(nodes_to_plot,[1,2,3],force_broadcast=True)
         coord_plotter = geometry.plot_coordinate(coordinate_array,**plot_coordinate_kwargs,plot_individual_items=True)
         plot_local_coords = True
@@ -282,14 +282,14 @@ def create_geometry_overview(geometry, plot_kwargs = {},
         coord_plotter = None
     else:
         raise ValueError('`coordinate_array` should be a `CoordinateArray` or `GeometryPlotter` object or `None`')
-    
+
     latex_string = [
 """To describe the data acquired in this activity, a geometry is constructed
 consisting of the measurement positions and orientations, as well as lines and
 elements to aid in visualization of the geometry.  The geometry for this
 activity is shown in Figure \\ref{{{geometry_reference:}}}.""".format(
     geometry_reference = geometry_figure_label)]
-    
+
     latex_string.append(figure([geom_plotter],geometry_figure_label,
                                geometry_figure_caption,
                                geometry_graphics_options,
@@ -300,16 +300,16 @@ activity is shown in Figure \\ref{{{geometry_reference:}}}.""".format(
                                animation_style = animation_style,
                                animation_frames = animation_frames,
                                animation_frame_rate = animation_frame_rate))
-    
+
     if coord_plotter is not None:
-    
+
         if plot_local_coords:
             latex_string.append(
 """To describe orientations of measurements, coordinate systems are used to define
 local directions.  Figure \\ref{{{coordinate_reference:}}} shows the local
 coordinate systems defined in the test.""".format(coordinate_reference = coordinate_figure_label)
             )
-        
+
         latex_string.append(figure([coord_plotter],coordinate_figure_label,
                                    coordinate_figure_caption,
                                    coordinate_graphics_options,
@@ -320,11 +320,11 @@ coordinate systems defined in the test.""".format(coordinate_reference = coordin
                                    animation_style = animation_style,
                                    animation_frames = animation_frames,
                                    animation_frame_rate = animation_frame_rate))
-    
+
     if include_name is not None:
         with open(include_name,'w') as f:
             f.write('\n\n'.join(latex_string))
-    
+
     return latex_string
 
 def create_data_quality_summary(

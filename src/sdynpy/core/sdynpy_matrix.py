@@ -361,7 +361,7 @@ class Matrix(SdynpyArray):
             column_coordinate = row_coordinate
         return matrix(np.eye(row_coordinate.shape[-1], column_coordinate.shape[-1]),
                       row_coordinate, column_coordinate)
-    
+
     def pinv(self, **pinv_params):
         """
         Creates the pseudoinverse of the matrix
@@ -380,13 +380,25 @@ class Matrix(SdynpyArray):
         mat = np.linalg.pinv(self.matrix,**pinv_params)
         return matrix(matrix=mat,row_coordinate = self.column_coordinate,
                       column_coordinate = self.row_coordinate)
-    
+
     def __matmul__(self,other):
         if not isinstance(other,Matrix):
             # If it is not another matrix, rely on the other data to define what
             # matrix multiplication means
             return NotImplemented
         return super().__matmul__(other)
+
+    @property
+    def T(self):
+        return matrix(np.moveaxis(self.matrix, -1, -2), self.column_coordinate, self.row_coordinate)
+
+    @property
+    def H(self):
+        return matrix(
+            np.moveaxis(self.matrix, -1, -2).conjugate(),
+            self.column_coordinate,
+            self.row_coordinate,
+        )
 
 
 def matrix(matrix, row_coordinate, column_coordinate, buffer=None, offset=0,
