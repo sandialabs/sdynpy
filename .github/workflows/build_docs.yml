@@ -169,14 +169,14 @@ jobs:
       - name: Copy Coverage, Lint, and API Files to Jupyter Book Output
         run: |
           mkdir -p ./docs/_build/html/coverage
-          cp -r htmlcov/* ./doc/_build/html/coverage
+          cp -r htmlcov/* ./docs/_build/html/coverage
           mkdir -p ./docs/_build/html/lint
-          cp pylint-report.html ./doc/_build/html/lint
+          cp pylint-report.html ./docs/_build/html/lint
       - name: Upload pages artifact
         uses: actions/upload-artifact@v4
         with:
           name: book
-          path: './doc/_build/html'
+          path: './docs/_build/html'
 
   deploy_book:
     needs: build_book
@@ -193,7 +193,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './doc/_build/html'
+          path: './docs/_build/html'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
