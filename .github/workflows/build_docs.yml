@@ -145,7 +145,7 @@ jobs:
           echo "Contents of docs/api directory"
           ls -al docs/api
       - name: Build HTML Assets
-        working-directory: ./doc
+        working-directory: ./docs
         run: jupyter-book build --html
       - name: Create Directory for Coverage Artifact
         run: mkdir -p htmlcov
@@ -168,12 +168,10 @@ jobs:
           ls -al docs/api || echo "docs/api directory does not exist"
       - name: Copy Coverage, Lint, and API Files to Jupyter Book Output
         run: |
-          mkdir -p ./doc/_build/html/coverage
+          mkdir -p ./docs/_build/html/coverage
           cp -r coverage_html/* ./doc/_build/html/coverage
-          mkdir -p ./doc/_build/html/lint
+          mkdir -p ./docs/_build/html/lint
           cp pylint-report.html ./doc/_build/html/lint
-          mkdir -p ./doc/_build/html/api
-          cp -r api/* ./doc/_build/html/api
       - name: Upload pages artifact
         uses: actions/upload-artifact@v4
         with:
