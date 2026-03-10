@@ -4,7 +4,8 @@ Objects and procedures to handle operations on test or model shapes
 
 Shapes are generally defined as a set of coordinates or degrees of freedom and
 the respective displacements at each of those degrees of freedom.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -568,7 +569,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             coord_array = nodelist_or_coordinate_array
         else:
             coord_array = np.unique(self.coordinate)
-            coord_array = coord_array[np.in1d(coord_array.node, nodelist_or_coordinate_array)]
+            coord_array = coord_array[np.isin(coord_array.node, nodelist_or_coordinate_array)]
         shape_matrix = self[coord_array.flatten()]
         return shape_array(coord_array.flatten(), shape_matrix, self.frequency, self.damping,
                            self.modal_mass, self.comment1, self.comment2, self.comment3,

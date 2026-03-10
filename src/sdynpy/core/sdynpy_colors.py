@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Defines the color scheme used in SDynPy.  Matches the I-deas color scheme.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

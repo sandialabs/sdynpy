@@ -7,7 +7,9 @@ direction (which corresponds to the local displacement coordinate system of
 that node in the SDynPy Geometry object).  Directions are the translations or
 rotations about the principal axis, and can be positive or negative.  The
 direction can also be empty for non-directional data.
+"""
 
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
