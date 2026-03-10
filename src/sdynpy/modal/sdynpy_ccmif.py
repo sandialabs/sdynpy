@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Graphical tool for selecting final mode sets from single-reference data
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

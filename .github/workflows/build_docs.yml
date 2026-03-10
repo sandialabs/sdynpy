@@ -1,0 +1,192 @@
+# This file was created automatically with `jupyter-book init --gh-pages` 🪄 💚
+# Ensure your GitHub Pages settings for this repository are set to deploy with **GitHub Actions**.
+
+name: Jupyter Book (via myst) GitHub Pages Deploy plus PyTest Cov
+on:
+  push:
+    # Runs on pushes targeting the default branch
+    branches: 
+    #   - main
+    #   - develop
+      - feature-jupyter-book
+  pull_request:
+    branches:
+    #   - main
+    #   - develop
+      - feature-jupyter-book
+  workflow_dispatch:
+
+env:
+  # `BASE_URL` determines, relative to the root of the domain, the URL that your site is served from.
+  # E.g., if your site lives at `https://mydomain.org/myproject`, set `BASE_URL=/myproject`.
+  # If, instead, your site lives at the root of the domain, at `https://mydomain.org`, set `BASE_URL=''`.
+  BASE_URL: /${{ github.event.repository.name }}
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+jobs:
+  # TESTING JOB
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[test]
+      - name: Run Pytest
+        run: |
+          pytest --cov=pkg_test_dprohe --cov-report=term --cov-report=html
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: htmlcov/
+  # PYLINT JOB
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[lint]
+      - name: Run Pylint and Generate Report
+        run: |
+          pylint pkg_test_dprohe --output-format=json > pylint-report.json || true
+      - name: Convert Pylint to HTML
+        run: |
+          pylint-json2html -o pylint-report.html pylint-report.json
+      - name: Upload Pylint HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint
+          path: pylint-report.html
+  # API JOB
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: Look at environment
+        run: |
+          ls -la
+          pwd
+      - name: Build API Markdown
+        run: |
+          python docs/gen_myst_api.py --package sdynpy --out ./docs/api --repo https://github.com/sandialabs/sdynpy --repo-root $(pwd) --ref main --no-index
+      - name: Upload API Artifacts
+        uses: actions/upload-artifacts@v4
+        with:
+          name: api
+          path: docs/api
+  # Book Job
+  build_book:
+    needs: [test, lint, api]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[book]
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - name: Install Jupyter Book (via myst)
+        run: npm install -g jupyter-book
+      - name: Create Directory for API Docs
+        run: mkdir -p docs/api
+      - name: Download API Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: "api"
+          path: docs/api
+      - name: Investigate Docs Directory
+        run: |
+          echo "Contents of docs directory"
+          ls -al docs
+          echo "Contents of docs/api directory"
+          ls -al docs/api
+      - name: Build HTML Assets
+        working-directory: ./doc
+        run: jupyter-book build --html
+      - name: Create Directory for Coverage Artifact
+        run: mkdir -p htmlcov
+      - name: Download Coverage Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: "coverage-3.13"
+          path: htmlcov
+      - name: Download Lint Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: "lint"
+      - name: Debug Directory Structure
+        run: |
+          echo "Contents of the working directory:"
+          ls -al
+          echo "Contents of htmlcov directory:"
+          ls -al htmlcov || echo "htmlcov directory does not exist"
+          echo "Contents of api directory:"
+          ls -al docs/api || echo "docs/api directory does not exist"
+      - name: Copy Coverage, Lint, and API Files to Jupyter Book Output
+        run: |
+          mkdir -p ./doc/_build/html/coverage
+          cp -r htmlcov/* ./doc/_build/html/coverage
+          mkdir -p ./doc/_build/html/lint
+          cp pylint-report.html ./doc/_build/html/lint
+          mkdir -p ./doc/_build/html/api
+          cp -r api/* ./doc/_build/html/api
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './doc/_build/html'
+
+  deploy:
+    needs: build_book
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only run on main
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

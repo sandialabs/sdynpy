@@ -4,7 +4,8 @@ Objects and procedures to handle operations on test or model shapes
 
 Shapes are generally defined as a set of coordinates or degrees of freedom and
 the respective displacements at each of those degrees of freedom.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

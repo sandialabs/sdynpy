@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Load in time data from Rattlesnake runs
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -1006,4 +1007,3 @@ def read_sine_control_data(control_file,
     if return_single:
         return_data = return_data[0]
     return return_data
-        

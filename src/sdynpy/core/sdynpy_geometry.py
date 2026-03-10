@@ -4,7 +4,9 @@ Objects and procedures to handle operations on test or model geometries
 This module defines a Geometry object as well as all of the subcomponents of
 a geometry object: nodes, elements, tracelines and coordinate system.  Geometry
 plotting is also handled in this module.
+"""
 
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

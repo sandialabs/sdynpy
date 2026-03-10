@@ -6,7 +6,8 @@ This module also defines several subclasses of NDDataArray, which contain
 function-type-specific capabilities.  Several Enumerations are also defined
 that connect data fields from the universal file format to the NDDataArray
 subclasses.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

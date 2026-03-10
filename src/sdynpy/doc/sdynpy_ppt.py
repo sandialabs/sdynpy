@@ -5,7 +5,8 @@ Functions for creating PowerPoint presentations from SDynPy objects.
 This modules includes functions for assembling a PowerPoint presentation from
 SDynPy objects, saving users the tediousness of putting a large number of images
 and tables into the presentation.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
