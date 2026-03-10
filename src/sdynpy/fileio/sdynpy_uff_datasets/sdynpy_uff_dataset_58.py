@@ -4,7 +4,8 @@ Functions at Nodal Degrees of Freedom
 
 Defines several types of functions from time histories to spectra, spectral
 densities, and transfer functions.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

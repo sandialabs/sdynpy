@@ -6,7 +6,8 @@ This module also defines several subclasses of NDDataArray, which contain
 function-type-specific capabilities.  Several Enumerations are also defined
 that connect data fields from the universal file format to the NDDataArray
 subclasses.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -769,7 +770,7 @@ class NDDataArray(SdynpyArray):
             if node_id_map is not None:
                 original_geometry = original_geometry.reduce(node_id_map.from_ids)
                 original_geometry.node.id = node_id_map(original_geometry.node.id)
-                self = self.copy()[np.in1d(self.coordinate.node, node_id_map.from_ids)]
+                self = self.copy()[np.isin(self.coordinate.node, node_id_map.from_ids)]
                 self.coordinate.node = node_id_map(self.coordinate.node)
             common_nodes = np.intersect1d(np.intersect1d(original_geometry.node.id, new_geometry.node.id),
                                           np.unique(self.coordinate.node))
@@ -1109,7 +1110,7 @@ class NDDataArray(SdynpyArray):
                 # For the data, we need the matrix row degrees of freedom on the last
                 # dimension, and all combinations of the remaining dimensions preceding it
                 unique_dofs = []
-                for dimension in range(1, data.dtype["coordinate"].shape[0]):
+                for dimension in range(data.dtype["coordinate"].shape[0] - 1):
                     unique_dofs.append(np.unique(data.coordinate[..., dimension]))
                 unique_dofs.append(matrix.row_coordinate)
                 coordinate_combinations = outer_product(*unique_dofs)

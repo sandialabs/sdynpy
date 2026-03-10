@@ -214,28 +214,33 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
                                                               line_width,
                                                               opacity,
                                                               show_edges)
-    
+
     if shapes is None:
         return
-    
+
     # Need to get the shape information in the global coordinate system
     node_displacement_dict = {}
     for node_id in geometry.node.id:
         node_displacement_dict[node_id] = np.zeros((shapes.size,3))
         for shape_index,shape in enumerate(shapes.flatten()):
-            coords = abs(shape.coordinate[(shape.coordinate.node == node_id) & np.in1d(abs(shape.coordinate.direction),[1,2,3])])
+            coords = abs(
+                shape.coordinate[
+                    (shape.coordinate.node == node_id)
+                    & np.isin(abs(shape.coordinate.direction), [1, 2, 3])
+                ]
+            )
             shape_data = shape[coords]
             coord_directions = geometry.global_deflection(coords)
             global_deflection = np.sum(shape_data[:,np.newaxis]*coord_directions,axis=0)
             node_displacement_dict[node_id][shape_index] = global_deflection
-    
+
     node_position_dict = {node_id:position for node_id,position in zip(geometry.node.id,geometry.global_node_coordinate())}
-    
+
     if one_js:
         js_indices = [0]
     else:
         js_indices = np.arange(shapes.size)
-    
+
     for i in js_indices:
         js_output_name = js_name.format(i+1)
         with open(js_output_name,'w') as f:
@@ -310,7 +315,7 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
     }}
     """.format(debug='' if debug_js is True or debug_js=='map' else '// '))
 
-# Now we need to go through and apply displacements
+            # Now we need to go through and apply displacements
             f.write('''
     // Translate Nodes
     for (i=0; i < point_nodes.length; i++){{
@@ -870,7 +875,7 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
         return [axis,angle]
     }
     ''')
-    
+
             f.write('''
     // Go through element nodes
     for (i=0; i < face_nodes.length; i++){{
@@ -946,69 +951,69 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
     }}
     '''.format(debug='' if debug_js is True or debug_js=='face' else '// '))
 
-# Note: there should be some way to build the transformation matrix without an
-# SVD.  However, it results in one of the dimensions of the transformation
-# getting squashed to zero, which doesn't have any affect on the resulting
-# geometry, but it does mess with the shading due to the surface normal being
-# kind of screwed up.  I'm not sure exactly the solution apart from computing an
-# SVD and making all singular values positive (which is exactly what I do now)
-# function matmul4x4x4(
-#     a00, a01, a02, a03,
-#     a10, a11, a12, a13,
-#     a20, a21, a22, a23,
-#     a30, a31, a32, a33,
-#     b00, b01, b02, b03,
-#     b10, b11, b12, b13,
-#     b20, b21, b22, b23,
-#     b30, b31, b32, b33
-# ) {
-#     const result = [
-#             a00 * b00 + a01 * b10 + a02 * b20 + a03 * b30,
-#             a00 * b01 + a01 * b11 + a02 * b21 + a03 * b31,
-#             a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32,
-#             a00 * b03 + a01 * b13 + a02 * b23 + a03 * b33,
-#             a10 * b00 + a11 * b10 + a12 * b20 + a13 * b30,
-#             a10 * b01 + a11 * b11 + a12 * b21 + a13 * b31,
-#             a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32,
-#             a10 * b03 + a11 * b13 + a12 * b23 + a13 * b33,
-#             a20 * b00 + a21 * b10 + a22 * b20 + a23 * b30,
-#             a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31,
-#             a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32,
-#             a20 * b03 + a21 * b13 + a22 * b23 + a23 * b33,
-#             a30 * b00 + a31 * b10 + a32 * b20 + a33 * b30,
-#             a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31,
-#             a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32,
-#             a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33,
-#     ];
+            # Note: there should be some way to build the transformation matrix without an
+            # SVD.  However, it results in one of the dimensions of the transformation
+            # getting squashed to zero, which doesn't have any affect on the resulting
+            # geometry, but it does mess with the shading due to the surface normal being
+            # kind of screwed up.  I'm not sure exactly the solution apart from computing an
+            # SVD and making all singular values positive (which is exactly what I do now)
+            # function matmul4x4x4(
+            #     a00, a01, a02, a03,
+            #     a10, a11, a12, a13,
+            #     a20, a21, a22, a23,
+            #     a30, a31, a32, a33,
+            #     b00, b01, b02, b03,
+            #     b10, b11, b12, b13,
+            #     b20, b21, b22, b23,
+            #     b30, b31, b32, b33
+            # ) {
+            #     const result = [
+            #             a00 * b00 + a01 * b10 + a02 * b20 + a03 * b30,
+            #             a00 * b01 + a01 * b11 + a02 * b21 + a03 * b31,
+            #             a00 * b02 + a01 * b12 + a02 * b22 + a03 * b32,
+            #             a00 * b03 + a01 * b13 + a02 * b23 + a03 * b33,
+            #             a10 * b00 + a11 * b10 + a12 * b20 + a13 * b30,
+            #             a10 * b01 + a11 * b11 + a12 * b21 + a13 * b31,
+            #             a10 * b02 + a11 * b12 + a12 * b22 + a13 * b32,
+            #             a10 * b03 + a11 * b13 + a12 * b23 + a13 * b33,
+            #             a20 * b00 + a21 * b10 + a22 * b20 + a23 * b30,
+            #             a20 * b01 + a21 * b11 + a22 * b21 + a23 * b31,
+            #             a20 * b02 + a21 * b12 + a22 * b22 + a23 * b32,
+            #             a20 * b03 + a21 * b13 + a22 * b23 + a23 * b33,
+            #             a30 * b00 + a31 * b10 + a32 * b20 + a33 * b30,
+            #             a30 * b01 + a31 * b11 + a32 * b21 + a33 * b31,
+            #             a30 * b02 + a31 * b12 + a32 * b22 + a33 * b32,
+            #             a30 * b03 + a31 * b13 + a32 * b23 + a33 * b33,
+            #     ];
 
-#     return result;
-# }
-# // Try the same thing by just building the transformation without SVDs
-# T_raw = [1,0,0,0, //indices 0-3
-#          0,1,0,0, //indices 4-7
-#          0,0,1,0, //indices 8-11
-#          0,0,0,1]; //indices 12-15
-# {debug:}host.console.println("\\n  Initial Transformation:");
-# {debug:}host.console.println(T_raw);
-# T_raw[12] -= centroid.x;
-# T_raw[13] -= centroid.y;
-# T_raw[14] -= centroid.z;
-# {debug:}host.console.println("\\n  With Removal of Centroid:");
-# {debug:}host.console.println(T_raw);
-# X = [x[0],x[1],x[2],0,
-#      x[3],x[4],x[5],0,
-#      x[6],x[7],x[8],0,
-#      x[9],x[10],x[11],1];
-# T_raw = matmul4x4x4.apply(this,T_raw.concat(X));
-# {debug:}host.console.println("\\n  After Rotation, Scaling, and Translation:");
-# {debug:}host.console.println(T_raw);
-# T_raw[12] += centroid.x;
-# T_raw[13] += centroid.y;
-# T_raw[14] += centroid.z;
-# {debug:}host.console.println("\\n  After Addition of Centroid:");
-# {debug:}host.console.println(T_raw);
-# model_node.transform.set(T_raw);
-# break;
+            #     return result;
+            # }
+            # // Try the same thing by just building the transformation without SVDs
+            # T_raw = [1,0,0,0, //indices 0-3
+            #          0,1,0,0, //indices 4-7
+            #          0,0,1,0, //indices 8-11
+            #          0,0,0,1]; //indices 12-15
+            # {debug:}host.console.println("\\n  Initial Transformation:");
+            # {debug:}host.console.println(T_raw);
+            # T_raw[12] -= centroid.x;
+            # T_raw[13] -= centroid.y;
+            # T_raw[14] -= centroid.z;
+            # {debug:}host.console.println("\\n  With Removal of Centroid:");
+            # {debug:}host.console.println(T_raw);
+            # X = [x[0],x[1],x[2],0,
+            #      x[3],x[4],x[5],0,
+            #      x[6],x[7],x[8],0,
+            #      x[9],x[10],x[11],1];
+            # T_raw = matmul4x4x4.apply(this,T_raw.concat(X));
+            # {debug:}host.console.println("\\n  After Rotation, Scaling, and Translation:");
+            # {debug:}host.console.println(T_raw);
+            # T_raw[12] += centroid.x;
+            # T_raw[13] += centroid.y;
+            # T_raw[14] += centroid.z;
+            # {debug:}host.console.println("\\n  After Addition of Centroid:");
+            # {debug:}host.console.println(T_raw);
+            # model_node.transform.set(T_raw);
+            # break;
 
             f.write('''
     scene.update();
@@ -1019,7 +1024,7 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
         var dtheta=speed*omega0*event.deltaTime;
         if (dtheta!=0){
     ''')
-    
+
             f.write('''
             // Translate Nodes
             for (i=0; i < point_nodes.length; i++){{
@@ -1182,8 +1187,8 @@ def create_animated_modeshape_content(geometry,shapes = None,u3d_name='geometry'
     runtime.addCustomMenuItem("speed_down","Speed 0.8x                   s","default",false);
     runtime.addEventHandler(menuEvHnd);
     runtime.addEventHandler(keyEvHnd);''')
-    
-    
+
+
 def get_view_parameters_from_plotter(plotter):
     c = plotter.camera
     camera_position = np.array(c.position)
@@ -1211,4 +1216,3 @@ def get_view_parameters_from_plotter(plotter):
     media9['3Droo'] = str(np.linalg.norm(camera_position - focus))
     media9['3Daac'] = str(view_angle)
     return media9
-    

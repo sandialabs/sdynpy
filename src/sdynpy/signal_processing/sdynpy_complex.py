@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Functions for dealing with complex numbers
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -49,13 +50,13 @@ def collapse_complex_to_real(vector, axis=-1, preserve_magnitude=False, plot=Fal
         return np.sign(np.real(rotated_vector)) * np.abs(rotated_vector)
     else:
         return np.real(rotated_vector)
-    
+
 def fit_complex_angle(vector,axis=-1):
     x = np.real(vector)
     y = np.imag(vector)
     slope = np.sum(x * y, axis=axis, keepdims=True) / np.sum(x * x, axis=axis, keepdims=True)
     angle = np.arctan(slope)
     return angle
-    
+
 def rotate_vector(vector,angle):
     return vector * np.exp(1j * angle)

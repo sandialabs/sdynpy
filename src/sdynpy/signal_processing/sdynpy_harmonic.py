@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Functions for dealing with sinusoidal data
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -269,7 +270,7 @@ def digital_tracking_filter_generator(
             ax[1,1].plot(ti,xi_90,'b')
             ax[1,1].plot(ti,xi_90_filt,'g')
             sample_index += xi.shape[-1]
-            
+
 def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
                        bandwidth = None, method = None, return_amp_phs = False,
                        return_envelope = False, return_r = False, verbose=False):
@@ -494,7 +495,7 @@ def vold_kalman_filter(sample_rate, signal, arguments, filter_order = None,
         return return_value[0]
     else:
         return return_value
-    
+
 def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
                                  filter_order = None,
                                  bandwidth = None, method = None, plot_results = False,
@@ -659,7 +660,3 @@ def vold_kalman_filter_generator(sample_rate, num_orders, block_size, overlap,
             previous_envelope = vk_envelope
         else:
             reconstructed_signals = reconstructed_amplitudes = reconstructed_phases = None
-        
-        
-        
-        

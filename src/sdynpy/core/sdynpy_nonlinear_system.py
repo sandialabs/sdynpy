@@ -5,7 +5,8 @@ Defines a nonlinear system using a generic equation of motion.
 The SystemNL consists of a generic equation of motion that defines its behavior.
 The SystemNL also contains a CoordinateArray defining the degrees of freedom of
 the System.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

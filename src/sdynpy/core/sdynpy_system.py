@@ -6,7 +6,8 @@ The System consists of mass, stiffness, and (if necessary) damping matrices.
 The System also contains a CoordinateArray defining the degrees of freedom of
 the System, as well as a transformation that takes the System from its internal
 state degrees of freedom to physical degrees of freedom.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
