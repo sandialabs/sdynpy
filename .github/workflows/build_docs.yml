@@ -112,9 +112,6 @@ jobs:
   # Book Job
   build_book:
     needs: [test, lint, api]
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -185,6 +182,9 @@ jobs:
 
   deploy_book:
     needs: build_book
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only run on main
     steps:
