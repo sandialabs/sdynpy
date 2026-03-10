@@ -184,7 +184,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Only run on main
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Only run on main when pushed
     steps:
       - name: Download book artifact
         uses: actions/download-artifact@v4
