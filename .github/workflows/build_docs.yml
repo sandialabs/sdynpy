@@ -52,7 +52,7 @@ jobs:
           pip install .[test]
       - name: Run Pytest
         run: |
-          pytest --cov=pkg_test_dprohe --cov-report=term --cov-report=html
+          pytest --cov=sdynpy --cov-report=term --cov-report=html
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -74,7 +74,7 @@ jobs:
           pip install .[lint]
       - name: Run Pylint and Generate Report
         run: |
-          pylint pkg_test_dprohe --output-format=json > pylint-report.json || true
+          pylint sdynpy --output-format=json > pylint-report.json || true
       - name: Convert Pylint to HTML
         run: |
           pylint-json2html -o pylint-report.html pylint-report.json
@@ -177,16 +177,25 @@ jobs:
           cp pylint-report.html ./doc/_build/html/lint
           mkdir -p ./doc/_build/html/api
           cp -r api/* ./doc/_build/html/api
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload pages artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: book
           path: './doc/_build/html'
 
-  deploy:
+  deploy_book:
     needs: build_book
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Only run on main
     steps:
+      - name: Download book artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: book
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './doc/_build/html'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
