@@ -1,7 +1,4 @@
-# This file was created automatically with `jupyter-book init --gh-pages` 🪄 💚
-# Ensure your GitHub Pages settings for this repository are set to deploy with **GitHub Actions**.
-
-name: Jupyter Book (via myst) GitHub Pages Deploy plus PyTest Cov
+name: Documentation
 on:
   push:
     # Runs on pushes targeting the default branch
@@ -228,14 +225,15 @@ jobs:
         with:
           name: book
           path: './docs/_build/html'
-
+  # Deploy job
   deploy_book:
     needs: build_book
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Only run on main when pushed
+    # Only run on main when pushed, we don't want to publish docs for an unmerged PR
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Make Directory
         run: mkdir -p ./docs/_build/html
