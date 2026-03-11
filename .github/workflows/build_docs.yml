@@ -74,7 +74,7 @@ jobs:
           pip install .[lint]
       - name: Run Pylint and Generate Report
         run: |
-          pylint sdynpy --output-format=json > pylint-report.json
+          pylint sdynpy --output-format=json > pylint-report.json || true
       - name: Convert Pylint to HTML
         run: |
           pylint-json2html -o pylint-report.html pylint-report.json
@@ -95,11 +95,15 @@ jobs:
       - name: Compute pylint score
         shell: bash
         run: |
-          SCORE=$(
-            pylint sdynpy -sn --score=y 2>/dev/null \
-              | sed -n 's/^Your code has been rated at \([0-9.]\+\)\/10.*/\1/p' \
-              | tail -n 1
-          )
+          set -o pipefail
+
+          OUT="$( (pylint sdynpy -sn --score=y 2>&1) || true )"
+          echo "$OUT"
+
+          SCORE="$(printf '%s\n' "$OUT" \
+            | sed -n 's/^Your code has been rated at \([0-9.]\+\)\/10.*/\1/p' \
+            | tail -n 1)"
+
           [ -n "$SCORE" ] || SCORE="0.00"
           echo "PYLINT_SCORE=$SCORE" >> "$GITHUB_ENV"
       - name: Write Shields endpoint JSON (color by score)
