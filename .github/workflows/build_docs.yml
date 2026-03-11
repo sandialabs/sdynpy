@@ -59,7 +59,7 @@ jobs:
           name: coverage-${{ matrix.python-version }}
           path: coverage_html
   # PYLINT JOB
-  lint:
+  lint_report:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -74,7 +74,7 @@ jobs:
           pip install .[lint]
       - name: Run Pylint and Generate Report
         run: |
-          pylint sdynpy --output-format=json > pylint-report.json || true
+          pylint sdynpy --output-format=json > pylint-report.json
       - name: Convert Pylint to HTML
         run: |
           pylint-json2html -o pylint-report.html pylint-report.json
@@ -83,6 +83,48 @@ jobs:
         with:
           name: lint
           path: pylint-report.html
+  lint_score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: install
+        run: pip install .[lint]
+      - name: Compute pylint score
+        shell: bash
+        run: |
+          SCORE=$(
+            pylint sdynpy -sn --score=y 2>/dev/null \
+              | sed -n 's/^Your code has been rated at \([0-9.]\+\)\/10.*/\1/p' \
+              | tail -n 1
+          )
+          [ -n "$SCORE" ] || SCORE="0.00"
+          echo "PYLINT_SCORE=$SCORE" >> "$GITHUB_ENV"
+      - name: Write Shields endpoint JSON (color by score)
+        shell: bash
+        run: |
+          SCORE="$PYLINT_SCORE"
+          # Choose color thresholds
+          if awk "BEGIN{exit !($SCORE>=9.5)}"; then
+            COLOR="brightgreen"
+          elif awk "BEGIN{exit !($SCORE>=9.0)}"; then
+            COLOR="green"
+          elif awk "BEGIN{exit !($SCORE>=8.0)}"; then
+            COLOR="yellowgreen"
+          elif awk "BEGIN{exit !($SCORE>=7.0)}"; then
+            COLOR="yellow"
+          else
+            COLOR="orange"
+          fi
+          printf '{ "schemaVersion": 1, "label": "pylint", "message": "%s/10", "color": "%s" }\n' \
+            "$SCORE" "$COLOR" > pylint.json
+      - name: Upload Pylint JSON for badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint_score
+          path: pylint.json
   # API JOB
   api:
     runs-on: ubuntu-latest
@@ -111,7 +153,7 @@ jobs:
           path: docs/api
   # Book Job
   build_book:
-    needs: [test, lint, api]
+    needs: [test, lint_report, lint_score, api]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -158,6 +200,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "lint"
+      - name: Download Lint Score
+        uses: actions/download-artifact@v4
+        with:
+          name: "lint_score"
       - name: Debug Directory Structure
         run: |
           echo "Contents of the working directory:"
@@ -172,6 +218,7 @@ jobs:
           cp -r htmlcov/* ./docs/_build/html/coverage
           mkdir -p ./docs/_build/html/lint
           cp pylint-report.html ./docs/_build/html/lint
+          cp pylint.json ./docs/_build/html/lint
       - name: Upload pages artifact
         uses: actions/upload-artifact@v4
         with:
