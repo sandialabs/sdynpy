@@ -19,3 +19,4 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 from . import beam_airplane
 from . import beam_plate
+from . import frame_wing
