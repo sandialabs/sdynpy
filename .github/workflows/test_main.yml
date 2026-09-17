@@ -8,6 +8,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    env:
+      QT_QPA_PLATFORM: offscreen
     strategy:
       fail-fast: false
       matrix:
@@ -18,8 +20,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: set_headless
-        run: export QT_QPA_PLATFORM=offscreen
       - name: install
         run: pip install .[test]
       - name: pylint

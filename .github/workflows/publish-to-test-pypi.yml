@@ -6,15 +6,14 @@ jobs:
   build-n-publish:
     name: Publish Python Distributions to PyPi and TestPyPi
     runs-on: ubuntu-latest
-    
+    env:
+      QT_QPA_PLATFORM: offscreen
     steps:
     - uses: actions/checkout@master
     - name: Set up Python 3.12
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
-    - name: set_headless
-      run: export QT_QPA_PLATFORM=offscreen
     - name: Install pypa/build
       run: >-
         python -m
