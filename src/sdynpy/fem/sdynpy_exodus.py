@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Import data from and save data to Exodus files.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -28,6 +29,12 @@ import copy
 from ..core.sdynpy_geometry import global_coord, local_coord, global_deflection, _exodus_elem_type_map
 
 _inverse_exodus_elem_type_map = {val: key for key, val in _exodus_elem_type_map.items()}
+_inverse_exodus_elem_type_map[61] = "tri3"
+_inverse_exodus_elem_type_map[91] = "tri3"
+_inverse_exodus_elem_type_map[41] = "tri3"
+_inverse_exodus_elem_type_map[64] = "quad4"
+_inverse_exodus_elem_type_map[94] = "quad4"
+_inverse_exodus_elem_type_map[44] = "quad4"
 
 __version__ = '0.99'
 
@@ -2481,7 +2488,7 @@ class ExodusInMemory:
                 global_var_dict['data'] = shapes[name]
             # Now add displacement data for the shapes
             coordinates = shapes[0].coordinate.copy()
-            indices = np.in1d(coordinates.node, node_data.id)
+            indices = np.isin(coordinates.node, node_data.id)
             coordinates = coordinates[indices]
             # Keep only displacements
             coordinates = coordinates[(abs(coordinates.direction) <= 3) &
@@ -2517,7 +2524,7 @@ class ExodusInMemory:
                 fexo.time = data[0].abscissa
                 # Now add displacement data for the shapes
                 coordinates = data.response_coordinate
-                indices = np.in1d(coordinates.node, node_data.id)
+                indices = np.isin(coordinates.node, node_data.id)
                 coordinates = coordinates[indices]
                 # Keep only displacements
                 coordinates = coordinates[(abs(coordinates.direction) <= 3)
@@ -3447,3 +3454,79 @@ def extract_sharp_edges(exo, edge_threshold=60, **kwargs):
         block.connectivity = node_map[block.connectivity]
     edge_fexo.nodes.node_num_map = surface_fexo.nodes.node_num_map[keep_nodes]
     return edge_fexo
+
+def read_sierra_matlab_matrix_file(file):
+    """
+    Reads a matrix.m file from Sierra Structural Dynamics.
+    
+    If the KAA or MAA outputs are used, this function can read those matrices.
+
+    Parameters
+    ----------
+    file : str
+        The name of the file to read.
+
+    Returns
+    -------
+    matrix : np.ndarray
+        A NumPy array containing the matrix.
+    """
+    with open(file,'r') as f:
+        f.readline()
+        num_rows = int(f.readline().replace(';','').split()[-1])
+        matrix = np.zeros((num_rows,num_rows))
+        f.readline()
+        while True:
+            try:
+                row,col,data = f.readline().replace(';','').split()
+                matrix[int(row)-1,int(col)-1] = float(data)
+                if int(row) != int(col):
+                    matrix[int(col)-1,int(row)-1] = float(data)
+            except ValueError:
+                break
+    return matrix
+
+def read_sierra_matlab_map_file(file,return_inverse=False):
+    """
+    Reads a map file from Sierra Structural Dynamics.
+    
+    If the MFILE output is used, this can read the global node ID and aset map arrays that
+    are output from Sierra SD.
+
+    Parameters
+    ----------
+    file : str
+        File containing the map data.
+    return_inverse : bool, optional
+        If True, will return both the forward map and the inverse map. The default is False.
+
+    Returns
+    -------
+    array : np.ndarray
+        Returns the same map as in the file.
+    array_inv : np.ndarray
+        Returns the inverse map of the file.  Only returned if return_inverse is True.
+
+    """
+    with open(file,'r') as f:
+        f.readline()
+        f.readline()
+        shape = [int(v) for v in f.readline().strip().split('(')[1][:-2].split(',')]
+        array = -1*np.ones(shape,dtype=int)
+        while True:
+            try:
+                lhs,rhs = f.readline().split('=')
+                index = int(lhs.strip()[2:-1])-1
+                value = int(rhs.strip()[:-1])
+                array[index] = value
+            except ValueError:
+                break
+        array = array.flatten()
+        if not return_inverse:
+            return array
+        array_inv = -1*np.ones(array.max()+1,dtype=int)
+        for index,value in enumerate(array):
+            if value == -1:
+                continue
+            array_inv[value] = index
+        return array,array_inv

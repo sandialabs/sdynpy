@@ -6,7 +6,8 @@ Labview-based Vibration software in use at Sandia National Laboratories.
 T-shaker writes TDMS files natively, but can also output .mat files as well.
 There are .mat file formats for shaker shock, random vibration, and time
 histories.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

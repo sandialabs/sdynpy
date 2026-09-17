@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Implementation of a multi-reference polynomial curve fitter for Python
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -626,6 +627,7 @@ class PolyPy_GUI(QMainWindow):
         self.max_frequency_selector.valueChanged.connect(self.update_max_frequency)
         self.compute_stabilization_button.clicked.connect(self.compute_stabilization)
         self.compute_shapes_button.clicked.connect(self.compute_shapes)
+        self.export_pole_list_button.clicked.connect(self.export_pole_list)
         self.load_geometry_button.clicked.connect(self.load_geometry)
         self.plot_shapes_button.clicked.connect(self.plot_shapes)
         self.export_shapes_button.clicked.connect(self.save_shapes)
@@ -689,6 +691,19 @@ class PolyPy_GUI(QMainWindow):
                  frfs=self.frfs.view(np.ndarray),
                  frfs_resynth=self.resynthesized_frfs.view(np.ndarray),
                  frfs_residual=self.frfs_synth_residual.view(np.ndarray))
+
+    def export_pole_list(self):
+        filename, file_filter = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save Pole List Data", filter="Numpy Files (*.npy)"
+        )
+        if filename == "":
+            return
+        poles = []
+        for sd in self.stability_diagrams:
+            pole_indices = [sd.pole_indices[val] for val in sd.selected_poles]
+            poles.append(sd.polypy.pole_list_from_indices(pole_indices))
+        poles = np.concatenate(poles)
+        np.save(filename, poles)
 
     def plot_shapes(self):
         if self.geometry is None:
@@ -755,7 +770,7 @@ class PolyPy_GUI(QMainWindow):
         for function_type, window in self.resynthesis_plots:
             if function_type not in data_computed:
                 if function_type == 'cmif':
-                        data_computed[function_type] = data_computed['frf'].compute_cmif().flatten()
+                    data_computed[function_type] = data_computed["frf"].compute_cmif().flatten()
                 elif function_type == 'qmif':
                     data_computed[function_type] = data_computed['frf'].compute_cmif(
                         part='real' if self.datatype_selector.currentIndex() == 1 else 'imag').flatten()

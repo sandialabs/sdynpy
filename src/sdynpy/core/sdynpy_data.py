@@ -6,7 +6,8 @@ This module also defines several subclasses of NDDataArray, which contain
 function-type-specific capabilities.  Several Enumerations are also defined
 that connect data fields from the universal file format to the NDDataArray
 subclasses.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -36,7 +37,8 @@ from ..signal_processing.sdynpy_cpsd import (cpsd as sp_cpsd,
                                              cpsd_coherence as sp_coherence,
                                              cpsd_to_time_history,
                                              cpsd_from_coh_phs,
-                                             db2scale)
+                                             db2scale,
+                                             nth_octave_freqs)
 from ..signal_processing.sdynpy_srs import (srs as sp_srs,
                                             octspace,
                                             sum_decayed_sines as sp_sds,
@@ -47,9 +49,14 @@ from ..signal_processing.sdynpy_generator import (
     pseudorandom, sine, ramp_envelope, chirp, pulse, sine_sweep)
 from ..signal_processing.sdynpy_frf_inverse import (frf_inverse,
                                                     compute_tikhonov_modified_singular_values)
+from ..signal_processing.sdynpy_harmonic import (
+    digital_tracking_filter as dtf,
+    vold_kalman_filter as vkf,
+    vold_kalman_filter_generator as vkf_gen)
 
 from ..fem.sdynpy_exodus import Exodus
 from scipy.linalg import eigh
+from scipy.optimize import minimize
 from enum import Enum
 import matplotlib
 import matplotlib.pyplot as plt
@@ -421,7 +428,7 @@ class NDDataArray(SdynpyArray):
             elif isinstance(abscissa_marker_labels,str):
                 abscissa_marker_labels = [abscissa_marker_labels.format(
                     index = i, abscissa = v) for i,v in enumerate(abscissa_markers)]
-        
+
         if one_axis is True:
             figure, axis = plt.subplots(**subplots_kwargs)
             lines = axis.plot(self.flatten().abscissa.T, self.flatten().ordinate.T.real, **plot_kwargs)
@@ -533,7 +540,6 @@ class NDDataArray(SdynpyArray):
         if abscissa_marker_type is not None:
             kwargs['abscissa_marker_type'] = abscissa_marker_type
         return GUIPlot(*args,**kwargs)
-        
 
     def plot_image(self,ax = None, reduction_function = None, colorbar_scale = 'linear',
                    colorbar_min = None, colorbar_max = None):
@@ -590,31 +596,36 @@ class NDDataArray(SdynpyArray):
             2D Array of NDDataArray
 
         """
-        flattened_functions = self.flatten()
-        response_coords = np.unique(self.response_coordinate)
-        reference_coords = np.unique(self.reference_coordinate)
-        output_array = self.__class__(
-            (response_coords.size, reference_coords.size), self.num_elements)
+        flattened_functions = np.ravel(self)
+        unique_coords = [
+            np.unique(self.coordinate[..., i]) for i in range(self.dtype["coordinate"].shape[0])
+        ]
+        coordinate_combinations = outer_product(*unique_coords)
+        output_array = self.__class__(coordinate_combinations.shape[:-1], self.num_elements)
         if not error_if_missing:
-            keep_response_indices = np.ones(response_coords.shape,dtype=bool)
-        for row_index, response_coord in response_coords.ndenumerate():
-            for col_index, reference_coord in reference_coords.ndenumerate():
-                current_function = flattened_functions[
-                    (flattened_functions.response_coordinate == response_coord)
-                    &
-                    (flattened_functions.reference_coordinate == reference_coord)]
-                if current_function.size == 0:
-                    if error_if_missing:
-                        raise ValueError('No function exists with reference coordinate {:} and response coordinate {:}'.format(
-                            str(reference_coord), str(response_coord)))
-                    else:
-                        keep_response_indices[row_index] = False
-                        continue
-                if current_function.size > 1:
-                    raise ValueError('Multiple functions exist ({:}) with reference coordinate {:} and response coordinate {:}'.format(
-                        current_function.size, str(reference_coord), str(response_coord)))
-                output_array[row_index[0], col_index[0]] = current_function
+            if len(unique_coords) > 2:
+                raise NotImplementedError(
+                    "error_if_missing == False is currently not implemented for data with dimension > 2"
+                )
+            keep_indices = np.ones(coordinate_combinations.shape[:-1], dtype=bool)
+        for indices in np.ndindex(coordinate_combinations.shape[:-1]):
+            coordinates = coordinate_combinations[indices]
+            current_function = flattened_functions[
+                np.all(flattened_functions.coordinate.abs() == coordinates.abs(), axis=-1)
+            ]
+            if current_function.size == 0:
+                if error_if_missing:
+                    raise ValueError(f"No function exists with coordinates {coordinates}")
+                else:
+                    keep_indices[indices] = False
+                    continue
+            if current_function.size > 1:
+                raise ValueError(
+                    f"Multiple functions exist ({current_function.size}) with coordinates {coordinate}"
+                )
+            output_array[indices] = current_function
         if not error_if_missing:
+            keep_response_indices = np.all(keep_indices, axis=-1)
             output_array = output_array[keep_response_indices,:]
         return output_array
 
@@ -760,7 +771,7 @@ class NDDataArray(SdynpyArray):
             if node_id_map is not None:
                 original_geometry = original_geometry.reduce(node_id_map.from_ids)
                 original_geometry.node.id = node_id_map(original_geometry.node.id)
-                self = self.copy()[np.in1d(self.coordinate.node, node_id_map.from_ids)]
+                self = self.copy()[np.isin(self.coordinate.node, node_id_map.from_ids)]
                 self.coordinate.node = node_id_map(self.coordinate.node)
             common_nodes = np.intersect1d(np.intersect1d(original_geometry.node.id, new_geometry.node.id),
                                           np.unique(self.coordinate.node))
@@ -1041,6 +1052,213 @@ class NDDataArray(SdynpyArray):
         else:
             this.ordinate *= val
         return this
+
+    def __matmul__(self, other):
+        if isinstance(other, Matrix):
+            # We assume that if the matrix supplied has a "shape" to it, that
+            # means that the multiplication should be done over "stacks" of
+            # matrices and functions, so we should broadcast the arrays.
+            # We have to make some assumptions, though.  Otherwise there is
+            # ambiguity.  For example, if you had one 3x2 FRF matrix that
+            # you wanted to multiply by 3 different matrices, there is a
+            # difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)
+            # Therefore we will force the user to supply the correct
+            # dimensionality to the matrix and the functions, and we will
+            # do a kind of "reverse" broadcasting starting at the first
+            # dimensions.  Therefore, if a user has (3,) matrices and
+            # wants to specify multiplying those (3,) matrices by a
+            # single (3,2) FRF, they must pass a (1,3,2) FRF matrix
+            # so the 1-dimension corresponds to the 3-dimension of the
+            # matrix.  If they wanted each of the 3 rows of the (3,2)
+            # FRF to be multiplied by one of the 3 matrices, they should
+            # pass a (3,) matrix and a (3,2) FRF.  If they want each of
+            # the 3 rows of the (3,2) FRF to be multiplied by a single
+            # matrix, then they should make the matrix shape (1,) which
+            # will be expanded out.
+            matrix_shape = other.shape
+            data_shape = self.shape
+            matrix_dim = len(matrix_shape)
+            data_dim = len(data_shape)
+            # Make sure that the data dimension is greater than or equal to the matrix dimension due
+            # to the broadcasting rules
+            if data_dim < matrix_dim:
+                raise ValueError("Matrix must have fewer dimensions than data")
+            # Now make sure the first however many dimensions are broadcastable
+            data_shape_for_broadcasting = data_shape[:matrix_dim]
+            broadcast_shape = np.broadcast_shapes(matrix_shape, data_shape_for_broadcasting)
+            # We don't know the size of the output array until we've actually computed the first,
+            # so we set it to None as a placeholder
+            output_data = None
+            # Now we iterate through the broadcasted shape
+            for indices in np.ndindex(broadcast_shape):
+                # Replace indices with 0s if the original data was expanded from a length-1
+                # dimension
+                matrix_indices = tuple(
+                    [
+                        index if matrix_shape[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                data_indices = tuple(
+                    [
+                        index if data_shape_for_broadcasting[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                # Extract the data we are working with.
+                matrix = other[matrix_indices]
+                data = self[data_indices]
+                # For the data, we need the matrix row degrees of freedom on the last
+                # dimension, and all combinations of the remaining dimensions preceding it
+                unique_dofs = []
+                for dimension in range(data.dtype["coordinate"].shape[0] - 1):
+                    unique_dofs.append(np.unique(data.coordinate[..., dimension]))
+                unique_dofs.append(matrix.row_coordinate)
+                coordinate_combinations = outer_product(*unique_dofs)
+                # Extract that data from the array
+                data_sorted = data[coordinate_combinations]
+                # Ensure that the abscissa is consistent
+                output_abscissa = np.ravel(data_sorted)[0].abscissa
+                if not np.allclose(output_abscissa, data_sorted.abscissa):
+                    raise ValueError("Data to be multiplied does not have common abscissa")
+                # We currently have a matrix with shape (n,m) and data with ordinate shape (...,n,k)
+                # where k is the number of samples in the data and n is the number of columns of data
+                # and rows of the matrix.  We will turn the ordinate of the data into a
+                # (...,k,n) array
+                ordinate_for_multiplication = np.moveaxis(data_sorted.ordinate, -2, -1)
+                # After we do the multiplication to get the new ordinate, we have to return
+                # the array to its proper shape with columns in front of samples
+                new_ordinate = np.moveaxis((ordinate_for_multiplication @ matrix.matrix), -1, -2)
+                # The new coordinates will be the outer product of the unique dofs, but now with
+                # the column coordinates of the matrix replacing the row coordinates
+                unique_dofs[-1] = matrix.column_coordinate
+                output_combinations = outer_product(*unique_dofs)
+                # Now we can assign these values to the output array.  We may need to still
+                # initialize it, however.
+                if output_data is None:
+                    # We need to compute the final shape of the array, which will be the shape of
+                    # of the broadcast and the shape of the data.
+                    *this_data_shape, num_elements = new_ordinate.shape
+                    output_data_shape = broadcast_shape + tuple(this_data_shape)
+                    output_data = self.__class__(output_data_shape, num_elements)
+                # Now we can assign the values
+                output_data.ordinate[indices] = new_ordinate
+                output_data.abscissa[indices] = output_abscissa
+                output_data.coordinate[indices] = output_combinations
+            return output_data
+        return NotImplemented
+
+    def __rmatmul__(self, other):
+        if isinstance(other, Matrix):
+            # We assume that if the matrix supplied has a "shape" to it, that
+            # means that the multiplication should be done over "stacks" of
+            # matrices and functions, so we should broadcast the arrays.
+            # We have to make some assumptions, though.  Otherwise there is
+            # ambiguity.  For example, if you had one 3x2 FRF matrix that
+            # you wanted to multiply by 3 different matrices, there is a
+            # difference between (3,1,1)@(3,2) = (3,3,2) and (3,1)@(3,2) = (3,2)
+            # Therefore we will force the user to supply the correct
+            # dimensionality to the matrix and the functions, and we will
+            # do a kind of "reverse" broadcasting starting at the first
+            # dimensions.  Therefore, if a user has (3,) matrices and
+            # wants to specify multiplying those (3,) matrices by a
+            # single (3,2) FRF, they must pass a (1,3,2) FRF matrix
+            # so the 1-dimension corresponds to the 3-dimension of the
+            # matrix.  If they wanted each of the 3 rows of the (3,2)
+            # FRF to be multiplied by one of the 3 matrices, they should
+            # pass a (3,) matrix and a (3,2) FRF.  If they want each of
+            # the 3 rows of the (3,2) FRF to be multiplied by a single
+            # matrix, then they should make the matrix shape (1,) which
+            # will be expanded out.
+            # print("Extracting Dimensions:")
+            matrix_shape = other.shape
+            data_shape = self.shape
+            matrix_dim = len(matrix_shape)
+            data_dim = len(data_shape)
+            # print(f"{matrix_shape=}\n{data_shape=}")
+            # Make sure that the data dimension is greater than or equal to the matrix dimension due
+            # to the broadcasting rules
+            if data_dim < matrix_dim:
+                raise ValueError("Matrix must have fewer dimensions than data")
+            # Now make sure the first however many dimensions are broadcastable
+            data_shape_for_broadcasting = data_shape[:matrix_dim]
+            broadcast_shape = np.broadcast_shapes(matrix_shape, data_shape_for_broadcasting)
+            # print(f"{broadcast_shape=}")
+            # We don't know the size of the output array until we've actually computed the first,
+            # so we set it to None as a placeholder
+            output_data = None
+            # Now we iterate through the broadcasted shape
+            for indices in np.ndindex(broadcast_shape):
+                # print(f"Multiplying {indices=}")
+                # Replace indices with 0s if the original data was expanded from a length-1
+                # dimension
+                matrix_indices = tuple(
+                    [
+                        index if matrix_shape[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                data_indices = tuple(
+                    [
+                        index if data_shape_for_broadcasting[dimension] > 1 else 0
+                        for dimension, index in enumerate(indices)
+                    ]
+                )
+                # print(f"  {matrix_indices=}\n  {data_indices=}")
+                # Extract the data we are working with.
+                matrix = other[matrix_indices]
+                data = self[data_indices]
+                # For the data, we need the matrix column degrees of freedom on the first
+                # dimension, then all combinations of the remaining dimensions
+                # print(f"Setting up coordinates")
+                unique_dofs = [matrix.column_coordinate]
+                for dimension in range(1, data.dtype["coordinate"].shape[0]):
+                    unique_dofs.append(np.unique(data.coordinate[..., dimension]))
+                coordinate_combinations = outer_product(*unique_dofs)
+                # print(f"{unique_dofs=}")
+                # Extract that data from the array
+                data_sorted = data[coordinate_combinations]
+                # Ensure that the abscissa is consistent
+                output_abscissa = np.ravel(data_sorted)[0].abscissa
+                if not np.allclose(output_abscissa, data_sorted.abscissa):
+                    raise ValueError("Data to be multiplied does not have common abscissa")
+                # We currently have a matrix with shape (n,m) and data with ordinate shape (m,...,k)
+                # where k is the number of samples in the data and m is the number of rows of data
+                # and columns of the matrix.  We will turn the ordinate of the data into a
+                # (...,k,m,1) array
+                # print("Setting up Multiplication")
+                ordinate_for_multiplication = np.moveaxis(data_sorted.ordinate, 0, -1)[
+                    ..., np.newaxis
+                ]
+                # print(f"{ordinate_for_multiplication.shape=}")
+                # After we do the multiplication to get the new ordinate, we have to return
+                # the array to its proper shape with rows out front and the last 1 dimension removed
+                new_ordinate = np.moveaxis(
+                    (matrix.matrix @ ordinate_for_multiplication)[..., 0], -1, 0
+                )
+                # print("Multiplication Finished!")
+                # print(f"{new_ordinate.shape=}")
+                # The new coordinates will be the outer product of the unique dofs, but now with
+                # the row coordinates of the matrix replacing the column coordinates
+                unique_dofs[0] = matrix.row_coordinate
+                output_combinations = outer_product(*unique_dofs)
+                # print(f"Output Dofs: {unique_dofs=}")
+                # Now we can assign these values to the output array.  We may need to still
+                # initialize it, however.
+                if output_data is None:
+                    # We need to compute the final shape of the array, which will be the shape of
+                    # of the broadcast and the shape of the data.
+                    *this_data_shape, num_elements = new_ordinate.shape
+                    output_data_shape = broadcast_shape + tuple(this_data_shape)
+                    # print(f"Setting up output with {output_data_shape=} and {num_elements=}")
+                    output_data = self.__class__(output_data_shape, num_elements)
+                # Now we can assign the values
+                # print(f"Assigning Data to {indices=}")
+                output_data.ordinate[indices] = new_ordinate
+                output_data.abscissa[indices] = output_abscissa
+                output_data.coordinate[indices] = output_combinations
+            return output_data
+        return NotImplemented
 
     def __truediv__(self, val):
         this = deepcopy(self)
@@ -1544,7 +1762,7 @@ class NDDataArray(SdynpyArray):
 
         return output_struct
 
-    def save(self, filename):
+    def save(self, filename, compress_abscissa = False):
         """
         Save the array to a numpy file
 
@@ -1553,10 +1771,25 @@ class NDDataArray(SdynpyArray):
         filename : str
             Filename that the array will be saved to.  Will be appended with
             .npz if not specified in the filename
+        compress_abscissa : bool, optional
+            If True, abscissa will be stored as start and step instead of full
+            arrays.  If abscissa cannot be compressed and maintain values, a
+            ValueError will be raised.
 
         """
-        np.savez(filename, data=self.view(np.ndarray),
-                 function_type=self.function_type.value)
+        if compress_abscissa:
+            abscissa_step = self.abscissa_spacing
+            abscissa_start = np.ravel(self.abscissa)[0]
+            if not np.all(abscissa_start==self.abscissa[...,0]):
+                raise ValueError('Cannot compress abscissa with varying start values')
+            fields = [field for field in self.fields if field != 'abscissa']
+            np.savez(filename, data = self.view(np.ndarray)[fields].copy(),
+                     function_type = self.function_type.value,
+                     abscissa_start = abscissa_start,
+                     abscissa_step = abscissa_step)
+        else:
+            np.savez(filename, data=self.view(np.ndarray),
+                     function_type=self.function_type.value)
 
     @classmethod
     def load(cls, filename):
@@ -1591,8 +1824,24 @@ class NDDataArray(SdynpyArray):
                 raise AttributeError('Class {:} has no from_unv attribute defined'.format(cls))
         else:
             fn_data = np.load(filename, allow_pickle=True)
-            return fn_data['data'].view(
-                _function_type_class_map[FunctionTypes(fn_data['function_type'])])
+            if 'abscissa_start' in fn_data:
+                # This is file with compressed abscissa
+                data = fn_data['data']
+                dtype = data.dtype.descr
+                nelem = data['ordinate'].shape[-1]
+                shape = data['ordinate'].shape[:-1]
+                new_cls = _function_type_class_map[FunctionTypes(fn_data['function_type'])]
+                new_obj = new_cls(shape,nelem)
+                abscissa = fn_data['abscissa_start'] + np.arange(nelem)*fn_data['abscissa_step']
+                for dt in dtype:
+                    if dt[0] not in new_obj.fields:
+                        continue
+                    new_obj[dt[0]] = data[dt[0]]
+                new_obj['abscissa'] = abscissa
+                return new_obj
+            else:
+                return fn_data['data'].view(
+                    _function_type_class_map[FunctionTypes(fn_data['function_type'])])
 
     def to_imat_struct(self, Version=None, SetRecord=None, CreateDate: datetime = None, ModifyDate: datetime = None,
                        OwnerName=None, AbscissaDataType=None, AbscissaTypeQual=None,
@@ -1808,7 +2057,7 @@ class NDDataArray(SdynpyArray):
         return return_functions
 
     from_uff = from_unv
-    
+
     def get_reciprocal_data(self,return_indices = False):
         """
         Gets reciprocal pairs of data from an NDDataArray.
@@ -1855,7 +2104,7 @@ class NDDataArray(SdynpyArray):
             return equal_indices
         else:
             return self[equal_indices]
-        
+
     def get_drive_points(self,return_indices=False):
         """
         Returns data arrays where the reference is equal to the response
@@ -1890,7 +2139,7 @@ class NDDataArray(SdynpyArray):
             return equal_indices
         else:
             return self[equal_logical]
-        
+
     def shape_filter(self,shape, filter_responses = True, filter_references = False,
                      rcond=None):
         """
@@ -1937,7 +2186,7 @@ class NDDataArray(SdynpyArray):
             coords = response_coords[:,np.newaxis]
             data = self[coords]
         data_type=data.function_type
-        
+
         if filter_responses:
             response_shape_matrix = np.linalg.pinv(shape[response_coords].T,rcond=rcond)
             output_response_coords = coordinate_array(np.arange(response_shape_matrix.shape[0])+1,0)
@@ -1950,24 +2199,99 @@ class NDDataArray(SdynpyArray):
         else:
             reference_shape_matrix = None
             output_reference_coords = reference_coords
-            
+
         if output_reference_coords is not None:
             output_coords = outer_product(output_response_coords,output_reference_coords)
         else:
             output_coords = output_response_coords[:,np.newaxis]
-            
+
         ordinate = data.ordinate
         if response_shape_matrix is not None:
             ordinate = np.einsum('mi,i...s->m...s',response_shape_matrix,ordinate)
         if reference_shape_matrix is not None:
             ordinate = np.einsum('mj,...js->...ms',reference_shape_matrix,ordinate)
-        
+
         filtered_data = data_array(data_type=data_type,
                                    abscissa=data.reshape(-1)[0].abscissa,
                                    ordinate=ordinate,
                                    coordinate=output_coords)
 
         return filtered_data
+
+    @staticmethod
+    def get_abscissa_limits(data_arrays):
+        """Compute the smallest overlapping x-axis range across one or more data arrays.
+
+        Parameters
+        ----------
+        data_arrays : NDDataArray or iterable of NDDataArray
+            A single data array or iterable of data arrays whose abscissa ranges are
+            intersected to find the common (narrowest) x range.
+
+        Returns
+        -------
+        list
+            A two-element list ``[xmin, xmax]`` representing the intersection of all
+            finite abscissa ranges across the provided arrays.
+        """
+        if isinstance(data_arrays, NDDataArray):
+            xlim = [np.min(data_arrays.abscissa[~np.isnan(data_arrays.ordinate)]),
+                    np.max(data_arrays.abscissa[~np.isnan(data_arrays.ordinate)])]
+        else:
+            xlim = [None, None]
+            for data_array in data_arrays:
+                if np.any(~np.isnan(data_array.ordinate)):
+                    if any(lim is None for lim in xlim):
+                        xlim = [np.nanmin(data_array.abscissa[~np.isnan(data_array.ordinate)]),
+                                np.nanmax(data_array.abscissa[~np.isnan(data_array.ordinate)])]
+                    else:
+                        xlim = [max(np.nanmin(data_array.abscissa[~np.isnan(data_array.ordinate)]), min(xlim)),
+                                min(np.nanmax(data_array.abscissa[~np.isnan(data_array.ordinate)]), max(xlim))]
+        return xlim
+
+    @staticmethod
+    def get_ordinate_limits(data_arrays, xlim: list):
+        """Compute the y-axis limits for one or more data arrays within x bounds.
+
+        Parameters
+        ----------
+        data_arrays : NDDataArray or iterable of NDDataArray
+            A single data array or iterable of data arrays whose ordinate ranges are
+            combined (union) to find the overall y range within ``xlim``.
+        xlim : list
+            Two-element list ``[xmin, xmax]`` restricting the abscissa range used
+            when computing y limits.
+
+        Returns
+        -------
+        list
+            A two-element list ``[ymin, ymax]``.
+        """
+        if isinstance(data_arrays, NDDataArray):
+            ordinate = data_arrays.extract_elements_by_abscissa(min(xlim), max(xlim)).ordinate
+            if isinstance(data_arrays, PowerSpectralDensityArray):
+                ylim = [np.min(np.abs(ordinate)), np.max(np.abs(ordinate))]
+            else:
+                ylim = [np.min(ordinate), np.max(ordinate)]
+        else:
+            ylim = [None, None]
+            for data_array in data_arrays:
+                if np.any(~np.isnan(data_array.ordinate)):
+                    ordinate = data_array.extract_elements_by_abscissa(min(xlim), max(xlim)).ordinate
+                    ordinate = ordinate[~np.isnan(ordinate)]
+                    if any(lim is None for lim in ylim):
+                        if isinstance(data_array, PowerSpectralDensityArray):
+                            ylim = [np.min(np.abs(ordinate)), np.max(np.abs(ordinate))]
+                        else:
+                            ylim = [np.min(ordinate), np.max(ordinate)]
+                    else:
+                        if isinstance(data_array, PowerSpectralDensityArray):
+                            ylim = [min(np.nanmin(np.abs(ordinate)), min(ylim)),
+                                    max(np.nanmax(np.abs(ordinate)), max(ylim))]
+                        else:
+                            ylim = [min(np.nanmin(ordinate), min(ylim)),
+                                    max(np.nanmax(ordinate), max(ylim))]
+        return ylim
 
 class TimeHistoryArray(NDDataArray):
     """Data array used to store time history data"""
@@ -2094,6 +2418,141 @@ class TimeHistoryArray(NDDataArray):
         # Create the output signal
         return data_array(FunctionTypes.SPECTRUM, frequencies, ordinate, self.coordinate,
                           self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
+
+    def zefft(self, num_steps = 10, abscissa_range = None,
+                        closest_zero_crossing = True):
+        """Creates a FFTs from time histories with early times zeroed out
+
+        This computes an FFT time history with the first portion of
+        the original time history zeroed out.  This is useful
+        for analyzing ring-downs of nonlinear systems to
+        identify how the system changes over time.
+
+        Parameters
+        ----------
+        num_steps : int, optional
+            The number of different levels of zeroing to
+            compute for each signal, by default 10
+        abscissa_range : iterable, optional
+            A length-2 iterable defining the earliest and
+            latest abscissa to use as a time to zero data until,
+            by default, it will spread `num_steps` zero locations
+            over the entire time signal.
+        closest_zero_crossing : bool, optional
+            If True, zeroing will start at a zero crossing in a
+            signal that is closest to the specified zero time.
+            Otherwise, the zeroing will start exactly
+            where specified, by default True
+
+        Returns
+        -------
+        SpectrumArray
+            A SpectrumArray with an additional dimension for the
+            `num_steps` specified.  These are outputs of the
+            `zero_early_time` method with the `fft` method
+            subsequently applied.
+        """
+        return self.zero_early_time(num_steps, abscissa_range, closest_zero_crossing).fft()
+
+    def zero_early_time(self, num_steps = 10, abscissa_range = None,
+                        closest_zero_crossing = True):
+        """Creates a time histories with early times zeroed out
+
+        This computes a time history with the first portion of
+        the original time history zeroed out.  This is useful
+        for analyzing ring-downs of nonlinear systems to
+        identify how the system changes over time.
+
+        Parameters
+        ----------
+        num_steps : int, optional
+            The number of different levels of zeroing to
+            compute for each signal, by default 10
+        abscissa_range : iterable, optional
+            A length-2 iterable defining the earliest and
+            latest abscissa to use as a time to zero data until,
+            by default, it will spread `num_steps` zero locations
+            over the entire time signal.
+        closest_zero_crossing : bool, optional
+            If True, zeroing will start at a zero crossing in a
+            signal that is closest to the specified zero time.
+            Otherwise, the zeroing will start exactly
+            where specified, by default True
+
+        Returns
+        -------
+        TimeHistoryArray
+            A TimeHistoryArray with an additional dimension for the
+            `num_steps` specified.  Each of the `num_steps` set of
+            signals has a different initial zero point.
+        """
+        output = np.tile(self,[num_steps]+[1 for i in range(self.ndim)])
+        if not closest_zero_crossing:
+            if abscissa_range is None:
+                step_size = self.num_elements//(num_steps)
+                zero_indices = np.broadcast_to(np.arange(num_steps)*step_size,
+                                               self.shape+(num_steps,))
+            else:
+                abscissa_start_index = np.argmin(np.abs(self.abscissa-abscissa_range[0]),axis=-1)
+                abscissa_end_index = np.argmin(np.abs(self.abscissa-abscissa_range[1]),axis=-1)
+                step_size = (abscissa_end_index - abscissa_start_index)//(num_steps-1)
+                zero_indices = np.arange(num_steps)*step_size[...,np.newaxis] + abscissa_start_index[...,np.newaxis]
+        else:
+            zero_crossing_indices, zero_crossing_abscissa = self.find_zero_crossings(True,True)
+            zero_indices = np.zeros(self.shape+(num_steps,),dtype=int)
+            if abscissa_range is None:
+                step_size = self.num_elements//(num_steps)
+                desired_zero_indices = np.arange(num_steps)*step_size
+                for index,zero_crossings in np.ndenumerate(zero_crossing_indices):
+                    closest_zero_crossing_indices = [np.argmin(np.abs(desired_index-zero_crossings)) for desired_index in desired_zero_indices]
+                    zero_indices[index] = zero_crossings[closest_zero_crossing_indices]
+            else:
+                desired_abscissa = np.linspace(*abscissa_range,num_steps)
+                for index,zero_abscissa in np.ndenumerate(zero_crossing_abscissa):
+                    closest_zero_crossing_indices = [np.argmin(np.abs(desired_abs-zero_abscissa)) for desired_abs in desired_abscissa]
+                    zero_indices[index] = zero_crossing_indices[index][closest_zero_crossing_indices]
+        for step_index in range(num_steps):
+            for signal_index in np.ndindex(self.shape):
+                zero_index = zero_indices[signal_index+(step_index,)]
+                output.ordinate[(step_index,)+signal_index+(slice(None,zero_index+1),)] = 0
+        return output
+
+    def find_zero_crossings(self,return_abscissa=False, include_start = False):
+        """Finds zero crossings in the time history
+
+        Parameters
+        ----------
+        return_abscissa : bool, optional
+            If True, returns abscissa values associated with the
+            zero crossing.  By default it is False.
+        include_start : bool, optional
+            If True, returns the first index as a zero crossing,
+            default is False
+
+        Returns
+        -------
+        sign_changes_array : np.ndarray
+            An array of indices into the ordinates of the
+            function where sine changes occur.
+        abscissa_array : np.ndarray
+            An array of the abscissa values of the function
+            where sine changes occur.  Only returned if
+            return_abscissa is True.
+        """
+        sign_changes = np.diff(np.sign(self.ordinate),axis=-1) != 0
+        if include_start:
+            sign_changes[...,0] = True
+        sign_changes_array = np.empty(self.shape,dtype=object)
+        if return_abscissa:
+            abscissa_array = np.empty(self.shape,dtype=object)
+        for index,fn in self.ndenumerate():
+            sign_changes_array[index] = np.nonzero(sign_changes[index])[0]
+            if return_abscissa:
+                abscissa_array[index] = fn.abscissa[sign_changes_array[index]+1]
+        if return_abscissa:
+            return sign_changes_array,abscissa_array
+        else:
+            return sign_changes_array
 
     def cpsd(self, samples_per_frame: int, overlap: float, window: str,
              averages_to_keep: int = None,
@@ -2222,6 +2681,57 @@ class TimeHistoryArray(NDDataArray):
                          self.comment5.copy())
         return srs
 
+    def hilbert(self, *hilbert_args, **hilbert_kwargs):
+        """Computes the hilbert transform of the signal
+
+        Any arguments passed to this method will be passed to the `scipy.signal.hilbert` function.
+
+        Returns
+        -------
+        TimeHistoryArray
+            A time history array containing the imaginary part of the analytic signal, which is the
+            hilber transform of the signal.
+
+        Raises
+        ------
+        ValueError
+            If `axis` is specified as a keyword argument.  The axis will automatically be set to the
+            last dimension, which corresponds to the time samples in the signal.
+        """        
+        if 'axis' in hilbert_kwargs:
+            raise ValueError('axis cannot be specified because it is automatically -1')
+        ana_sig = sig.hilbert(self.ordinate, *hilbert_args, **hilbert_kwargs, axis=-1)
+        output = self.copy()
+        output.ordinate[...] = ana_sig.imag
+        return output
+
+    def envelope(self, *envelope_args, **envelope_kwargs):
+        """Computes the envelope of the time history array.
+
+        Any arguments passed to htis method will be passed to the `scipy.signal.envelope` function.
+
+        Returns
+        -------
+        TimeHistoryArray
+            Returns a TimeHistoryArray object that includes the residual if `residual=None` is not
+            prescribed.  If `residual=None` is prescribed, then the output TimeHistoryArray will
+            be the same size as the original TimeHistoryArray.  If a residual is prescribed (the
+            default case), then the output will be size (2, *self.shape), with the residual
+            stacked along the first axis.  This allows unpacking, e.g.,
+            `envelope, residual = self.envelope()`.
+
+        Raises
+        ------
+        ValueError
+            If `axis` is specified as a keyword argument.  The axis will automatically be set to the
+            last dimension, which corresponds to the time samples in the signal.
+        """        
+        if 'axis' in envelope_kwargs:
+            raise ValueError('axis cannot be specified because it is automatically -1')
+        env = sig.envelope(self.ordinate, *envelope_args, **envelope_kwargs)
+        output = time_history_array(self.abscissa,env,self.coordinate,self.comment1, self.comment2, self.comment3, self.comment4, self.comment5)
+        return output
+
     def filter(self,filter_order, frequency, filter_type = 'low',
                filter_method = 'filtfilt', filter_kwargs = None):
         """
@@ -2265,6 +2775,95 @@ class TimeHistoryArray(NDDataArray):
         return_val = self.copy()
         return_val.ordinate = filtered_ordinate
         return return_val
+
+    def vold_kalman_filter(self, arguments, filter_order = None,
+                           bandwidth = None, method = None, block_size = None,
+                           overlap = 0.5, plot_results = False, verbose = False):
+        # If a blocksize is specified we will use the generator approach.
+        # If not we will pass the entire thing to the VK filter.
+        sample_rate = 1/self.abscissa_spacing
+        amplitude_results = []
+        phase_results = []
+        if isinstance(arguments,TimeHistoryArray):
+            arguments = arguments.ordinate
+        arguments = np.atleast_2d(arguments)
+        for key,signal in self.ndenumerate():
+            if block_size is None or block_size > self.num_elements:
+                sig,amp,phs = vkf(sample_rate,signal.ordinate,arguments,
+                                  filter_order,bandwidth,method,True,verbose=verbose)
+                amplitude_results.append(amp)
+                phase_results.append(phs)
+            else:
+                generator = vkf_gen(sample_rate, arguments.shape[0], block_size,
+                                    overlap, filter_order, bandwidth, method,
+                                    plot_results=plot_results, verbose = verbose)
+                generator.send(None)
+                sample_index = 0
+                signal_amplitude_results = []
+                signal_phase_results = []
+                while sample_index < self.num_elements:
+                    block_signal = signal.ordinate[sample_index:sample_index+block_size]
+                    block_arguments = arguments[...,sample_index:sample_index+block_size]
+                    last_signal = sample_index+block_size >= self.num_elements
+                    sig,amp,phs = generator.send((block_signal,block_arguments,last_signal))
+                    if sig is not None:
+                        signal_amplitude_results.append(amp)
+                        signal_phase_results.append(phs)
+                    sample_index += block_size
+                amplitude_results.append(np.concatenate(signal_amplitude_results,axis=-1))
+                phase_results.append(np.concatenate(signal_phase_results,axis=-1))
+        final_shape = self.shape+(arguments.shape[0],self.num_elements)
+        amplitude_results = np.reshape(amplitude_results,final_shape)
+        phase_results = np.reshape(phase_results,final_shape)
+        amplitude = time_history_array(self.abscissa[...,np.newaxis,:],
+                                        amplitude_results,
+                                        self.coordinate[...,np.newaxis,:],
+                                        np.reshape(self.comment1,self.shape+(1,)),
+                                        np.reshape(self.comment2,self.shape+(1,)),
+                                        np.reshape(self.comment3,self.shape+(1,)),
+                                        np.reshape(self.comment4,self.shape+(1,)),
+                                        np.reshape(self.comment5,self.shape+(1,)))
+        phases = time_history_array(self.abscissa[...,np.newaxis,:],
+                                    phase_results,
+                                    self.coordinate[...,np.newaxis,:],
+                                    np.reshape(self.comment1,self.shape+(1,)),
+                                    np.reshape(self.comment2,self.shape+(1,)),
+                                    np.reshape(self.comment3,self.shape+(1,)),
+                                    np.reshape(self.comment4,self.shape+(1,)),
+                                    np.reshape(self.comment5,self.shape+(1,)))
+        return amplitude,phases
+
+    def digital_tracking_filter(self, frequencies, arguments, 
+                                cutoff_frequency_ratio = 0.15,
+                                filter_order = 2, phase_estimate = None,
+                                amplitude_estimate = None, block_size = None,
+                                plot_results = False
+                                ):
+        dt = self.abscissa_spacing
+        amplitude_results = []
+        phase_results = []
+        if isinstance(frequencies,TimeHistoryArray):
+            frequencies = frequencies.ordinate
+        if isinstance(arguments,TimeHistoryArray):
+            arguments = arguments.ordinate
+        for key,signal in self.ndenumerate():
+            xs = signal.ordinate
+            amp,phs = dtf(dt,xs,frequencies,arguments,cutoff_frequency_ratio,
+                          filter_order, phase_estimate, amplitude_estimate,
+                          block_size, plot_results)
+            amplitude_results.append(amp)
+            phase_results.append(phs)
+        amplitude_results = np.reshape(amplitude_results, self.ordinate.shape)
+        phase_results = np.reshape(phase_results,self.ordinate.shape)
+        amplitudes = time_history_array(self.abscissa,amplitude_results,
+                                        self.coordinate, self.comment1,
+                                        self.comment2, self.comment3, self.comment4,
+                                        self.comment5)
+        phases = time_history_array(self.abscissa,phase_results,
+                                    self.coordinate, self.comment1,
+                                    self.comment2, self.comment3, self.comment4,
+                                    self.comment5)
+        return amplitudes, phases
 
     def split_into_frames(self, samples_per_frame=None, frame_length=None,
                           overlap=None, overlap_samples=None, window=None,
@@ -2368,11 +2967,10 @@ class TimeHistoryArray(NDDataArray):
         if check_cola:
             if not sig.check_COLA(window, samples_per_frame, overlap_samples):
                 raise ValueError('COLA Check Failed: specified window and overlap do not result in a constant overlap-add condition, see scipy.check_COLA for more information')
-                
+
         return data_array(FunctionTypes.TIME_RESPONSE, new_abscissa, new_ordinate,
                           self.coordinate, self.comment1, self.comment2, self.comment3,
                           self.comment4, self.comment5)
-    
 
     def mimo_forward(self, transfer_function):
         """
@@ -2710,7 +3308,8 @@ class TimeHistoryArray(NDDataArray):
     def rms(self):
         return np.sqrt(np.mean(self.ordinate**2, axis=-1))
 
-    def to_rattlesnake_specification(self, filename, coordinate_order=None,
+    def to_rattlesnake_specification(self, filename=None, 
+                                     coordinate_order=None,
                                      min_time=None,
                                      max_time=None):
         if coordinate_order is not None:
@@ -2725,9 +3324,12 @@ class TimeHistoryArray(NDDataArray):
             if max_time is None:
                 max_time = np.inf
             reshaped_data = reshaped_data.extract_elements_by_abscissa(min_time, max_time)
-        np.savez(filename,
-                 t=reshaped_data[0].abscissa - reshaped_data[0].abscissa[0],
-                 signal=reshaped_data.ordinate)
+        out_dict = dict(t=reshaped_data[0].abscissa - reshaped_data[0].abscissa[0],
+                        signal=reshaped_data.ordinate,
+                        coordinate=reshaped_data.coordinate.view(np.ndarray))
+        if filename is not None:
+            np.savez(filename, **out_dict)
+        return out_dict
 
     def find_signal_shift(self, other_signal,
                           compute_subsample_shift=True,
@@ -3003,6 +3605,33 @@ class TimeHistoryArray(NDDataArray):
         fft_zp = fft.zero_pad(fft.num_elements*(factor-1))
         return fft_zp.ifft()*factor
 
+    def resample(self, num_samples):
+        """
+        Uses Scipy.signal.resample to resample the time history array
+
+        Parameters
+        ----------
+        num_samples : int
+            The number of samples in the desired signal.
+
+        Returns
+        -------
+        TimeHistoryArray
+            A TimeHistoryArray object with resampled abscissa and ordinate
+
+        """
+        xr, tr = sig.resample(self.ordinate, num_samples, self.abscissa, axis=-1)
+        return time_history_array(
+            tr,
+            xr,
+            self.coordinate,
+            self.comment1,
+            self.comment2,
+            self.comment3,
+            self.comment4,
+            self.comment5,
+        )
+
     def apply_transformation(self, transformation, invert_transformation=False):
         """
         Applies a transformations to the time traces.
@@ -3038,7 +3667,7 @@ class TimeHistoryArray(NDDataArray):
 
         physical_coordinate = np.unique(self.response_coordinate)
         original_data_ordinate = np.moveaxis(self[physical_coordinate[...,np.newaxis]].ordinate, -1, 0)[..., np.newaxis]
-        
+
         if invert_transformation:
             if not np.all(np.unique(transformation.row_coordinate) == physical_coordinate):
                 raise ValueError('The physical coordinates in the transformation do no match the spectra')
@@ -3049,7 +3678,7 @@ class TimeHistoryArray(NDDataArray):
                 raise ValueError('The physical coordinates in the transformation do no match the spectra')
             transformed_coordinate = np.unique(transformation.row_coordinate)
             transformation_matrix = transformation[transformed_coordinate, physical_coordinate]
-        
+
         if transformation_matrix.ndim != 2:
             raise ValueError('The transformation array must be two dimensional')
 
@@ -3674,8 +4303,7 @@ class TimeHistoryArray(NDDataArray):
                                   abscissa,output_signals,coordinates.flatten()[:,np.newaxis],
                                   comment1, comment2, comment3, comment4, comment5)
         return time_history.reshape(coordinates.shape)
-        
-        
+
 
 def time_history_array(abscissa,ordinate,coordinate,comment1='',comment2='',comment3='',comment4='',comment5=''):
     """
@@ -4626,12 +5254,23 @@ class PowerSpectralDensityArray(NDDataArray):
             PowerSpectralDensityArrays where the response is equal to the reference
 
         """
-        indices = np.where(abs(self.coordinate[..., 0]) == abs(self.coordinate[..., 1]))
-        return self[indices]
+        if self.ndim > 0:
+            indices = np.where(abs(self.coordinate[..., 0]) == abs(self.coordinate[..., 1]))
+            return self[indices]
+        elif self.ndim == 0:
+            if abs(self.coordinate[..., 0]) == abs(self.coordinate[..., 1]):
+                return self
+            else:
+                return PowerSpectralDensityArray(shape=(),nelements=self.num_elements)
 
-    def rms(self):
+    def rms(self,oct_order=None):
         """
         Compute RMSs of the PSDs using the diagonals
+        
+        Parameters
+        ----------
+        oct_order : int, optional
+            octave type, 1/octave order. 3 represents 1/3 octave bands. default is None
 
         Returns
         -------
@@ -4640,8 +5279,18 @@ class PowerSpectralDensityArray(NDDataArray):
 
         """
         asd = self.get_asd()
-        abscissa_spacing = self.abscissa_spacing
-        return np.sqrt(np.sum(asd.ordinate.real, axis=-1)*abscissa_spacing)
+        if oct_order == None:
+            abscissa_spacing = self.abscissa_spacing
+            rms_levels = np.sqrt(np.sum(asd.ordinate.real, axis=-1)*abscissa_spacing)
+        else:
+            # Get Spectra Limits
+            xlim = np.array([np.min(asd.abscissa),np.max(asd.abscissa)])
+            # Get Frequency Spacing
+            nominal_band_centers,band_lb,band_ub,band_centers = nth_octave_freqs(freq=xlim,oct_order=oct_order)
+            # Compute RMS Levels
+            df = band_ub-band_lb
+            rms_levels = np.sqrt(np.sum(df*asd.ordinate.real,axis=-1))
+        return rms_levels
 
     def plot_asds(self, figure_kwargs={}, linewidth=1):
         asds = self.get_asd()
@@ -5156,7 +5805,8 @@ class PowerSpectralDensityArray(NDDataArray):
             reshaped_data = reshaped_data.extract_elements_by_abscissa(min_frequency, max_frequency)
         out_dict = dict(
             f=reshaped_data[0, 0].abscissa,
-            cpsd=np.moveaxis(reshaped_data.ordinate, -1, 0))
+            cpsd=np.moveaxis(reshaped_data.ordinate, -1, 0),
+            coordinate=coordinate_array.view(np.ndarray))
         if upper_warning_db is not None:
             out_dict['warning_upper'] = np.einsum('ijj->ij', out_dict['cpsd']*db2scale(upper_warning_db)**2).real
         if lower_warning_db is not None:
@@ -5434,7 +6084,6 @@ class TransferFunctionArray(NDDataArray):
             return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION,
                               freq, np.moveaxis(frf, 0, -1), coordinate)
 
-
     def ifft(self, norm="backward",  odd_num_samples = False,
              **scipy_irfft_kwargs):
         """
@@ -5484,7 +6133,7 @@ class TransferFunctionArray(NDDataArray):
                 + ' and it is assumed that this is due to some high pass cut-off.'
                 + ' The data is being zero padded at low frequencies.')
         num_elements = first_frequency_bin+self.num_elements
-        
+
         if odd_num_samples:
             num_samples = 2*(num_elements-1)+1
         else:
@@ -5987,7 +6636,7 @@ class TransferFunctionArray(NDDataArray):
             elif isinstance(abscissa_marker_labels,str):
                 abscissa_marker_labels = [abscissa_marker_labels.format(
                     index = i, abscissa = v) for i,v in enumerate(abscissa_markers)]
-                
+
         part_fns = {'imag':np.imag,
                     'real':np.real,
                     'mag':np.abs,
@@ -6053,7 +6702,7 @@ class TransferFunctionArray(NDDataArray):
                 axis[0].set_ylabel('Phase')
                 axis[1].set_ylabel('Amplitude')
                 axis[1].set_xlabel('Frequency')
-                
+
             else:
                 figure, axis = plt.subplots(1, 1, **subplots_kwargs)
                 lines = axis.plot(self.flatten().abscissa.T, part_fns[part](
@@ -6357,7 +7006,7 @@ class TransferFunctionArray(NDDataArray):
                     raise ValueError('The physical coordinates in the response transformation do no match the transfer functions')
                 transformed_response_coordinate = np.unique(response_transformation.row_coordinate)
                 response_transformation_matrix = response_transformation[transformed_response_coordinate, physical_response_coordinate]
-                
+
         transformed_frf_ordinate = response_transformation_matrix @ original_frf_ordinate @ reference_transformation_matrix
 
         return data_array(FunctionTypes.FREQUENCY_RESPONSE_FUNCTION, self.ravel().abscissa[0], np.moveaxis(transformed_frf_ordinate, 0, -1), 
@@ -6411,16 +7060,97 @@ class TransferFunctionArray(NDDataArray):
                 frf.ordinate[...,-1] = 0
             return frf
 
+    @classmethod
+    def block_diagonal_frf(cls, component_frfs:tuple, coordinate_node_offset:int=0):
+        """
+        Assembles a block diagonal FRF TransferFunctionArray from the supplied
+        FRFs.
+
+        Parameters
+        ----------
+        component_frfs : iterable of TransferFunctionArrays
+            A set of FRFs to be assembled into a block diagonal FRF matrix.
+        coordinate_node_offset : int, optional
+            An offset that is applied to the nodes in the supplied FRFs. The 
+            default is zero, meaning that an offset is not applied.
+
+        Raises
+        ------
+        ValueError
+            If the objects in component FRFs are not TransferFunctionArrays.
+        ValueError
+            If the TransferFunctionArrays do not share the same abscissa.
+        
+        Returns
+        -------
+        TransferFunctionArray
+            The FRFs organized in block diagonal format.
+
+        Notes
+        -----
+        The coordinate_node_offset is incremented for each system. For example, 
+        if the first set of FRFs has nodes [1,2,3,4], the second set of FRFs 
+        has nodes [3,4,5,6], and the supplied offset is 10, the node numbers in 
+        the returned block diagonal FRFs would be [11,12,13,14,23,24,25,26].
+        """
+        number_references = 0
+        number_responses = 0
+        for ii, frfs in enumerate(component_frfs):
+            if not isinstance(frfs, TransferFunctionArray):
+                raise ValueError('The supplied FRFs must be TransferFunctionArrays')
+            if ii == 0:
+                check_abscissa = frfs.ravel().abscissa[0]
+            else:
+                if np.all(frfs.ravel().abscissa[0] != check_abscissa):
+                    raise ValueError('The abscissa for the supplied FRFs does not match')
+            number_responses += np.unique(frfs.response_coordinate).shape[0]
+            number_references += np.unique(frfs.reference_coordinate).shape[0]
+
+        reference_index_offset = 0
+        response_index_offset = 0
+        block_diagonal_frf_ord = np.zeros((number_responses, number_references, check_abscissa.shape[0]), dtype=complex)
+        reference_coordinate_string = []
+        response_coordinate_string = []
+        for ii, frfs in enumerate(component_frfs):
+            # Ensuring the shape of the FRF matrix
+            frfs = frfs.reshape_to_matrix()
+
+            # Building the block diagonal FRF matrix
+            response_slice = slice(response_index_offset, response_index_offset+frfs.shape[0])
+            reference_slice = slice(reference_index_offset, reference_index_offset+frfs.shape[1])
+            block_diagonal_frf_ord[response_slice, reference_slice, :] = frfs.ordinate
+
+            # Building the string array for the FRF coordinates
+            loop_res_coord = frfs[:,0].response_coordinate.copy()
+            loop_ref_coord = frfs[0,:].reference_coordinate.copy()
+            if coordinate_node_offset != 0:
+                # Apply offset the node numbers
+                loop_res_coord.node += coordinate_node_offset * (ii+1)
+                loop_ref_coord.node += coordinate_node_offset * (ii+1)
+            response_coordinate_string.extend(loop_res_coord.string_array())
+            reference_coordinate_string.extend(loop_ref_coord.string_array())
+
+            # Adding the slicing offset for the block diagonal FRFs
+            response_index_offset += frfs.shape[0]
+            reference_index_offset += frfs.shape[1]
+
+        response_coordinate = coordinate_array(string_array=response_coordinate_string)
+        reference_coordinate = coordinate_array(string_array=reference_coordinate_string)
+        block_diagonal_frf_coordinate = outer_product(response_coordinate, reference_coordinate)
+        return transfer_function_array(check_abscissa, block_diagonal_frf_ord, block_diagonal_frf_coordinate)
+
     def substructure_by_constraint_matrix(self, dofs, constraint_matrix):
         """
-        Performs frequency based substructuring using the
+        Performs frequency based substructuring using the supplied constraint
+        matrix with accompanying dof list. 
 
         Parameters
         ----------
         dofs : CoordinateArray
-            Coordinates to use in the constraints
+            Coordinates to use in the constraints.
         constraint_matrix : np.ndarray
-            Constraints to apply to the frequency response functions
+            Constraints to apply to the frequency response functions. Should be sized
+            [number of constraints, number of dofs].
 
         Raises
         ------
@@ -6460,8 +7190,8 @@ class TransferFunctionArray(NDDataArray):
                                      reference_indices] = flip_sign_references * constraint_matrix
         # Perform the constraint
         H = np.moveaxis(rect_frfs.ordinate, -1, 0)
-        H_constrained = H - H @ constraint_matrix_references.T @ np.linalg.solve(
-            constraint_matrix_responses @ H @ constraint_matrix_references.T, constraint_matrix_responses @ H)
+        kernel =  np.linalg.pinv(constraint_matrix_responses @ H @ constraint_matrix_references.T)
+        H_constrained = H - H @ constraint_matrix_references.T @ kernel @ constraint_matrix_responses @ H
         rect_frfs.ordinate = np.moveaxis(H_constrained, 0, -1)
         return rect_frfs
 
@@ -6475,13 +7205,12 @@ class TransferFunctionArray(NDDataArray):
         dof_pairs : CoordinateArray or None
             Pairs of coordinates to constrain together.  To constain a coordinate
             to ground (i.e. fix it so it cannot move), the coordinate should be
-            paired with None.
+            paired with None. This should be size [number of constraints, 2].
 
         Returns
         -------
         TransferFunctionArray
-            Constrained frequency response functions
-
+            Constrained frequency response functions.
         """
         dof_list = []
         constraint_matrix_values = []
@@ -6505,6 +7234,74 @@ class TransferFunctionArray(NDDataArray):
         # Apply Constraints
         dof_list = np.array(dof_list).view(CoordinateArray)
         return self.substructure_by_constraint_matrix(dof_list, constraint_matrix)
+
+    @classmethod
+    def from_exodus(cls, exo, reference_coordinate = None,
+                    xval = 'DispX', xvali = 'ImagDispX',
+                    yval = 'DispY', yvali = 'ImagDispY',
+                    zval = 'DispZ', zvali = 'ImagDispZ'):
+        """Reads FRF data from a Sierra/SD ModalFRF Exodus file
+
+        Parameters
+        ----------
+        exo : Exodus or ExodusInMemory
+            The exodus data from which FRF data will be created.
+        reference_coord : CoordinateArray
+            The coordinate to be assigned as the reference coordinate,
+            by default 0
+        xval : str, optional
+            The variable name representing the real part of the
+            X value, by default 'DispX'
+        xvali : str, optional
+            The variable name representing the imaginary part of the
+            X value, by default 'ImagDispX'
+        yval : str, optional
+            The variable name representing the real part of the
+            Y value, by default 'DispY'
+        yvali : str, optional
+            The variable name representing the imaginary part of the
+            Y value, by default 'ImagDispY'
+        zval : str, optional
+            The variable name representing the real part of the
+            Z value, by default 'DispZ'
+        zvali : str, optional
+            The variable name representing the imaginary part of the
+            Z value, by default 'ImagDispZ'
+
+        Returns
+        -------
+        TransferFunctionArray
+            FRF data from the exodus file
+        """
+        if isinstance(exo, Exodus):
+            variables = [v for v in [xval, xvali, yval, yvali, zval, zvali] if v is not None]
+            exo = exo.load_into_memory(close=False, variables=variables, timesteps=None, blocks=[])
+        node_ids = np.arange(
+            exo.nodes.coordinates.shape[0]) + 1 if exo.nodes.node_num_map is None else exo.nodes.node_num_map
+        if reference_coordinate is None:
+            reference_coordinate = coordinate_array(0,0)
+        data = []
+        coordinates = []
+        for real_val, imag_val,coordinate_dir in [[xval,xvali,'X+'],
+                                                [yval,yvali,'Y+'],
+                                                [zval,zvali,'Z+']]:
+            if real_val is None or imag_val is None:
+                continue
+            real_data = [var for var in exo.nodal_vars if var.name.lower() == real_val.lower(
+                )][0].data
+            imag_data = [var for var in exo.nodal_vars if var.name.lower() == imag_val.lower(
+                )][0].data
+            data.append(real_data+1j*imag_data)
+            coordinates.append(coordinate_array(node_ids,coordinate_dir))
+
+        data = np.array(data).transpose(0,2,1)
+        coordinates = np.array(coordinates).view(CoordinateArray)
+        reference_coordinates = coordinates.copy()
+        reference_coordinates[...] = reference_coordinate
+        coordinates = np.concatenate((coordinates[...,np.newaxis],reference_coordinates[...,np.newaxis]),axis=-1)
+
+        return transfer_function_array(exo.time,data,coordinates)
+
 
 def transfer_function_array(abscissa,ordinate,coordinate,
                             comment1='',comment2='',
@@ -7209,6 +8006,7 @@ class ShockResponseSpectrumArray(NDDataArray):
                           plot_results=False, srs_frequencies=None,
                           return_velocity=False, return_displacement=False,
                           return_srs=False, return_sine_table=False,
+                          ignore_compensation_pulse = False,
                           verbose=False):
         """Generate a Sum of Decayed Sines signal given an SRS.
 
@@ -7333,6 +8131,8 @@ class ShockResponseSpectrumArray(NDDataArray):
             If True, the SRS of the generated signal will also be returned
         return_sine_table : bool, optional
             If True, a sine table will also be returned
+        ignore_compensation_pulse : bool, optional
+            If True, the compensation pulse will not be used.  Default is False.
         verbose : True, optional
             If True, additional diagnostics will be printed to the console.
 
@@ -7372,7 +8172,27 @@ class ShockResponseSpectrumArray(NDDataArray):
         if return_sine_table:
             sine_table = None
 
+        if sine_delays is not None:
+            sine_delays = np.array(sine_delays)
+            if sine_delays.ndim == 1:
+                sine_delays = np.broadcast_to(sine_delays,self.shape+sine_delays.shape)
+
+        if sine_decays is not None:
+            sine_decays = np.array(sine_decays)
+            if sine_decays.ndim == 1:
+                sine_decays = np.broadcast_to(sine_decays,self.shape+sine_decays.shape)
+
         for index, srs_fn in self.ndenumerate():
+
+            if sine_delays is not None:
+                delays = sine_delays[index]
+            else:
+                delays = None
+
+            if sine_decays is not None:
+                decays = sine_decays[index]
+            else:
+                decays = None
 
             if sine_frequencies is None and sine_tone_range is None:
                 this_sine_tone_range = [srs_fn.abscissa.min(), srs_fn.abscissa.max()]
@@ -7386,12 +8206,12 @@ class ShockResponseSpectrumArray(NDDataArray):
              *plot_stuff) = sp_sds(
                  sample_rate, block_size, sine_frequencies,
                  this_sine_tone_range, sine_tone_per_octave, sine_amplitudes,
-                 sine_decays, sine_delays, None, srs_breakpoints,
+                 decays, delays, None, srs_breakpoints,
                  srs_damping, srs_type, compensation_frequency,
                  compensation_decay, number_of_iterations, convergence,
                  error_tolerance, tau, num_time_constants, decay_resolution,
                  scale_factor, acceleration_factor, plot_results,
-                 srs_frequencies, verbose)
+                 srs_frequencies, ignore_compensation_pulse, verbose)
 
             acceleration[index] = acceleration_signal
             if return_displacement:
@@ -7568,6 +8388,238 @@ class ShockResponseSpectrumArray(NDDataArray):
                         for label,mx,my in zip(abscissa_marker_labels,abscissa_markers,marker_y):
                             axis.annotate(label, xy=(mx,my), textcoords='offset pixels', xytext=(4,4), ha='left', va='bottom')
         return axis
+
+    def mimo_inverse(self,transfer_function, sample_rate, block_size, 
+                     srs_damping=0.03, num_time_constants = None, tau = None, sine_decays = None, 
+                     rcond=None, accuracy_weight=1, input_weight=0,
+                     return_drive_signal=True, return_drive_table=False,
+                     return_projected_srs=False, return_optimization_result=False,
+                     return_complex_targets=False):
+        """
+        Computes an input signal that would recreate the specified SRS
+        
+        Computes an input signal that would recreate the specified SRSs if
+        played into a system with the specified transfer functions.  It uses
+        a phase-matching approach to compute a preferred phasing between
+        responses that are not specified by the SRS functions.  It then uses
+        the transfer functions to solve for drive signals that will achieve
+        those desired responses.
+
+        Parameters
+        ----------
+        transfer_function : TransferFunctionArray
+            The transfer functions to use in the MIMO calculation
+        sample_rate : float
+            The number of samples per second in the output signal
+        block_size : int
+            The number of samples in the output signal
+        srs_damping : float, optional
+            The damping used in SRS computations. The default is 0.03.
+        num_time_constants : int, optional
+            Number of decay time constants in the signal. One of this, tau, or
+            sine_decays must be specified.
+        tau : float, optional
+            The decay constant for the sine waves. One of this, num_time_constants,
+            or sine_decays must be specified.
+        sine_decays : ndarray, optional
+            An array of sine decay terms as used in the decayed sine table. One
+            of this, num_time_constants, or tau must be specified.
+        rcond : float, optional
+            A regularization parameter used on the MIMO inverse problem. The
+            default is no regularization.
+        accuracy_weight : float, optional
+            A weighting factor to give to the accuracy of the MIMO solution.
+            The default is 1.
+        input_weight : float, optional
+            A weighting factor to give to the magnitude of the drive signal in
+            the MIMO solution. The default is 0.
+        return_drive_signal : bool, optional
+            If True, return the calculated drive signal. The default is True.
+        return_drive_table : bool, optional
+            If True, return a DecayedSineTable containing the parameters of the
+            drive signal. The default is False.
+        return_projected_srs : bool, optional
+            If True, compute the response SRS achieved from the computed drive
+            signal. The default is False.
+        return_optimization_result : bool, optional
+            If True, return the optimization results. The default is False.
+        return_complex_targets : bool, optional
+            If True, return the complex targets of the MIMO calculation.
+            The default is False.
+
+        Returns
+        -------
+        drive_signal : TimeHistoryArray
+            A time history that when played through the transfer functions will
+            produce the specified SRS.  Only returned if return_drive_signal is
+            True.
+        drive_table : DecayedSineTable
+            A table containing frequency, amplitude, delay, and decay parameters
+            for each signal.  Only returned if return_drive_table is True.
+        projected_srs : ShockResponseSpectrumArray
+            A SRS computed from the predicted response of playing the drive
+            signal through the provided transfer functions.  Only returned if
+            return_projected_srs is True.
+        optimization_result : list of OptimizationResult
+            A set of results from the nonlinear optimizers.  Only returned if
+            return_optimization_result is True.
+        complex_targets : ndarray
+            The complex amplitudes of the response signals that were targeted
+            by the MIMO computation.  Only returned if return_complex_targets
+            is True.
+            
+        """
+        
+        spec_channels = np.unique(self.coordinate)
+        drive_channels = np.unique(transfer_function.reference_coordinate)
+        transfer_function = transfer_function[outer_product(spec_channels,drive_channels)]
+        
+        # Define a function to do the optimization
+        def optimize_phase_targets_pinv(A, b_amplitude, weight_accuracy=1.0, weight_magnitude=1.0, rcond=None, phi0 = None):
+            """
+            Optimize the phase targets of b to balance the accuracy of Ax ≈ b and the magnitude of x,
+            using the pseudoinverse of A for computational efficiency.
+
+            Parameters:
+                A (ndarray): Complex matrix (m x n).
+                b_amplitude (ndarray): Desired amplitudes of b (real-valued, length m).
+                weight_accuracy (float): Weight for the accuracy term (default: 1.0).
+                weight_magnitude (float): Weight for the magnitude term (default: 1.0).
+
+            Returns:
+                x_opt (ndarray): Optimal solution for x.
+                b_opt (ndarray): Optimal b with optimized phase targets.
+                result (OptimizeResult): Optimization result object from scipy.optimize.
+            """
+            m, n = A.shape
+
+            # Precompute the pseudoinverse of A
+            A_pinv = np.linalg.pinv(A,rcond=rcond)
+
+            # Objective function: balance accuracy of Ax ≈ b and magnitude of x
+            def objective(phi):
+                # Construct b with the current phase
+                b = b_amplitude * np.exp(1j * phi)
+                
+                # Compute x using the pseudoinverse
+                x = A_pinv @ b
+                
+                # Compute accuracy term: ||Ax - b||_2^2
+                Ax = A @ x
+                accuracy_term = np.sum((np.abs(Ax) - np.abs(b))**2)
+                
+                # Compute magnitude term: ||x||_2^2
+                magnitude_term = np.sum(np.abs(x)**2)
+                
+                # Weighted objective function
+                return weight_accuracy * accuracy_term + weight_magnitude * magnitude_term
+
+            # Initial guess for phi (zero phase)
+            if phi0 is None:
+                phi0 = np.zeros(m)
+
+            # Optimize the phase of b
+            result = minimize(objective, phi0, method='L-BFGS-B', bounds=[(-np.pi, np.pi)] * m)
+
+            # Optimal phase and corresponding b
+            phi_opt = result.x
+            b_opt = b_amplitude * np.exp(1j * phi_opt)
+
+            # Compute the optimal x using the pseudoinverse
+            x_opt = A_pinv @ b_opt
+
+            return x_opt, b_opt, result
+        
+        # Compute the sine table to determine the target amplitudes
+        srs_frequencies = np.unique(self.abscissa)
+        control_responses, control_table = self.sum_decayed_sines(
+            sample_rate,block_size,
+            srs_frequencies,
+            srs_damping=srs_damping,
+            num_time_constants=num_time_constants,
+            tau=tau,
+            sine_decays=sine_decays,
+            return_sine_table=True,
+            ignore_compensation_pulse=True)
+        
+        # Set up the initial optimization problem
+        x_opt = []
+        b_opt = []
+        result = []
+        
+        A_all = transfer_function.interpolate(srs_frequencies).ordinate.transpose(2,0,1)
+        b_all = control_table.amplitude[:,:-1].T
+        
+        # Solve for the specification phases that result in the best accuracy and force
+        for A,b_amplitude in zip(A_all,b_all):
+            x_o, b_o, r_o = optimize_phase_targets_pinv(A, b_amplitude,rcond=rcond, weight_accuracy=accuracy_weight,weight_magnitude=input_weight)
+            x_opt.append(x_o)
+            b_opt.append(b_o)
+            result.append(r_o)
+
+        x_opt = np.array(x_opt)
+        b_opt = np.array(b_opt)
+        
+        # Now that we know the phases, recompute the SRSs with adjusted phases
+        # to get better amplitude estimates
+        phases = np.angle(b_opt).T
+        delays = -phases/(2*np.pi*srs_frequencies)
+        decays = control_table.decay[:,:-1]
+        
+        control_responses_phase_update, control_tables_phase_update = self.sum_decayed_sines(
+            sample_rate,block_size,
+            srs_frequencies,
+            srs_damping=srs_damping,
+            return_sine_table=True,
+            sine_decays=decays,
+            sine_delays=delays,
+            ignore_compensation_pulse = True)
+        
+        # Now again solve for the drive signals to match this preferred phasing
+        x_opt = []
+        result = []
+        angle_guess = np.angle(b_opt)
+        b_opt2 = []
+
+        for A,b,phi0 in zip(A_all,b_all,angle_guess):
+            x_o, b_o, r_o = optimize_phase_targets_pinv(A, np.abs(b),rcond=rcond, phi0=phi0, weight_accuracy=accuracy_weight,weight_magnitude=input_weight)
+            x_opt.append(x_o)
+            b_opt2.append(b_o)
+            result.append(r_o)
+
+        x_opt = np.array(x_opt).T
+        b_opt2 = np.array(b_opt2).T
+        
+        # Extract the drive amplitudes and phases
+        drive_amplitudes = np.abs(x_opt)
+        drive_phases = np.angle(x_opt)
+        drive_delays = -drive_phases/(2*np.pi*srs_frequencies)
+        drive_decays = control_tables_phase_update.decay[0,:-1]
+        
+        # Create the drive table and signals
+        drive_table = decayed_sine_table(srs_frequencies, drive_amplitudes, drive_decays, drive_delays, drive_channels[:,np.newaxis])
+        drive_signal = drive_table.construct_signal(sample_rate,block_size)
+        
+        return_vals = []
+        
+        if return_drive_signal:
+            return_vals.append(drive_signal)
+        if return_drive_table:
+            return_vals.append(drive_table)
+        if return_projected_srs:
+            response = drive_signal.mimo_forward(transfer_function)
+            response_srs = response.srs(frequencies=srs_frequencies,damping=srs_damping)
+            return_vals.append(response_srs)
+        if return_optimization_result:
+            return_vals.append(result)
+        if return_complex_targets:
+            return_vals.append(b_opt2)
+        
+        return_vals=tuple(return_vals)
+        if len(return_vals) == 1:
+            return_vals = return_vals[0]
+            
+        return return_vals
 
 def shock_response_spectrum_array(abscissa,ordinate,coordinate,
                                   comment1='',comment2='',
@@ -7897,7 +8949,8 @@ def decayed_sine_table(frequency, amplitude, decay, delay, coordinate, comment1=
     coordinate = np.atleast_1d(coordinate)
     if coordinate.shape[-1] != 1:
         raise ValueError('`coordinate` must have shape (...,1)')
-    *shape, num_elements = frequency.shape
+    *other, num_elements = frequency.shape
+    shape = coordinate.shape[:-1]
     st = DecayedSineTable(shape, num_elements)
     st.frequency = frequency
     st.amplitude = amplitude

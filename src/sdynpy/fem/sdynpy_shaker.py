@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Tools for modeling shakers, and includes commercial shaker objects.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -81,7 +82,7 @@ import matplotlib.pyplot as plt
 #     and force gauge.
 #     '''
 
-#     # Cresistanceate the matrices
+#     # Create the matrices
 #     M_shaker = np.array([[m_armature,  0,  0,  0],
 #                          [ 0, m_body,  0,  0],
 #                          [ 0,  0, m_forcegauge,  0],

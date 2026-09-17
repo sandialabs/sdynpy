@@ -1,5 +1,6 @@
-"""Core SDynPy objects, including data and geometry
+"""Core SDynPy objects, including data and geometry"""
 
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -24,3 +25,4 @@ from . import sdynpy_data as data
 from . import sdynpy_array as array
 from . import sdynpy_system as system
 from . import sdynpy_matrix as matrix_mod
+from . import sdynpy_nonlinear_system as system_nl

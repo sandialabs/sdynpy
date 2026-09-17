@@ -82,7 +82,7 @@ def full_system_time_response(full_system):
     chirp_excitation_ordinate = np.array([chirp(time, 20, 1, 500), chirp(time, 20, 1, 500), chirp(time, 20, 1, 500)])
 
     chirp_excitation = sdpy.data_array(sdpy.data.FunctionTypes.TIME_RESPONSE, time, chirp_excitation_ordinate, external_node_coordinate[...,np.newaxis])
-    time_response, _ = full_system.time_integrate(chirp_excitation)
+    time_response = full_system.time_integrate(chirp_excitation,{2:full_system.coordinate})
 
     return time_response
 

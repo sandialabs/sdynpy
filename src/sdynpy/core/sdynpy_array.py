@@ -11,7 +11,8 @@ core SDynPy objects inherit from this class.  The main contribution of this
 array is allowing users to access the underlying structured array fields using
 attribute notation rather than the index notation used by numpy
 (e.g. object.field rather than object["field"]).
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.

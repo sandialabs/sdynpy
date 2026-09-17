@@ -3,7 +3,8 @@
 Interface to the universal file format (UFF).
 
 Using the functions in this module, one can read and write unv files.
-
+"""
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -217,7 +218,6 @@ dataset_dict = {55: dataset_55,
                 2411: dataset_2411,
                 2412: dataset_2412,
                 2420: dataset_2420}
-
 
 
 def readuff(filename, datasets=None, verbose=False):

@@ -7,7 +7,9 @@ direction (which corresponds to the local displacement coordinate system of
 that node in the SDynPy Geometry object).  Directions are the translations or
 rotations about the principal axis, and can be positive or negative.  The
 direction can also be empty for non-directional data.
+"""
 
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -246,6 +248,40 @@ class CoordinateArray(SdynpyArray):
         output = self.copy()
         output.node += offset_value
         return output
+    
+    def find_indices(self,coordinate):
+        """Finds the indices and signs of the specified coordinates
+
+        Parameters
+        ----------
+        coordinate : CoordinateArray
+            A CoordinateArray containing the coordinates to find.
+
+        Returns
+        -------
+        indices : tuple of ndarray
+            An tuple of arrays of indices into this CoordinateArray for each entry in
+            `coordinate`, which can be used directly to index this CoordinateArray.
+        signs : ndarray
+            An array of sign flips between this CoordinateArray at the indices in
+            `indices` for each entry in `coordinate`
+
+        Raises
+        ------
+        ValueError
+            If more than one coordinate matches, or no coordinate matches.
+        """
+        indices = np.zeros((self.ndim,)+coordinate.shape,dtype=int)
+        signs = np.zeros(coordinate.shape,dtype=int)
+        for check_index,coord in coordinate.ndenumerate():
+            index = np.array(np.where(abs(self)==abs(coord)))
+            if index.shape[-1] == 0:
+                raise ValueError(f'Coordinate {coordinate} not found in {self}')
+            if index.shape[-1] > 1:
+                raise ValueError(f'Coordinate {coordinate} found {index.shape[-1]} times in {self}')
+            indices[(slice(None),)+check_index] = index[...,0]
+            signs[check_index] = self[tuple(index[...,0])].sign()*coord.sign()
+        return tuple(indices),signs
 
     @classmethod
     def from_matlab_cellstr(cls, cellstr_data):

@@ -24,7 +24,13 @@ class CircularBufferWithOverlap:
         self.write_index = 0  # Index where the next block will be written
         self.read_index = 0 # Index where the next block will be read from
     
-    def write_get_data(self,data):
+    def report_buffer_state(self):
+        read_samples = np.sum(self.buffer_read)
+        write_samples = self.buffer_size - read_samples
+        print(f'{read_samples} of {self.buffer_size} have been read')
+        print(f'{write_samples} of {self.buffer_size} have been written but not read')
+
+    def write_get_data(self,data, read_remaining = False):
         """
         Writes a block of data and then returns a block if available
 
@@ -33,7 +39,7 @@ class CircularBufferWithOverlap:
         """
         self.write(data)
         try:
-            return self.read()
+            return self.read(read_remaining)
         except ValueError:
             return None
     
@@ -56,16 +62,22 @@ class CircularBufferWithOverlap:
         # Update the write index
         self.write_index = (self.write_index + data.shape[-1]) % self.buffer_size
         
-        print(self.buffer)
-        print(self.buffer_read)
+        # print(self.buffer)
+        # print(self.buffer_read)
         
-    def read(self):
+    def read(self, read_remaining = False):
         indices = np.arange(self.read_index - self.overlap_size, self.read_index + self.block_size) % self.buffer_size
+        if read_remaining:
+            # Pick out just the indices that are ok to read
+            # print('Reading Remaining:')
+            # print(f"{indices.copy()=}")
+            indices = np.concatenate((indices[:self.overlap_size],indices[self.overlap_size:][~self.buffer_read[indices[self.overlap_size:]]]))
+            # print(f"{indices.copy()=}")
         if np.any(self.buffer_read[indices[self.overlap_size:]]):
             raise ValueError('Data would be read multiple times.  Write data before reading again.')
         return_data = self.buffer[...,indices]
         self.buffer_read[indices[self.overlap_size:]] = True
-        self.read_index = (self.read_index + self.block_size) % self.buffer_size
-        print(self.buffer)
-        print(self.buffer_read)
+        self.read_index = (self.read_index + (return_data.shape[-1]-self.overlap_size)) % self.buffer_size
+        # print(self.buffer)
+        # print(self.buffer_read)
         return return_data

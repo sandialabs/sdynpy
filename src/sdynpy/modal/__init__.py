@@ -1,5 +1,6 @@
-"""Functions and classes for performing Experimental Modal Analysis
+"""Functions and classes for performing Experimental Modal Analysis"""
 
+"""
 Copyright 2022 National Technology & Engineering Solutions of Sandia,
 LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
@@ -21,4 +22,4 @@ from .sdynpy_smac import SMAC, SMAC_GUI
 from .sdynpy_modeshape import compute_residues, compute_shapes
 from .sdynpy_signal_processing_gui import SignalProcessingGUI
 from .sdynpy_ccmif import ColoredCMIF
-from .sdynpy_modal_test import read_modal_fit_data, ModalTest
+from ..doc.sdynpy_modal_test import read_modal_fit_data, ModalTest
