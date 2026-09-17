@@ -7,7 +7,7 @@ Created on Fri Feb  7 10:47:58 2025
 
 from ..core.sdynpy_geometry import (Geometry,NodeArray,CoordinateSystemArray,
                                     coordinate_system_array,node_array,
-                                    global_coord,_element_types,_exodus_elem_type_map)
+                                    global_coord)
 from ..core.sdynpy_shape import ShapeArray,shape_array
 from ..core.sdynpy_data import data_array,FunctionTypes,NDDataArray,GUIPlot,join
 from ..core.sdynpy_colors import color_list
@@ -26,6 +26,111 @@ try:
     import escdf
 except ImportError:
     escdf = None
+
+_element_types = {
+    11: 'bar2',# 'Rod',
+    21: 'bar2',# 'Linear beam',
+    22: 'bar2',# 'Tapered beam',
+    23: 'bar2',# 'Curved beam',
+    24: 'bar3',# 'Parabolic beam',
+    31: 'bar2',# 'Straight pipe',
+    32: 'bar2',# 'Curved pipe',
+    41: 'tri3',#'Plane Stress Linear Triangle',
+    42: 'tri6',#'Plane Stress Parabolic Triangle',
+    43: None,#Plane Stress Cubic Triangle',
+    44: 'quad4',#'Plane Stress Linear Quadrilateral',
+    45: 'quad8',#'Plane Stress Parabolic Quadrilateral',
+    46: None,#'Plane Strain Cubic Quadrilateral',
+    51: 'tri3',#'Plane Strain Linear Triangle',
+    52: 'tri6',#'Plane Strain Parabolic Triangle',
+    53: None,#'Plane Strain Cubic Triangle',
+    54: 'quad4',#'Plane Strain Linear Quadrilateral',
+    55: 'quad8',#'Plane Strain Parabolic Quadrilateral',
+    56: None,#'Plane Strain Cubic Quadrilateral',
+    61: 'tri3',#'Plate Linear Triangle',
+    62: 'tri6',#'Plate Parabolic Triangle',
+    63: None,#'Plate Cubic Triangle',
+    64: 'quad4',#'Plate Linear Quadrilateral',
+    65: 'quad8',#'Plate Parabolic Quadrilateral',
+    66: None,#'Plate Cubic Quadrilateral',
+    71: 'quad4',#'Membrane Linear Quadrilateral',
+    72: 'quad8',#'Membrane Parabolic Triangle',
+    73: None,#'Membrane Cubic Triangle',
+    74: 'tri3',#'Membrane Linear Triangle',
+    75: 'quad8',#'Membrane Parabolic Quadrilateral',
+    76: None,#'Membrane Cubic Quadrilateral',
+    81: 'tri3',#'Axisymetric Solid Linear Triangle',
+    82: 'tri6',#'Axisymetric Solid Parabolic Triangle',
+    84: None,#'Axisymetric Solid Linear Quadrilateral',
+    85: None,#'Axisymetric Solid Parabolic Quadrilateral',
+    91: 'tri3',#'Thin Shell Linear Triangle',
+    92: 'tri6',#'Thin Shell Parabolic Triangle',
+    93: None,#'Thin Shell Cubic Triangle',
+    94: 'quad4',#'Thin Shell Linear Quadrilateral',
+    95: 'quad8',#'Thin Shell Parabolic Quadrilateral',
+    96: None,#'Thin Shell Cubic Quadrilateral',
+    101: None,#'Thick Shell Linear Wedge',
+    102: None,#'Thick Shell Parabolic Wedge',
+    103: None,#'Thick Shell Cubic Wedge',
+    104: 'quad4',#'Thick Shell Linear Brick',
+    105: 'quad8',#'Thick Shell Parabolic Brick',
+    106: None,#'Thick Shell Cubic Brick',
+    111: 'tet4',#'Solid Linear Tetrahedron',
+    112: 'wedge6',#'Solid Linear Wedge',
+    113: 'wedge15',#'Solid Parabolic Wedge',
+    114: None,#'Solid Cubic Wedge',
+    115: 'hex8',#'Solid Linear Brick',
+    116: 'hex20',#'Solid Parabolic Brick',
+    117: None,#'Solid Cubic Brick',
+    118: 'tet10',#'Solid Parabolic Tetrahedron',
+    121: 'bar2',#'Rigid Bar',
+    122: None,#'Rigid Element',
+    136: None,#'Node To Node Translational Spring',
+    137: None,#'Node To Node Rotational Spring',
+    138: None,#'Node To Ground Translational Spring',
+    139: None,#'Node To Ground Rotational Spring',
+    141: None,#'Node To Node Damper',
+    142: None,#'Node To Gound Damper',
+    151: None,#'Node To Node Gap',
+    152: None,#'Node To Ground Gap',
+    161: 'sphere1',#'Lumped Mass',
+    171: None,#'Axisymetric Linear Shell',
+    172: None,#'Axisymetric Parabolic Shell',
+    181: None,#'Constraint',
+    191: None,#'Plastic Cold Runner',
+    192: None,#'Plastic Hot Runner',
+    193: None,#'Plastic Water Line',
+    194: None,#'Plastic Fountain',
+    195: None,#'Plastic Baffle',
+    196: None,#'Plastic Rod Heater',
+    201: None,#'Linear node-to-node interface',
+    202: None,#'Linear edge-to-edge interface',
+    203: None,#'Parabolic edge-to-edge interface',
+    204: None,#'Linear face-to-face interface',
+    208: None,#'Parabolic face-to-face interface',
+    212: None,#'Linear axisymmetric interface',
+    213: None,#'Parabolic axisymmetric interface',
+    221: None,#'Linear rigid surface',
+    222: None,#'Parabolic rigid surface',
+    231: None,#'Axisymetric linear rigid surface',
+    232: None,#'Axisymentric parabolic rigid surface'
+    }
+
+_inverse_element_types = {
+    'sphere1':161,
+    'bar2':21,
+    'bar3':24,
+    'tri3':41,
+    'tri6':42,
+    'quad4':44,
+    'quad8':45,
+    'tet4':111,
+    'tet10':118,
+    'hex8':115,
+    'hex20':116,
+    'wedge6':112,
+    'wedge15':113
+    }
 
 def to_geometry(geometry_dataset):
     if not (geometry_dataset.istype("geometry") or geometry_dataset.istype("point_cloud")):
@@ -51,7 +156,6 @@ def to_geometry(geometry_dataset):
             )
         nodes = np.array(nodes).view(NodeArray)
         css = np.array(css).view(CoordinateSystemArray)
-
         geometry = Geometry(nodes, css)
         try:
             for i, connection in enumerate(geometry_dataset.line_connection):
@@ -72,9 +176,16 @@ def to_geometry(geometry_dataset):
                     color_index = np.argmin(np.linalg.norm(color / 255 - color_list, axis=-1))
                 except TypeError:
                     color_index = 0
-                type_name = geometry_dataset.element_type[i][()]
+                type_name = geometry_dataset.element_type[i]
+                # try:
+                #     type_name = geometry_dataset.element_type[i][()]
+                # except TypeError as e:
+                #     try:
+                #         type_name = geometry_dataset.element_type[i]
+                #     except Exception:
+                #         raise ValueError('Could not parse type_name') from e
                 try:
-                    element_type = _exodus_elem_type_map[type_name.lower()]
+                    element_type = _inverse_element_types[type_name.lower()]
                 except KeyError:
                     if element_type_string is None:
                         element_type_string = {
@@ -90,8 +201,9 @@ def to_geometry(geometry_dataset):
                         )
                         continue
                 geometry.add_element(element_type, connection, color=color_index)
-        except TypeError:
+        except TypeError as e:
             # No elements
+            print(f'there was an error {e}')
             pass
         return geometry
     elif geometry_dataset.istype("point_cloud"):
@@ -240,7 +352,7 @@ datatype_names = {
     FunctionTypes.EIGENVALUE:['eigenvalue','eigenvalues'],
     FunctionTypes.EIGENVECTOR:['eigenvector','eigenvectors'],
     FunctionTypes.SHOCK_RESPONSE_SPECTRUM:
-        ['shock response spectrum','shock response spectra','srs','srss'],
+        ['shock response spectrum','shock response spectra','srs','srss', 'response spectrum'],
     FunctionTypes.FINITE_IMPULSE_RESPONSE_FILTER:
         ['finite impulse response function','firf'],
     FunctionTypes.MULTIPLE_COHERENCE:
@@ -262,9 +374,9 @@ def to_data(data_dataset):
         raise ValueError('data_dataset must be an ESCDF `data` dataset.')
     try:
         function_type = datatype_map[
-            data_dataset.data_type[...][()].replace(' ','').replace('_','').replace('-','').lower()]
+            data_dataset.data_type[...].replace(' ','').replace('_','').replace('-','').lower()]
     except KeyError:
-        raise ValueError('Unknown data type {:}'.format(data_dataset.data_type[...][()]))
+        raise ValueError('Unknown data type {:}'.format(data_dataset.data_type[...]))
     coordinate = coordinate_array(string_array=data_dataset.channel[...])
     ordinate_unit = np.char.add('Ordinate Unit: ', data_dataset.ordinate_unit[...])
     abscissa_unit = np.char.add(' -- Abscissa Unit: ', data_dataset.abscissa_unit[...])

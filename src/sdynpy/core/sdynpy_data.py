@@ -39,11 +39,16 @@ from ..signal_processing.sdynpy_cpsd import (cpsd as sp_cpsd,
                                              cpsd_from_coh_phs,
                                              db2scale,
                                              nth_octave_freqs)
-from ..signal_processing.sdynpy_srs import (srs as sp_srs,
-                                            octspace,
-                                            sum_decayed_sines as sp_sds,
-                                            sum_decayed_sines_reconstruction,
-                                            sum_decayed_sines_displacement_velocity)
+from ..signal_processing.sdynpy_interpolation import adaptive_linear_interpolation
+from ..signal_processing.sdynpy_srs import (
+    srs as sp_srs,
+    octspace,
+    sum_decayed_sines as sp_sds,
+    sum_decayed_sines_reconstruction,
+    sum_decayed_sines_displacement_velocity,
+    generate_windowed_random as sp_generate_windowed_random,
+    select_realization as sp_select_windowed_random_realization,
+)
 from ..signal_processing.sdynpy_rotation import lstsq_rigid_transform
 from ..signal_processing.sdynpy_generator import (
     pseudorandom, sine, ramp_envelope, chirp, pulse, sine_sweep)
@@ -54,7 +59,6 @@ from ..signal_processing.sdynpy_harmonic import (
     vold_kalman_filter as vkf,
     vold_kalman_filter_generator as vkf_gen)
 
-from ..fem.sdynpy_exodus import Exodus
 from scipy.linalg import eigh
 from scipy.optimize import minimize
 from enum import Enum
@@ -87,11 +91,12 @@ import os
 import scipy.signal as sig
 import warnings
 import scipy.fft as scipyfft
-from scipy.signal.windows import exponential, get_window
+from scipy.signal.windows import exponential, get_window, hann
 from scipy.signal import oaconvolve, convolve
 from scipy.interpolate import interp1d
 pyqtgraph.setConfigOption('background', 'w')
 pyqtgraph.setConfigOption('foreground', 'k')
+from pathlib import Path
 
 
 class SpecificDataType(Enum):
@@ -621,7 +626,7 @@ class NDDataArray(SdynpyArray):
                     continue
             if current_function.size > 1:
                 raise ValueError(
-                    f"Multiple functions exist ({current_function.size}) with coordinates {coordinate}"
+                    f"Multiple functions exist ({current_function.size}) with coordinates {coordinates}"
                 )
             output_array[indices] = current_function
         if not error_if_missing:
@@ -1815,6 +1820,8 @@ class NDDataArray(SdynpyArray):
             SDynpy array of the appropriate type from the loaded file.
 
         """
+        if isinstance(filename, Path):
+            filename = str(filename)
         if filename[-4:].lower() in ['.unv', '.uff']:
             try:
                 from ..fileio.sdynpy_uff import readunv
@@ -2335,6 +2342,7 @@ class TimeHistoryArray(NDDataArray):
             DESCRIPTION.
 
         """
+        from ..fem.sdynpy_exodus import Exodus  # noqa: E402
         if isinstance(exo, Exodus):
             node_ids = exo.get_node_num_map()
             variables = [(i + 1, v) for i, v in enumerate([x_disp, y_disp,
@@ -2359,6 +2367,68 @@ class TimeHistoryArray(NDDataArray):
             coordinates = coordinate_array(
                 node_ids, np.array((1, 2, 3))[:, np.newaxis]).flatten()
             return data_array(FunctionTypes.TIME_RESPONSE, abscissa, ordinate, coordinates[:, np.newaxis])
+
+    def adaptive_interpolate(self, rtol=1e-3, atol=0.0, scale = "range", max_points = None,
+                             relative_mode="global",
+                             local_floor_fraction=1e-3):
+        """
+        Represents a signal as a "best-fit" set of abscissa and ordinate that when
+        linearly interpolated, recovers the signal.
+
+        Parameters
+        ----------
+        rtol : float or array_like, shape (num_channels,)
+            Relative tolerance(s). Interpreted with the chosen channel scale.
+        atol : float or array_like, shape (num_channels,)
+            Absolute tolerance(s).
+        scale : {"range", "maxabs", "rms"} or array_like, shape (num_channels,)
+            Scale used for relative tolerance.
+        max_points : int, optional
+            Maximum number of breakpoint samples to keep, including endpoints.
+            If reached before tolerance is satisfied, the function stops.
+        relative_mode : {"global", "local", "hybrid"}, default "global"
+            How relative error is normalized.
+        local_floor_fraction : float, default 1e-3
+            Minimum local scale as a fraction of global channel scale.
+            
+        Returns
+        -------
+        interpolated_signals : TimeHistoryArray
+            Returns the interpolated version of the signals.
+
+        Notes
+        -----
+        The stopping condition is:
+    
+            abs(y - y_hat) <= atol[channel] + rtol[channel] * scale[channel]
+    
+        for every channel and every time sample.
+    
+        The algorithm greedily adds the sample with the largest normalized
+        violation over all channels.
+
+        """
+        
+        if not self.validate_common_abscissa():
+            raise ValueError('Signals must have common abscissa to perform adaptive interpolation')
+        
+        flat_self = self.ravel()
+        
+        x = flat_self[0].abscissa
+        y = flat_self.ordinate
+        
+        bp, x_bp, y_bp = adaptive_linear_interpolation(
+            y, x, rtol, atol, scale, max_points, relative_mode=relative_mode,
+            local_floor_fraction=local_floor_fraction)
+        
+        interpolated_signals = time_history_array(x_bp, y_bp, flat_self.coordinate,
+                                                  flat_self.comment1, flat_self.comment2,
+                                                  flat_self.comment3, flat_self.comment4,
+                                                  flat_self.comment5)
+        
+        interpolated_signals = interpolated_signals.reshape(self.shape)
+        
+        return interpolated_signals
 
     def fft(self, samples_per_frame=None, norm="backward", rtol=1, atol=1e-8,
             **scipy_rfft_kwargs):
@@ -2708,7 +2778,7 @@ class TimeHistoryArray(NDDataArray):
     def envelope(self, *envelope_args, **envelope_kwargs):
         """Computes the envelope of the time history array.
 
-        Any arguments passed to htis method will be passed to the `scipy.signal.envelope` function.
+        Any arguments passed to this method will be passed to the `scipy.signal.envelope` function.
 
         Returns
         -------
@@ -7273,6 +7343,7 @@ class TransferFunctionArray(NDDataArray):
         TransferFunctionArray
             FRF data from the exodus file
         """
+        from ..fem.sdynpy_exodus import Exodus  # noqa: E402
         if isinstance(exo, Exodus):
             variables = [v for v in [xval, xvali, yval, yvali, zval, zvali] if v is not None]
             exo = exo.load_into_memory(close=False, variables=variables, timesteps=None, blocks=[])
@@ -8267,6 +8338,224 @@ class ShockResponseSpectrumArray(NDDataArray):
 
         return return_values
 
+    def windowed_random(
+        self,
+        sample_rate,
+        block_size,
+        window=None,
+        acceleration_factor=1.0,
+        damping=0.03,
+        srs_type="MMAA",
+        match_points_per_octave=4,
+        output_points_per_octave=12,
+        num_realizations=1,
+        amp_init=None,
+        phase_init=None,
+        iterations=10,
+        correction=0.8,
+        error_tolerance=0.05,
+        randomize_phase=False,
+        max_frequency=None,
+        seed=None,
+        select_best=True,
+        selection_criterion="lanl_rms_db_error",
+        return_results=False,
+    ):
+        """
+        Generate windowed-random time histories that match the target SRS.
+    
+        Parameters
+        ----------
+        sample_rate : float
+            Sample rate of the generated time histories.
+        block_size : int
+            Number of samples in each generated time history.
+        window : ndarray, optional
+            Window applied to the stationary random waveform. If not specified,
+            a Hann window of length `block_size` is used.
+        acceleration_factor : float, optional
+            Scale factor used when integrating acceleration to obtain velocity and
+            displacement metrics. The default is `1.0`, which assumes consistent
+            units. For example, if SRS amplitudes are in `G` and velocity and
+            displacement are desired in `in/s` and `in`, set
+            ``acceleration_factor=386.0``.
+        damping : float, optional
+            Fraction of critical damping used for SRS calculations. The default
+            is `0.03`.
+        srs_type : int or str, optional
+            SRS type passed to the windowed-random synthesis routine. This may be
+            either an integer code or one of the case-insensitive string labels in
+            :attr:`ShockResponseSpectrumArray._srs_type_map`. The default is
+            ``"MMAA"``.
+        match_points_per_octave : float, optional
+            Frequency resolution used during the iterative SRS matching process.
+            The default is `4`.
+        output_points_per_octave : float, optional
+            Frequency resolution used for the returned SRS curves and error
+            metrics. The default is `12`.
+        num_realizations : int, optional
+            Number of random realizations to generate for each SRS function. The
+            default is `1`.
+        amp_init : ndarray, optional
+            Initial amplitude spectrum guess as a two-column array
+            ``[frequency, amplitude]``.
+        phase_init : ndarray, optional
+            Initial one-sided phase vector in radians.
+        iterations : int, optional
+            Maximum number of matching iterations per realization. The default is
+            `10`.
+        correction : float, optional
+            Fraction of the SRS error corrected at each iteration. The default is
+            `0.8`.
+        error_tolerance : float, optional
+            Relative SRS convergence tolerance. The default is `0.05`.
+        randomize_phase : bool, optional
+            If True, generate a random phase realization for each case. The
+            default is False.
+        max_frequency : float, optional
+            Maximum frequency for nonzero Fourier amplitude. If not specified, the
+            default is determined internally from the SRS and sample rate.
+        seed : int, optional
+            Seed for the random number generator.
+        select_best : bool, optional
+            If True, select a single realization for each SRS entry using
+            `selection_criterion`. If False, return all realizations. The default
+            is True.
+        selection_criterion : str, optional
+            Metric name used to select the best realization when
+            `select_best=True`. The default is ``"lanl_rms_db_error"``.
+        return_results : bool, optional
+            If True, also return the lower-level windowed-random results for each
+            SRS entry. The default is False.
+    
+        Returns
+        -------
+        TimeHistoryArray or tuple
+            If `select_best=True`, returns a `TimeHistoryArray` with shape
+            matching `self.shape`.
+    
+            If `select_best=False`, returns a `TimeHistoryArray` with shape
+            ``(num_realizations,) + self.shape``.
+    
+            If `return_results=True`, also returns an object array with shape
+            `self.shape` containing the lower-level results objects for each SRS
+            entry.
+    
+        Raises
+        ------
+        ValueError
+            If `srs_type` is invalid or if the supplied `window` does not have
+            length `block_size`.
+    
+        Notes
+        -----
+        This is a convenience wrapper around the lower-level windowed-random
+        synthesis functions in :mod:`sdynpy_srs`.
+    
+        The returned time histories are the compensated, windowed acceleration
+        histories.
+    
+        When `select_best=False`, the realization index is prepended to the shape
+        of the output `TimeHistoryArray`, so the first dimension corresponds to
+        realization number.
+        """
+        try:
+            if isinstance(srs_type, str):
+                srs_type = ShockResponseSpectrumArray._srs_type_map[srs_type.lower()]
+        except KeyError:
+            raise ValueError(
+                "Invalid `srs_type` specified, should be one of {:} (case insensitive)".format(
+                    [k for k in ShockResponseSpectrumArray._srs_type_map]
+                )
+            )
+    
+        if window is None:
+            window = hann(block_size, sym=False)
+        else:
+            window = np.asarray(window, dtype=float).reshape(-1)
+            if window.shape[0] != block_size:
+                raise ValueError("`window` length must equal `block_size`")
+    
+        time = np.arange(block_size) / sample_rate
+        master_rng = np.random.default_rng(seed)
+    
+        if select_best:
+            output_ordinate = np.empty(self.shape + (block_size,), dtype=float)
+        else:
+            output_ordinate = np.empty((num_realizations,) + self.shape + (block_size,), dtype=float)
+    
+        detailed_results = np.empty(self.shape, dtype=object)
+    
+        for index, srs_fn in self.ndenumerate():
+            ref_srs = np.column_stack([srs_fn.abscissa, srs_fn.ordinate])
+    
+            this_seed = int(master_rng.integers(0, np.iinfo(np.int64).max))
+    
+            results = sp_generate_windowed_random(
+                ref_srs=ref_srs,
+                window=window,
+                sample_rate=sample_rate,
+                gravity=acceleration_factor,
+                damping=damping,
+                srs_type=srs_type,
+                match_points_per_octave=match_points_per_octave,
+                output_points_per_octave=output_points_per_octave,
+                n_realizations=num_realizations,
+                amp_init=amp_init,
+                phase_init=phase_init,
+                iterations=iterations,
+                correction=correction,
+                error_tolerance=error_tolerance,
+                randomize_phase=randomize_phase,
+                max_frequency=max_frequency,
+                seed=this_seed,
+            )
+    
+            detailed_results[index] = results
+    
+            if select_best:
+                best = sp_select_windowed_random_realization(
+                    results,
+                    criterion=selection_criterion,
+                )
+                output_ordinate[index] = best.xc
+            else:
+                for ireal in range(num_realizations):
+                    output_ordinate[(ireal,) + index] = results.xc_matrix[:, ireal]
+    
+        if select_best:
+            output_coordinate = self.coordinate
+            output_comment1 = self.comment1
+            output_comment2 = self.comment2
+            output_comment3 = self.comment3
+            output_comment4 = self.comment4
+            output_comment5 = self.comment5
+            output_abscissa = time
+        else:
+            output_coordinate = np.broadcast_to(self.coordinate, (num_realizations,) + self.coordinate.shape)
+            output_comment1 = np.broadcast_to(self.comment1, (num_realizations,) + self.comment1.shape)
+            output_comment2 = np.broadcast_to(self.comment2, (num_realizations,) + self.comment2.shape)
+            output_comment3 = np.broadcast_to(self.comment3, (num_realizations,) + self.comment3.shape)
+            output_comment4 = np.broadcast_to(self.comment4, (num_realizations,) + self.comment4.shape)
+            output_comment5 = np.broadcast_to(self.comment5, (num_realizations,) + self.comment5.shape)
+            output_abscissa = np.broadcast_to(time, output_ordinate.shape)
+    
+        time_history = data_array(
+            FunctionTypes.TIME_RESPONSE,
+            output_abscissa,
+            output_ordinate,
+            output_coordinate,
+            output_comment1,
+            output_comment2,
+            output_comment3,
+            output_comment4,
+            output_comment5,
+        )
+    
+        if return_results:
+            return time_history, detailed_results
+        return time_history
+
     def plot(self, one_axis: bool = True, subplots_kwargs: dict = {},
              plot_kwargs: dict = {}, abscissa_markers = None, 
              abscissa_marker_labels = None, abscissa_marker_type = 'vline',
@@ -8579,6 +8868,7 @@ class ShockResponseSpectrumArray(NDDataArray):
         x_opt = []
         result = []
         angle_guess = np.angle(b_opt)
+        b_all = control_tables_phase_update.amplitude[:,:-1].T
         b_opt2 = []
 
         for A,b,phi0 in zip(A_all,b_all,angle_guess):

@@ -43,6 +43,7 @@ from .sdynpy_colors import colormap, coord_colormap
 from .sdynpy_coordinate import CoordinateArray, coordinate_array, from_nodelist
 from ..signal_processing.sdynpy_rotation import R, lstsq_rigid_transform
 from ..signal_processing.sdynpy_camera import point_on_pixel
+from ..signal_processing.sdynpy_massprops import rigid_body_shape_scaling
 from .sdynpy_matrix import matrix
 import time
 import os
@@ -2851,6 +2852,1154 @@ class Geometry:
         new_element = element_array((id,), elem_type, color, [np.array(connectivity)])
         self.element = np.concatenate((self.element, new_element))
 
+    def add_node(self, coordinate, id=None, color=1, def_cs=1, disp_cs=1):
+        """
+        Adds a node to the geometry
+
+        Parameters
+        ----------
+        coordinate : iterable
+            A length-3 iterable containing the node's position in its
+            definition coordinate system.
+        id : int, optional
+            The id number of the new node. The default is None, which results
+            in the new node having an id of one greater than the current
+            maximum node id.
+        color : int, optional
+            An integer corresponding to the color of the new node.
+            The default is 1.
+        def_cs : int, optional
+            The id of the coordinate system in which the node's position is
+            defined. The default is 1.
+        disp_cs : int, optional
+            The id of the coordinate system in which the node's displacements
+            are defined. The default is 1.
+
+        Returns
+        -------
+        None.  Modifications are made in-place to the current geometry.
+
+        """
+        if id is None:
+            if self.node.size > 0:
+                id = np.max(self.node.id) + 1
+            else:
+                id = 1
+        new_node = node_array((id,), np.array(coordinate, dtype='float64'),
+                              color, def_cs, disp_cs)
+        self.node = np.concatenate((self.node, new_node), axis=0)
+
+    def add_coordinate_system(self, matrix=None, id=None, name='', color=1, cs_type=0):
+        """
+        Adds a coordinate system to the geometry
+
+        Parameters
+        ----------
+        matrix : ndarray, optional
+            A 4x3 transformation matrix (rows 0-2 are the rotation matrix, row
+            3 is the origin). The default is None, which results in a global
+            Cartesian coordinate system (identity rotation, zero origin).
+        id : int, optional
+            The id number of the new coordinate system. The default is None,
+            which results in the new coordinate system having an id of one
+            greater than the current maximum coordinate system id.
+        name : str, optional
+            A string name for the new coordinate system. The default is ''.
+        color : int, optional
+            An integer corresponding to the color of the new coordinate system.
+            The default is 1.
+        cs_type : int, optional
+            The coordinate system type (0 = Cartesian, 1 = Polar,
+            2 = Spherical). The default is 0.
+
+        Returns
+        -------
+        None.  Modifications are made in-place to the current geometry.
+
+        """
+        if id is None:
+            if self.coordinate_system.size > 0:
+                id = np.max(self.coordinate_system.id) + 1
+            else:
+                id = 1
+        if matrix is None:
+            matrix = np.concatenate((np.eye(3), np.zeros((1, 3))), axis=0)
+        new_cs = coordinate_system_array((id,), name, color, cs_type,
+                                         np.array(matrix, dtype='float64'))
+        self.coordinate_system = np.concatenate((self.coordinate_system, new_cs), axis=0)
+
+    def edit(self=None, node_size=10, line_width=2):
+        """
+        Open an interactive Qt GUI for editing this geometry in place.
+
+        Can also be called on the class itself — ``new_geom =
+        Geometry.edit()`` — to create a new empty geometry and build it from
+        scratch in the editor.  In that case the new Geometry object is
+        returned (populated in place as you edit; if the call blocks in the Qt
+        event loop, it returns once the window is closed).
+
+        A window opens with a 3-D view of the geometry (left, resizable via the
+        splitter) beside editable tables for the nodes, coordinate systems,
+        tracelines, and elements (right).  Each coordinate system is drawn as a
+        labeled X/Y/Z arrow triad at its origin (labels read e.g. '1X+' for
+        coordinate system 1's X+ axis).  The active tab determines what
+        clicking in the
+        3-D view selects — nodes, coordinate systems, tracelines, or elements —
+        and what the buttons operate on.  Hold Shift to select multiple items;
+        press Escape to deselect everything; changing tabs deselects everything.
+
+        On the Nodes and Coord Systems tabs, "Add" immediately appends a new
+        item.  On the Tracelines tab, "Add" is a toggle: while active, click the
+        first node and Shift-click the rest in order, then "Create" commits
+        them as a new traceline.  On the Elements tab, "Add" is replaced by
+        three mutually exclusive toggles — "Add Beams" (type 21), "Add
+        Triangles" (type 41), and "Add Quadrilaterals" (type 44).  While one is
+        active, clicking in the 3-D view picks nodes instead of elements
+        (plain click restarts the pick list, Shift-click extends it), and each
+        element is committed automatically as soon as enough nodes have been
+        picked (2, 3, or 4), ready for the next element of the same type.
+
+        All changes are applied to this Geometry object in place, so the object
+        reflects the edits once the window is closed.  This method depends only
+        on ``qtpy``/``pyvistaqt`` (already required by :meth:`plot`) and on the
+        ``add_node``, ``add_coordinate_system``, ``add_traceline``, and
+        ``add_element`` methods, so it is self-contained and can be shared as a
+        single method.
+
+        Parameters
+        ----------
+        node_size : int, optional
+            Pixel size used to display nodes in the 3-D view. The default is 10.
+        line_width : int, optional
+            Pixel width used to display tracelines and element edges. The
+            default is 2.
+
+        Returns
+        -------
+        window or geometry
+            When called on an instance (``g.edit()``), the editor QMainWindow
+            is returned (also stored on ``self._editor_window``).  When called
+            on the class (``Geometry.edit()``), the newly created Geometry is
+            returned instead.
+        """
+        import sys
+        import pyvista as pv
+        from qtpy import QtCore
+        from qtpy.QtCore import QItemSelectionModel
+        from qtpy.QtWidgets import (
+            QApplication, QMainWindow, QWidget, QSplitter, QVBoxLayout,
+            QHBoxLayout, QTabWidget, QTableWidget, QTableWidgetItem, QPushButton,
+            QLabel, QMessageBox, QAbstractItemView, QComboBox, QStyledItemDelegate,
+            QInputDialog, QDialog, QFormLayout, QDoubleSpinBox, QDialogButtonBox)
+        try:
+            from qtpy.QtWidgets import QShortcut
+        except ImportError:
+            from qtpy.QtGui import QShortcut
+        from pyvistaqt import QtInteractor
+
+        # Called on the class (Geometry.edit()) rather than an instance:
+        # create a new empty geometry to build in the editor and return it
+        created_new = self is None
+        if created_new:
+            self = Geometry()
+        geometry = self
+        # A node's global position requires its definition coordinate system to
+        # exist, so guarantee at least a global Cartesian system is present.
+        if geometry.coordinate_system.size == 0:
+            geometry.add_coordinate_system()
+
+        app = QApplication.instance()
+        created_app = app is None
+        if created_app:
+            app = QApplication(sys.argv)
+
+        # ------------------------------------------------------------------ #
+        # Editor state and small helpers
+        # ------------------------------------------------------------------ #
+        # add_mode: None (selecting), 'traceline', or an element type (21/41/44)
+        # picked: ordered node ids accumulated while an add mode is active
+        # selected: ids of selected items of the active tab's kind
+        state = {'add_mode': None, 'picked': [], 'selected': [],
+                 'show_dofs': False}
+        flags = {'populating': False}
+        elem_node_counts = {21: 2, 41: 3, 44: 4}
+
+        def _fmt(v):
+            if isinstance(v, (float, np.floating)):
+                return repr(float(v))
+            return str(int(v))
+
+        def _conn_to_str(connectivity):
+            return ', '.join(str(int(c)) for c in np.atleast_1d(connectivity))
+
+        def _str_to_conn(text):
+            return np.array([int(t) for t in text.replace(',', ' ').split()],
+                            dtype='uint32')
+
+        # Color names in the order of the sdynpy (I-deas) rendering colormap:
+        # index 0 = Black ... index 15 = White
+        color_names = ['Black', 'Blue', 'Gray Blue', 'Light Blue', 'Cyan',
+                       'Dark Olive', 'Dark Green', 'Green', 'Yellow',
+                       'Golden Orange', 'Orange', 'Red', 'Magenta',
+                       'Light Magenta', 'Pink', 'White']
+
+        def _color_name(value):
+            value = int(value)
+            return color_names[value] if 0 <= value < 16 else str(value)
+
+        def _color_value(text):
+            text = text.strip()
+            try:
+                return int(text)
+            except ValueError:
+                pass
+            for value, name in enumerate(color_names):
+                if name.lower() == text.lower():
+                    return value
+            raise ValueError('Unknown color: {}'.format(text))
+
+        cs_type_names = ['Cartesian', 'Cylindrical', 'Spherical']
+
+        def _cs_type_name(value):
+            value = int(value)
+            return cs_type_names[value] if 0 <= value < 3 else str(value)
+
+        def _cs_type_value(text):
+            text = text.strip()
+            try:
+                return int(text)
+            except ValueError:
+                pass
+            for value, name in enumerate(cs_type_names):
+                if name.lower() == text.lower():
+                    return value
+            if text.lower() == 'sypherical':  # sdynpy's Excel template spelling
+                return 2
+            raise ValueError('Unknown coordinate system type: {}'.format(text))
+
+        # ------------------------------------------------------------------ #
+        # Window scaffolding
+        # ------------------------------------------------------------------ #
+        window = QMainWindow()
+        window.setWindowTitle('SDynPy Geometry Editor')
+        window.resize(1250, 780)
+        central = QWidget()
+        window.setCentralWidget(central)
+        splitter = QSplitter(QtCore.Qt.Horizontal)
+        splitter.setHandleWidth(8)
+        splitter.setChildrenCollapsible(False)
+        QHBoxLayout(central).addWidget(splitter)
+
+        # multi_samples=0: multisampling causes partially-rendered/faded lines
+        # on some macOS/VTK combinations, and it must be disabled at
+        # construction (before the GL context is realized) to take effect
+        interactor = QtInteractor(window, multi_samples=0)
+        # plot() calls plotter.show(); the interactor is already visible via its
+        # parent window, so neutralize its show() (headless idiom).
+        interactor.show = lambda *a, **k: None
+        interactor.add_axes()
+        splitter.addWidget(interactor)
+
+        panel = QWidget()
+        panel_layout = QVBoxLayout(panel)
+        splitter.addWidget(panel)
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([2 * window.width() // 3, window.width() // 3])
+
+        tabs = QTabWidget()
+        panel_layout.addWidget(tabs)
+        # Transient feedback (pick progress, errors) lives below the table
+        status = QLabel('')
+        panel_layout.addWidget(status)
+
+        node_cols = ['ID', 'X', 'Y', 'Z', 'Color', 'Def CS', 'Disp CS']
+        cs_cols = ['ID', 'Name', 'Color', 'Type', 'Origin X', 'Origin Y', 'Origin Z']
+        tl_cols = ['ID', 'Color', 'Description', 'Connectivity']
+        elem_cols = ['ID', 'Type', 'Color', 'Connectivity']
+
+        def _make_table(headers):
+            t = QTableWidget(0, len(headers))
+            t.setHorizontalHeaderLabels(headers)
+            t.setSelectionBehavior(QAbstractItemView.SelectRows)
+            # Excel-style: plain click selects one row (deselecting the rest),
+            # Shift-click selects the range in between, Cmd-click (Ctrl on
+            # Windows) adds/removes individual rows
+            t.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            t.horizontalHeader().setStretchLastSection(True)
+            return t
+
+        node_table = _make_table(node_cols)
+        cs_table = _make_table(cs_cols)
+        tl_table = _make_table(tl_cols)
+        elem_table = _make_table(elem_cols)
+        tabs.addTab(node_table, 'Nodes')
+        tabs.addTab(cs_table, 'Coord Systems')
+        tabs.addTab(tl_table, 'Tracelines')
+        tabs.addTab(elem_table, 'Elements')
+        all_tables = [node_table, cs_table, tl_table, elem_table]
+
+        def _ids_for_tab(tab):
+            return (geometry.node.id, geometry.coordinate_system.id,
+                    geometry.traceline.id, geometry.element.id)[tab]
+
+        class _ChoiceDelegate(QStyledItemDelegate):
+            # Dropdown of named choices for columns stored as integers
+            def __init__(self, parent, items):
+                super().__init__(parent)
+                self._items = items
+
+            def createEditor(self, parent, option, index):
+                combo = QComboBox(parent)
+                combo.addItems(self._items)
+                return combo
+
+            def setEditorData(self, editor, index):
+                position = editor.findText(str(index.data() or ''))
+                if position >= 0:
+                    editor.setCurrentIndex(position)
+
+            def setModelData(self, editor, model, index):
+                model.setData(index, editor.currentText())
+
+        # Named-choice columns per table: {column: list of names}.
+        # Nodes/Tracelines/Elements have a Color column; Coord Systems also
+        # has the Type column.
+        choice_columns_by_table = ({4: color_names},
+                                   {2: color_names, 3: cs_type_names},
+                                   {1: color_names},
+                                   {2: color_names})
+        for table, choice_columns in zip(all_tables, choice_columns_by_table):
+            for column, items in choice_columns.items():
+                table.setItemDelegateForColumn(
+                    column, _ChoiceDelegate(table, items))
+
+        # ------------------------------------------------------------------ #
+        # Buttons
+        # ------------------------------------------------------------------ #
+        buttons = QHBoxLayout()
+        panel_layout.addLayout(buttons)
+        btn_add = QPushButton('Add')
+        btn_beam = QPushButton('Add Beams')
+        btn_tri = QPushButton('Add Triangles')
+        btn_quad = QPushButton('Add Quadrilaterals')
+        for b in (btn_beam, btn_tri, btn_quad):
+            b.setCheckable(True)
+            b.setVisible(False)
+        btn_create = QPushButton('Create')
+        btn_create.setVisible(False)
+        btn_delete = QPushButton('Delete')
+        btn_dofs = QPushButton('Show DOF Arrows')
+        btn_dofs.setCheckable(True)
+        btn_rotate = QPushButton('Rotate Coordinate Systems')
+        btn_rotate.setVisible(False)
+        for w in (btn_add, btn_beam, btn_tri, btn_quad, btn_create, btn_delete,
+                  btn_dofs, btn_rotate):
+            buttons.addWidget(w)
+
+        # ------------------------------------------------------------------ #
+        # Geometry queries for picking
+        # ------------------------------------------------------------------ #
+        def _scene_scale():
+            if geometry.node.size > 1:
+                extent = np.max(np.ptp(geometry.global_node_coordinate(), axis=0))
+                if extent > 0:
+                    return extent
+            return 1.0
+
+        def _traceline_segments(connectivity):
+            # Split a traceline's connectivity on 0 (pen-up) entries
+            segments, current = [], []
+            for c in np.atleast_1d(connectivity):
+                if int(c) == 0:
+                    if len(current) >= 2:
+                        segments.append(np.array(current))
+                    current = []
+                else:
+                    current.append(int(c))
+            if len(current) >= 2:
+                segments.append(np.array(current))
+            return segments
+
+        def _point_segment_distance(p, a, b):
+            ab = b - a
+            denom = np.dot(ab, ab)
+            t = 0.0 if denom == 0 else np.clip(np.dot(p - a, ab) / denom, 0, 1)
+            return np.linalg.norm(p - (a + t * ab))
+
+        def _polyline_distance(p, node_ids, close=False):
+            ids = [int(i) for i in np.atleast_1d(node_ids)
+                   if np.any(geometry.node.id == i)]
+            if len(ids) == 0:
+                return np.inf
+            points = geometry.global_node_coordinate(np.array(ids))
+            if len(ids) == 1:
+                return np.linalg.norm(points[0] - p)
+            if close and len(points) > 2:
+                points = np.concatenate((points, points[:1]))
+            return min(_point_segment_distance(p, points[k], points[k + 1])
+                       for k in range(len(points) - 1))
+
+        def _nearest_node(p):
+            if geometry.node.size == 0:
+                return None
+            coords = geometry.global_node_coordinate()
+            return int(geometry.node.id[
+                int(np.argmin(np.linalg.norm(coords - p[None, :], axis=1)))])
+
+        def _nearest_cs(p):
+            if geometry.coordinate_system.size == 0:
+                return None
+            origins = geometry.coordinate_system.matrix[:, 3, :]
+            return int(geometry.coordinate_system.id[
+                int(np.argmin(np.linalg.norm(origins - p[None, :], axis=1)))])
+
+        def _nearest_traceline(p):
+            best, best_distance = None, np.inf
+            for tl in geometry.traceline:
+                segments = _traceline_segments(tl.connectivity)
+                distance = min((_polyline_distance(p, s) for s in segments),
+                               default=np.inf)
+                if distance < best_distance:
+                    best, best_distance = int(tl.id), distance
+            return best
+
+        def _nearest_element(p):
+            best, best_distance = None, np.inf
+            for elem in geometry.element:
+                connectivity = np.atleast_1d(elem.connectivity)
+                distance = _polyline_distance(p, connectivity,
+                                              close=len(connectivity) > 2)
+                if distance < best_distance:
+                    best, best_distance = int(elem.id), distance
+            return best
+
+        # ------------------------------------------------------------------ #
+        # Table <-> geometry synchronization
+        # ------------------------------------------------------------------ #
+        def refresh_tables():
+            flags['populating'] = True
+            node_table.setRowCount(geometry.node.size)
+            for r in range(geometry.node.size):
+                n = geometry.node[r]
+                for c, v in enumerate((_fmt(n.id), _fmt(n.coordinate[0]),
+                                       _fmt(n.coordinate[1]), _fmt(n.coordinate[2]),
+                                       _color_name(n.color), _fmt(n.def_cs),
+                                       _fmt(n.disp_cs))):
+                    node_table.setItem(r, c, QTableWidgetItem(v))
+
+            cs_table.setRowCount(geometry.coordinate_system.size)
+            for r in range(geometry.coordinate_system.size):
+                cs = geometry.coordinate_system[r]
+                cs_table.setItem(r, 0, QTableWidgetItem(_fmt(cs.id)))
+                cs_table.setItem(r, 1, QTableWidgetItem(str(cs.name)))
+                cs_table.setItem(r, 2, QTableWidgetItem(_color_name(cs.color)))
+                cs_table.setItem(r, 3, QTableWidgetItem(_cs_type_name(cs.cs_type)))
+                for c in range(3):
+                    cs_table.setItem(r, 4 + c, QTableWidgetItem(_fmt(cs.matrix[3, c])))
+
+            tl_table.setRowCount(geometry.traceline.size)
+            for r in range(geometry.traceline.size):
+                tl = geometry.traceline[r]
+                tl_table.setItem(r, 0, QTableWidgetItem(_fmt(tl.id)))
+                tl_table.setItem(r, 1, QTableWidgetItem(_color_name(tl.color)))
+                tl_table.setItem(r, 2, QTableWidgetItem(str(tl.description)))
+                tl_table.setItem(r, 3, QTableWidgetItem(_conn_to_str(tl.connectivity)))
+
+            elem_table.setRowCount(geometry.element.size)
+            for r in range(geometry.element.size):
+                el = geometry.element[r]
+                elem_table.setItem(r, 0, QTableWidgetItem(_fmt(el.id)))
+                elem_table.setItem(r, 1, QTableWidgetItem(_fmt(el.type)))
+                elem_table.setItem(r, 2, QTableWidgetItem(_color_name(el.color)))
+                elem_table.setItem(r, 3, QTableWidgetItem(_conn_to_str(el.connectivity)))
+            flags['populating'] = False
+
+        def _apply_node(row, col, txt):
+            if col == 0:
+                geometry.node.id[row] = int(txt)
+            elif col in (1, 2, 3):
+                geometry.node.coordinate[row, col - 1] = float(txt)
+            elif col == 4:
+                geometry.node.color[row] = _color_value(txt)
+            elif col == 5:
+                geometry.node.def_cs[row] = int(txt)
+            elif col == 6:
+                geometry.node.disp_cs[row] = int(txt)
+
+        def _apply_cs(row, col, txt):
+            if col == 0:
+                geometry.coordinate_system.id[row] = int(txt)
+            elif col == 1:
+                geometry.coordinate_system.name[row] = txt
+            elif col == 2:
+                geometry.coordinate_system.color[row] = _color_value(txt)
+            elif col == 3:
+                geometry.coordinate_system.cs_type[row] = _cs_type_value(txt)
+            else:
+                geometry.coordinate_system.matrix[row, 3, col - 4] = float(txt)
+
+        def _apply_tl(row, col, txt):
+            if col == 0:
+                geometry.traceline.id[row] = int(txt)
+            elif col == 1:
+                geometry.traceline.color[row] = _color_value(txt)
+            elif col == 2:
+                geometry.traceline.description[row] = txt
+            elif col == 3:
+                geometry.traceline.connectivity[row] = _str_to_conn(txt)
+
+        def _apply_elem(row, col, txt):
+            if col == 0:
+                geometry.element.id[row] = int(txt)
+            elif col == 1:
+                geometry.element.type[row] = int(txt)
+            elif col == 2:
+                geometry.element.color[row] = _color_value(txt)
+            elif col == 3:
+                geometry.element.connectivity[row] = _str_to_conn(txt)
+
+        def _remap_node_ids(mapping):
+            # Renumber node references in traceline/element connectivity after
+            # node ids change.  Applied as one simultaneous mapping so
+            # overlapping renames (e.g. offsetting 1,2,3 by +1) don't chain.
+            if not mapping:
+                return
+            for idx in range(geometry.traceline.size):
+                conn = np.atleast_1d(geometry.traceline.connectivity[idx])
+                geometry.traceline.connectivity[idx] = np.array(
+                    [mapping.get(int(c), int(c)) if int(c) != 0 else 0
+                     for c in conn], dtype='uint64')
+            for idx in range(geometry.element.size):
+                conn = np.atleast_1d(geometry.element.connectivity[idx])
+                geometry.element.connectivity[idx] = np.array(
+                    [mapping.get(int(c), int(c)) for c in conn], dtype='uint64')
+
+        def _remap_cs_ids(mapping):
+            # Renumber coordinate-system references on nodes after cs ids change
+            if not mapping or geometry.node.size == 0:
+                return
+            for field in (geometry.node.def_cs, geometry.node.disp_cs):
+                for i in range(len(field)):
+                    field[i] = mapping.get(int(field[i]), int(field[i]))
+
+        def _change_ids(tab_index, new_id_by_row):
+            # Assign new ids for the given rows and remap all references.
+            # Validated up front so a bad value changes nothing.
+            id_array = _ids_for_tab(tab_index)
+            mapping = {}
+            for r, new_id in new_id_by_row.items():
+                new_id = int(new_id)
+                if new_id < 0:
+                    raise ValueError('ids must be non-negative')
+                old_id = int(id_array[r])
+                if old_id != new_id:
+                    mapping[old_id] = new_id
+            for r, new_id in new_id_by_row.items():
+                id_array[r] = int(new_id)
+            if tab_index == 0:
+                _remap_node_ids(mapping)
+            elif tab_index == 1:
+                _remap_cs_ids(mapping)
+
+        def _finish_table_edit(table, tab_index, selected):
+            # Repopulate (normalizes display, reverts bad input) and restore
+            # the row selection it clears
+            refresh_tables()
+            flags['populating'] = True
+            selection_model = table.selectionModel()
+            for r in selected:
+                if r < table.rowCount():
+                    selection_model.select(
+                        table.model().index(r, 0),
+                        QItemSelectionModel.Select | QItemSelectionModel.Rows)
+            flags['populating'] = False
+            ids_arr = _ids_for_tab(tab_index)
+            state['selected'] = [int(ids_arr[r]) for r in selected
+                                 if r < len(ids_arr)]
+            render()
+
+        def _apply_edit(table, tab_index, apply_func, row, col, txt, selected):
+            # Editing a cell in a multi-row selection applies the new value to
+            # that column for every selected row
+            if len(selected) > 1 and row in selected:
+                apply_rows = selected
+            else:
+                apply_rows = [row]
+            try:
+                if col == 0:
+                    # id edits also renumber everything referencing those ids
+                    _change_ids(tab_index,
+                                {r: int(txt) for r in apply_rows})
+                else:
+                    for r in apply_rows:
+                        apply_func(r, col, txt)
+            except (ValueError, TypeError, OverflowError):
+                pass
+            _finish_table_edit(table, tab_index, selected)
+
+        def _make_cell_changed(table, tab_index, apply_func):
+            def handler(row, col):
+                if flags['populating']:
+                    return
+                txt = table.item(row, col).text()
+                selected = sorted({i.row() for i in table.selectedIndexes()})
+                _apply_edit(table, tab_index, apply_func, row, col, txt, selected)
+            return handler
+
+        def _make_context_edit(table, tab_index, apply_func, choice_columns):
+            # Right-clicking a cell edits it WITHOUT disturbing the current
+            # selection (double-click editing collapses the selection first),
+            # so this is the way to edit a column for many rows at once
+            def show_dialog(row, col, current, selected):
+                n_rows = len(selected) if (len(selected) > 1 and row in selected) else 1
+                header = table.horizontalHeaderItem(col).text()
+                label = '{} for {} selected row{}:'.format(
+                    header, n_rows, 's' if n_rows > 1 else '')
+                if col == 0 and n_rows > 1:
+                    # IDs must stay distinct, so a multi-row ID edit adds an
+                    # offset to each selected ID instead of setting them equal
+                    offset, ok = QInputDialog.getInt(
+                        window, 'Add ID Offset',
+                        'Offset to add to {} selected IDs:'.format(n_rows), 0)
+                    if not ok or offset == 0:
+                        return
+                    ids_before = _ids_for_tab(tab_index).copy()
+                    try:
+                        _change_ids(tab_index,
+                                    {r: int(ids_before[r]) + offset
+                                     for r in selected})
+                    except (ValueError, TypeError, OverflowError):
+                        pass
+                    _finish_table_edit(table, tab_index, selected)
+                    return
+                if col in choice_columns:
+                    items = choice_columns[col]
+                    start = items.index(current) if current in items else 0
+                    txt, ok = QInputDialog.getItem(
+                        window, 'Edit ' + header, label, items, start, False)
+                else:
+                    txt, ok = QInputDialog.getText(
+                        window, 'Edit ' + header, label, text=current)
+                if not ok:
+                    return
+                _apply_edit(table, tab_index, apply_func, row, col, txt, selected)
+
+            def handler(pos):
+                item = table.itemAt(pos)
+                if item is None:
+                    return
+                row, col = item.row(), item.column()
+                current = item.text()
+                selected = sorted({i.row() for i in table.selectedIndexes()})
+
+                # Defer the modal dialog until the right-click's mouse release
+                # has actually been processed -- opening it while the button is
+                # still down leaves the table holding a mouse grab that eats
+                # every subsequent click in the window (tabs stop responding).
+                # A 0 ms defer can still fire before the release arrives, so
+                # poll until no mouse button is pressed.
+                def open_when_released():
+                    if QApplication.mouseButtons() != QtCore.Qt.NoButton:
+                        QtCore.QTimer.singleShot(50, open_when_released)
+                        return
+                    show_dialog(row, col, current, selected)
+                QtCore.QTimer.singleShot(0, open_when_released)
+            return handler
+
+        table_wiring = ((node_table, 0, _apply_node),
+                        (cs_table, 1, _apply_cs),
+                        (tl_table, 2, _apply_tl),
+                        (elem_table, 3, _apply_elem))
+        for (table, tab_index, apply_func), choice_columns in zip(
+                table_wiring, choice_columns_by_table):
+            table.cellChanged.connect(
+                _make_cell_changed(table, tab_index, apply_func))
+            table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            table.customContextMenuRequested.connect(
+                _make_context_edit(table, tab_index, apply_func, choice_columns))
+
+        def _clear_table_selections():
+            flags['populating'] = True
+            for t in all_tables:
+                t.clearSelection()
+            flags['populating'] = False
+
+        def _sync_current_table_selection():
+            tab = tabs.currentIndex()
+            table = all_tables[tab]
+            ids_arr = _ids_for_tab(tab)
+            flags['populating'] = True
+            table.clearSelection()
+            selection_model = table.selectionModel()
+            for row in range(len(ids_arr)):
+                if int(ids_arr[row]) in state['selected']:
+                    selection_model.select(
+                        table.model().index(row, 0),
+                        QItemSelectionModel.Select | QItemSelectionModel.Rows)
+            flags['populating'] = False
+
+        def table_selection_changed():
+            if flags['populating']:
+                return
+            tab = tabs.currentIndex()
+            table = all_tables[tab]
+            ids_arr = _ids_for_tab(tab)
+            rows = sorted({i.row() for i in table.selectedIndexes()})
+            state['selected'] = [int(ids_arr[r]) for r in rows if r < len(ids_arr)]
+            render()
+        for t in all_tables:
+            t.itemSelectionChanged.connect(table_selection_changed)
+
+        # ------------------------------------------------------------------ #
+        # 3-D rendering
+        # ------------------------------------------------------------------ #
+        def _draw_red_polyline(connectivity):
+            for segment in _traceline_segments(connectivity):
+                valid = [i for i in segment if np.any(geometry.node.id == i)]
+                if len(valid) < 2:
+                    continue
+                points = geometry.global_node_coordinate(np.array(valid))
+                line = pv.PolyData(points,
+                                   lines=[len(points)] + list(range(len(points))))
+                interactor.add_mesh(line, color='red', line_width=line_width + 3,
+                                    reset_camera=False)
+
+        def _draw_red_points(points):
+            interactor.add_mesh(pv.PolyData(np.atleast_2d(points)), color='red',
+                                point_size=node_size + 8, reset_camera=False,
+                                render_points_as_spheres=True)
+
+        def _draw_all_lines():
+            # Workaround for a VTK bug on some platforms where scalar-mapped
+            # (cmap-colored) line cells are only partially rendered: re-draw
+            # every traceline and beam-type element as direct-colored meshes
+            # (no scalar mapping), grouped by color.  Lines that plot() DID
+            # draw are simply overdrawn in the identical color.
+            groups = {}
+            for tl in geometry.traceline:
+                for segment in _traceline_segments(tl.connectivity):
+                    groups.setdefault(int(tl.color), []).append(segment)
+            for elem in geometry.element:
+                if elem.type in _beam_elem_types:
+                    groups.setdefault(int(elem.color), []).append(
+                        np.atleast_1d(elem.connectivity))
+            for color_value, segments in groups.items():
+                all_points, lines, offset = [], [], 0
+                for segment in segments:
+                    valid = [int(i) for i in segment
+                             if np.any(geometry.node.id == i)]
+                    if len(valid) < 2:
+                        continue
+                    points = geometry.global_node_coordinate(np.array(valid))
+                    all_points.append(points)
+                    lines.extend([len(valid)] + list(range(offset, offset + len(valid))))
+                    offset += len(valid)
+                if not all_points:
+                    continue
+                mesh = pv.PolyData(np.concatenate(all_points), lines=lines)
+                rgb = colormap(np.clip(color_value, 0, 15) / 15)[:3]
+                interactor.add_mesh(mesh, color=rgb, line_width=line_width,
+                                    reset_camera=False)
+
+        def _draw_node_dofs():
+            # Draw labeled DOF arrows (translation directions in each node's
+            # displacement coordinate system) at every node.  A temporary
+            # geometry with only the nodes and coordinate systems is used so
+            # plot_coordinate adds just the arrows and labels -- the geometry
+            # itself is already drawn.
+            if geometry.node.size == 0:
+                return
+            arrow_geometry = Geometry(geometry.node.copy(),
+                                      geometry.coordinate_system.copy())
+            arrow_geometry.plot_coordinate(
+                label_dofs=True,
+                arrow_scale=0.1 * _scene_scale(),
+                arrow_scale_type='absolute',
+                plot_kwargs={'plotter': interactor, 'node_size': 0,
+                             'line_width': 0})
+
+        def _draw_coordinate_systems():
+            # Draw one labeled X/Y/Z arrow triad per coordinate system at its
+            # origin by calling plot_coordinate on a temporary geometry that
+            # has one node per coordinate system (node id = cs id, placed at
+            # the cs origin, displaced in that cs).  Labels read e.g. '1X+'
+            # for coordinate system 1's X+ axis.
+            if geometry.coordinate_system.size == 0:
+                return
+            css = geometry.coordinate_system
+            identity_cs_id = int(np.max(css.id)) + 1
+            triad_nodes = node_array(
+                css.id.copy(), np.atleast_2d(css.matrix[:, 3, :]).copy(),
+                1, identity_cs_id, css.id.copy())
+            triad_geometry = Geometry(
+                triad_nodes,
+                np.concatenate((css.copy(),
+                                coordinate_system_array((identity_cs_id,)))))
+            triad_geometry.plot_coordinate(
+                label_dofs=True,
+                arrow_scale=0.1 * _scene_scale(),
+                arrow_scale_type='absolute',
+                plot_kwargs={'plotter': interactor, 'node_size': 0,
+                             'line_width': 0})
+
+        def _draw_highlights():
+            tab = tabs.currentIndex()
+            highlight_nodes = list(state['picked'])
+            if state['add_mode'] is None:
+                if tab == 0:
+                    highlight_nodes.extend(state['selected'])
+                elif tab == 1:
+                    rows = [int(np.argmax(geometry.coordinate_system.id == i))
+                            for i in state['selected']
+                            if np.any(geometry.coordinate_system.id == i)]
+                    if rows:
+                        _draw_red_points(
+                            geometry.coordinate_system.matrix[rows, 3, :])
+                elif tab == 2:
+                    for i in state['selected']:
+                        match = geometry.traceline.id == i
+                        if np.any(match):
+                            _draw_red_polyline(
+                                geometry.traceline.connectivity[np.argmax(match)])
+                elif tab == 3:
+                    for i in state['selected']:
+                        match = geometry.element.id == i
+                        if not np.any(match):
+                            continue
+                        row = int(np.argmax(match))
+                        connectivity = np.atleast_1d(
+                            geometry.element.connectivity[row])
+                        valid = [c for c in connectivity
+                                 if np.any(geometry.node.id == c)]
+                        if len(valid) < 3 or geometry.element.type[row] in _beam_elem_types:
+                            _draw_red_polyline(connectivity)
+                        else:
+                            points = geometry.global_node_coordinate(np.array(valid))
+                            face = pv.PolyData(
+                                points, faces=[len(points)] + list(range(len(points))))
+                            # Translucent so it draws after (on top of) the
+                            # coincident opaque element face
+                            interactor.add_mesh(face, color='red', opacity=0.7,
+                                                reset_camera=False)
+            valid = [n for n in dict.fromkeys(highlight_nodes)
+                     if np.any(geometry.node.id == n)]
+            if valid:
+                _draw_red_points(geometry.global_node_coordinate(np.array(valid)))
+
+        def render():
+            try:
+                cam = interactor.camera_position
+            except Exception:
+                cam = None
+            interactor.clear()
+            try:
+                if geometry.node.size > 0:
+                    geometry.plot(plotter=interactor, node_size=node_size,
+                                  line_width=line_width, label_nodes=True)
+                    _draw_all_lines()
+                # Coordinate-system triads only show on the Coord Systems tab
+                if tabs.currentIndex() == 1:
+                    _draw_coordinate_systems()
+                # Per-node DOF arrows only show on the Nodes tab when toggled
+                if tabs.currentIndex() == 0 and state['show_dofs']:
+                    _draw_node_dofs()
+                _draw_highlights()
+            except Exception as e:
+                status.setText('Render error: {}'.format(e))
+            try:
+                if cam is not None:
+                    interactor.camera_position = cam
+                interactor.render()
+            except Exception as e:
+                status.setText('Render error: {}'.format(e))
+
+        # ------------------------------------------------------------------ #
+        # 3-D picking (tab-dependent selection / add-mode node picking)
+        # ------------------------------------------------------------------ #
+        def on_pick(point, *args):
+            if point is None:
+                return
+            p = np.asarray(point, dtype=float).ravel()[:3]
+            # Shift or Cmd (Ctrl on Windows; Qt maps Command to ControlModifier
+            # on macOS) extends the selection/pick instead of restarting it
+            shift = bool(QApplication.keyboardModifiers()
+                         & (QtCore.Qt.ShiftModifier | QtCore.Qt.ControlModifier))
+            if state['add_mode'] is not None:
+                nid = _nearest_node(p)
+                if nid is None:
+                    return
+                # Same selection rule as everywhere else: a plain click starts
+                # over with just this node; Shift-click extends the pick list
+                if shift:
+                    if not state['picked'] or state['picked'][-1] != nid:
+                        state['picked'].append(nid)
+                else:
+                    state['picked'] = [nid]
+                mode = state['add_mode']
+                if mode in elem_node_counts and \
+                        len(state['picked']) == elem_node_counts[mode]:
+                    geometry.add_element(mode, state['picked'])
+                    state['picked'] = []
+                    status.setText('Added element {} (type {})'.format(
+                        int(geometry.element.id[-1]), mode))
+                    refresh_tables()
+                else:
+                    status.setText('Picked nodes: {}'.format(state['picked']))
+                render()
+                return
+            tab = tabs.currentIndex()
+            item_id = (_nearest_node, _nearest_cs,
+                       _nearest_traceline, _nearest_element)[tab](p)
+            if item_id is None:
+                return
+            if shift:
+                if item_id in state['selected']:
+                    state['selected'].remove(item_id)
+                else:
+                    state['selected'].append(item_id)
+            else:
+                state['selected'] = [item_id]
+            _sync_current_table_selection()
+            render()
+
+        interactor.enable_point_picking(callback=on_pick, show_message=False,
+                                        left_clicking=True, picker='cell',
+                                        show_point=False)
+
+        # ------------------------------------------------------------------ #
+        # Button and mode handlers
+        # ------------------------------------------------------------------ #
+        def deselect_all():
+            state['selected'] = []
+            state['picked'] = []
+            _clear_table_selections()
+            status.setText('')
+            render()
+
+        def add_clicked(checked=False):
+            tab = tabs.currentIndex()
+            if tab == 0:
+                if geometry.node.size > 0:
+                    coord = geometry.global_node_coordinate().mean(axis=0)
+                else:
+                    coord = np.zeros(3)
+                geometry.add_node(coord)
+                refresh_tables()
+                render()
+            elif tab == 1:
+                geometry.add_coordinate_system()
+                refresh_tables()
+                render()
+            elif tab == 2:
+                if checked:
+                    state['add_mode'] = 'traceline'
+                    state['picked'] = []
+                    state['selected'] = []
+                    _clear_table_selections()
+                    status.setText('Click the first node, Shift-click the rest '
+                                   'in order, then press Create.')
+                else:
+                    state['add_mode'] = None
+                    state['picked'] = []
+                    status.setText('')
+                render()
+
+        def elem_mode_handler(button, elem_type):
+            def handler(checked):
+                if checked:
+                    for b in (btn_beam, btn_tri, btn_quad):
+                        if b is not button:
+                            b.blockSignals(True)
+                            b.setChecked(False)
+                            b.blockSignals(False)
+                    state['add_mode'] = elem_type
+                    state['picked'] = []
+                    state['selected'] = []
+                    _clear_table_selections()
+                    status.setText(
+                        'Click the first node, then Shift-click {} more per '
+                        'element (type {}).'.format(
+                            elem_node_counts[elem_type] - 1, elem_type))
+                else:
+                    state['add_mode'] = None
+                    state['picked'] = []
+                    status.setText('')
+                render()
+            return handler
+
+        def create_clicked():
+            if state['add_mode'] == 'traceline' and len(state['picked']) >= 2:
+                geometry.add_traceline(state['picked'])
+                state['picked'] = []
+                status.setText('Traceline added; keep clicking to build another.')
+                refresh_tables()
+                render()
+
+        def tab_changed(index):
+            state['add_mode'] = None
+            state['picked'] = []
+            state['selected'] = []
+            for b in (btn_beam, btn_tri, btn_quad):
+                b.blockSignals(True)
+                b.setChecked(False)
+                b.blockSignals(False)
+                b.setVisible(index == 3)
+            btn_add.blockSignals(True)
+            btn_add.setChecked(False)
+            btn_add.blockSignals(False)
+            btn_add.setCheckable(index == 2)
+            btn_add.setVisible(index != 3)
+            btn_create.setVisible(index == 2)
+            btn_dofs.setVisible(index == 0)
+            btn_rotate.setVisible(index == 1)
+            _clear_table_selections()
+            status.setText('')
+            render()
+
+        def _prune_connectivity(remove_ids):
+            remove = set(int(x) for x in np.atleast_1d(remove_ids))
+            if geometry.traceline.size > 0:
+                keep = [not (set(int(c) for c in tl.connectivity) & remove)
+                        for tl in geometry.traceline]
+                geometry.traceline = geometry.traceline[np.array(keep, dtype=bool)]
+            if geometry.element.size > 0:
+                keep = [not (set(int(c) for c in el.connectivity) & remove)
+                        for el in geometry.element]
+                geometry.element = geometry.element[np.array(keep, dtype=bool)]
+
+        def _selected_rows(table):
+            return sorted({i.row() for i in table.selectedIndexes()})
+
+        def delete_selected():
+            tab = tabs.currentIndex()
+            if tab == 0:
+                rows = _selected_rows(node_table)
+                if not rows:
+                    return
+                remove_ids = geometry.node.id[rows]
+                keep = np.ones(geometry.node.size, dtype=bool)
+                keep[rows] = False
+                geometry.node = geometry.node[keep]
+                _prune_connectivity(remove_ids)
+            elif tab == 1:
+                rows = _selected_rows(cs_table)
+                if not rows:
+                    return
+                cs_ids = geometry.coordinate_system.id[rows]
+                used = np.concatenate((geometry.node.def_cs, geometry.node.disp_cs)) \
+                    if geometry.node.size > 0 else np.array([], dtype='uint64')
+                in_use = np.isin(cs_ids, used)
+                if in_use.any():
+                    QMessageBox.warning(
+                        window, 'Coordinate system in use',
+                        'Cannot delete coordinate system(s) still referenced by '
+                        'nodes: {}'.format(cs_ids[in_use].tolist()))
+                    return
+                keep = np.ones(geometry.coordinate_system.size, dtype=bool)
+                keep[rows] = False
+                geometry.coordinate_system = geometry.coordinate_system[keep]
+            elif tab == 2:
+                rows = _selected_rows(tl_table)
+                if not rows:
+                    return
+                keep = np.ones(geometry.traceline.size, dtype=bool)
+                keep[rows] = False
+                geometry.traceline = geometry.traceline[keep]
+            elif tab == 3:
+                rows = _selected_rows(elem_table)
+                if not rows:
+                    return
+                keep = np.ones(geometry.element.size, dtype=bool)
+                keep[rows] = False
+                geometry.element = geometry.element[keep]
+            state['selected'] = []
+            state['picked'] = []
+            refresh_tables()
+            render()
+
+        btn_add.clicked.connect(add_clicked)
+        btn_beam.toggled.connect(elem_mode_handler(btn_beam, 21))
+        btn_tri.toggled.connect(elem_mode_handler(btn_tri, 41))
+        btn_quad.toggled.connect(elem_mode_handler(btn_quad, 44))
+        def toggle_dofs(checked):
+            state['show_dofs'] = checked
+            render()
+
+        def rotate_cs():
+            rows = _selected_rows(cs_table)
+            if not rows:
+                status.setText('Select coordinate system(s) to rotate first.')
+                return
+            dialog = QDialog(window)
+            dialog.setWindowTitle('Rotate Coordinate Systems')
+            form = QFormLayout(dialog)
+            angle_box = QDoubleSpinBox()
+            angle_box.setRange(-360.0, 360.0)
+            angle_box.setDecimals(3)
+            angle_box.setSuffix(' deg')
+            axis_combo = QComboBox()
+            axis_combo.addItems(['X', 'Y', 'Z'])
+            form.addRow('Rotation angle:', angle_box)
+            form.addRow('Rotation axis:', axis_combo)
+            buttons_box = QDialogButtonBox(
+                QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            buttons_box.accepted.connect(dialog.accept)
+            buttons_box.rejected.connect(dialog.reject)
+            form.addRow(buttons_box)
+            if not dialog.exec_():
+                return
+            angle = angle_box.value()
+            axis_index = axis_combo.currentIndex()
+            # Same convention as the Excel-template reader:
+            # new rotation = R(axis, angle, degrees=True).T @ existing
+            rotation = R(axis_index, angle, degrees=True).T
+            for r in rows:
+                geometry.coordinate_system.matrix[r, :3, :] = \
+                    rotation @ geometry.coordinate_system.matrix[r, :3, :]
+            status.setText('Rotated {} coordinate system(s) {} deg about {}.'.format(
+                len(rows), angle, axis_combo.currentText()))
+            _finish_table_edit(cs_table, 1, rows)
+
+        btn_create.clicked.connect(create_clicked)
+        btn_delete.clicked.connect(delete_selected)
+        btn_dofs.toggled.connect(toggle_dofs)
+        btn_rotate.clicked.connect(rotate_cs)
+        tabs.currentChanged.connect(tab_changed)
+        escape_shortcut = QShortcut(QKeySequence(QtCore.Qt.Key_Escape), window)
+        escape_shortcut.activated.connect(deselect_all)
+        try:
+            interactor.add_key_event('Escape', deselect_all)
+        except Exception:
+            pass
+
+        # ------------------------------------------------------------------ #
+        # Launch
+        # ------------------------------------------------------------------ #
+        # Shut the VTK render window down cleanly when the editor closes --
+        # otherwise its render timer keeps firing into a destroyed native
+        # window, which spams wglMakeCurrent/'handle is invalid' errors on
+        # Windows the next time the editor is opened
+        original_close_event = window.closeEvent
+
+        def close_event(event):
+            try:
+                interactor.close()
+            except Exception:
+                pass
+            original_close_event(event)
+        window.closeEvent = close_event
+
+        refresh_tables()
+        window.show()
+        window.raise_()
+        render()
+        interactor.reset_camera()
+        self._editor_window = window
+        if created_app:
+            app.exec_()
+        return geometry if created_new else window
+
     @classmethod
     def from_unv(cls, unv_dict):
         """
@@ -5025,6 +6174,86 @@ class Geometry:
         mat_dict = {key: getattr(self, key).assemble_mat_dict() for key in
                     ['node', 'coordinate_system', 'element', 'traceline']}
         scipy_savemat(filename,mat_dict)
+
+    def mass_props_from_rigid_body_shapes(self, rigid_shapes, return_rectified_shapes = False,
+                                          rectified_rotations_about_center_of_mass = False):
+        """
+        Computes mass properties (mass, inertia tensor, center of mass) given
+        a set of mass-normalized rigid body shapes.
+
+        Parameters
+        ----------
+        rigid_shapes : ShapeArray
+            A set of mass normalized rigid body mode shapes.  They need not be
+            in any particular ordering, and may be linear combinations of 
+            translations and rotations.  They must, however, span the space of
+            rigid body modes.
+        return_rectified_shapes : bool
+            If True, a new set of shapes will be returned that will be rectified
+            to the three pure translations, and the three pure rotations about
+            the center of mass.
+        rectified_rotations_about_center_of_mass : bool
+            If True, the rectified shapes will be constructed such that they
+            rotate about the test article's center of mass.
+
+        Returns
+        -------
+        mass_properties : dict
+            Contains:
+                - 'A' : (6, 6) transformation matrix such that B ≈ Phi @ A
+                - 'G' : (6, 6) rigid-body generalized mass matrix in basis B
+                - 'mass' : scalar total mass
+                - 'com_relative' : (3,) center of mass relative to rotation reference point
+                - 'com_global' : (3,) center of mass in global coordinates (if center_of_rotation provided)
+                - 'inertia_about_reference' : (3, 3) inertia tensor about the rotation reference point
+                - 'inertia_about_com' : (3, 3) inertia tensor about center of mass
+                - 'principal_inertias' : (3,) eigenvalues of inertia_about_com
+                - 'principal_axes' : (3, 3) eigenvectors of inertia_about_com
+                - 'reconstruction_error' : relative Frobenius norm of B - Phi @ A
+                - 'G_tt', 'G_tr', 'G_rt', 'G_rr' : 3x3 blocks of G
+        rectified_rigid_shapes : ShapeArray
+            Scaled versions of the rigid body shapes consisting of three pure
+            translation and three pure rotations.
+
+        """
+        if rigid_shapes.size != 6:
+            raise ValueError('There must be six rigid shapes.')
+        if not np.all(rigid_shapes.ravel()[0].coordinate == rigid_shapes.coordinate):
+            raise ValueError('All rigid shapes must have the same coordinate.')
+        coordinates = rigid_shapes.ravel()[0].coordinate
+        rbm_modes = rigid_shapes.ravel().shape_matrix.T
+        rb_shapes = self.rigid_body_shapes(coordinates)
+        translation_shapes = rb_shapes[:3].shape_matrix.T
+        rotation_shapes = rb_shapes[3:].shape_matrix.T
+        scaled_shapes, mass_properties = rigid_body_shape_scaling(
+            rbm_modes, translation_shapes, rotation_shapes,
+            center_of_rotation=np.array([0,0,0]),
+            return_mass_properties = True)
+        if return_rectified_shapes:
+            if rectified_rotations_about_center_of_mass:
+                com = mass_properties['com_global']
+                rb_shapes = self.rigid_body_shapes(coordinates, cg=com)
+                translation_shapes = rb_shapes[:3].shape_matrix.T
+                rotation_shapes = rb_shapes[3:].shape_matrix.T
+                scaled_shapes, mass_properties_com = rigid_body_shape_scaling(
+                    rbm_modes, translation_shapes, rotation_shapes,
+                    center_of_rotation=com,
+                    return_mass_properties = True)
+            rectified_rigid_shapes = rigid_shapes.copy()
+            rectified_rigid_shapes.frequency = 0
+            rectified_rigid_shapes.damping = 0
+            rectified_rigid_shapes.comment1 = [
+                'Translation X','Translation Y','Translation Z',
+                'Rotation X','Rotation Y','Rotation Z']
+            rectified_rigid_shapes.comment2 = ''
+            rectified_rigid_shapes.comment3 = ''
+            rectified_rigid_shapes.comment4 = ''
+            rectified_rigid_shapes.comment5 = ''
+            rectified_rigid_shapes.shape_matrix = scaled_shapes.T
+            return mass_properties, rectified_rigid_shapes
+        else:
+            return mass_properties
+        
 
     def rigid_body_shapes(self, coordinates, mass=1, inertia=np.eye(3), cg=np.zeros(3), principal_axes=False):
         """

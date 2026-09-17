@@ -107,8 +107,8 @@ def _build_models():
             connectivity=[arr for arr in node_ids[frame_connectivity]],
         ),
     )
-    frame_modes = frame_system.eigensolution(num_modes=50)
-    frame_geometry.plot_shape(frame_modes)
+    # frame_modes = frame_system.eigensolution(num_modes=50)
+    # frame_geometry.plot_shape(frame_modes)
 
     # Create the wing
 
@@ -270,8 +270,8 @@ def _build_models():
     coordinates = _from_nodelist(wing_geometry.node.id, directions=[1, 2, 3, 4, 5, 6])
     wing_system = _System(coordinates, M, K)
 
-    wing_modes = wing_system.eigensolution(num_modes=50)
-    wing_geometry.plot_shape(wing_modes)
+    # wing_modes = wing_system.eigensolution(num_modes=50)
+    # wing_geometry.plot_shape(wing_modes)
 
     # Now let's create a coupled system
     equivalent_frame_indices = np.array(
@@ -325,10 +325,10 @@ def _build_models():
         )
     )
     full_system = _System(coordinates, M, K)
-    full_modes = full_system.eigensolution(num_modes=50)
+    # full_modes = full_system.eigensolution(num_modes=50)
     full_geometry = frame_geometry + wing_geometry
 
-    full_geometry.plot_shape(full_modes)
+    # full_geometry.plot_shape(full_modes)
 
     return full_geometry, full_system, frame_geometry, frame_system, wing_geometry, wing_system
 

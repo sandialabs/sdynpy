@@ -31,3 +31,5 @@ from . import sdynpy_geometry_fitting as geometry_fitting
 from . import sdynpy_frf_inverse as frf_inverse
 from . import sdynpy_srs as srs
 from . import sdynpy_buffer as buffer
+from . import sdynpy_massprops as massprops
+from . import sdynpy_interpolation as interpolation

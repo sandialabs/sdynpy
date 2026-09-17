@@ -25,8 +25,11 @@ import netCDF4
 import numpy as np
 from types import SimpleNamespace
 import datetime
+from importlib.metadata import version
 import copy
 from ..core.sdynpy_geometry import global_coord, local_coord, global_deflection, _exodus_elem_type_map
+from ..core.sdynpy_shape import ShapeArray
+from ..core.sdynpy_data import TimeHistoryArray
 
 _inverse_exodus_elem_type_map = {val: key for key, val in _exodus_elem_type_map.items()}
 _inverse_exodus_elem_type_map[61] = "tri3"
@@ -2073,6 +2076,197 @@ class Exodus:
 
     def extract_sharp_edges(self, *args, **kwargs):
         return extract_sharp_edges(self, *args, **kwargs)
+
+    def copy_structure(self, filename, variables = None, clobber = False, close = False):
+        """
+        Copies the structure of an exodus file into a new file.
+
+        Copies the number of nodes/elements, element blocks, variable names, etc.
+        However it does not copy the timesteps or any variable values.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the new file into which the data will be copied.
+        variables : list of str
+            A list of variable names to copy over.  If not specified, all
+            variables will be copied.
+        clobber : bool
+            If True, if the file already exists, it will be overwritten. 
+            If False (default), an error will occur if the file already
+            exists.
+        close : bool
+            If True, the new file will be closed after it is created.
+            If False (default), the new file will remain open for further
+            modifications.
+        """
+        # Create the empty exodus file
+        exo = Exodus(filename, mode='w', clobber=clobber,
+                     title = self.title,
+                     num_dims = self.num_dimensions,
+                     num_nodes = self.num_nodes,
+                     num_elem = self.num_elems,
+                     num_blocks = self.num_blks,
+                     num_node_sets = self.num_node_sets,
+                     num_side_sets = self.num_side_sets)
+
+        # Add QA Record for this operation
+        qa_records = self.get_qa_records()
+        qa_records = qa_records + (('sdynpy Exodus.repack', version('sdynpy'),str(datetime.datetime.now().date()),str(datetime.datetime.now().time())),)
+        exo.put_qa_records(qa_records)
+
+        # Copy over the info records
+        exo.put_info_records(self.get_info_records())
+
+        # Set up the nodes
+        exo.put_coord_names(self.get_coord_names())
+        exo.put_coords(self.get_coords())
+        if 'node_num_map' in self._ncdf_handle.variables:
+            exo.put_node_num_map(self.get_node_num_map())
+            
+        # Set up nodal variables
+        if variables is None:
+            names = self.get_node_variable_names()
+        else:
+            names = [name for name in self.get_node_variable_names() if name in variables]
+        if len(names) > 0:
+            exo.put_node_variable_names(names)
+
+        # Set up elements
+        if 'elem_num_map' in self._ncdf_handle.variables:
+            exo.put_elem_num_map(self.get_elem_num_map())
+
+        exo.put_elem_blk_ids(self.get_elem_blk_ids())
+
+        for block in self.get_elem_blk_ids():
+            elem_type, elems_in_block, nodes_per_element, attributes_per_element = self.get_elem_blk_info(block)
+            exo.put_elem_blk_info(block, elem_type, elems_in_block, nodes_per_element, attributes_per_element)
+            exo.set_elem_connectivity(block,self.get_elem_connectivity(block))
+            if attributes_per_element > 0:
+                exo.set_elem_attr(block, self.get_elem_attr(block))
+        
+        if variables is None:
+            elem_variable_names = self.get_elem_variable_names()
+            elem_variable_table = self.get_elem_variable_table()
+        else:
+            elem_variable_names = self.get_elem_variable_names()
+            elem_variable_table = self.get_elem_variable_table()
+            is_kept = [name in variables for name in elem_variable_names]
+            elem_variable_table = elem_variable_table[:,is_kept]
+            elem_variable_names = [name for name in elem_variable_names if name in variables]
+        if len(elem_variable_names) > 0:
+            exo.put_elem_variable_names(elem_variable_names,elem_variable_table)
+
+        # Set up nodesets
+        if self.num_node_sets > 0:
+            exo.put_node_set_names(self.get_node_set_names())
+            exo.put_node_set_ids(self.get_node_set_ids())
+
+            for node_set in self.get_node_set_ids():
+                nodes = self.get_node_set_nodes(node_set)
+                try:
+                    dist_factor = self.get_node_set_dist_factors(node_set)
+                except sdpy.fem.sdynpy_exodus.ExodusError:
+                    dist_factor = None
+                exo.put_node_set_info(node_set, nodes, dist_factor)
+
+        # Set up sidesets
+        if self.num_side_sets > 0:
+            exo.put_side_set_names(self.get_side_set_names())
+            exo.put_side_set_ids(self.get_side_set_ids())
+
+            for side_set in self.get_side_set_ids():
+                elements,sides = self.get_side_set_faces(side_set)
+                try:
+                    dist_factor = self.get_side_set_dist_factors(side_set)
+                except sdpy.fem.sdynpy_exodus.ExodusError:
+                    dist_factor = None
+                exo.put_side_set_info(side_set, elements, sides, dist_factor)
+            
+        # Set up global variables
+        if variables is None:
+            names = self.get_global_variable_names()
+        else:
+            names = [name for name in self.get_global_variable_names() if name in variables]
+        if len(names) > 0:
+            exo.put_global_variable_names(names)
+
+        if close:
+            exo.close()
+
+        return exo
+
+    def repack(self, filename, repack_data, variables_to_repack = None, indices_in_repack = None, clobber = False, verbose = False, close = False):
+        if verbose:
+            print(f'Copying {self.filename} structure to {filename}')
+        exo = self.copy_structure(filename, variables_to_repack, clobber)
+
+        if isinstance(repack_data, TimeHistoryArray):
+            if not repack_data.validate_common_abscissa():
+                print('Warning: repack_data does not have common abscissa.  The first abscissa entry will be used.')
+            times = repack_data.ravel()[0].abscissa
+            repack_data = repack_data.ordinate
+        elif isinstance(repack_data, ShapeArray):
+            times = repack_data.frequency
+            repack_data = repack_data.shape_matrix.T
+        else:
+            repack_data = np.asarray(repack_data)
+            times = np.arange(repack_data.shape[-1])
+            
+        # Set the times
+        exo.set_times(times)
+        num_times = len(times)
+
+        # Go through node variables
+        if variables_to_repack is None:
+            variable_names = self.get_node_variable_names()
+        else:
+            variable_names = [name for name in self.get_node_variable_names() if name in variables_to_repack]
+        for variable_name in variable_names:
+            if verbose:
+                print(f'Repacking Nodal Variable {variable_name}')
+            data_matrix = self.get_node_variable_values(variable_name).T
+            if indices_in_repack is not None:
+                data_matrix = data_matrix[...,indices_in_repack]
+            for step in range(num_times):
+                q = repack_data[:,step]
+                exo.set_node_variable_values(variable_name, step, data_matrix@q)
+                
+        # Go through element variables
+        if variables_to_repack is None:
+            variable_names = self.get_elem_variable_names()
+        else:
+            variable_names = [name for name in self.get_elem_variable_names() if name in variables_to_repack]
+        for variable_name in variable_names:
+            for block_id in self.get_elem_blk_ids():
+                if verbose:
+                    print(f'Repacking Element Variable {variable_name} for block {block_id}')
+                data_matrix = self.get_elem_variable_values(block_id, variable_name).T
+                if indices_in_repack is not None:
+                    data_matrix = data_matrix[...,indices_in_repack]
+                for step in range(num_times):
+                    q = repack_data[:,step]
+                    exo.set_elem_variable_values(block_id, variable_name, step, data_matrix@q)
+                    
+        # Go through global variables
+        if variables_to_repack is None:
+            variable_names = self.get_global_variable_names()
+        else:
+            variable_names = [name for name in self.get_global_variable_names() if name in variables_to_repack]
+        for variable_name in variable_names:
+            if verbose:
+                print(f'Repacking Global Variable {variable_name}')
+            data_matrix = self.get_global_variable_values(variable_name)
+            if indices_in_repack is not None:
+                data_matrix = data_matrix[...,indices_in_repack]
+            for step in range(num_times):
+                q = repack_data[:,step]
+                exo.set_global_variable_values(variable_name, step, data_matrix@q)
+                
+        if close:
+            exo.close()
+
+        return exo
 
     def __repr__(self):
         return_string = 'Exodus File at {:}'.format(self.filename)

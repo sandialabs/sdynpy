@@ -8,8 +8,12 @@ Created on Fri Nov  3 09:23:59 2023
 import numpy as np
 from scipy.signal import lfilter
 import matplotlib.pyplot as plt
-from scipy.signal import oaconvolve
+from scipy.signal import oaconvolve, windows
 from scipy.optimize import minimize, NonlinearConstraint, nnls
+from scipy.interpolate import interp1d
+from scipy.integrate import cumulative_trapezoid
+from dataclasses import dataclass
+from typing import Optional, List, Dict, Any
 
 
 def srs(signal, dt, frequencies=None, damping=0.05, spectrum_type=9,
@@ -1638,3 +1642,1015 @@ def sum_decayed_sines_minimize(sample_rate, block_size,
                 return_vals += (fig, ax)
 
     return return_vals
+
+
+@dataclass
+class WindowedRandomMetrics:
+    """
+    Scalar metrics describing one generated realization.
+
+    Parameters
+    ----------
+    lanl_rms_db_error : float
+        LANL-style root-mean-square dB error between the achieved and target
+        SRS over the matching frequencies.
+    energy : float
+        Signal energy computed from the acceleration time history.
+    rea : float
+        Root energy amplitude.
+    peak_accel : float
+        Maximum absolute acceleration in the compensated windowed history.
+    peak_vel : float
+        Maximum absolute velocity derived by integrating the compensated
+        acceleration history.
+    peak_disp : float
+        Maximum absolute displacement derived by integrating the compensated
+        acceleration history.
+
+    Notes
+    -----
+    These metrics are derived from the compensated windowed realization and are
+    intended for ranking or selecting among multiple random realizations.
+    """
+    lanl_rms_db_error: float
+    energy: float
+    rea: float
+    peak_accel: float
+    peak_vel: float
+    peak_disp: float
+
+
+@dataclass
+class WindowedRandomResults:
+    """
+    Collection of generated windowed-random realizations and associated results.
+
+    Parameters
+    ----------
+    time : ndarray
+        Time vector with shape `(n_samples,)`.
+    sample_rate : float
+        Sampling rate in samples per second.
+    gravity : float
+        Acceleration-of-gravity conversion factor used when integrating
+        acceleration to obtain velocity and displacement.
+    window : ndarray
+        Applied time-domain window with shape `(n_samples,)`.
+    ref_srs : ndarray
+        Reference SRS breakpoint array with shape `(n_breakpoints, 2)`. The
+        first column contains frequency and the second contains spectral
+        amplitude.
+    srs_frequency : ndarray
+        Frequency vector corresponding to `srs_matrix`, with shape `(n_freq,)`.
+    srs_matrix : ndarray
+        Computed SRS values for each realization, with shape
+        `(n_freq, n_realizations)`.
+    xc_matrix : ndarray
+        Compensated windowed acceleration histories, with shape
+        `(n_samples, n_realizations)`.
+    rr_matrix : ndarray
+        Stationary random acceleration histories prior to windowing, with shape
+        `(n_samples, n_realizations)`.
+    metrics : list of WindowedRandomMetrics
+        Metrics for each realization.
+    metadata : dict
+        Dictionary of generation settings and other bookkeeping information.
+
+    Notes
+    -----
+    Each column of `xc_matrix`, `rr_matrix`, and `srs_matrix` corresponds to
+    one realization.
+    """
+    time: np.ndarray
+    sample_rate: float
+    gravity: float
+    window: np.ndarray
+    ref_srs: np.ndarray
+    srs_frequency: np.ndarray
+    srs_matrix: np.ndarray
+    xc_matrix: np.ndarray
+    rr_matrix: np.ndarray
+    metrics: List[WindowedRandomMetrics]
+    metadata: Dict[str, Any]
+
+    @property
+    def metrics_array(self) -> np.ndarray:
+        """
+        Return the realization metrics as a dense numeric array.
+
+        Returns
+        -------
+        ndarray
+            Array with shape `(n_realizations, 6)` containing columns:
+
+            1. LANL RMS dB error
+            2. energy
+            3. REA
+            4. peak acceleration
+            5. peak velocity
+            6. peak displacement
+        """
+        return np.array([
+            [
+                m.lanl_rms_db_error,
+                m.energy,
+                m.rea,
+                m.peak_accel,
+                m.peak_vel,
+                m.peak_disp,
+            ]
+            for m in self.metrics
+        ], dtype=float)
+
+
+@dataclass
+class SelectedRealization:
+    """
+    One realization selected from an ensemble.
+
+    Parameters
+    ----------
+    index : int
+        Zero-based index of the selected realization.
+    time : ndarray
+        Time vector with shape `(n_samples,)`.
+    xc : ndarray
+        Compensated windowed acceleration history with shape `(n_samples,)`.
+    rr : ndarray
+        Stationary random acceleration history with shape `(n_samples,)`.
+    srs : ndarray
+        Shock response spectrum of the selected realization with shape
+        `(n_freq, 2)`, where the first column is frequency and the second is
+        SRS amplitude.
+    metrics : WindowedRandomMetrics
+        Scalar metrics associated with the selected realization.
+    """
+    index: int
+    time: np.ndarray
+    xc: np.ndarray
+    rr: np.ndarray
+    srs: np.ndarray
+    metrics: WindowedRandomMetrics
+
+
+def breakpoint_spectrum(
+    frequencies: np.ndarray,
+    break_frequencies: np.ndarray,
+    break_values: np.ndarray,
+    floor: Optional[float] = None,
+) -> np.ndarray:
+    """
+    Evaluate a breakpoint-defined spectrum using log-log interpolation.
+
+    Parameters
+    ----------
+    frequencies : ndarray
+        Frequencies at which the spectrum should be evaluated.
+    break_frequencies : ndarray
+        Monotonically increasing breakpoint frequencies.
+    break_values : ndarray
+        Spectrum amplitudes at `break_frequencies`.
+    floor : float, optional
+        Value used outside the breakpoint range. If not provided, the default
+        is `min(break_values) / 1000`.
+
+    Returns
+    -------
+    ndarray
+        Spectrum amplitudes evaluated at `frequencies`.
+
+    Raises
+    ------
+    ValueError
+        If any breakpoint frequencies or breakpoint amplitudes are not
+        positive.
+
+    Notes
+    -----
+    This function reproduces the numerical intent of MATLAB ``bpspec``:
+    straight lines on log-log axes between breakpoint pairs, with a constant
+    floor outside the breakpoint range.
+    """
+    frequencies = np.asarray(frequencies, dtype=float)
+    break_frequencies = np.asarray(break_frequencies, dtype=float)
+    break_values = np.asarray(break_values, dtype=float)
+
+    if np.any(break_frequencies <= 0):
+        raise ValueError("break_frequencies must be positive")
+    if np.any(break_values <= 0):
+        raise ValueError("break_values must be positive")
+
+    if floor is None:
+        floor = np.min(break_values) / 1000.0
+
+    y = np.full_like(frequencies, floor, dtype=float)
+    inside = (frequencies >= break_frequencies[0]) & (frequencies <= break_frequencies[-1])
+
+    if np.any(inside):
+        f = interp1d(
+            np.log(break_frequencies),
+            np.log(break_values),
+            kind="linear",
+            bounds_error=False,
+            fill_value=np.log(floor),
+        )
+        y[inside] = np.exp(f(np.log(frequencies[inside])))
+
+    return y
+
+
+def temporal_moments(x: np.ndarray, dt: float) -> Dict[str, float]:
+    """
+    Compute temporal moments of a sampled signal.
+
+    Parameters
+    ----------
+    x : ndarray
+        Input signal amplitudes with shape `(n_samples,)`.
+    dt : float
+        Sampling interval.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+
+        - ``"energy"`` : float
+            Signal energy.
+        - ``"tau"`` : float
+            Time centroid.
+        - ``"duration_rms"`` : float
+            Root-mean-square duration.
+        - ``"skewness_metric"`` : float
+            Cube-root form of the third central temporal moment.
+        - ``"kurtosis_metric"`` : float
+            Fourth-root form of the fourth central temporal moment.
+        - ``"rea"`` : float
+            Root energy amplitude.
+
+    Notes
+    -----
+    This function follows the intent of MATLAB ``gtempmom`` and is used to
+    compute metrics for each generated acceleration history.
+    """
+    x = np.asarray(x, dtype=float).reshape(-1)
+    t = dt * np.arange(len(x))
+    z = x ** 2
+
+    E = abs(dt * np.sum(z))
+    tau = float(dt * np.dot(t, z) / E)
+
+    t_centered = t - tau
+    D2 = float((dt / E) * np.dot(t_centered ** 2, z))
+    D = np.sqrt(max(D2, 0.0))
+
+    S3 = float((dt / E) * np.dot(t_centered ** 3, z))
+    K4 = float((dt / E) * np.dot(t_centered ** 4, z))
+
+    S = np.sign(S3) * abs(S3) ** (1 / 3) if S3 != 0 else 0.0
+    K = abs(K4) ** 0.25
+    R = np.sqrt(E / D) if D > 0 else np.inf
+
+    return {
+        "energy": E,
+        "tau": tau,
+        "duration_rms": D,
+        "skewness_metric": S,
+        "kurtosis_metric": K,
+        "rea": R,
+    }
+
+
+def lanl_rms_db_error(
+    db_error: np.ndarray,
+    frequency: np.ndarray,
+    octave_resolution: float,
+) -> Dict[str, np.ndarray | float]:
+    """
+    Compute LANL-style RMS dB error over octave-spaced frequency lines.
+
+    Parameters
+    ----------
+    db_error : ndarray
+        dB error values. May be one-dimensional with shape `(n_freq,)` or
+        two-dimensional with shape `(n_freq, n_series)`.
+    frequency : ndarray
+        Frequency vector with shape `(n_freq,)`.
+    octave_resolution : float
+        Number of points per octave.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+
+        - ``"rms"`` : float
+            Average RMS dB error across series.
+        - ``"std"`` : float
+            Average standard deviation of dB error across series.
+        - ``"avg"`` : ndarray
+            Mean dB error across series at each frequency.
+
+    Raises
+    ------
+    ValueError
+        If the first dimension of `db_error` does not match the length of
+        `frequency`.
+
+    Notes
+    -----
+    This follows the octave-band weighting used in the MATLAB
+    ``lanl_rmsdberror`` routine.
+    """
+    db_error = np.asarray(db_error, dtype=float)
+    frequency = np.asarray(frequency, dtype=float).reshape(-1)
+
+    if db_error.ndim == 1:
+        db_error = db_error[:, None]
+
+    if db_error.shape[0] != len(frequency):
+        raise ValueError("frequency length must match first dimension of db_error")
+
+    upper = (2 ** (1 / (2 * octave_resolution))) * frequency
+    lower = np.concatenate([[frequency[0] / (2 ** (1 / (2 * octave_resolution)))], upper[:-1]])
+    band = upper - lower
+    frange = upper[-1] - lower[0]
+
+    avg = np.mean(db_error, axis=1)
+
+    rms_vals = []
+    std_vals = []
+    for j in range(db_error.shape[1]):
+        rms_vals.append(np.sqrt((1.0 / frange) * np.sum((db_error[:, j] ** 2) * band)))
+        std_vals.append(np.sqrt((1.0 / frange) * np.sum(((db_error[:, j] - avg) ** 2) * band)))
+
+    return {
+        "rms": float(np.mean(rms_vals)),
+        "std": float(np.mean(std_vals)),
+        "avg": avg,
+    }
+
+
+_NUTTALL_COEFFS = {
+    0: (1.0, 0.0, 0.0, 0.0),
+    1: (0.5, 0.5, 0.0, 0.0),
+    2: (0.42, 0.50, 0.08, 0.0),
+    3: (7938 / 18608, 9240 / 18608, 1430 / 18608, 0.0),
+    4: (0.42323, 0.49755, 0.07922, 0.0),
+    5: (0.44959, 0.49364, 0.05677, 0.0),
+    6: (0.35875, 0.48829, 0.14128, 0.01168),
+    7: (0.40217, 0.49703, 0.09892, 0.00188),
+    8: (0.375, 0.5, 0.125, 0.0),
+    9: (0.40897, 0.5, 0.09103, 0.0),
+    10: (10 / 32, 15 / 32, 6 / 32, 1 / 32),
+    11: (0.338936, 0.481973, 0.161054, 0.018027),
+    12: (0.355768, 0.487396, 0.144232, 0.012604),
+    13: (0.53836, 0.46164, 0.0, 0.0),
+    14: (0.4243801, 0.4973406, 0.0782793, 0.0),
+    15: (0.3635819, 0.4891775, 0.1365995, 0.0106411),
+}
+
+
+def nuttall_window(n: int, window_type: int = 12) -> np.ndarray:
+    """
+    Generate a Nuttall-family window.
+
+    Parameters
+    ----------
+    n : int
+        Number of samples in the window.
+    window_type : int, default=12
+        Window type identifier. Only the subset required by the compensation
+        algorithm is supported here.
+
+    Returns
+    -------
+    ndarray
+        Window values with shape `(n,)`.
+
+    Raises
+    ------
+    ValueError
+        If `n` is not positive or if `window_type` is unsupported.
+
+    Notes
+    -----
+    This is a minimal implementation derived from the MATLAB ``nuttall``
+    routine and is included only to support waveform compensation.
+    """
+    if n <= 0:
+        raise ValueError("n must be positive")
+
+    if window_type == 16:
+        return windows.flattop(n, sym=False)
+    if window_type == 17:
+        if n % 2 == 0:
+            t = np.arange(-n // 2, n // 2)
+        else:
+            m = (n - 1) / 2
+            t = np.arange(-m - 0.5, m + 0.5, 1.0)
+        return np.cos(np.pi * t / n)
+    if window_type == 19:
+        return windows.kaiser(n, beta=9.0, sym=False)
+
+    if window_type not in _NUTTALL_COEFFS:
+        raise ValueError(f"Unsupported Nuttall window type {window_type}")
+
+    if n % 2 == 0:
+        t = np.arange(-n // 2, n // 2)
+    else:
+        m = (n - 1) / 2
+        t = np.arange(-m - 0.5, m + 0.5, 1.0)
+
+    a0, a1, a2, a3 = _NUTTALL_COEFFS[window_type]
+    return (
+        a0
+        + a1 * np.cos(2 * np.pi * t / n)
+        + a2 * np.cos(4 * np.pi * t / n)
+        + a3 * np.cos(6 * np.pi * t / n)
+    )
+
+
+def window_compensation(
+    x: np.ndarray,
+    window: np.ndarray | float,
+    sample_rate: float,
+    delay: float = 0.0,
+) -> Dict[str, np.ndarray]:
+    """
+    Apply a compensation waveform to enforce zero terminal cumulative moments.
+
+    Parameters
+    ----------
+    x : ndarray
+        Input waveform with shape `(n_samples,)`.
+    window : ndarray or float
+        If an array, it is used directly as the compensation window. If a
+        scalar, it is interpreted as a compensation frequency and a Nuttall
+        window is generated internally.
+    sample_rate : float
+        Sampling rate in samples per second.
+    delay : float, default=0.0
+        Delay applied to the compensating waveform, in seconds.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+
+        - ``"comp"`` : ndarray
+            The compensating waveform.
+        - ``"xc"`` : ndarray
+            The compensated waveform.
+        - ``"coefficients"`` : ndarray
+            The three coefficients multiplying the DC, sine, and cosine
+            compensation basis terms.
+
+    Notes
+    -----
+    This function follows the numerical approach of MATLAB ``sdwcomp``. The
+    compensation is constructed from three basis terms: a windowed DC term,
+    a windowed sine term, and a windowed cosine term. Their amplitudes are
+    chosen so that the final cumulative sums corresponding to acceleration,
+    velocity, and displacement-like integrals vanish.
+    """
+    x = np.asarray(x, dtype=float).reshape(-1)
+
+    if np.max(np.abs(x)) <= np.finfo(float).eps:
+        return {
+            "comp": np.zeros_like(x),
+            "xc": np.zeros_like(x),
+            "coefficients": np.zeros(3),
+        }
+
+    if np.isscalar(window):
+        freq = float(window)
+        lc = int(np.fix(sample_rate / freq))
+        w = nuttall_window(lc, window_type=12)
+    else:
+        w = np.asarray(window, dtype=float).reshape(-1)
+        lc = len(w)
+        freq = sample_rate / lc
+
+    t = np.arange(lc) / sample_rate
+    acd = w
+    acs = w * np.sin(2 * np.pi * freq * t)
+    acc = w * np.cos(2 * np.pi * freq * t)
+
+    ld = int(np.fix(delay * sample_rate))
+    lx = len(x)
+
+    if ld < 0:
+        if lc + ld <= lx:
+            l = -ld + lx
+            xw = np.concatenate([np.zeros(l - lx), x])
+            acd = np.concatenate([acd, np.zeros(l - lc)])
+            acs = np.concatenate([acs, np.zeros(l - lc)])
+            acc = np.concatenate([acc, np.zeros(l - lc)])
+        else:
+            l = lc
+            xw = np.concatenate([np.zeros(-ld), x, np.zeros(l - lx + ld)])
+    else:
+        if ld + lc <= lx:
+            l = lx
+            xw = x.copy()
+            acd = np.concatenate([np.zeros(ld), acd, np.zeros(lx - ld - lc)])
+            acs = np.concatenate([np.zeros(ld), acs, np.zeros(lx - ld - lc)])
+            acc = np.concatenate([np.zeros(ld), acc, np.zeros(lx - ld - lc)])
+        else:
+            l = ld + lc
+            xw = np.concatenate([x, np.zeros(l - lx)])
+            acd = np.concatenate([np.zeros(ld), acd])
+            acs = np.concatenate([np.zeros(ld), acs])
+            acc = np.concatenate([np.zeros(ld), acc])
+
+    xv = np.cumsum(xw)
+    xd = np.cumsum(xv)
+    xe = np.cumsum(xd)
+
+    vcd = np.cumsum(acd)
+    vcs = np.cumsum(acs)
+    vcc = np.cumsum(acc)
+
+    dcd = np.cumsum(vcd)
+    dcs = np.cumsum(vcs)
+    dcc = np.cumsum(vcc)
+
+    ecd = np.cumsum(dcd)
+    ecs = np.cumsum(dcs)
+    ecc = np.cumsum(dcc)
+
+    rhs = -np.array([xv[-1], xd[-1], xe[-1]], dtype=float)
+    mat = np.array([
+        [vcd[-1], vcs[-1], vcc[-1]],
+        [dcd[-1], dcs[-1], dcc[-1]],
+        [ecd[-1], ecs[-1], ecc[-1]],
+    ], dtype=float)
+
+    coeff = np.linalg.solve(mat, rhs)
+    comp = coeff[0] * acd + coeff[1] * acs + coeff[2] * acc
+    xc = xw + comp
+
+    return {
+        "comp": comp,
+        "xc": xc,
+        "coefficients": coeff,
+    }
+
+
+def _inverse_real_spectrum(one_sided_spectrum: np.ndarray) -> np.ndarray:
+    """
+    Reconstruct a real time history from a one-sided complex spectrum.
+
+    Parameters
+    ----------
+    one_sided_spectrum : ndarray
+        One-sided complex spectrum of length `floor(N/2) + 1`.
+
+    Returns
+    -------
+    ndarray
+        Real-valued time history reconstructed by inverse FFT.
+
+    Notes
+    -----
+    This matches the convention used by MATLAB ``rffti``: the omitted
+    negative-frequency half of the spectrum is inferred by Hermitian
+    symmetry.
+    """
+    X = np.asarray(one_sided_spectrum, dtype=complex).reshape(-1)
+    n = len(X)
+
+    if np.abs(np.imag(X[-1])) != 0:
+        Y = np.concatenate([X, np.conj(X[n - 1:0:-1])])
+    else:
+        Y = np.concatenate([X, np.conj(X[n - 2:0:-1])])
+
+    return np.fft.ifft(Y).real
+
+
+def generate_single_windowed_random_realization(
+    ref_srs: np.ndarray,
+    window: np.ndarray,
+    sample_rate: float,
+    gravity: float = 386.0,
+    damping: float = 0.03,
+    srs_type: int = 9,
+    match_points_per_octave: float = 4.0,
+    output_points_per_octave: float = 12.0,
+    amp_init: Optional[np.ndarray] = None,
+    phase_init: Optional[np.ndarray] = None,
+    iterations: int = 10,
+    correction: float = 0.8,
+    error_tolerance: float = 0.05,
+    randomize_phase: bool = False,
+    max_frequency: Optional[float] = None,
+    rng: Optional[np.random.Generator] = None,
+) -> Dict[str, Any]:
+    """
+    Generate a single windowed random realization matched to a target SRS.
+
+    Parameters
+    ----------
+    ref_srs : ndarray
+        Target SRS breakpoint array with shape `(n_breakpoints, 2)`. The first
+        column is frequency and the second is SRS amplitude.
+    window : ndarray
+        Time-domain window with shape `(n_samples,)`.
+    sample_rate : float
+        Sampling rate in samples per second.
+    gravity : float, default=386.0
+        Acceleration-of-gravity conversion factor used when integrating to
+        velocity and displacement.
+    damping : float, default=0.03
+        Fraction of critical damping used for SRS calculations.
+    srs_type : int, default=9
+        SRS type passed to :func:`sdynpy_srs.srs`.
+    match_points_per_octave : float, default=4.0
+        Frequency resolution used during the iterative SRS matching process.
+    output_points_per_octave : float, default=12.0
+        Frequency resolution used for the returned SRS curve.
+    amp_init : ndarray, optional
+        Initial spectrum amplitude guess as a two-column array
+        `[frequency, amplitude]`.
+    phase_init : ndarray, optional
+        Initial one-sided phase vector in radians.
+    iterations : int, default=10
+        Maximum number of matching iterations.
+    correction : float, default=0.8
+        Fraction of the SRS error corrected at each iteration.
+    error_tolerance : float, default=0.05
+        Relative SRS error tolerance for convergence.
+    randomize_phase : bool, default=False
+        If True, ignore `phase_init` and generate a random phase realization.
+    max_frequency : float, optional
+        Maximum frequency for nonzero Fourier amplitude. If not specified, the
+        default is `min(sample_rate/4, ref_srs[-1, 0])`.
+    rng : numpy.random.Generator, optional
+        Random number generator used when random phase is required.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+
+        - ``"time"`` : ndarray
+            Time vector.
+        - ``"xc"`` : ndarray
+            Compensated windowed acceleration history.
+        - ``"rr"`` : ndarray
+            Stationary random acceleration history before windowing.
+        - ``"srs_freq"`` : ndarray
+            Frequency vector for the returned SRS.
+        - ``"srs_values"`` : ndarray
+            SRS values for the returned realization.
+        - ``"srsc"`` : ndarray
+            Matching-frequency SRS array with columns `[frequency, amplitude]`.
+        - ``"metrics"`` : WindowedRandomMetrics
+            Scalar metrics for the realization.
+        - ``"amp"`` : ndarray
+            Final matched spectral amplitudes at the matching frequencies.
+        - ``"phase"`` : ndarray
+            Final phase vector used for waveform synthesis.
+
+    Raises
+    ------
+    ValueError
+        If the FFT line spacing is too coarse to resolve the lowest matched SRS
+        frequency, or if the internally defined frequency grid is invalid.
+
+    Notes
+    -----
+    This function is the numerical core corresponding to one pass through the
+    MATLAB ``wrcomp_tdh`` / ``gwinrand`` workflow.
+    """
+    ref_srs = np.asarray(ref_srs, dtype=float)
+    window = np.asarray(window, dtype=float).reshape(-1)
+    rng = np.random.default_rng() if rng is None else rng
+
+    n = len(window)
+    t = np.arange(n) / sample_rate
+
+    fmin = ref_srs[0, 0]
+    fmax = ref_srs[-1, 0]
+
+    if max_frequency is None:
+        max_frequency = min(sample_rate / 4.0, fmax)
+
+    freq_match = octspace(fmin, fmax, match_points_per_octave).reshape(-1)
+
+    if phase_init is None:
+        block_size = int(2 ** np.ceil(np.log2(n)))
+    else:
+        block_size = 2 * (len(phase_init) - 1)
+
+    delta_f = sample_rate / block_size
+    if delta_f > freq_match[0]:
+        raise ValueError(
+            "FFT line spacing is too coarse to match the lowest SRS frequency. "
+            f"delta_f={delta_f}, fmin={freq_match[0]}"
+        )
+
+    freq_line = np.arange(block_size // 2 + 1) * delta_f
+    if len(freq_line) < 2:
+        raise ValueError("Frequency line vector too short")
+    freq_line[0] = freq_line[1] / 10.0
+
+    if amp_init is not None and len(amp_init) > 0:
+        amp_init = np.asarray(amp_init, dtype=float)
+        amp_match = breakpoint_spectrum(freq_match, amp_init[:, 0], amp_init[:, 1])
+    else:
+        amp_match = None
+
+    if amp_match is None:
+        amp_line = 2 * np.pi * (1 / delta_f) * breakpoint_spectrum(
+            freq_line, ref_srs[:, 0], ref_srs[:, 1]
+        )
+        amp_line[0] = 0.0
+        amp_match = np.interp(freq_match, freq_line, amp_line, left=0.0, right=0.0) / freq_match
+    else:
+        amp_line = breakpoint_spectrum(freq_line, freq_match, amp_match)
+
+    if randomize_phase or phase_init is None or len(phase_init) == 0:
+        phase = 2 * np.pi * rng.random(len(amp_line))
+        phase[0] = 0.0
+        phase[-1] = 0.0
+    else:
+        phase = np.asarray(phase_init, dtype=float).reshape(-1)
+
+    srs_required = breakpoint_spectrum(freq_match, ref_srs[:, 0], ref_srs[:, 1])
+
+    spectrum = amp_line * np.exp(1j * phase)
+    rr_full = _inverse_real_spectrum(spectrum)
+    rr = rr_full[:n]
+    xr = window * rr
+
+    xc = window_compensation(xr, window, sample_rate, delay=0.0)["xc"][:n]
+
+    srsc_values = srs(xc, 1.0 / sample_rate, freq_match, damping, srs_type)[0]
+    srsc = np.column_stack([freq_match, srsc_values])
+
+    maxline = np.where(freq_line > max_frequency)[0]
+    amp_iter = amp_match.copy()
+
+    for _ in range(1, iterations):
+        amp_match = amp_iter + amp_iter * correction * (srs_required - srsc[:, 1]) / srsc[:, 1]
+        amp_match = np.maximum(0.0, amp_match)
+        amp_iter = amp_match.copy()
+
+        f1, f2 = freq_match[0], freq_match[1]
+        f3, f4 = freq_match[-2], freq_match[-1]
+        freqq = np.concatenate([
+            [0.0],
+            [f1 + f1 / 2 - f2 / 2],
+            freq_match,
+            [f4 + f4 - f3],
+            [sample_rate / 2.0],
+        ])
+        ampp = np.concatenate([
+            [amp_match[0] / 1000.0],
+            [amp_match[0]],
+            amp_match,
+            [amp_match[-1]],
+            [amp_match[-1] / 1000.0],
+        ])
+
+        amp_line = np.interp(freq_line, freqq, ampp, left=0.0, right=0.0)
+        amp_line[maxline] = 0.0
+
+        nz = np.abs(amp_line[np.abs(amp_line) > 0])
+        if len(nz):
+            amp_line = np.maximum(0.01 * np.min(nz), amp_line)
+
+        spectrum = amp_line * np.exp(1j * phase)
+        rr_full = _inverse_real_spectrum(spectrum)
+        rr = rr_full[:n]
+        xr = window * rr
+
+        xc = window_compensation(xr, window, sample_rate, delay=0.0)["xc"][:n]
+        srsc[:, 1] = srs(xc, 1.0 / sample_rate, freq_match, damping, srs_type)[0]
+
+        srs_error = (srsc[:, 1] - srs_required) / srs_required
+        if np.max(np.abs(srs_error)) < error_tolerance:
+            break
+
+    srs_freq = octspace(fmin, fmax, output_points_per_octave)
+    srs_values = srs(xc, 1.0 / sample_rate, srs_freq, damping, srs_type)[0]
+
+    vc = (gravity / sample_rate) * cumulative_trapezoid(xc, initial=0.0)
+    dc = (1.0 / sample_rate) * cumulative_trapezoid(vc, initial=0.0)
+
+    sref_interp = breakpoint_spectrum(srsc[:, 0], ref_srs[:, 0], ref_srs[:, 1])
+    db_error = 20.0 * np.log10(srsc[:, 1] / sref_interp)
+    err = lanl_rms_db_error(db_error, srsc[:, 0], output_points_per_octave)
+    tm = temporal_moments(xc, 1.0 / sample_rate)
+
+    metrics = WindowedRandomMetrics(
+        lanl_rms_db_error=err["rms"],
+        energy=tm["energy"],
+        rea=tm["rea"],
+        peak_accel=float(np.max(np.abs(xc))),
+        peak_vel=float(np.max(np.abs(vc))),
+        peak_disp=float(np.max(np.abs(dc))),
+    )
+
+    return {
+        "time": t,
+        "xc": xc,
+        "rr": rr,
+        "srs_freq": srs_freq,
+        "srs_values": srs_values,
+        "srsc": srsc,
+        "metrics": metrics,
+        "amp": amp_match,
+        "phase": phase,
+    }
+
+
+def generate_windowed_random(
+    ref_srs: np.ndarray,
+    window: np.ndarray,
+    sample_rate: float,
+    gravity: float = 386.0,
+    damping: float = 0.03,
+    srs_type: int = 9,
+    match_points_per_octave: float = 4.0,
+    output_points_per_octave: float = 12.0,
+    n_realizations: int = 1,
+    amp_init: Optional[np.ndarray] = None,
+    phase_init: Optional[np.ndarray] = None,
+    iterations: int = 10,
+    correction: float = 0.8,
+    error_tolerance: float = 0.05,
+    randomize_phase: bool = False,
+    max_frequency: Optional[float] = None,
+    seed: Optional[int] = None,
+) -> WindowedRandomResults:
+    """
+    Generate an ensemble of windowed random time histories matched to a target SRS.
+
+    Parameters
+    ----------
+    ref_srs : ndarray
+        Target SRS breakpoint array with shape `(n_breakpoints, 2)`. The first
+        column is frequency and the second is amplitude.
+    window : ndarray
+        Time-domain window with shape `(n_samples,)`.
+    sample_rate : float
+        Sampling rate in samples per second.
+    gravity : float, default=386.0
+        Acceleration-of-gravity conversion factor used when integrating to
+        velocity and displacement.
+    damping : float, default=0.03
+        Fraction of critical damping used for SRS calculations.
+    srs_type : int, default=9
+        SRS type passed to :func:`sdynpy_srs.srs`.
+    match_points_per_octave : float, default=4.0
+        Frequency resolution used for SRS matching during iteration.
+    output_points_per_octave : float, default=12.0
+        Frequency resolution used for the returned SRS curves.
+    n_realizations : int, default=1
+        Number of random realizations to generate.
+    amp_init : ndarray, optional
+        Initial spectrum amplitude guess as a two-column array
+        `[frequency, amplitude]`.
+    phase_init : ndarray, optional
+        Initial one-sided phase vector in radians.
+    iterations : int, default=10
+        Maximum number of matching iterations per realization.
+    correction : float, default=0.8
+        Fraction of the SRS error corrected at each iteration.
+    error_tolerance : float, default=0.05
+        Relative SRS error tolerance for convergence.
+    randomize_phase : bool, default=False
+        If True, ignore `phase_init` and randomize the phase realization.
+    max_frequency : float, optional
+        Maximum frequency for nonzero Fourier amplitude. If not specified, the
+        default is `min(sample_rate/4, ref_srs[-1, 0])`.
+    seed : int, optional
+        Seed for the random number generator.
+
+    Returns
+    -------
+    WindowedRandomResults
+        Ensemble result object containing all realizations, their SRS curves,
+        and selection metrics.
+
+    Notes
+    -----
+    Each realization is generated independently using the same configuration
+    except for the random phase realization when randomization is enabled.
+    """
+    ref_srs = np.asarray(ref_srs, dtype=float)
+    window = np.asarray(window, dtype=float).reshape(-1)
+
+    rng = np.random.default_rng(seed)
+    t = np.arange(len(window)) / sample_rate
+
+    xc_list = []
+    rr_list = []
+    srs_list = []
+    metrics = []
+    srs_freq = None
+
+    for _ in range(n_realizations):
+        out = generate_single_windowed_random_realization(
+            ref_srs=ref_srs,
+            window=window,
+            sample_rate=sample_rate,
+            gravity=gravity,
+            damping=damping,
+            srs_type=srs_type,
+            match_points_per_octave=match_points_per_octave,
+            output_points_per_octave=output_points_per_octave,
+            amp_init=amp_init,
+            phase_init=phase_init,
+            iterations=iterations,
+            correction=correction,
+            error_tolerance=error_tolerance,
+            randomize_phase=randomize_phase,
+            max_frequency=max_frequency,
+            rng=rng,
+        )
+
+        xc_list.append(out["xc"])
+        rr_list.append(out["rr"])
+        srs_list.append(out["srs_values"])
+        metrics.append(out["metrics"])
+
+        if srs_freq is None:
+            srs_freq = out["srs_freq"]
+
+    return WindowedRandomResults(
+        time=t,
+        sample_rate=sample_rate,
+        gravity=gravity,
+        window=window,
+        ref_srs=ref_srs,
+        srs_frequency=srs_freq,
+        srs_matrix=np.column_stack(srs_list),
+        xc_matrix=np.column_stack(xc_list),
+        rr_matrix=np.column_stack(rr_list),
+        metrics=metrics,
+        metadata={
+            "damping": damping,
+            "srs_type": srs_type,
+            "match_points_per_octave": match_points_per_octave,
+            "output_points_per_octave": output_points_per_octave,
+            "iterations": iterations,
+            "correction": correction,
+            "error_tolerance": error_tolerance,
+            "randomize_phase": randomize_phase,
+            "max_frequency": max_frequency,
+            "n_realizations": n_realizations,
+        },
+    )
+
+
+def select_realization(
+    results: WindowedRandomResults,
+    criterion: str = "lanl_rms_db_error",
+    index: Optional[int] = None,
+) -> SelectedRealization:
+    """
+    Select a realization from an ensemble.
+
+    Parameters
+    ----------
+    results : WindowedRandomResults
+        Ensemble results returned by :func:`generate_windowed_random`.
+    criterion : str, default="lanl_rms_db_error"
+        Name of the metric field to minimize if `index` is not provided.
+    index : int, optional
+        Explicit zero-based realization index to select. If provided, this
+        takes precedence over `criterion`.
+
+    Returns
+    -------
+    SelectedRealization
+        Selected realization containing the time history, SRS, and scalar
+        metrics.
+
+    Raises
+    ------
+    AttributeError
+        If `criterion` is not a valid attribute of
+        :class:`WindowedRandomMetrics`.
+
+    Notes
+    -----
+    This function provides the deterministic equivalent of the MATLAB
+    ``gwinrand_select`` helper without interactive point-picking.
+    """
+    if index is None:
+        values = np.array([getattr(m, criterion) for m in results.metrics], dtype=float)
+        index = int(np.argmin(values))
+
+    return SelectedRealization(
+        index=index,
+        time=results.time,
+        xc=results.xc_matrix[:, index],
+        rr=results.rr_matrix[:, index],
+        srs=np.column_stack([results.srs_frequency, results.srs_matrix[:, index]]),
+        metrics=results.metrics[index],
+    )

@@ -29,7 +29,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 from .sdynpy_coordinate import CoordinateArray, from_nodelist, outer_product, coordinate_array
 from ..fem.sdynpy_beam import beamkm, rect_beam_props
-from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces, read_sierra_matlab_matrix_file, read_sierra_matlab_map_file
 from ..fem.sdynpy_shaker import Shaker4DoF
 from ..signal_processing import frf as spfrf
 from ..signal_processing import generator
@@ -39,6 +38,7 @@ import copy
 import netCDF4 as nc4
 import matplotlib.pyplot as plt
 import warnings
+from pathlib import Path
 
 
 class System:
@@ -794,6 +794,8 @@ class System:
             in the file
 
         """
+        if isinstance(filename, Path):
+            filename = str(filename)
         data = np.load(filename)
         return cls(data['coordinate'].view(CoordinateArray), data['mass'],
                    data['stiffness'], data['damping'], data['transformation'],
@@ -1492,6 +1494,7 @@ class System:
             Degrees of freedom that can be used to constrain the test article.
 
         """
+        from ..fem.sdynpy_exodus import Exodus, ExodusInMemory, reduce_exodus_to_surfaces, read_sierra_matlab_matrix_file, read_sierra_matlab_map_file
         from .sdynpy_geometry import node_array, coordinate_system_array, Geometry
         if isinstance(superelement_nc4, str):
             ds = nc4.Dataset(superelement_nc4)

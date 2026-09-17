@@ -36,7 +36,6 @@ from ..signal_processing.sdynpy_integration import integrate_MCK
 from ..signal_processing.sdynpy_correlation import mac as mac_corr, matrix_plot
 from ..signal_processing.sdynpy_complex import collapse_complex_to_real
 from ..signal_processing.sdynpy_rotation import unit_magnitude_constraint, quaternion_to_rotation_matrix
-from ..fem.sdynpy_exodus import Exodus
 from ..fem.sdynpy_dof import by_condition_number, by_effective_independence
 from ..core.sdynpy_matrix import matrix
 from copy import deepcopy
@@ -388,6 +387,7 @@ class ShapeArray(sdynpy_array.SdynpyArray):
             Shape data from the exodus file
 
         """
+        from ..fem.sdynpy_exodus import Exodus
         if isinstance(exo, Exodus):
             variables = [v for v in [x_disp, y_disp, z_disp, x_rot, y_rot, z_rot] if v is not None]
             exo = exo.load_into_memory(close=False, variables=variables, timesteps=None, blocks=[])

@@ -19,14 +19,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from .core import coordinate, colors, array, geometry, shape, data, system, matrix_mod, system_nl
-from .fileio import unv, uff, rattlesnake, vic, tshaker, pdf3D, escdf
+from .fileio import unv, uff, rattlesnake, vic, tshaker, pdf3D, escdf, psv
 from .fem.sdynpy_exodus import Exodus, ExodusInMemory, read_sierra_matlab_map_file, read_sierra_matlab_matrix_file
 from .fem import sdynpy_beam as beam
 from .fem import sdynpy_shaker as shaker
 from .fem import sdynpy_dof as dof
-from .signal_processing import (frf, cpsd, integration, correlation, complex,
-                                rotation, generator, camera, harmonic,
-                                geometry_fitting, srs, lrm, frf_inverse, buffer)
+from .fem import sdynpy_visualization_reduction as viz_reduction
+from .signal_processing import (
+    frf,
+    cpsd,
+    integration,
+    correlation,
+    complex,
+    rotation,
+    generator,
+    camera,
+    harmonic,
+    geometry_fitting,
+    srs,
+    lrm,
+    frf_inverse,
+    buffer,
+    massprops,
+    interpolation,
+)
 from .modal import (PolyPy, SMAC, PolyPy_GUI, SMAC_GUI, compute_residues,
                     compute_shapes, SignalProcessingGUI, ColoredCMIF,
                     read_modal_fit_data, ModalTest)

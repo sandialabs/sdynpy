@@ -1680,15 +1680,16 @@ def create_synthetic_test(
     """
     system.save(system_filename)
     # Load in Rattlesnake to create a template for the test
-    sys.path.insert(0, rattlesnake_directory)
-    import components as rs
+    sys.path.insert(0, os.path.join(rattlesnake_directory,'src'))
+    from rattlesnake.environment.environment_utilities import ControlTypes
+    from rattlesnake.user_interface.ui_registry import save_combined_environments_profile_template
 
     environment_data = []
     for environment_type, environment_name in environments:
         # Find the identifier
-        environment_type = rs.environments.ControlTypes[environment_type.upper()]
+        environment_type = ControlTypes[environment_type.upper()]
         environment_data.append((environment_type, environment_name))
-    rs.ui_utilities.save_combined_environments_profile_template(
+    save_combined_environments_profile_template(
         spreadsheet_file_name, environment_data
     )
     sys.path.pop(0)
