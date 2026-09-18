@@ -9368,14 +9368,14 @@ class GUIPlot(QMainWindow):
             self.cm_mod = 20
         elif self.number_of_datasets == 3:
             # Combine tab20b and tab20c
-            tab_b = cm.get_cmap('tab20b', 15)(np.linspace(0, 1, 15))
-            tab_c = cm.get_cmap('tab20c', 15)(np.linspace(0, 1, 15))
+            tab_b = matplotlib.colormaps['tab20b'].resample(15)(np.linspace(0, 1, 15))
+            tab_c = matplotlib.colormaps['tab20c'].resample(15)(np.linspace(0, 1, 15))
             self.cm = ListedColormap(np.concatenate((tab_c, tab_b), axis=0))
             self.cm_mod = 30
         elif self.number_of_datasets == 4:
             # Combine tab20b and tab20c
-            tab_b = cm.get_cmap('tab20b', 20)(np.linspace(0, 1, 20))
-            tab_c = cm.get_cmap('tab20c', 20)(np.linspace(0, 1, 20))
+            tab_b = matplotlib.colormaps['tab20b'].resample(20)(np.linspace(0, 1, 20))
+            tab_c = matplotlib.colormaps['tab20c'].resample(20)(np.linspace(0, 1, 20))
             self.cm = ListedColormap(np.concatenate((tab_c, tab_b), axis=0))
             self.cm_mod = 40
         else:
@@ -9675,14 +9675,14 @@ class GUIPlot(QMainWindow):
             self.cm_mod = 20
         elif self.number_of_datasets == 3:
             # Combine tab20b and tab20c
-            tab_b = cm.get_cmap('tab20b', 15)(np.linspace(0, 1, 15))
-            tab_c = cm.get_cmap('tab20c', 15)(np.linspace(0, 1, 15))
+            tab_b = matplotlib.colormaps['tab20b'].resample(15)(np.linspace(0, 1, 15))
+            tab_c = matplotlib.colormaps['tab20c'].resample(15)(np.linspace(0, 1, 15))
             self.cm = ListedColormap(np.concatenate((tab_c, tab_b), axis=0))
             self.cm_mod = 30
         elif self.number_of_datsets == 4:
             # Combine tab20b and tab20c
-            tab_b = cm.get_cmap('tab20b', 20)(np.linspace(0, 1, 20))
-            tab_c = cm.get_cmap('tab20c', 20)(np.linspace(0, 1, 20))
+            tab_b = matplotlib.colormaps['tab20b'].resample(20)(np.linspace(0, 1, 20))
+            tab_c = matplotlib.colormaps['tab20c'].resample(20)(np.linspace(0, 1, 20))
             self.cm = ListedColormap(np.concatenate((tab_c, tab_b), axis=0))
             self.cm_mod = 40
         else:
