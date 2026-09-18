@@ -58,7 +58,19 @@ from scipy.io import savemat as scipy_savemat
 try:
     repr(pv.GPUInfo())
     IGNORE_PLOTS = False
+    # Set Qt Preferences
+
     # Adding this to help out non-interactive consoles
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    if hasattr(QtCore.Qt, "AA_EnableHighDpiScaling"):  # PyQt5 only
+        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+
+    if hasattr(QtCore.Qt, "AA_UseHighDpiPixmaps"):  # PyQt5 only
+        QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     if QApplication.instance() is None:
         app = QApplication([''])
 
