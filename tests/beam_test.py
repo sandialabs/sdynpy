@@ -35,8 +35,9 @@ def test_shear_modulus_uses_one_plus_poissons_ratio():
     j_square = 0.1406 * b**4
     props = rect_beam_props(E, RHO, 0.33, b)
     assert props['jg'] == pytest.approx(j_square * E / (2 * 1.33), rel=2e-3)
-    # an incompressible material (nu -> 0.5) must not blow up as it would with (1 - nu)
-    assert np.isfinite(rect_beam_props(E, RHO, 0.5, b)['jg'])
+    # G(nu=0) / G(nu=0.5) = 3 / 2 with (1 + nu); the old (1 - nu) gave 1 / 2
+    ratio = rect_beam_props(E, RHO, 0.0, b)['jg'] / rect_beam_props(E, RHO, 0.5, b)['jg']
+    assert ratio == pytest.approx(1.5)
 
 
 def test_torsion_constant_is_below_the_polar_moment():
