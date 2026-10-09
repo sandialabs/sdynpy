@@ -284,6 +284,11 @@ def rect_beam_props(E, rho, nu, b, h=None, nelem=None):
 
     Notes
     -----
+    The shear modulus is ``G = E / (2 (1 + nu))``.  The torsional stiffness
+    ``jg`` uses the St. Venant torsion constant of the rectangle, not the polar
+    moment of area.  The torsional mass term ``tmmi_per_length`` is the polar
+    moment of inertia per unit length.
+
     Steel : SI
         E = 200e9 # [N/m^2],
         nu = 0.25 # [-],
@@ -298,8 +303,16 @@ def rect_beam_props(E, rho, nu, b, h=None, nelem=None):
     A = b * h
     I1 = b * h**3 / 12
     I2 = b**3 * h / 12
-    G = E / (2 * (1 - nu))
-    J = I1 + I2
+    G = E / (2 * (1 + nu))
+    # St. Venant torsion constant of a rectangle with long side a and short
+    # side c (Timoshenko & Goodier).  The polar moment I1 + I2 is only the
+    # torsion constant for a circular section; it overestimates it for a
+    # rectangle (by about 19% for a square).  The series converges quickly, 100
+    # odd terms leave an error below 1e-10.
+    a, c = max(b, h), min(b, h)
+    n_odd = np.arange(1, 200, 2)
+    J = (a * c**3 / 3) * (1 - 192 / np.pi**5 * (c / a)
+                          * np.sum(np.tanh(n_odd * np.pi * a / (2 * c)) / n_odd**5))
     Ixx_per_L = (1 / 12) * rho * b * h * (b**2 + h**2)
     return_dict = {}
     return_dict['ae'] = A * E
