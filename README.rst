@@ -37,3 +37,16 @@ Information
 
 .. |docker| image:: https://img.shields.io/docker/v/dprohe/sdynpy?color=0db7ed&label=Docker%20Hub&logo=docker&logoColor=0db7ed
     :target: https://hub.docker.com/r/dprohe/sdynpy
+
+
+***********
+Development environment notes 
+***********
+
+using conda and jupyterlab for editing notebooks
+
+```python
+conda create --name sdpydev conda python numpy scipy matplotlib pandas ipython ipykernel jupyterlab jupyter notebook
+conda activate sdpydev
+(sdpydev) python -m pip install -e C:\Users\user\github\sdynpy
+```  

@@ -23,6 +23,8 @@ from . import sdynpy_vic as vic
 from . import sdynpy_tshaker as tshaker
 from . import sdynpy_pdf3D as pdf3D
 from . import sdynpy_escdf as escdf
+from . import sdynpy_mystran as mystran
+from . import sdynpy_nastran as nastran
 from .sdynpy_dataphysics import read_dataphysics_output
 from . import sdynpy_psv as psv
 

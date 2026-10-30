@@ -1,0 +1,1 @@
+nastran sdynpy_airplane_modes_nastran.dat old=no out=.

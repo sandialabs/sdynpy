@@ -73,7 +73,7 @@ from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MaxNLocator
 from copy import copy, deepcopy
 from datetime import datetime
-from qtpy import QtWidgets, uic, QtGui
+from qtpy import QtWidgets, uic, QtGui, QtCore
 from qtpy.QtGui import QIcon, QFont
 from qtpy.QtCore import Qt, QCoreApplication, QRect
 from qtpy.QtWidgets import (QToolTip, QLabel, QPushButton, QApplication,
@@ -9334,6 +9334,18 @@ class GUIPlot(QMainWindow):
         super(GUIPlot, self).__init__()
         uic.loadUi(os.path.join(os.path.abspath(os.path.dirname(
             os.path.abspath(__file__))), 'GUIPlot.ui'), self)
+        # Put the selector and plot in a splitter so the divider can be dragged
+        self.horizontalLayout.removeWidget(self.groupBox)
+        self.horizontalLayout.removeWidget(self.groupBox_2)
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+        self.splitter.addWidget(self.groupBox)
+        self.splitter.addWidget(self.groupBox_2)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+        self.horizontalLayout.addWidget(self.splitter)
+        self.tableWidget.setSizePolicy(QtWidgets.QSizePolicy.Ignored,
+                                       QtWidgets.QSizePolicy.Expanding)
         # Set up the table
         for index, fn in first_data.ndenumerate():
             this_row = self.tableWidget.rowCount()
